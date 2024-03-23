@@ -1,4 +1,5 @@
 const ticketModel = require("../models/TicketModel")
+const imageUpload = require("../service/uploadImage")
 
 module.exports = {
     getAllTicket: async (req, res, next) => {
@@ -27,11 +28,13 @@ module.exports = {
             ticket.verify = true;
             ticket.sign = true;
         }
+        const obj = JSON.parse(JSON.stringify(req.body)); // req.body = [Object: null prototype] { title: 'product' }
+        let result = { ...obj, ...req.file }
+        console.log(result)
+        imageUpload(result);
 
+        //await ticketModel.insertTicket(ticket);
 
-
-        console.log(ticket)
-        await ticketModel.insertTicket(ticket);
         res.json({
             "code": "200",
             "success": true,

@@ -1,6 +1,5 @@
 const sql = require("../config/db")
-const hex = 'hex'
-const issuser_address = 'issuer_address'
+
 module.exports = {
     getAllTicket: async () => {
         const tickets = await sql`select * from ticket;`;

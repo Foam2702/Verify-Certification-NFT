@@ -12,7 +12,7 @@ module.exports = {
         const maxId = maxIdResult[0].max || 0; // Handle if there are no records in the table
 
         const result = await sql`
-        INSERT INTO ticket (id, name, citizen_id, dob, region, city, verify, sign, issuer_address)
+        INSERT INTO ticket (id, name, citizen_id, dob, region, city, verify, sign, issuer_address,cid_certificate)
         VALUES (
             ${maxId + 1},
             ${ticket.name},
@@ -22,7 +22,8 @@ module.exports = {
             ${ticket.city},
             ${ticket.verify},
             ${ticket.sign},
-            decode(${ticket.issuerAddress}, 'hex')::bytea
+            decode(${ticket.issuerAddress}, 'hex')::bytea,
+            ${ticket.cidCertificate}
         );
     `;
 

@@ -28,14 +28,17 @@ module.exports = {
             ticket.verify = true;
             ticket.sign = true;
         }
-        const obj = JSON.parse(JSON.stringify(req.body)); // req.body = [Object: null prototype] { title: 'product' }
-        let result = { ...obj, ...req.file }
-        console.log(result)
-        imageUpload(result);
+        const result = JSON.parse(JSON.stringify(req.body));
+        let image = { ...result, ...req.file }
+        const cidCertificate = await imageUpload(image);
+        const prop_name = "cidCertificate"
+        result[prop_name] = cidCertificate
+        console.log(result);
 
-        //await ticketModel.insertTicket(ticket);
+        await ticketModel.insertTicket(result);
 
         res.json({
+            "ticket": result,
             "code": "200",
             "success": true,
             "message": "sent successfully"

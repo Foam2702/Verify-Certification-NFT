@@ -8,6 +8,7 @@ const fs = require('fs').promises; // Import the 'fs' module
 const API_KEY = process.env.NFT_STORAGE_API_KEY
 const client = new NFTStorage({ token: API_KEY })
 const { dirname } = require('path');
+const { Blockstore } = require("nft.storage/src/platform.js");
 const appDir = dirname(require.main.filename);
 
 
@@ -24,31 +25,28 @@ async function getExampleImage() {
 
 
 async function storeExampleNFT(certificate) {
-    const imagePath = appDir + "\\" + certificate.path; // Assuming 'appDir' is defined elsewhere
-    console.log(certificate.path)
-    // try {
-    //     // Read the image file and create a Buffer
-    //     const imageBuffer = await fs.readFile(imagePath);
+    const imagePath = certificate.path; // Assuming 'appDir' is defined elsewhere
+    try {
+        // Read the image file and create a Buffer
+        const imageBuffer = await fs.readFile(imagePath);
 
-    //     // Create a Blob from the Buffer
-    //     const imageBlob = new Blob([imageBuffer], { type: 'image/jpeg' }); // Adjust the type according to your image format
+        // Create a Blob from the Buffer
+        const imageBlob = new Blob([imageBuffer], { type: 'image/jpeg' }); // Adjust the type according to your image format
 
-    //     // Construct the NFT object with the Blob as the 'image' field
-    //     const nft = {
-    //         image: imageBlob,
-    //         name: `Certificate of ${certificate.name}`,
-    //         description: `Certificate of ${certificate.name}`
-    //     };
+        // Construct the NFT object with the Blob as the 'image' field
+        const nft = {
+            image: imageBlob,
+            name: `Certificate of ${certificate.name}`,
+            description: `Certificate of ${certificate.name}`
+        };
 
-    //     // Store the NFT metadata
-    //     //const metadata = await client.store(nft);
+        // Store the NFT metadata
+        const metadata = await client.store(nft);
 
-    //     console.log('NFT data stored!');
-    //     console.log('Metadata URI: ', metadata.url);
-    //     console.log(imageBlob);
-    // } catch (error) {
-    //     console.error('Error storing NFT:', error);
-    // }
+        return metadata.ipnft;
+    } catch (error) {
+        console.error('Error storing NFT:', error);
+    }
 }
 
 

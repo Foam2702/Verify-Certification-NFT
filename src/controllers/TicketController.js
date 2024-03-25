@@ -28,17 +28,18 @@ module.exports = {
             ticket.verify = true;
             ticket.sign = true;
         }
-        const result = JSON.parse(JSON.stringify(req.body));
-        let image = { ...result, ...req.file }
-        const cidCertificate = await imageUpload(image);
-        const prop_name = "cidCertificate"
-        result[prop_name] = cidCertificate
-        console.log(result);
+        let image = { ...ticket, ...req.file }
 
-        await ticketModel.insertTicket(result);
+        const cidCertificate = "cidCertificate"
+        const certificateUrl = "certificateUrl"
+        ticket[cidCertificate] = await imageUpload(image);
+        ticket[certificateUrl] = `https://ipfs.io/ipfs/${ticket[cidCertificate]}/blob`
+
+
+        //await ticketModel.insertTicket(ticket);
 
         res.json({
-            "ticket": result,
+            "ticket": ticket,
             "code": "200",
             "success": true,
             "message": "sent successfully"

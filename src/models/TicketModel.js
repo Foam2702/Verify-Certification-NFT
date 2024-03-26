@@ -22,12 +22,15 @@ module.exports = {
             ${ticket.city},
             ${ticket.verify},
             ${ticket.sign},
-            decode(${ticket.issuerAddress}, 'hex')::bytea,
+            ${ticket.issuerAddress},
             ${ticket.cidCertificate}
         );
     `;
-
         return result;
+    },
+    getOneTicket: async (id) => {
+        const result = await sql`SELECT  * FROM ticket WHERE id=${id};`;
+        return result[0]
     }
 
 

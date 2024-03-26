@@ -20,8 +20,12 @@ var upload = multer({
     },
 });
 
-router.route("/")
+router
+    .route("/")
     .get(ticketController.getAllTicket)
     .post(upload.single("image_certificate"), ticketController.sendTicketFromStudent)
+router
+    .route("/:ticketId")
+    .get(ticketController.getOneTicket)
 
 module.exports = router;

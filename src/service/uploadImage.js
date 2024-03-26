@@ -7,23 +7,17 @@ const JWT = process.env.JWT;
 async function imageUpload(image) {
     try {
         const imagePath = image.path; // Assuming 'appDir' is defined elsewhere
-
         const formData = new FormData();
-
         const file = fs.createReadStream(imagePath);
-
-        formData.append("file", file);
-
         const pinataMetadata = JSON.stringify({
             name: `certificate of ${image.name}`,
         });
-        formData.append("pinataMetadata", pinataMetadata);
-
         const pinataOptions = JSON.stringify({
             cidVersion: 1,
         });
+        formData.append("file", file);
+        formData.append("pinataMetadata", pinataMetadata);
         formData.append("pinataOptions", pinataOptions);
-
         const res = await axios.post(
             "https://api.pinata.cloud/pinning/pinFileToIPFS",
             formData,
@@ -33,9 +27,14 @@ async function imageUpload(image) {
                 },
             }
         );
-
+        fs.unlink(image.path, (err) => {
+            if (err) {
+                console.error(err);
+            } else {
+                console.log('File is deleted.');
+            }
+        });
         return res.data.IpfsHash
-
     } catch (error) {
         console.log(error);
     }

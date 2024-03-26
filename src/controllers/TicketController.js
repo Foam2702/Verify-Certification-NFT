@@ -3,14 +3,6 @@ const imageUpload = require("../service/uploadImage")
 module.exports = {
     getAllTicket: async (req, res, next) => {
         const ticket = await ticketModel.getAllTicket();
-        // console.log(ticket)
-        for (let i = 0; i < ticket.length; i++) {
-            if (ticket[i].issuer_address != null) {
-                const issuerAddressBuffer = Buffer.from(ticket[i].issuer_address, 'hex');
-                const issuerAddressHexString = '0x' + issuerAddressBuffer.toString('hex');
-                ticket[i].issuer_address = issuerAddressHexString;
-            }
-        }
         res.json(ticket);
     },
     sendTicketFromStudent: async (req, res, next) => {
@@ -43,5 +35,14 @@ module.exports = {
             "success": true,
             "message": "sent successfully"
         })
+    },
+    getOneTicket: async (req, res, next) => {
+        const id = req.params.ticketId
+        const ticket = await ticketModel.getOneTicket(id)
+        const certificateUrl = "certificateUrl"
+        ticket[certificateUrl] = `https://coral-able-takin-320.mypinata.cloud/ipfs/${ticket.cid_certificate}`
+
+        res.json(ticket)
     }
+
 }

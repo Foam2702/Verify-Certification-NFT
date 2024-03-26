@@ -1,35 +1,46 @@
-const { NFTStorage } = require('nft.storage');
+const axios = require("axios");
+const FormData = require("form-data");
+const fs = require("fs");
+const JWT = process.env.JWT;
 
-const fs = require('fs').promises; // Import the 'fs' module
 
-// read the API key from an environment variable. You'll need to set this before running the example!
-const API_KEY = process.env.NFT_STORAGE_API_KEY
-const client = new NFTStorage({ token: API_KEY })
-
-async function storeExampleNFT(certificate) {
-    const imagePath = certificate.path; // Assuming 'appDir' is defined elsewhere
+async function imageUpload(image) {
     try {
-        // Read the image file and create a Buffer
-        const imageBuffer = await fs.readFile(imagePath);
+        const imagePath = image.path; // Assuming 'appDir' is defined elsewhere
 
-        // Create a Blob from the Buffer
-        const imageBlob = new Blob([imageBuffer], { type: 'image/jpeg' }); // Adjust the type according to your image format
+        const formData = new FormData();
 
-        // Construct the NFT object with the Blob as the 'image' field
-        const nft = {
-            image: imageBlob,
-            name: `Certificate of ${certificate.name}`,
-            description: `Certificate of ${certificate.name}`
-        };
+        const file = fs.createReadStream(imagePath);
 
-        // Store the NFT metadata
-        const metadata = await client.store(nft);
+        formData.append("file", file);
 
-        return metadata.ipnft;
+        const pinataMetadata = JSON.stringify({
+            name: `certificate of ${image.name}`,
+        });
+        formData.append("pinataMetadata", pinataMetadata);
+
+        const pinataOptions = JSON.stringify({
+            cidVersion: 1,
+        });
+        formData.append("pinataOptions", pinataOptions);
+
+        const res = await axios.post(
+            "https://api.pinata.cloud/pinning/pinFileToIPFS",
+            formData,
+            {
+                headers: {
+                    Authorization: `Bearer ${JWT}`,
+                },
+            }
+        );
+
+        return res.data.IpfsHash
+
     } catch (error) {
-        console.error('Error storing NFT:', error);
+        console.log(error);
     }
+
+
 }
 
-
-module.exports = storeExampleNFT;
+module.exports = imageUpload;

@@ -25,7 +25,7 @@ router
     .get(ticketController.getAllTicket)
     .post(upload.single("imageCertificate"), ticketController.sendTicketFromStudent)
 router
-    .route("/:ticketId")
+    .route("/ticket")
     .get(ticketController.getOneTicket)
 
 module.exports = router;

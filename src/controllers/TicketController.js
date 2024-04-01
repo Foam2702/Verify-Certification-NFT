@@ -1,5 +1,6 @@
 const ticketModel = require("../models/TicketModel")
 const imageUpload = require("../service/uploadImage")
+const splitDate = require("../service/splitDate")
 module.exports = {
     getAllTicket: async (req, res, next) => {
         const ticket = await ticketModel.getAllTicket();
@@ -7,23 +8,23 @@ module.exports = {
     },
     sendTicketFromStudent: async (req, res, next) => {
         const ticket = req.body;
-        const parts = req.body.dob.split('/');
-        const formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
         const cidCertificate = "cidCertificate"
         const certificateUrl = "certificateUrl"
-
-        if (ticket.hashData == "" && ticket.signature == "") {
-            ticket.verify = false;
-            ticket.sign = false;
-        }
-        else {
-            ticket.verify = true;
-            ticket.sign = true;
-        }
         let image = { ...ticket, ...req.file }
 
-        ticket.dob = formattedDate;
-        ticket.issuerAddress = ticket.issuerAddress.substring(2);
+
+        // if (ticket.hashData == "" && ticket.signature == "") {
+        //     ticket.verify = false;
+        //     ticket.sign = false;
+        // }
+        // else {
+        //     ticket.verify = true;
+        //     ticket.sign = true;
+        // }
+
+        ticket.dob = splitDate(req.body.dob);
+        ticket.issueDate = splitDate(req.body.issueDate);
+        ticket.expiryDate = splitDate(req.body.expiryDate);
         ticket[cidCertificate] = await imageUpload(image);
         ticket[certificateUrl] = `https://coral-able-takin-320.mypinata.cloud/ipfs/${ticket[cidCertificate]}`
 

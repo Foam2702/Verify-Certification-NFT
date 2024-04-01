@@ -10,7 +10,7 @@ async function imageUpload(image) {
         const formData = new FormData();
         const file = fs.createReadStream(imagePath);
         const pinataMetadata = JSON.stringify({
-            name: `certificate of ${image.name}`,
+            name: `certificate of ${image.owner}`,
         });
         const pinataOptions = JSON.stringify({
             cidVersion: 1,

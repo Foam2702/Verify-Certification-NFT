@@ -1,4 +1,4 @@
-import SOUNDBOUND from "../../artifacts/contracts/SoundboundToken.sol/SoundboundToken.json" with { type: "json" }
+import SOULBOUND from "../../artifacts/contracts/SoulboundToken.sol/SoulboundToken.json" with { type: "json" }
 let account;
 const web3 = new Web3("https://sepolia.infura.io/v3/9522458e32254478965be26d71bfaf88");
 
@@ -10,7 +10,7 @@ async function logTicket() {
     // const response = await fetch("http://localhost:3001/tickets").then((res) => res.json());
     // console.log("ACCOUNT", account)
     // console.log(response);
-    const contract = new web3.eth.Contract(SOUNDBOUND.abi, account);
+    const contract = new web3.eth.Contract(SOULBOUND.abi, account);
     // contract.methods.addVerifier(verifierAddress, organizationCode)
     //     .send({ from: account, gas: 500000 })
     //     .then(receipt => {

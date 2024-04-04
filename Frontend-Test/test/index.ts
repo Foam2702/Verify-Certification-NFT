@@ -4,16 +4,16 @@ import { constants as ethersConstants, Contract } from "ethers";
 import { ethers } from "hardhat";
 
 
-describe("SoundboundToken", () => {
-    let soundboundToken:any;
+describe("SoulboundToken", () => {
+    let soulboundToken:any;
     let signers;
 
     before(async () => {
-        const SoundboundToken = await ethers.getContractFactory("SoundboundToken");
-        console.log("Deploying SoundboundToken contract...");
-        soundboundToken = await SoundboundToken.deploy();
-        await soundboundToken.deployed();
-        console.log("SoundboundToken contract deployed at address:", soundboundToken.address);
+        const SoulboundToken = await ethers.getContractFactory("SoulboundToken");
+        console.log("Deploying SoulboundToken contract...");
+        soulboundToken = await SoulboundToken.deploy();
+        await soulboundToken.deployed();
+        console.log("SoulboundToken contract deployed at address:", soulboundToken.address);
 
         signers = await ethers.getSigners();
         console.log("Signers:", signers.map(signer => signer.address));
@@ -28,7 +28,7 @@ describe("SoundboundToken", () => {
 
             // Call the recover function
             console.log("Calling recover function with message hash:", messageHash, "and signature:", signature);
-            const recoveredAddress = await soundboundToken.recover(messageHash, signature);
+            const recoveredAddress = await soulboundToken.recover(messageHash, signature);
             console.log("Recovered address:", recoveredAddress);
 
             // Replace the next line with the address that signed the message

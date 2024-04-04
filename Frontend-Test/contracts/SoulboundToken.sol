@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.24;
+pragma solidity ^0.8.3;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
-contract SoundboundToken is ERC721 {
+contract SoulboundToken is ERC721 {
   address public owner;
   using Counters for Counters.Counter;
   Counters.Counter private _nSBTs;
@@ -33,7 +33,7 @@ contract SoundboundToken is ERC721 {
   mapping(address => VerifierInfo) public verifierList;
 
   // Khai báo modifier `onlyOwner` để chỉ cho phép chủ sở hữu hợp đồng thực hiện các hành động được quy định
-  constructor() ERC721("SoundboutToken", "SBT") {
+  constructor() ERC721("SoulboundToken", "SBT") {
     owner = msg.sender;
   }
    

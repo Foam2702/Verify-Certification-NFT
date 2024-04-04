@@ -2,10 +2,10 @@ import { ethers } from "hardhat"
 
 async function main() {
     console.log("IN MAIn")
-    const SoundboundToken = await ethers.getContractFactory('SoundboundToken')
-    const soundboundToken = await SoundboundToken.deploy()
-    await soundboundToken.deployed();
-    console.log("Deployed to", soundboundToken.address);
+    const SoulboundToken = await ethers.getContractFactory('SoulboundToken')
+    const soulboundToken = await SoulboundToken.deploy()
+    await soulboundToken.deployed();
+    console.log("Deployed to", soulboundToken.address);
 }
 
 main().catch((error) => {

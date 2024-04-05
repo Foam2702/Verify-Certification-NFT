@@ -19,7 +19,8 @@
     "os": "^0.1.2",
     "path": "^0.12.7",
     "pg": "^8.11.3",
-    "postgres": "^3.4.4"
+    "postgres": "^3.4.4",
+    "socket.io": "^4.7.5"
   },
   "name": "verify-certification-nft",
   "description": "This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a Hardhat Ignition module that deploys that contract.",

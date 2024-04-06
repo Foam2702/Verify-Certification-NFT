@@ -6,7 +6,6 @@ module.exports = {
         return tickets;
     },
     insertTicket: async (ticket) => {
-        console.log("IM HERE")
         const maxIdResult = await sql`
         SELECT MAX(id) FROM ticket;
     `;

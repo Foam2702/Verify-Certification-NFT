@@ -43,21 +43,32 @@ contract SoulboundToken is ERC721 {
     verifierList[verifier] = VerifierInfo(true, organizationCode);
   }
   // Hàm lấy thông tin địa chỉ và mã tổ chức của tất của verifier
-function getVerifierList() public view returns (address[] memory, string[] memory) {
-    // Khởi tạo mảng tạm thời để lưu trữ địa chỉ và mã tổ chức
-    address[] memory addresses = new address[](_nVerifiers.current());
-    string[] memory organizationCodes = new string[](_nVerifiers.current());
+  function getVerifierList() public view returns (address[] memory, string[] memory) {
+      // Khởi tạo mảng tạm thời để lưu trữ địa chỉ và mã tổ chức
+      address[] memory addresses = new address[](_nVerifiers.current());
+      string[] memory organizationCodes = new string[](_nVerifiers.current());
 
-    // Lặp qua mapping để lấy địa chỉ và mã tổ chức của các verifier
-    uint index = 0;
-    for (uint i = 0; i < _nVerifiers.current(); i++) {
-        address verifierAddress = address(uint160(i)); // Chuyển đổi số nguyên thành địa chỉ
-        if (verifierList[verifierAddress].isVerifier) {
-            addresses[index] = verifierAddress;
-            organizationCodes[index] = verifierList[verifierAddress].organizationCode;
-            index++;
-        }
-    }
+      // Lặp qua mapping để lấy địa chỉ và mã tổ chức của các verifier
+      uint index = 0;
+      for (uint i = 0; i < _nVerifiers.current(); i++) {
+          address verifierAddress = address(uint160(i)); // Chuyển đổi số nguyên thành địa chỉ
+          if (verifierList[verifierAddress].isVerifier) {
+              addresses[index] = verifierAddress;
+              organizationCodes[index] = verifierList[verifierAddress].organizationCode;
+              index++;
+          }
+      }
+
+      // Khởi tạo mảng kết quả với kích thước chính xác
+      address[] memory resultAddresses = new address[](index);
+      string[] memory resultOrganizationCodes = new string[](index);
+      for (uint i = 0; i < index; i++) {
+          resultAddresses[i] = addresses[i];
+          resultOrganizationCodes[i] = organizationCodes[i];
+      }
+
+      return (resultAddresses, resultOrganizationCodes);
+  }
    
   // Hàm kiểm tra xem một địa chỉ có trong danh sách xác thực hay không
   function isVerifier(address addr) public view returns (bool) {

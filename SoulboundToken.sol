@@ -9,6 +9,7 @@ contract SoulboundToken is ERC721 {
   address public owner;
   using Counters for Counters.Counter;
   Counters.Counter private _nSBTs;
+  Counters.Counter private _nVerifiers;
 
   struct SBTInfo {
     uint256 sBTId;      // ID của SBT
@@ -41,6 +42,22 @@ contract SoulboundToken is ERC721 {
   function addVerifier(address verifier, string memory organizationCode) public {
     verifierList[verifier] = VerifierInfo(true, organizationCode);
   }
+  // Hàm lấy thông tin địa chỉ và mã tổ chức của tất của verifier
+function getVerifierList() public view returns (address[] memory, string[] memory) {
+    // Khởi tạo mảng tạm thời để lưu trữ địa chỉ và mã tổ chức
+    address[] memory addresses = new address[](_nVerifiers.current());
+    string[] memory organizationCodes = new string[](_nVerifiers.current());
+
+    // Lặp qua mapping để lấy địa chỉ và mã tổ chức của các verifier
+    uint index = 0;
+    for (uint i = 0; i < _nVerifiers.current(); i++) {
+        address verifierAddress = address(uint160(i)); // Chuyển đổi số nguyên thành địa chỉ
+        if (verifierList[verifierAddress].isVerifier) {
+            addresses[index] = verifierAddress;
+            organizationCodes[index] = verifierList[verifierAddress].organizationCode;
+            index++;
+        }
+    }
    
   // Hàm kiểm tra xem một địa chỉ có trong danh sách xác thực hay không
   function isVerifier(address addr) public view returns (bool) {

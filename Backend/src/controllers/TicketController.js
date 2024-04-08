@@ -2,6 +2,7 @@ const ticketModel = require("../models/TicketModel")
 const imageUpload = require("../service/uploadImage")
 const splitDate = require("../service/splitDate")
 const notificationModel = require("../models/NotificationModel")
+const notificationService = require("../service/notification")
 module.exports = {
     getAllTicket: async (req, res, next) => {
         const ticket = await ticketModel.getAllTicket();
@@ -27,10 +28,10 @@ module.exports = {
         ticket.issueDate = splitDate(req.body.issueDate);
         ticket[cidCertificate] = await imageUpload(image);
         ticket[certificateUrl] = `https://coral-able-takin-320.mypinata.cloud/ipfs/${ticket[cidCertificate]}`
-        await notificationModel.insertNotification(ticket, false, "none")
+        //await notificationModel.insertNotification(ticket, false, "none")
+        await notificationService.newTicketNotification(ticket)
         const result = await ticketModel.insertTicket(ticket);
         if (result == true) {
-
             res.json({
                 "ticket": ticket,
                 "code": "200",

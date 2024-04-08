@@ -86,4 +86,3 @@ document.getElementById('getOrganizationCode').addEventListener("click", getOrga
 
 
 
-

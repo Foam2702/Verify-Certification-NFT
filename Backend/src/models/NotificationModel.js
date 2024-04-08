@@ -1,6 +1,10 @@
 const sql = require("../config/db")
-const table = "notification"
+
 module.exports = {
+    getAllNotification: async () => {
+        const noti = await sql`SELECT * FROM notification`;
+        return noti;
+    },
     insertNotification: async (ticket, viewed, type) => {
         const maxIdResult = await sql`
         SELECT MAX(id) FROM notification
@@ -20,7 +24,6 @@ module.exports = {
                 ${ticket.licensingAuthority}
             )
             `
-
             return true;
         } catch (error) {
             return error

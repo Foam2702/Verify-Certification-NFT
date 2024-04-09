@@ -4,8 +4,18 @@ require("@nomicfoundation/hardhat-toolbox");
 // project. It imports a Hardhat task definition, that can be used for
 // testing the frontend.
 require("./tasks/faucet");
-
+require("dotenv").config()
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
-  solidity: "0.8.17",
+  defaultNetwork: "sepolia",
+  solidity: "0.8.24",
+  networks: {
+    hardhat: {
+
+    },
+    sepolia: {
+      url: process.env.SEPOLIA_URL,
+      accounts: [process.env.PRIVATE_KEY],
+    },
+  },
 };

@@ -60,8 +60,8 @@
 //     process.exit(1);
 //   });
 
-import { ethers } from "hardhat"
-
+// import { ethers } from "hardhat"
+const { ethers } = require("hardhat")
 async function main() {
   console.log("IN MAIn")
   const SoulboundToken = await ethers.getContractFactory('SoulboundToken')

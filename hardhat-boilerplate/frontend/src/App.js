@@ -24,7 +24,6 @@ function App() {
             console.log("Wallet exists")
         }
         const account = await ethereum.request({ method: 'eth_requestAccounts' })
-        console.log(SOULBOUND_ADDRESS)
         setCurrentAccount(account[0])
     }
 
@@ -82,7 +81,6 @@ function App() {
             const provider = new ethers.providers.Web3Provider(ethereum);
             const signer = provider.getSigner();
             const contract = new ethers.Contract(SOULBOUND_ADDRESS, SOULBOUND.abi, signer);
-            console.log(SOULBOUND_ADDRESS)
             const addr = e.target.elements.isVerifier.value;
 
             const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
@@ -90,6 +88,10 @@ function App() {
             const organization = await contract.getOrganizationCode(addr)
             console.log("organization:", organization)
             console.log(checkVerifier)
+            const result = await contract.getVerifierList();
+            console.log(result)
+            // console.log('Verifier Addresses: ', result[0]);
+            // console.log('Organization Codes: ', result[1]);
             setFormData(prevState => ({
                 ...prevState,
                 isverifier: checkVerifier
@@ -104,8 +106,13 @@ function App() {
             const provider = new ethers.providers.Web3Provider(ethereum);
             const signer = provider.getSigner();
             const contract = new ethers.Contract(SOULBOUND_ADDRESS, SOULBOUND.abi, signer);
-            const { allVerifier, org } = await contract.getVerifierList()
-            console.log(allVerifier, org)
+            try {
+                const result = await contract.getVerifierList();
+                console.log('Verifier Addresses: ', result[0]);
+                console.log('Organization Codes: ', result[1]);
+            } catch (error) {
+                console.error('Error:', error);
+            }
 
         }
     }

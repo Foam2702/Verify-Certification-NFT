@@ -7,7 +7,6 @@ const JWT = process.env.JWT;
 async function imageUpload(image) {
     try {
         const imagePath = image.path; // Assuming 'appDir' is defined elsewhere
-        console.log(imagePath)
         const formData = new FormData();
         const file = fs.createReadStream(imagePath);
         const pinataMetadata = JSON.stringify({

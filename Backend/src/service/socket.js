@@ -5,14 +5,13 @@ const PORT = 8080;
 const _ = require("lodash")
 let io = null;
 const registerAuth = () => {
+    console.log("register")
     io.on('connection', (socket) => {
         console.log("authenticate")
         socket.user = "0x0f670Fdb84de5356B14000297668be50675A79eA"
         socket.orginazation = "HCMUS"
         socket.join('authenticated')
-
     })
-
 }
 const sendNotice = async (ticket) => {
     console.log("IN SEND NOTICE")
@@ -20,7 +19,6 @@ const sendNotice = async (ticket) => {
     const sockets = await io.in('authenticated').fetchSockets();
     console.log("SOCKET", sockets)
     _.each(sockets, (socket) => {
-
         if (socket.user == issuer) {
             console.log("NOTICE SUCCEED")
             socket.emit('notice', ticket.cidCertificate)
@@ -41,16 +39,11 @@ module.exports = {
 
             }
         })
-        io.on('connection', (socket) => {
-            socket.on('chat message', (msg) => {
-                io.emit('chat message', msg);
-            });
-        });
-        app.get('/', (req, res) => {
-            res.sendFile(join(
-                'D:\\University of Science\\IT\\University\\Code\\4th_2\\DTTN\\Verify-Certification-NFT\\Backend',
-                'index.html'))
-        })
+        // io.on('connection', (socket) => {
+        //     socket.on('chat message', (msg) => {
+        //         io.emit('chat message', msg);
+        //     });
+        // });
         registerAuth();
         server.listen(PORT, () => {
             console.log(`Starting at port:${PORT}`)

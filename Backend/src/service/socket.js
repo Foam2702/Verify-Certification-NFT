@@ -4,13 +4,25 @@ const { join } = require('node:path')
 const PORT = 8080;
 const _ = require("lodash")
 let io = null;
+let onlineUsers = []
 const registerAuth = () => {
-    console.log("register")
+    // console.log("register")
     io.on('connection', (socket) => {
-        console.log("authenticate")
-        socket.user = "0x0f670Fdb84de5356B14000297668be50675A79eA"
-        socket.orginazation = "HCMUS"
-        socket.join('authenticated')
+        // socket.user = "0x0f670Fdb84de5356B14000297668be50675A79eA"
+        // socket.orginazation = "HCMUS"
+        // socket.join('authenticated')
+        console.log("new connection", socket.id)
+
+        socket.on("addNewUser", (userId) => {
+            !onlineUsers.some(user => user.userId === userId) &&
+                onlineUsers.push({
+                    userId,
+                    socketId: socket.id
+                })
+        })
+
+        console.log("onlineUsers", onlineUsers)
+        io.emit("getOnlineUsers", onlineUsers)
     })
 }
 const sendNotice = async (ticket) => {
@@ -33,11 +45,7 @@ module.exports = {
         const server = createServer(app)
         io = new Server(server, {
             connectionStateRecovery: {},
-            cors: {
-                origin: '*',
-                optionsSuccessStatus: 200
-
-            }
+            cors: "http://localhost:3000"
         })
         // io.on('connection', (socket) => {
         //     socket.on('chat message', (msg) => {

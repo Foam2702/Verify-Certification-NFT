@@ -1,0 +1,31 @@
+.coureslist {
+  align-self: stretch;
+  position: relative;
+  letter-spacing: -0.03em;
+  line-height: 56px;
+  text-transform: capitalize;
+}
+.courseslistframe,
+.courseslistsection {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.courseslistframe {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 70px 50px;
+  text-align: left;
+  font-size: var(--font-size-xl);
+}
+.courseslistsection {
+  background-color: var(--color-aliceblue);
+  flex-direction: column;
+  padding: var(--padding-31xl) var(--padding-31xl) var(--padding-81xl);
+  gap: var(--gap-31xl);
+  text-align: center;
+  font-size: var(--font-size-26xl);
+  color: var(--color-darkslategray-300);
+  font-family: var(--font-montserrat);
+}

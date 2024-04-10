@@ -1,0 +1,69 @@
+.coursedetail,
+.courseheader {
+  align-self: stretch;
+  position: relative;
+}
+.courseheader {
+  letter-spacing: -0.03em;
+  line-height: 72px;
+  font-weight: 600;
+}
+.coursedetail {
+  font-size: var(--font-size-lg);
+  line-height: 30px;
+  font-weight: 500;
+}
+.buy {
+  position: absolute;
+  top: calc(50% - 8.5px);
+  left: calc(50% - 16.4px);
+  font-size: var(--font-size-base);
+  line-height: 106.5%;
+  text-transform: capitalize;
+  font-family: var(--font-montserrat);
+  color: var(--color-white);
+  text-align: center;
+}
+.course-buybutton {
+  cursor: pointer;
+  border: 0;
+  padding: 0;
+  background-color: var(--color-darkorange-100);
+  width: 170px;
+  position: relative;
+  border-radius: var(--br-8xl);
+  height: 55px;
+}
+.course-buybutton:hover {
+  background-color: var(--color-chocolate);
+}
+.headertext {
+  width: 560px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gap-xl);
+}
+.headerimageframe-icon {
+  width: 570px;
+  position: relative;
+  height: 535px;
+  object-fit: cover;
+}
+.headersection {
+  align-self: stretch;
+  background-color: var(--color-aliceblue);
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  padding: var(--padding-31xl) 0;
+  gap: var(--gap-11xl);
+  text-align: left;
+  font-size: var(--font-size-31xl);
+  color: var(--color-darkslategray-300);
+  font-family: var(--font-montserrat);
+}

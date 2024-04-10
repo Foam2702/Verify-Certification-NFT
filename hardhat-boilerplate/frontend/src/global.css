@@ -1,0 +1,57 @@
+@import url("https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&display=swap");
+body {
+  margin: 0;
+  line-height: normal;
+}
+:root {
+  /* fonts */
+  --font-montserrat: Montserrat;
+  --font-reem-kufi: "Reem Kufi";
+
+  /* font sizes */
+  --font-size-base: 16px;
+  --font-size-lg: 18px;
+  --font-size-16xl: 35px;
+  --font-size-5xl: 24px;
+  --font-size-smi: 13px;
+  --font-size-xl: 20px;
+  --font-size-26xl: 45px;
+  --font-size-31xl: 50px;
+
+  /* Colors */
+  --color-white: #fff;
+  --color-darkslategray-300: #454647;
+  --color-darkslategray-200: #063255;
+  --color-darkorange-100: #f58a07;
+  --color-darkorange-200: rgba(245, 138, 7, 0.33);
+  --color-darkorange-300: rgba(245, 138, 7, 0.1);
+  --color-chocolate: #be700f;
+  --color-darkgray: #9c9c9c;
+  --color-dimgray: #5b5b5b;
+  --color-gray: #0d1317;
+  --color-aliceblue: #dceaf5;
+  --color-black: #000;
+
+  /* Gaps */
+  --gap-101xl: 120px;
+  --gap-31xl: 50px;
+  --gap-11xl: 30px;
+  --gap-xl: 20px;
+  --gap-51xl: 70px;
+  --gap-3xs: 10px;
+  --gap-21xl: 40px;
+  --gap-181xl: 200px;
+
+  /* Paddings */
+  --padding-81xl: 100px;
+  --padding-31xl: 50px;
+  --padding-4xl: 23px;
+  --padding-15xl: 34px;
+
+  /* Border radiuses */
+  --br-12xl: 31px;
+  --br-xl: 20px;
+  --br-8xl: 27px;
+  --br-81xl: 100px;
+}

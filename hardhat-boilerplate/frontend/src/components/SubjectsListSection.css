@@ -1,0 +1,29 @@
+.subjectslist {
+  align-self: stretch;
+  position: relative;
+  letter-spacing: -0.03em;
+  line-height: 56px;
+  text-transform: capitalize;
+}
+.subjectslistframe,
+.subjectslistsection {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.subjectslistframe {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 70px 50px;
+}
+.subjectslistsection {
+  background-color: var(--color-white);
+  flex-direction: column;
+  padding: var(--padding-31xl);
+  gap: var(--gap-31xl);
+  text-align: center;
+  font-size: var(--font-size-26xl);
+  color: var(--color-darkslategray-300);
+  font-family: var(--font-montserrat);
+}

@@ -1,0 +1,11 @@
+.subjectpage {
+  width: 100%;
+  position: relative;
+  background-color: var(--color-white);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gap-101xl);
+  min-width: 750px;
+}

@@ -1,0 +1,71 @@
+.teamabc {
+  width: 320px;
+  position: relative;
+  line-height: 72px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.notibutton,
+.notiicon {
+  width: 75.7px;
+  height: 57px;
+}
+.notiicon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  object-fit: cover;
+}
+.notibutton {
+  cursor: pointer;
+  border: 0;
+  padding: 0;
+  background-color: var(--color-darkorange-300);
+  position: relative;
+  border-radius: var(--br-81xl);
+}
+.accountbutton:hover,
+.notibutton:hover {
+  background-color: var(--color-darkorange-200);
+}
+.accounticon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 67.9px;
+  height: 57px;
+  object-fit: cover;
+}
+.accountbutton {
+  cursor: pointer;
+  border: 0;
+  padding: 0;
+  background-color: var(--color-darkorange-300);
+  width: 67.9px;
+  position: relative;
+  border-radius: var(--br-81xl);
+  height: 57px;
+}
+.navbarframe,
+.navbaroptions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.navbaroptions {
+  width: 320px;
+  justify-content: flex-start;
+  gap: var(--gap-21xl);
+}
+.navbarframe {
+  align-self: stretch;
+  height: 120px;
+  justify-content: space-between;
+  text-align: center;
+  font-size: var(--font-size-5xl);
+  color: var(--color-black);
+  font-family: var(--font-reem-kufi);
+}

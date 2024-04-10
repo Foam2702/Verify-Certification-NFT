@@ -214,21 +214,34 @@ function App() {
             newSocket.disconnect();
         };
     }, []);
-
+    // add online use
+    // useEffect(() => {
+    //     if (socket && currentAccount) {
+    //         socket.emit("addNewUser", currentAccount);
+    //         socket.on("getOnlineUsers", (res) => {
+    //             setOnlineUsers(res)
+    //         })
+    //     }
+    //     return () => {
+    //         socket.off("getOnlineUsers")
+    //     }
+    // }, [socket, currentAccount]);
     useEffect(() => {
-        if (socket && currentAccount) {
-            socket.emit("addNewUser", currentAccount);
-            socket.on("getOnlineUsers", (res) => {
-                setOnlineUsers(res)
-            })
+        if (socket === null) return
+        socket.emit("addNewUser", currentAccount)
+        socket.on("getOnlineUsers", (res) => {
+            setOnlineUsers(res)
+        })
+        return () => {
+            socket.off("getOnlineUsers")
         }
-    }, [socket, currentAccount]);
+    }, [socket, currentAccount])
 
     return (
         <div className="App">
             <header className="App-header" />
             <button onClick={connectMetaMask}>Connect Wallet</button>
-            <button onClick={handleClearLocalStorage}>Clear Local Storage</button>
+            <button onClick={handleClearLocalStorage}>Logout</button>
             {walletConnected && <p>Connected Wallet: {currentAccount}</p>}
         </div>
     );

@@ -1,0 +1,59 @@
+.bg,
+.imageIcon {
+  position: absolute;
+}
+.bg {
+  top: 0;
+  left: 0;
+  background-color: var(--color-aliceblue-200);
+  width: 1933px;
+  height: 703px;
+}
+.imageIcon {
+  top: 29px;
+  left: 809px;
+  width: 934px;
+  height: 645px;
+  object-fit: cover;
+}
+.hThngXc,
+.loremIpsumDolor {
+  position: absolute;
+  top: 237px;
+  left: 2px;
+  line-height: 30px;
+  font-weight: 500;
+  display: inline-block;
+  width: 571px;
+}
+.hThngXc {
+  top: 0;
+  left: 0;
+  font-size: var(--font-size-61xl);
+  letter-spacing: -0.03em;
+  line-height: 72px;
+  font-weight: 900;
+  font-family: var(--font-alegreya-sans-sc);
+  color: var(--color-darkslategray-100);
+  width: 573px;
+  height: 280px;
+  mix-blend-mode: normal;
+}
+.header,
+.headerText {
+  position: absolute;
+  top: 176px;
+  left: 310px;
+  width: 573px;
+  height: 297px;
+}
+.header {
+  top: 97px;
+  left: 0;
+  width: 1933px;
+  height: 703px;
+  text-align: left;
+  font-size: var(--font-size-lg);
+  color: var(--color-dimgray);
+  font-family: var(--font-poppins);
+}

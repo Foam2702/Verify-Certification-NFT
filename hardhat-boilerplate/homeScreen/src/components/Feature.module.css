@@ -1,0 +1,68 @@
+.bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: var(--br-xl);
+  background-color: var(--color-white);
+  width: 407.7px;
+  height: 277px;
+}
+.learnMore1,
+.loremIpsumDolor,
+.toeic {
+  position: absolute;
+  display: inline-block;
+}
+.loremIpsumDolor {
+  top: 124px;
+  left: 39.6px;
+  line-height: 28px;
+  font-weight: 500;
+  width: 341.6px;
+}
+.learnMore1,
+.toeic {
+  line-height: 106.5%;
+}
+.toeic {
+  top: 82px;
+  left: 39.6px;
+  font-size: var(--font-size-5xl);
+  letter-spacing: -0.03em;
+  font-weight: 600;
+  color: var(--color-gray);
+  width: 69.1px;
+}
+.learnMore1 {
+  top: 0;
+  left: 0;
+  font-weight: 500;
+  width: 91.5px;
+}
+.icon {
+  position: absolute;
+  top: 4px;
+  left: 99.6px;
+  width: 22.4px;
+  height: 10px;
+}
+.feature2,
+.learnMore {
+  position: absolute;
+  top: 222px;
+  left: 39.6px;
+  width: 122px;
+  height: 17px;
+  color: var(--color-darkorange-100);
+}
+.feature2 {
+  text-decoration: none;
+  top: 0;
+  left: 446.4px;
+  width: 407.7px;
+  height: 277px;
+  text-align: left;
+  font-size: var(--font-size-base);
+  color: var(--color-dimgray);
+  font-family: var(--font-poppins);
+}

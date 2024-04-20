@@ -23,7 +23,6 @@ module.exports = {
             ticket.expiryDate = splitDate(req.body.expiryDate);
 
         }
-
         ticket.dob = splitDate(req.body.dob);
         ticket.issueDate = splitDate(req.body.issueDate);
         ticket[cidCertificate] = await imageUpload(image);

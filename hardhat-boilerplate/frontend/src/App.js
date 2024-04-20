@@ -3,7 +3,6 @@
 // import './App.css';
 // import SOULBOUND from '../src/artifacts/contracts/SoulboundToken.sol/SoulboundToken.json'
 // const { ethers } = require("ethers");
-
 // const SOULBOUND_ADDRESS = process.env.REACT_APP_SOULBOUND_ADDRESS
 // function App() {
 //     const [currentAccount, setCurrentAccount] = useState(null)
@@ -162,7 +161,7 @@
 
 // export default App;
 
-///////////////////////////////////////
+
 
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
@@ -172,8 +171,8 @@ function App() {
     const [currentAccount, setCurrentAccount] = useState(null);
     const [walletConnected, setWalletConnected] = useState(false);
     const [onlineUsers, setOnlineUsers] = useState([])
-
     console.log("onlineUsers", onlineUsers)
+
     useEffect(() => {
         // Check if there is a current account stored in localStorage
         const savedAccount = localStorage.getItem('currentAccount');
@@ -181,7 +180,7 @@ function App() {
             setCurrentAccount(savedAccount);
             setWalletConnected(true);
         }
-    }, []);
+    }, [currentAccount]);
 
     const connectMetaMask = async () => {
         const { ethereum } = window;
@@ -195,8 +194,10 @@ function App() {
             const account = accounts[0];
             setCurrentAccount(account);
             setWalletConnected(true);
-            localStorage.setItem('currentAccount', account); // Store current account in localStorage
+            localStorage.setItem('currentAccount', account);
+            // Store current account in localStorage
             window.location.reload()
+
         } catch (error) {
             console.error("Failed to connect MetaMask:", error);
         }
@@ -213,19 +214,8 @@ function App() {
         return () => {
             newSocket.disconnect();
         };
-    }, []);
-    // add online use
-    // useEffect(() => {
-    //     if (socket && currentAccount) {
-    //         socket.emit("addNewUser", currentAccount);
-    //         socket.on("getOnlineUsers", (res) => {
-    //             setOnlineUsers(res)
-    //         })
-    //     }
-    //     return () => {
-    //         socket.off("getOnlineUsers")
-    //     }
-    // }, [socket, currentAccount]);
+    }, [currentAccount]);
+
     useEffect(() => {
         if (socket === null) return
         socket.emit("addNewUser", currentAccount)
@@ -235,7 +225,7 @@ function App() {
         return () => {
             socket.off("getOnlineUsers")
         }
-    }, [socket, currentAccount])
+    }, [socket])
 
     return (
         <div className="App">

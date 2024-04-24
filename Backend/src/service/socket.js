@@ -1,7 +1,7 @@
 const { Server } = require('socket.io')
 const { createServer } = require('node:http')
 const { join } = require('node:path')
-const PORT = 8080;
+const PORT = process.env.PORT || 5001;
 const _ = require("lodash")
 let io = null;
 let onlineUsers = []

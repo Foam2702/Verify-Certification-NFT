@@ -11,6 +11,12 @@ module.exports = {
         }
 
     },
+    getOneCourse: async (slug) => {
+        const result = sql`
+            SELECT * FROM course WHERE slug=${slug}
+        `
+        return result;
+    },
     insertCourses: async (courses) => {
         const maxIdResult = await sql`
             SELECT MAX(id) FROM course;

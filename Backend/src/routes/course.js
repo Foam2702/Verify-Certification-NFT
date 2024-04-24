@@ -22,6 +22,9 @@ const appDir = dirname(require.main.filename);
 router
     .route("/")
     .get(courseController.getAllCourses)
+router
+    .route("/course")
+    .get(courseController.getOneCourse);
 
 
 module.exports = router;

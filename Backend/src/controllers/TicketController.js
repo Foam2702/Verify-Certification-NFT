@@ -12,6 +12,7 @@ module.exports = {
         const ticket = req.body;
         const cidCertificate = "cidCertificate"
         const certificateUrl = "certificateUrl"
+        const status = "status"
         let image = { ...ticket, ...req.file }
         if (ticket.point == '') {
             ticket.point = null
@@ -25,6 +26,8 @@ module.exports = {
         }
         ticket.dob = splitDate(req.body.dob);
         ticket.issueDate = splitDate(req.body.issueDate);
+        ticket[status] = "processing"
+
         ticket[cidCertificate] = await imageUpload(image);
         ticket[certificateUrl] = `https://coral-able-takin-320.mypinata.cloud/ipfs/${ticket[cidCertificate]}`
         //await notificationModel.insertNotification(ticket, false, "none")

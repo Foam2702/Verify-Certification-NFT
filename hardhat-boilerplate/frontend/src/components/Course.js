@@ -4,9 +4,10 @@ import "./Course.css";
 const Course = ({
   course1Image,
   course1Header,
+  courseDetail,
   propBackgroundColor,
   propTop,
-  onSubject4LearnMoreFrameClick,
+  onSubjectLearnMoreFrameClick,
 }) => {
   const course1BGStyle = useMemo(() => {
     return {
@@ -27,12 +28,11 @@ const Course = ({
       <div className="course1-detail" style={course1DetailStyle}>
         <div className="course1-header">{course1Header}</div>
         <div className="course1-detail1">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur sit
-          amet eros blandit, hendrerit elit et.
+         {courseDetail}
         </div>
         <button
           className="course1-learnmoreframe"
-          onClick={onSubject4LearnMoreFrameClick}
+          onClick={onSubjectLearnMoreFrameClick}
         >
           <div className="learnmore">Learn More</div>
           <img

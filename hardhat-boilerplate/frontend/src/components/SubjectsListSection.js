@@ -39,42 +39,42 @@ const SubjectsListSection = () => {
           course1Header="Our internal process and longerm vision"
           propBackgroundColor="#dceaf5"
           propTop="246px"
-          onSubject4LearnMoreFrameClick={onSubject1LearnMoreFrameClick}
+          onSubjectLearnMoreFrameClick={onSubject1LearnMoreFrameClick}
         />
         <Course
           course1Image="/course2-image@2x.png"
           course1Header="Why you have to digitalize in 2021"
           propBackgroundColor="#dceaf5"
           propTop="246px"
-          onSubject4LearnMoreFrameClick={onSubject2LearnMoreFrameClick}
+          onSubjectLearnMoreFrameClick={onSubject2LearnMoreFrameClick}
         />
         <Course
           course1Image="/course3-image@2x.png"
           course1Header="Helping the next generation of leaders"
           propBackgroundColor="#dceaf5"
           propTop="251px"
-          onSubject4LearnMoreFrameClick={onSubject3LearnMoreFrameClick}
+          onSubjectLearnMoreFrameClick={onSubject3LearnMoreFrameClick}
         />
         <Course
           course1Image="/course1-image@2x.png"
           course1Header="Our internal process and longerm vision"
           propBackgroundColor="#dceaf5"
           propTop="246px"
-          onSubject4LearnMoreFrameClick={onSubject4LearnMoreFrameClick}
+          onSubjectLearnMoreFrameClick={onSubject4LearnMoreFrameClick}
         />
         <Course
           course1Image="/course2-image@2x.png"
           course1Header="Why you have to digitalize in 2021"
           propBackgroundColor="#dceaf5"
           propTop="246px"
-          onSubject4LearnMoreFrameClick={onSubject5LearnMoreFrameClick}
+          onSubjectLearnMoreFrameClick={onSubject5LearnMoreFrameClick}
         />
         <Course
           course1Image="/course3-image@2x.png"
           course1Header="Helping the next generation of leaders"
           propBackgroundColor="#dceaf5"
           propTop="251px"
-          onSubject4LearnMoreFrameClick={onSubject6LearnMoreFrameClick}
+          onSubjectLearnMoreFrameClick={onSubject6LearnMoreFrameClick}
         />
       </div>
     </div>

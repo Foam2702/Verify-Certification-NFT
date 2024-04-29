@@ -1,64 +1,112 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
 import "./CoursesSection.css";
 
-const CoursesSection = () => {
+function CoursesSection() {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('https://verify-certification-nft-production.up.railway.app/courses');
+        setData(response.data.courses);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const Course1 = data.find(item => item.id === 1);
+  const handleClick1 = () => {
+    window.location.href = Course1.link;
+  };
+
+  const Course2 = data.find(item => item.id === 10);
+  const handleClick2 = () => {
+    window.location.href = Course2.link;
+  };
+
+  const Course3 = data.find(item => item.id === 8);
+  const handleClick3 = () => {
+    window.location.href = Course3.link;
+  };
+
+  const Course4 = data.find(item => item.id === 16);
+  const handleClick4 = () => {
+    window.location.href = Course4.link;
+  };
+
+  const Course5 = data.find(item => item.id === 5);
+  const handleClick5 = () => {
+    window.location.href = Course5.link;
+  };
+
+  const Course6 = data.find(item => item.id === 12);
+  const handleClick6 = () => {
+    window.location.href = Course6.link;
+  };
+
+
+
   return (
     <div className="coursessection">
-      <div className="courseframe1">
-        <div className="courseframe1-text">
-          <div className="courseframe1-header">
-            Finsweet was a dream to work with
+      {Course1 && (
+        <div className="courseframe1">
+          <div className="courseframe1-text" >
+            <div className="courseframe1-header">
+              {Course1.name}
+            </div>
+            <div className="courseframe1-detail">
+              {Course1.description}
+            </div>
+            <button className="courseframe1-buybutton" onClick={handleClick1}>
+              <b className="buy1">Buy</b>
+            </button>
           </div>
-          <div className="courseframe1-detail">
-            Maecenas efficitur scelerisque lorem, et varius lacus tincidunt vel.
-            Pellentesque a arcu vitae diam dapibus mattis vel vel orci. Vivamus
-            eleifend nec felis vel auctor.
+          <div className="courseframe3-imageframe">
+            <img
+              className="courseframe1-imageframe-icon"
+              alt=""
+              src={Course1.image}
+            />
           </div>
-          <button className="courseframe1-buybutton">
-            <b className="buy1">Buy</b>
-          </button>
         </div>
-        <img
-          className="courseframe1-imageframe-icon"
-          alt=""
-          src="/courseframe1-imageframe.svg"
-        />
-      </div>
+      )}
+      {Course2 && (
       <div className="courseframe1">
         <div className="courseframe2-imageframe">
           <img
             className="courseframe2-image-icon"
             alt=""
-            src="/courseframe2-image@2x.png"
-          />
-          <img
-            className="courseframe2-orange-icon"
-            alt=""
-            src="/courseframe2-orange.svg"
+            src={Course2.image}
           />
         </div>
         <div className="courseframe1-text">
-          <div className="courseframe2-header">Business strategy</div>
+          <div className="courseframe2-header">{Course2.name}</div>
           <div className="courseframe1-detail">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam leo
-            odio, sagittis quis ornare quis.met, consectetur adipiscing elit.
-            Aliquam leo odio, sagittis quis ornare quis.
+            {Course2.description}
           </div>
-          <button className="courseframe1-buybutton">
+          <button className="courseframe1-buybutton" onClick={handleClick2}>
             <b className="buy2">Buy</b>
           </button>
         </div>
       </div>
+      )}
+      {Course3 && (
       <div className="courseframe1">
         <div className="courseframe1-text">
           <div className="courseframe2-header">
-            <span className="digitalizatio">Digitalizatio</span>n
+            <span className="digitalizatio">
+              {Course3.name}
+            </span>n
           </div>
           <div className="courseframe1-detail">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam leo
-            odio, sagittis quis ornare quis.met, consectetur adipiscing elit.
-            Aliquam leo odio, sagittis quis ornare quis.
+            {Course3.description}
           </div>
-          <button className="courseframe1-buybutton">
+          <button className="courseframe1-buybutton" onClick={handleClick3}>
             <b className="buy3">Buy</b>
           </button>
         </div>
@@ -66,50 +114,39 @@ const CoursesSection = () => {
           <img
             className="courseframe3-image-icon"
             alt=""
-            src="/courseframe3-image@2x.png"
-          />
-          <img
-            className="courseframe3-orange-icon"
-            alt=""
-            src="/courseframe3-orange.svg"
+            src={Course3.image}
           />
         </div>
       </div>
+      )}
+      {Course4 && (
       <div className="courseframe1">
         <div className="courseframe4-imageframe">
           <img
             className="courseframe4-image-icon"
             alt=""
-            src="/courseframe4-image@2x.png"
-          />
-          <img
-            className="courseframe4-orange-icon"
-            alt=""
-            src="/courseframe4-orange.svg"
+            src={Course4.image}
           />
         </div>
         <div className="courseframe4-text">
-          <div className="courseframe2-header">Risk assessment</div>
+          <div className="courseframe2-header">{Course4.name}</div>
           <div className="courseframe1-detail">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam leo
-            odio, sagittis quis ornare quis.met, consectetur adipiscing elit.
-            Aliquam leo odio, sagittis quis ornare quis.
+            {Course4.description}
           </div>
-          <button className="courseframe1-buybutton">
+          <button className="courseframe1-buybutton" onClick={handleClick4}>
             <b className="buy3">Buy</b>
           </button>
         </div>
       </div>
+      )}
+      {Course5 && (
       <div className="courseframe1">
         <div className="courseframe4-text">
-          <div className="courseframe2-header">Artificial intelligence</div>
+          <div className="courseframe2-header">{Course5.name}</div>
           <div className="courseframe1-detail">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam leo
-            odio, sagittis quis ornare quis.met, consectetur adipiscing elit.
-            Aliquam leo odio, sagittis quis ornare quis. Lorem ipsum dolor sit
-            amet, consectetur adipiscing elit. Aliquam leo odio, sagittis.
+            {Course5.description}
           </div>
-          <button className="courseframe1-buybutton">
+          <button className="courseframe1-buybutton" onClick={handleClick5}>
             <b className="buy5">Buy</b>
           </button>
         </div>
@@ -117,40 +154,31 @@ const CoursesSection = () => {
           <img
             className="courseframe5-image-icon"
             alt=""
-            src="/courseframe5-image@2x.png"
-          />
-          <img
-            className="courseframe5-orange-icon"
-            alt=""
-            src="/courseframe5-orange.svg"
+            src={Course5.image}
           />
         </div>
       </div>
+      )}
+      {Course6 && (
       <div className="courseframe1">
         <div className="courseframe6-imageframe">
           <img
             className="courseframe6-image-icon"
             alt=""
-            src="/courseframe6-image@2x.png"
-          />
-          <img
-            className="courseframe6-orange-icon"
-            alt=""
-            src="/courseframe6-orange.svg"
+            src={Course6.image}
           />
         </div>
         <div className="courseframe6-text">
-          <div className="courseframe2-header">Smart Contracts</div>
+          <div className="courseframe2-header">{Course6.name}</div>
           <div className="courseframe1-detail">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam leo
-            odio, sagittis quis ornare quis.met, consectetur adipiscing elit.
-            Aliquam leo odio, sagittis quis ornare quis.
+            {Course6.description}
           </div>
-          <button className="courseframe1-buybutton">
+          <button className="courseframe1-buybutton" onClick={handleClick6}>
             <b className="buy6">Buy</b>
           </button>
         </div>
       </div>
+      )}
     </div>
   );
 };

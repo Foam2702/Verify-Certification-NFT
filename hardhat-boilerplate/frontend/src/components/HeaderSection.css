@@ -49,6 +49,7 @@
   width: 570px;
   position: relative;
   height: 535px;
+  border-radius: var(--br-xl);
   object-fit: cover;
 }
 .headersection {

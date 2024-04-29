@@ -67,7 +67,7 @@ const FooterSection = ({
           </div>
         </div>
         <div className="company">
-          <button className="company1">Company</button>
+          <b className="joinnewsletter">Company</b>
           <button className="about-us">About Us</button>
           <button className="about-us">Careers</button>
           <button className="about-us">Services</button>

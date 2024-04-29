@@ -1,26 +1,51 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
 import "./HeaderSection.css";
 
-const HeaderSection = () => {
+function HeaderSection() {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('https://verify-certification-nft-production.up.railway.app/courses');
+        setData(response.data.courses);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const Course = data.find(item => item.id === 18);
+  const handleClick = () => {
+    window.location.href = Course.link;
+  };
+
   return (
     <div className="headersection">
-      <div className="headertext">
-        <div className="courseheader">
-          Helping the next generation of leaders
+    {Course && (
+      <div className="headersection">
+        <div className="headertext">
+          <div className="courseheader">
+            {Course.name}
+          </div>
+          <div className="coursedetail">
+            {Course.description}
+          </div>
+          <button className="course-buybutton" onClick={handleClick}>
+            <b className="buy">Buy</b>
+          </button>
         </div>
-        <div className="coursedetail">
-          It is a long established fact that a reader will be distracted by the
-          readable content of a page when looking at its layout. The Maker is a
-          decentralized. We aim to attain the
-        </div>
-        <button className="course-buybutton">
-          <b className="buy">Buy</b>
-        </button>
+        <img
+          className="headerimageframe-icon"
+          alt=""
+          src={Course.image}
+        />
       </div>
-      <img
-        className="headerimageframe-icon"
-        alt=""
-        src="/headerimageframe@2x.png"
-      />
+    )}
     </div>
   );
 };

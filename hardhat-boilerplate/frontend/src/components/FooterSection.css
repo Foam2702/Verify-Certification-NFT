@@ -97,29 +97,25 @@
 }
 .footertopleft {
   width: 313px;
-  height: 265px;
+  height: 270px;
   flex-direction: column;
   align-items: flex-start;
+  font-size: var(--font-size-5xl);
   font-family: var(--font-reem-kufi);
 }
-.about-us,
-.company1 {
+.about-us {
   cursor: pointer;
   border: 0;
   padding: 0;
   background-color: transparent;
   align-self: stretch;
   position: relative;
-  font-size: var(--font-size-lg);
-  font-weight: 700;
+  font-size: var(--font-size-base);
+  font-weight: 500;
   font-family: var(--font-montserrat);
   color: var(--color-white);
   text-align: left;
   display: inline-block;
-}
-.about-us {
-  font-size: var(--font-size-base);
-  font-weight: 500;
 }
 .company {
   width: 105px;
@@ -150,7 +146,7 @@
 }
 .connect {
   width: 155px;
-  height: 265px;
+  height: 270px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -215,10 +211,9 @@
 }
 .subscribe {
   width: 380px;
-  height: 265px;
+  height: 270px;
   flex-direction: column;
   align-items: flex-start;
-  font-size: var(--font-size-lg);
 }
 .footertop {
   align-self: stretch;
@@ -280,7 +275,7 @@
   align-items: flex-start;
   justify-content: center;
   text-align: left;
-  font-size: var(--font-size-5xl);
+  font-size: var(--font-size-lg);
   color: var(--color-white);
   font-family: var(--font-montserrat);
 }

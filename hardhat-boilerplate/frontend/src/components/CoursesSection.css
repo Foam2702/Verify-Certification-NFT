@@ -45,9 +45,13 @@
   gap: var(--gap-xl);
 }
 .courseframe1-imageframe-icon {
-  width: 604px;
-  position: relative;
+  position: absolute;
+  top: 0.5px;
+  left: 0;
+  border-radius: var(--br-xl);
+  width: 570px;
   height: 535px;
+  object-fit: cover;
 }
 .courseframe1 {
   align-self: stretch;

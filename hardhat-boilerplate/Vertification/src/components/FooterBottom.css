@@ -1,0 +1,77 @@
+.bg16 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #063255;
+  width: 1920px;
+  height: 445px;
+}
+.privacy-policy,
+.terms-conditions {
+  position: absolute;
+  height: 100%;
+  width: 36.88%;
+  top: 0;
+  left: 0;
+  font-weight: 500;
+  display: inline-block;
+}
+.terms-conditions {
+  width: 52.82%;
+  left: 47.18%;
+}
+.footer-bottom-links {
+  position: absolute;
+  height: 100%;
+  width: 23.46%;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 76.54%;
+}
+.all-rights-reserved {
+  position: absolute;
+  height: 100%;
+  width: 19.64%;
+  top: 0;
+  left: 0;
+  font-weight: 500;
+  display: inline-block;
+}
+.footer-bottom1 {
+  position: absolute;
+  height: 5.19%;
+  width: 66.82%;
+  top: 77.53%;
+  right: 16.51%;
+  bottom: 17.28%;
+  left: 16.67%;
+}
+.shape-right {
+  position: absolute;
+  top: 36.5px;
+  left: 1867px;
+  border-radius: 20px 0 0 20px;
+  background-color: #f58a07;
+  width: 53px;
+  height: 275.8px;
+}
+.shape-left-icon {
+  position: absolute;
+  top: 306.6px;
+  left: 0;
+  width: 53px;
+  height: 138.4px;
+  object-fit: contain;
+}
+.footer-bottom {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1920px;
+  height: 445px;
+  text-align: left;
+  font-size: 16px;
+  color: #fff;
+  font-family: Poppins;
+}

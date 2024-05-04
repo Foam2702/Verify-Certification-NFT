@@ -1,0 +1,167 @@
+.div,
+.hifinsweetcom {
+  position: absolute;
+  height: 20.53%;
+  width: 97.84%;
+  top: 79.47%;
+  left: 0;
+  font-weight: 500;
+  display: inline-block;
+}
+.hifinsweetcom {
+  width: 100%;
+  top: 45.24%;
+}
+.connect,
+.connect1 {
+  position: absolute;
+  top: 0;
+}
+.connect1 {
+  height: 23.11%;
+  width: 56.83%;
+  left: 0;
+  font-size: 18px;
+  font-weight: 600;
+  display: inline-block;
+}
+.connect {
+  height: 58.81%;
+  width: 17.42%;
+  right: 0;
+  bottom: 41.19%;
+  left: 82.58%;
+}
+.about-us,
+.blog,
+.careers,
+.services {
+  position: absolute;
+  height: 12.33%;
+  width: 39.13%;
+  top: 87.67%;
+  left: 0;
+  font-weight: 500;
+  display: inline-block;
+}
+.about-us,
+.careers,
+.services {
+  width: 73.91%;
+  top: 67.18%;
+}
+.about-us,
+.careers {
+  width: 69.57%;
+  top: 46.69%;
+}
+.about-us {
+  width: 79.35%;
+  top: 26.15%;
+}
+.company,
+.company1 {
+  position: absolute;
+  top: 0;
+}
+.company1 {
+  height: 13.87%;
+  width: 100%;
+  left: 0;
+  font-size: 18px;
+  font-weight: 600;
+  display: inline-block;
+}
+.company {
+  height: 97.96%;
+  width: 11.53%;
+  right: 30.7%;
+  bottom: 2.04%;
+  left: 57.77%;
+}
+.social-icontwitter {
+  position: absolute;
+  left: calc(50% + 46.7px);
+  height: 19.2px;
+}
+.social-iconfacebook,
+.social-iconinstagram,
+.social-icontwitter {
+  top: calc(50% - 9.6px);
+  width: 21.3px;
+  overflow: hidden;
+  object-fit: cover;
+}
+.social-iconfacebook {
+  position: absolute;
+  left: calc(50% - 68px);
+  height: 19.2px;
+}
+.social-iconinstagram {
+  left: calc(50% + 8.4px);
+}
+.social,
+.social-iconinstagram,
+.social-iconyoutube {
+  position: absolute;
+  height: 19.2px;
+}
+.social-iconyoutube {
+  top: calc(50% - 9.6px);
+  left: calc(50% - 29.8px);
+  width: 21.3px;
+  overflow: hidden;
+  object-fit: cover;
+}
+.social {
+  top: calc(50% + 76.35px);
+  left: calc(50% - 175.5px);
+  width: 136px;
+}
+.bespoke-software-solutions {
+  margin: 0;
+  position: absolute;
+  top: 56.7px;
+  left: 0;
+  font-size: inherit;
+  letter-spacing: -0.03em;
+  line-height: 44px;
+  font-weight: 600;
+  font-family: inherit;
+  display: inline-block;
+  width: 351px;
+  height: 84.6px;
+}
+.logo-icon {
+  position: absolute;
+  height: 13.59%;
+  width: 34.19%;
+  top: 0;
+  right: 65.81%;
+  bottom: 86.41%;
+  left: 0;
+  max-width: 100%;
+  overflow: hidden;
+  max-height: 100%;
+}
+.footer-left {
+  position: absolute;
+  top: calc(50% - 95.65px);
+  left: calc(50% - 399px);
+  width: 351px;
+  height: 191.3px;
+  font-size: 36px;
+}
+.footer-top {
+  position: absolute;
+  height: 42.99%;
+  width: 41.56%;
+  top: 17.28%;
+  right: 41.77%;
+  bottom: 39.73%;
+  left: 16.67%;
+  text-align: left;
+  font-size: 16px;
+  color: #fff;
+  font-family: Poppins;
+}

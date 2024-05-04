@@ -1,0 +1,83 @@
+.image-icon {
+  top: 0;
+  left: 0;
+  border-radius: 20px;
+  width: 653px;
+  object-fit: cover;
+}
+.header-image,
+.image-icon,
+.orange {
+  position: absolute;
+  height: 657px;
+}
+.orange {
+  top: 657px;
+  left: 190.8px;
+  border-radius: 0 19px 20px 0;
+  background-color: #f58a07;
+  width: 190.8px;
+  transform: rotate(-180deg);
+  transform-origin: 0 0;
+  mix-blend-mode: multiply;
+}
+.header-image {
+  top: 0;
+  left: 664px;
+  width: 653px;
+}
+.n-vi-trang,
+.xc-thc-nhanh {
+  position: absolute;
+  top: 409px;
+  left: 0;
+  line-height: 30px;
+  font-weight: 500;
+  display: inline-block;
+  width: 557px;
+}
+.xc-thc-nhanh {
+  margin: 0;
+  top: 0;
+  font-size: 64px;
+  letter-spacing: -0.03em;
+  line-height: 72px;
+  font-weight: 600;
+  font-family: inherit;
+  color: #1d3444;
+  width: 618px;
+}
+.header-text {
+  top: 85px;
+  left: 0;
+  width: 618px;
+  height: 559px;
+}
+.footer,
+.header,
+.header-text {
+  position: absolute;
+}
+.header {
+  top: 176px;
+  left: 320px;
+  width: 1317px;
+  height: 657px;
+  text-align: left;
+  font-size: 18px;
+  color: #5b5b5b;
+  font-family: Poppins;
+}
+.footer {
+  top: 2441px;
+  left: 0;
+  width: 1920px;
+  height: 445px;
+}
+.vertifications1 {
+  width: 100%;
+  position: relative;
+  background-color: #fff;
+  height: 2886px;
+  overflow: hidden;
+}

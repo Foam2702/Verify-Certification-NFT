@@ -1,0 +1,68 @@
+.thit-k-cha-c-tn-3-1 {
+  position: absolute;
+  top: 0;
+  left: 7px;
+  width: 52px;
+  height: 57px;
+  object-fit: cover;
+}
+.bg14,
+.button {
+  position: absolute;
+  width: 65px;
+}
+.bg14 {
+  top: 3px;
+  left: 0;
+  border-radius: 31px;
+  background-color: rgba(245, 138, 7, 0.1);
+  height: 54px;
+}
+.button {
+  cursor: pointer;
+  border: 0;
+  padding: 0;
+  background-color: transparent;
+  top: 24px;
+  left: 1406px;
+  height: 57px;
+}
+.thit-k-cha-c-tn-4-1 {
+  position: absolute;
+  top: 0;
+  left: 4px;
+  width: 58px;
+  height: 57px;
+  object-fit: cover;
+}
+.button1 {
+  cursor: pointer;
+  border: 0;
+  padding: 0;
+  background-color: transparent;
+  position: absolute;
+  top: 24px;
+  left: 1307px;
+  width: 65px;
+  height: 57px;
+}
+.navbar,
+.team-abc {
+  position: absolute;
+  top: 0;
+}
+.team-abc {
+  left: 0;
+  line-height: 72px;
+  font-weight: 600;
+}
+.navbar {
+  margin: 0;
+  left: 414px;
+  width: 1471px;
+  height: 81px;
+  text-align: left;
+  font-size: 16px;
+  color: #000;
+  font-family: Poppins;
+}

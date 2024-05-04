@@ -22,5 +22,12 @@ module.exports = {
             SELECT MAX(id) FROM course;
         `;
         const maxId = maxIdResult[0].max || 0;
+    },
+    getTop3Courses: async () => {
+        const result = await sql`
+            SELECT * FROM course LIMIT 3
+        `
+        return result;
     }
+
 }

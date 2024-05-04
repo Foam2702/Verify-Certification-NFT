@@ -3,6 +3,8 @@ const imageUpload = require("../service/uploadImage")
 const splitDate = require("../service/splitDate")
 const notificationModel = require("../models/NotificationModel")
 const notificationService = require("../service/notification")
+const fs = require('fs')
+const TicketModel = require("../models/TicketModel")
 module.exports = {
     getAllTicket: async (req, res, next) => {
         const ticket = await ticketModel.getAllTicket();
@@ -65,6 +67,16 @@ module.exports = {
                 "message": "ticket doesn't exist"
             })
         }
+    },
+    getAllCities: async (req, res) => {
+        const cities = await TicketModel.getAllCities();
+        res.json({
+            "code": "200",
+            "status": "success",
+            cities
+        }
+        )
+
     }
 
 }

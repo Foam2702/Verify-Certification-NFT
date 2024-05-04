@@ -46,6 +46,10 @@ module.exports = {
             `SELECT  * FROM ticket WHERE owner_address=${owner} 
         and certificate_cid=${cid};`;
         return result[0];
+    },
+    getAllCities: async () => {
+        const cities = await sql`SELECT * FROM city;`;
+        return cities;
     }
 
 

@@ -22,7 +22,7 @@ var upload = multer({
 
 router
     .route("/")
-    .get(ticketController.getAllTicket)
+    .get(ticketController.getAllCities)
     .post(upload.single("imageCertificate"), ticketController.sendTicketFromStudent)
 router
     .route("/ticket")

@@ -1,8 +1,8 @@
-import styles from "./ThngTinNgiDng.module.css";
+import styles from "./ThongTinNguoiDung.module.css";
 
-const ThngTinNgiDng = () => {
+const ThongTinNguoiDung = () => {
   return (
-    <div className={styles.thngTinNgiDng}>
+    <div className={styles.ThongTinNguoiDung}>
       <div className={styles.navbar}>
         <div className={styles.button}>
           <img
@@ -20,7 +20,7 @@ const ThngTinNgiDng = () => {
           />
           <div className={styles.bg1} />
         </button>
-        <div className={styles.teamAbc}>team ABC</div>
+        <div className={styles.teamAbc}>Team ABC</div>
       </div>
       <div className={styles.bg2} />
       <img
@@ -56,4 +56,4 @@ const ThngTinNgiDng = () => {
   );
 };
 
-export default ThngTinNgiDng;
+export default ThongTinNguoiDung;

@@ -6,7 +6,7 @@ import {
   useLocation,
 } from "react-router-dom";
 import Home from "./pages/Home";
-import ThngTinNgiDng from "./pages/ThngTinNgiDng";
+import ThongTinNguoiDung from "./pages/ThongTinNguoiDung";
 
 function App() {
   const action = useNavigationType();
@@ -51,7 +51,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/thng-tin-ngi-dng" element={<ThngTinNgiDng />} />
+      <Route path="/User" element={<ThongTinNguoiDung />} />
     </Routes>
   );
 }

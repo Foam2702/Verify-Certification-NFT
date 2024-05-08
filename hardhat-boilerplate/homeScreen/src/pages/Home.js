@@ -136,7 +136,7 @@ const Home = () => {
         <button className={styles.bg4} />
         <div className={styles.signUp}>SIGN UP</div>
       </div>
-      <div className={styles.teamAbc}>team ABC</div>
+      <div className={styles.teamAbc}>Team ABC</div>
       <div className={styles.homeChild} />
     </div>
   );

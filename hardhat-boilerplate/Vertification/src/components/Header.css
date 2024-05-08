@@ -6,11 +6,13 @@
   height: 57px;
   object-fit: cover;
 }
+
 .bg14,
 .button {
   position: absolute;
   width: 65px;
 }
+
 .bg14 {
   top: 3px;
   left: 0;
@@ -18,15 +20,17 @@
   background-color: rgba(245, 138, 7, 0.1);
   height: 54px;
 }
+
 .button {
   cursor: pointer;
   border: 0;
   padding: 0;
   background-color: transparent;
   top: 24px;
-  left: 1406px;
+  left: 900px;
   height: 57px;
 }
+
 .thit-k-cha-c-tn-4-1 {
   position: absolute;
   top: 0;
@@ -35,6 +39,7 @@
   height: 57px;
   object-fit: cover;
 }
+
 .button1 {
   cursor: pointer;
   border: 0;
@@ -42,20 +47,23 @@
   background-color: transparent;
   position: absolute;
   top: 24px;
-  left: 1307px;
+  left: 1000px;
   width: 65px;
   height: 57px;
 }
+
 .navbar,
 .team-abc {
   position: absolute;
   top: 0;
 }
+
 .team-abc {
   left: 0;
   line-height: 72px;
   font-weight: 600;
 }
+
 .navbar {
   margin: 0;
   left: 414px;

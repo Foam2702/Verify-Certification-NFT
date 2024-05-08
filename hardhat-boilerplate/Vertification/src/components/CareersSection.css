@@ -2,6 +2,7 @@
 .bg {
   position: absolute;
 }
+
 .bg {
   top: 0;
   left: 0;
@@ -10,6 +11,7 @@
   width: 400px;
   height: 181px;
 }
+
 .apply-now {
   top: 144px;
   left: 41.1px;
@@ -17,11 +19,13 @@
   display: inline-block;
   width: 97.6px;
 }
+
 .input,
 .n-v-cp {
   font-weight: 500;
   position: absolute;
 }
+
 .n-v-cp {
   margin: 0;
   top: 32px;
@@ -34,6 +38,7 @@
   display: inline-block;
   width: 200.4px;
 }
+
 .input {
   border: 0;
   outline: 0;
@@ -49,6 +54,7 @@
   box-sizing: border-box;
   color: #9c9c9c;
 }
+
 .career-10 {
   position: absolute;
   top: 870px;
@@ -58,12 +64,14 @@
   font-size: 18px;
   color: #f58a07;
 }
+
 .apply-now1,
 .ngy-cp {
   position: absolute;
   left: 41.1px;
   display: inline-block;
 }
+
 .ngy-cp {
   margin: 0;
   top: 32px;
@@ -74,6 +82,7 @@
   font-family: inherit;
   width: 124.3px;
 }
+
 .apply-now1 {
   top: 144px;
   font-size: 18px;
@@ -81,6 +90,7 @@
   color: #f58a07;
   width: 97.6px;
 }
+
 .input1 {
   border: 0;
   outline: 0;
@@ -98,6 +108,7 @@
   box-sizing: border-box;
   color: #9c9c9c;
 }
+
 .career-11 {
   position: absolute;
   top: 870px;
@@ -105,11 +116,13 @@
   width: 400px;
   height: 181px;
 }
+
 .apply-now2,
 .tn-chng-ch {
   position: absolute;
   left: 40px;
 }
+
 .tn-chng-ch {
   margin: 0;
   top: 32px;
@@ -121,12 +134,14 @@
   display: inline-block;
   width: 228px;
 }
+
 .apply-now2 {
   top: 144px;
   font-size: 18px;
   line-height: 106.5%;
   color: #f58a07;
 }
+
 .input2 {
   border: 0;
   outline: 0;
@@ -143,8 +158,9 @@
   padding: 12px 20.100000000000023px 3px;
   box-sizing: border-box;
   color: #9c9c9c;
-  
+
 }
+
 .bg-icon,
 .career-8 {
   position: absolute;
@@ -153,12 +169,14 @@
   width: 400px;
   height: 181px;
 }
+
 .bg-icon {
   top: 0;
   left: 0;
   border-radius: 20px;
   object-fit: cover;
 }
+
 .ngy-sinh {
   margin: 0;
   position: absolute;
@@ -173,6 +191,7 @@
   display: inline-block;
   width: 129.5px;
 }
+
 .career-5 {
   position: absolute;
   top: 380px;
@@ -182,11 +201,13 @@
   font-size: 18px;
   color: #f58a07;
 }
+
 .input4,
 .qu-qun {
   font-weight: 500;
   position: absolute;
 }
+
 .qu-qun {
   margin: 0;
   top: 32px;
@@ -198,6 +219,7 @@
   display: inline-block;
   width: 129.5px;
 }
+
 .input4 {
   border: 0;
   outline: 0;
@@ -213,6 +235,7 @@
   box-sizing: border-box;
   color: #9c9c9c;
 }
+
 .career-6 {
   position: absolute;
   top: 377px;
@@ -220,6 +243,7 @@
   width: 400px;
   height: 181px;
 }
+
 .n-v-cng {
   margin: 0;
   position: absolute;
@@ -233,6 +257,7 @@
   display: inline-block;
   width: 182.9px;
 }
+
 .career-7 {
   position: absolute;
   top: 630px;
@@ -240,6 +265,7 @@
   width: 400px;
   height: 181px;
 }
+
 .gii-tnh {
   margin: 0;
   position: absolute;
@@ -253,17 +279,20 @@
   display: inline-block;
   width: 228px;
 }
+
 .career-2 {
   top: 128px;
   left: 464px;
   width: 400px;
   height: 181px;
 }
+
 .career-2,
 .career-9,
 .im {
   position: absolute;
 }
+
 .im {
   margin: 0;
   top: 32px;
@@ -276,17 +305,20 @@
   display: inline-block;
   width: 61.7px;
 }
+
 .career-9 {
   top: 628px;
   left: 928px;
   width: 400px;
   height: 181px;
 }
+
 .apply-now8,
 .hn-s-dng {
   position: absolute;
   left: 40px;
 }
+
 .hn-s-dng {
   margin: 0;
   top: 26px;
@@ -299,12 +331,14 @@
   width: 306px;
   height: 38px;
 }
+
 .apply-now8 {
   top: 138px;
   font-size: 18px;
   line-height: 106.5%;
   color: #f58a07;
 }
+
 .input8 {
   border: 0;
   outline: 0;
@@ -322,6 +356,7 @@
   box-sizing: border-box;
   color: #9c9c9c;
 }
+
 .bg7,
 .career-12 {
   position: absolute;
@@ -330,6 +365,7 @@
   width: 400px;
   height: 181px;
 }
+
 .bg7 {
   top: 0;
   left: 0;
@@ -338,12 +374,14 @@
   width: 1282px;
   height: 242px;
 }
+
 .apply-now9,
 .ti-ln-file {
   position: absolute;
   left: 131.7px;
   display: inline-block;
 }
+
 .ti-ln-file {
   margin: 0;
   top: 32px;
@@ -356,6 +394,7 @@
   width: 971.6px;
   height: 30px;
 }
+
 .apply-now9 {
   top: 144px;
   font-size: 18px;
@@ -364,6 +403,7 @@
   width: 312.9px;
   height: 19px;
 }
+
 .bg8 {
   top: 0;
   left: 0;
@@ -372,11 +412,13 @@
   width: 1113.2px;
   height: 44px;
 }
+
 .bg8,
 .enter,
 .input9 {
   position: absolute;
 }
+
 .enter {
   height: 65.91%;
   width: 54.69%;
@@ -385,6 +427,7 @@
   font-weight: 500;
   display: inline-block;
 }
+
 .input9 {
   top: 76px;
   left: 85.6px;
@@ -395,6 +438,7 @@
   color: #9c9c9c;
   font-family: Inter;
 }
+
 .bg9,
 .career-13 {
   position: absolute;
@@ -403,6 +447,7 @@
   width: 1282px;
   height: 242px;
 }
+
 .bg9 {
   top: 0;
   left: 0;
@@ -411,11 +456,13 @@
   width: 400px;
   height: 186px;
 }
+
 .apply-now10,
 .email {
   position: absolute;
   left: 45px;
 }
+
 .email {
   margin: 0;
   top: 24px;
@@ -425,12 +472,14 @@
   font-weight: 500;
   font-family: inherit;
 }
+
 .apply-now10 {
   top: 136px;
   font-size: 18px;
   line-height: 106.5%;
   color: #f58a07;
 }
+
 .input10 {
   border: 0;
   outline: 0;
@@ -448,6 +497,7 @@
   box-sizing: border-box;
   color: #9c9c9c;
 }
+
 .career-3 {
   position: absolute;
   top: 128px;
@@ -455,11 +505,13 @@
   width: 400px;
   height: 186px;
 }
+
 .h-v-tn,
 .input11 {
   font-weight: 500;
   position: absolute;
 }
+
 .h-v-tn {
   margin: 0;
   top: 32px;
@@ -469,6 +521,7 @@
   line-height: 30px;
   font-family: inherit;
 }
+
 .input11 {
   border: 0;
   outline: 0;
@@ -484,6 +537,7 @@
   box-sizing: border-box;
   color: #9c9c9c;
 }
+
 .career-1 {
   position: absolute;
   top: 128px;
@@ -491,6 +545,7 @@
   width: 400px;
   height: 181px;
 }
+
 .in-thng-tin {
   margin: 0;
   top: 0;
@@ -504,11 +559,13 @@
   width: 788px;
   height: 69px;
 }
+
 .bg11,
 .in-thng-tin,
 .submit {
   position: absolute;
 }
+
 .bg11 {
   top: 0;
   left: 0;
@@ -517,6 +574,7 @@
   width: 156px;
   height: 54px;
 }
+
 .submit {
   top: 31.48%;
   left: 28.85%;
@@ -528,6 +586,7 @@
   color: #fff;
   text-align: left;
 }
+
 .submitbtn {
   cursor: pointer;
   border: 0;
@@ -536,6 +595,7 @@
   top: 1408px;
   left: 343px;
 }
+
 .bg12,
 .cancelbtn,
 .submitbtn {
@@ -543,12 +603,14 @@
   width: 156px;
   height: 54px;
 }
+
 .bg12 {
   top: 0;
   left: 0;
   border-radius: 31px;
   background-color: #574b3b;
 }
+
 .cancelbtn {
   cursor: pointer;
   border: 0;
@@ -557,6 +619,7 @@
   top: 1407px;
   left: 796px;
 }
+
 .s-cccd {
   margin: 0;
   position: absolute;
@@ -570,6 +633,7 @@
   display: inline-block;
   width: 228px;
 }
+
 .career-14,
 .careers-section {
   position: absolute;
@@ -578,9 +642,10 @@
   width: 400px;
   height: 181px;
 }
+
 .careers-section {
   top: 943px;
-  left: 376px;
+  left: 200px;
   width: 1328px;
   height: 1462px;
   text-align: left;

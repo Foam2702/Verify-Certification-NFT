@@ -13,16 +13,7 @@ const CareersSection = () => {
   const onfileChange = (event) => {
     setFile(event.target.files);
     console.log(file)
-    // const reader = new FileReader();
 
-    // reader.onloadend = () => {
-    //   const base64String = reader.result.replace("data:", "")
-    //     .replace(/^.+,/, "");
-
-    //   // Now you can send base64String to the backend
-    // };
-
-    // reader.readAsDataURL(file);
   };
   const handleSubmit = async (event) => {
     event.preventDefault();

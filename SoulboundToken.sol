@@ -32,6 +32,11 @@ contract SoulboundToken is ERC721 {
     // Liên kết thông tin của verifierInfo với verifierList
     mapping(address => VerifierInfo) public verifierList;
     address[] public verifierAddresses;
+
+    // Mapping để kiểm tra mã tổ chức duy nhất và mảng để lưu trữ các mã duy nhất
+    mapping(string => bool) private uniqueOrganizationCodes;
+    string[] private organizationCodesList;
+
     // Khai báo modifier `onlyOwner` để chỉ cho phép chủ sở hữu hợp đồng thực hiện các hành động được quy định
     constructor() ERC721("SoulboundToken", "SBT") {
         owner = msg.sender;
@@ -41,6 +46,17 @@ contract SoulboundToken is ERC721 {
     function addVerifier(address verifier, string memory organizationCode) public {
         verifierList[verifier] = VerifierInfo(true, organizationCode);
         verifierAddresses.push(verifier);
+
+        // Thêm mã tổ chức vào danh sách nếu nó chưa tồn tại
+        if (!uniqueOrganizationCodes[organizationCode]) {
+            uniqueOrganizationCodes[organizationCode] = true;
+            organizationCodesList.push(organizationCode);
+        }
+    }
+
+    // Hàm lấy danh sách tất cả các tổ chức duy nhất
+    function getOrganizationCodes() public view returns (string[] memory) {
+        return organizationCodesList;
     }
 
     // Hàm kiểm tra xem một địa chỉ có trong danh sách xác thực hay không
@@ -181,4 +197,6 @@ contract SoulboundToken is ERC721 {
 
         return result;
     }
+
+    
 }

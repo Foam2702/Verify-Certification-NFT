@@ -198,7 +198,5 @@ contract SoulboundToken is ERC721 {
         return result;
     }
 
-
-
     
 }

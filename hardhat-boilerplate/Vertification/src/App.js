@@ -6,6 +6,7 @@ import {
   useLocation,
 } from "react-router-dom";
 import Vertifications from "./pages/Vertifications";
+import Home from "./pages/Home";
 
 function App() {
   const action = useNavigationType();
@@ -24,6 +25,10 @@ function App() {
 
     switch (pathname) {
       case "/":
+        title = "";
+        metaDescription = "";
+        break;
+      case "/home1":
         title = "";
         metaDescription = "";
         break;
@@ -46,6 +51,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Vertifications />} />
+      <Route path="/home1" element={<Home />} />
     </Routes>
   );
 }

@@ -6,31 +6,27 @@
   height: 57px;
   object-fit: cover;
 }
-
-.bg14,
-.button {
+.bg22,
+.button2 {
   position: absolute;
   width: 65px;
 }
-
-.bg14 {
+.bg22 {
   top: 3px;
   left: 0;
   border-radius: 31px;
   background-color: rgba(245, 138, 7, 0.1);
   height: 54px;
 }
-
-.button {
+.button2 {
   cursor: pointer;
   border: 0;
   padding: 0;
   background-color: transparent;
   top: 24px;
-  left: 900px;
+  left: 1406px;
   height: 57px;
 }
-
 .thit-k-cha-c-tn-4-1 {
   position: absolute;
   top: 0;
@@ -39,31 +35,27 @@
   height: 57px;
   object-fit: cover;
 }
-
-.button1 {
+.button3 {
   cursor: pointer;
   border: 0;
   padding: 0;
   background-color: transparent;
   position: absolute;
   top: 24px;
-  left: 1000px;
+  left: 1307px;
   width: 65px;
   height: 57px;
 }
-
 .navbar,
-.team-abc {
+.team-abc1 {
   position: absolute;
   top: 0;
 }
-
-.team-abc {
+.team-abc1 {
   left: 0;
   line-height: 72px;
   font-weight: 600;
 }
-
 .navbar {
   margin: 0;
   left: 414px;

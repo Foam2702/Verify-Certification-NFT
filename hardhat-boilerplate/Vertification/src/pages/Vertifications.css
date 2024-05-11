@@ -5,14 +5,12 @@
   width: 653px;
   object-fit: cover;
 }
-
 .header-image,
 .image-icon,
 .orange {
   position: absolute;
   height: 657px;
 }
-
 .orange {
   top: 657px;
   left: 190.8px;
@@ -23,13 +21,11 @@
   transform-origin: 0 0;
   mix-blend-mode: multiply;
 }
-
 .header-image {
   top: 0;
   left: 664px;
   width: 653px;
 }
-
 .n-vi-trang,
 .xc-thc-nhanh {
   position: absolute;
@@ -40,7 +36,6 @@
   display: inline-block;
   width: 557px;
 }
-
 .xc-thc-nhanh {
   margin: 0;
   top: 0;
@@ -52,23 +47,20 @@
   color: #1d3444;
   width: 618px;
 }
-
 .header-text {
   top: 85px;
   left: 0;
   width: 618px;
   height: 559px;
 }
-
 .footer,
 .header,
 .header-text {
   position: absolute;
 }
-
 .header {
   top: 176px;
-  left: 150px;
+  left: 320px;
   width: 1317px;
   height: 657px;
   text-align: left;
@@ -76,14 +68,12 @@
   color: #5b5b5b;
   font-family: Poppins;
 }
-
 .footer {
   top: 2441px;
   left: 0;
   width: 1920px;
   height: 445px;
 }
-
 .vertifications1 {
   width: 100%;
   position: relative;

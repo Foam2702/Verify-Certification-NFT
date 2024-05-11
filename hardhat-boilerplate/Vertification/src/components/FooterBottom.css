@@ -1,4 +1,4 @@
-.bg16 {
+.bg24 {
   position: absolute;
   top: 0;
   left: 0;
@@ -6,8 +6,8 @@
   width: 1920px;
   height: 445px;
 }
-.privacy-policy,
-.terms-conditions {
+.privacy-policy1,
+.terms-conditions1 {
   position: absolute;
   height: 100%;
   width: 36.88%;
@@ -16,11 +16,11 @@
   font-weight: 500;
   display: inline-block;
 }
-.terms-conditions {
+.terms-conditions1 {
   width: 52.82%;
   left: 47.18%;
 }
-.footer-bottom-links {
+.footer-bottom-links1 {
   position: absolute;
   height: 100%;
   width: 23.46%;
@@ -29,7 +29,7 @@
   bottom: 0;
   left: 76.54%;
 }
-.all-rights-reserved {
+.all-rights-reserved1 {
   position: absolute;
   height: 100%;
   width: 19.64%;
@@ -38,7 +38,7 @@
   font-weight: 500;
   display: inline-block;
 }
-.footer-bottom1 {
+.footer-bottom3 {
   position: absolute;
   height: 5.19%;
   width: 66.82%;
@@ -47,7 +47,7 @@
   bottom: 17.28%;
   left: 16.67%;
 }
-.shape-right {
+.shape-right1 {
   position: absolute;
   top: 36.5px;
   left: 1867px;
@@ -56,7 +56,7 @@
   width: 53px;
   height: 275.8px;
 }
-.shape-left-icon {
+.shape-left-icon1 {
   position: absolute;
   top: 306.6px;
   left: 0;
@@ -64,7 +64,7 @@
   height: 138.4px;
   object-fit: contain;
 }
-.footer-bottom {
+.footer-bottom2 {
   position: absolute;
   top: 0;
   left: 0;

@@ -1,5 +1,5 @@
-.div,
-.hifinsweetcom {
+.div1,
+.hifinsweetcom1 {
   position: absolute;
   height: 20.53%;
   width: 97.84%;
@@ -8,16 +8,16 @@
   font-weight: 500;
   display: inline-block;
 }
-.hifinsweetcom {
+.hifinsweetcom1 {
   width: 100%;
   top: 45.24%;
 }
-.connect,
-.connect1 {
+.connect2,
+.connect3 {
   position: absolute;
   top: 0;
 }
-.connect1 {
+.connect3 {
   height: 23.11%;
   width: 56.83%;
   left: 0;
@@ -25,17 +25,17 @@
   font-weight: 600;
   display: inline-block;
 }
-.connect {
+.connect2 {
   height: 58.81%;
   width: 17.42%;
   right: 0;
   bottom: 41.19%;
   left: 82.58%;
 }
-.about-us,
-.blog,
-.careers,
-.services {
+.about-us1,
+.blog1,
+.careers1,
+.services1 {
   position: absolute;
   height: 12.33%;
   width: 39.13%;
@@ -44,27 +44,27 @@
   font-weight: 500;
   display: inline-block;
 }
-.about-us,
-.careers,
-.services {
+.about-us1,
+.careers1,
+.services1 {
   width: 73.91%;
   top: 67.18%;
 }
-.about-us,
-.careers {
+.about-us1,
+.careers1 {
   width: 69.57%;
   top: 46.69%;
 }
-.about-us {
+.about-us1 {
   width: 79.35%;
   top: 26.15%;
 }
-.company,
-.company1 {
+.company2,
+.company3 {
   position: absolute;
   top: 0;
 }
-.company1 {
+.company3 {
   height: 13.87%;
   width: 100%;
   left: 0;
@@ -72,53 +72,53 @@
   font-weight: 600;
   display: inline-block;
 }
-.company {
+.company2 {
   height: 97.96%;
   width: 11.53%;
   right: 30.7%;
   bottom: 2.04%;
   left: 57.77%;
 }
-.social-icontwitter {
+.social-icontwitter1 {
   position: absolute;
   left: calc(50% + 46.7px);
   height: 19.2px;
 }
-.social-iconfacebook,
-.social-iconinstagram,
-.social-icontwitter {
+.social-iconfacebook1,
+.social-iconinstagram1,
+.social-icontwitter1 {
   top: calc(50% - 9.6px);
   width: 21.3px;
   overflow: hidden;
   object-fit: cover;
 }
-.social-iconfacebook {
+.social-iconfacebook1 {
   position: absolute;
   left: calc(50% - 68px);
   height: 19.2px;
 }
-.social-iconinstagram {
+.social-iconinstagram1 {
   left: calc(50% + 8.4px);
 }
-.social,
-.social-iconinstagram,
-.social-iconyoutube {
+.social-iconinstagram1,
+.social-iconyoutube1,
+.social1 {
   position: absolute;
   height: 19.2px;
 }
-.social-iconyoutube {
+.social-iconyoutube1 {
   top: calc(50% - 9.6px);
   left: calc(50% - 29.8px);
   width: 21.3px;
   overflow: hidden;
   object-fit: cover;
 }
-.social {
+.social1 {
   top: calc(50% + 76.35px);
   left: calc(50% - 175.5px);
   width: 136px;
 }
-.bespoke-software-solutions {
+.bespoke-software-solutions1 {
   margin: 0;
   position: absolute;
   top: 56.7px;
@@ -132,7 +132,7 @@
   width: 351px;
   height: 84.6px;
 }
-.logo-icon {
+.logo-icon1 {
   position: absolute;
   height: 13.59%;
   width: 34.19%;
@@ -144,7 +144,7 @@
   overflow: hidden;
   max-height: 100%;
 }
-.footer-left {
+.footer-left1 {
   position: absolute;
   top: calc(50% - 95.65px);
   left: calc(50% - 399px);
@@ -152,7 +152,7 @@
   height: 191.3px;
   font-size: 36px;
 }
-.footer-top {
+.footer-top1 {
   position: absolute;
   height: 42.99%;
   width: 41.56%;

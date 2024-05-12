@@ -6,6 +6,7 @@
   width: 1927px;
   height: 444px;
 }
+
 .privacy-policy,
 .terms-conditions {
   position: absolute;
@@ -16,10 +17,12 @@
   font-weight: 500;
   display: inline-block;
 }
+
 .terms-conditions {
   width: 52.83%;
   left: 47.2%;
 }
+
 .footer-bottom-links {
   position: absolute;
   height: 100%;
@@ -29,6 +32,7 @@
   bottom: 0;
   left: 76.53%;
 }
+
 .all-rights-reserved {
   position: absolute;
   height: 100%;
@@ -38,6 +42,7 @@
   font-weight: 500;
   display: inline-block;
 }
+
 .footer-bottom1 {
   position: absolute;
   height: 5.18%;
@@ -47,6 +52,7 @@
   bottom: 17.27%;
   left: 16.67%;
 }
+
 .shape-right {
   position: absolute;
   top: 36.4px;
@@ -56,6 +62,7 @@
   width: 53.2px;
   height: 275.2px;
 }
+
 .shape-left-icon {
   position: absolute;
   top: 305.9px;
@@ -64,6 +71,7 @@
   height: 138.1px;
   object-fit: contain;
 }
+
 .bg1,
 .footer-bottom {
   position: absolute;
@@ -72,12 +80,14 @@
   width: 1927px;
   height: 444px;
 }
+
 .bg1 {
   border-radius: 31px;
   background-color: #f58a07;
   width: 156.6px;
   height: 51.8px;
 }
+
 .subscribe1 {
   position: absolute;
   height: 35.14%;
@@ -93,6 +103,7 @@
   text-align: left;
   display: inline-block;
 }
+
 .button,
 .input {
   border: 0;
@@ -100,6 +111,7 @@
   left: 0;
   height: 51.8px;
 }
+
 .button {
   cursor: pointer;
   padding: 0;
@@ -107,6 +119,7 @@
   top: 116.1px;
   width: 156.6px;
 }
+
 .input {
   outline: 0;
   font-weight: 500;
@@ -120,6 +133,7 @@
   box-sizing: border-box;
   color: #9c9c9c;
 }
+
 .join-newsletter {
   position: absolute;
   top: 0;
@@ -129,6 +143,7 @@
   width: 141.5px;
   height: 25.9px;
 }
+
 .subscribe {
   position: absolute;
   top: 0;
@@ -137,6 +152,7 @@
   height: 167.8px;
   font-size: 18px;
 }
+
 .div,
 .hifinsweetcom {
   position: absolute;
@@ -147,15 +163,18 @@
   font-weight: 500;
   display: inline-block;
 }
+
 .hifinsweetcom {
   width: 100%;
   top: 45.28%;
 }
+
 .connect,
 .connect1 {
   position: absolute;
   top: 0;
 }
+
 .connect1 {
   height: 23.08%;
   width: 56.85%;
@@ -164,6 +183,7 @@
   font-weight: 600;
   display: inline-block;
 }
+
 .connect {
   height: 58.81%;
   width: 10.86%;
@@ -171,6 +191,7 @@
   bottom: 41.19%;
   left: 51.48%;
 }
+
 .about-us,
 .blog,
 .careers,
@@ -183,26 +204,31 @@
   font-weight: 500;
   display: inline-block;
 }
+
 .about-us,
 .careers,
 .services {
   width: 73.89%;
   top: 67.17%;
 }
+
 .about-us,
 .careers {
   width: 69.56%;
   top: 46.68%;
 }
+
 .about-us {
   width: 79.41%;
   top: 26.15%;
 }
+
 .company,
 .company1 {
   position: absolute;
   top: 0;
 }
+
 .company1 {
   height: 13.85%;
   width: 100%;
@@ -211,6 +237,7 @@
   font-weight: 600;
   display: inline-block;
 }
+
 .company {
   height: 98.01%;
   width: 7.18%;
@@ -218,11 +245,13 @@
   bottom: 1.99%;
   left: 36.01%;
 }
+
 .social-icontwitter {
   position: absolute;
   left: calc(50% + 46.75px);
   height: 19.2px;
 }
+
 .social-iconfacebook,
 .social-iconinstagram,
 .social-icontwitter {
@@ -231,20 +260,24 @@
   overflow: hidden;
   object-fit: cover;
 }
+
 .social-iconfacebook {
   position: absolute;
   left: calc(50% - 68.25px);
   height: 19.2px;
 }
+
 .social-iconinstagram {
   left: calc(50% + 8.45px);
 }
+
 .social,
 .social-iconinstagram,
 .social-iconyoutube {
   position: absolute;
   height: 19.2px;
 }
+
 .social-iconyoutube {
   top: calc(50% - 9.6px);
   left: calc(50% - 29.95px);
@@ -252,11 +285,13 @@
   overflow: hidden;
   object-fit: cover;
 }
+
 .social {
   top: calc(50% + 76.3px);
   left: calc(50% - 176.15px);
   width: 136.5px;
 }
+
 .bespoke-software-solutions {
   margin: 0;
   position: absolute;
@@ -271,6 +306,7 @@
   width: 352.3px;
   height: 84.4px;
 }
+
 .logo-icon {
   position: absolute;
   height: 13.57%;
@@ -283,6 +319,7 @@
   overflow: hidden;
   max-height: 100%;
 }
+
 .footer-left {
   position: absolute;
   top: calc(50% - 95.4px);
@@ -291,6 +328,7 @@
   height: 190.8px;
   font-size: 36px;
 }
+
 .footer-top,
 .footer1 {
   position: absolute;
@@ -299,6 +337,7 @@
   width: 1284.7px;
   height: 190.8px;
 }
+
 .footer1 {
   top: 2400px;
   left: 4px;
@@ -309,6 +348,7 @@
   color: #fff;
   font-family: Poppins;
 }
+
 .bg2,
 .bg3 {
   position: absolute;
@@ -318,18 +358,21 @@
   width: 1952px;
   height: 665px;
 }
+
 .bg3 {
   border-radius: 20px;
   background-color: #fff;
   width: 407.7px;
   height: 277px;
 }
+
 .learn-more1,
 .lorem-ipsum-dolor,
 .mos {
   position: absolute;
   display: inline-block;
 }
+
 .lorem-ipsum-dolor {
   top: 124px;
   left: 39.6px;
@@ -338,10 +381,12 @@
   width: 341.6px;
   opacity: 0.8;
 }
+
 .learn-more1,
 .mos {
   line-height: 106.5%;
 }
+
 .mos {
   margin: 0;
   top: 82px;
@@ -352,12 +397,14 @@
   font-family: inherit;
   width: 54.9px;
 }
+
 .learn-more1 {
   top: 0;
   left: 0;
   font-weight: 500;
   width: 91.5px;
 }
+
 .icon {
   position: absolute;
   top: 4px;
@@ -365,6 +412,7 @@
   width: 22.4px;
   height: 10px;
 }
+
 .feature-3,
 .learn-more {
   position: absolute;
@@ -374,6 +422,7 @@
   height: 17px;
   color: #f58a07;
 }
+
 .feature-3 {
   text-decoration: none;
   top: 0;
@@ -382,6 +431,7 @@
   height: 277px;
   color: #1d3444;
 }
+
 .lorem-ipsum-dolor1 {
   position: absolute;
   top: 124px;
@@ -391,10 +441,12 @@
   display: inline-block;
   width: 341.6px;
 }
+
 .icon1,
 .toeic {
   position: absolute;
 }
+
 .toeic {
   margin: 0;
   top: 82px;
@@ -408,12 +460,14 @@
   display: inline-block;
   width: 69.1px;
 }
+
 .icon1 {
   top: 4px;
   left: 99.6px;
   width: 22.4px;
   height: 10px;
 }
+
 .feature-2,
 .learn-more2 {
   position: absolute;
@@ -423,6 +477,7 @@
   height: 17px;
   color: #f58a07;
 }
+
 .feature-2 {
   text-decoration: none;
   top: 0;
@@ -431,6 +486,7 @@
   height: 277px;
   color: inherit;
 }
+
 .ielts,
 .lorem-ipsum-dolor2 {
   position: absolute;
@@ -441,6 +497,7 @@
   display: inline-block;
   width: 341.6px;
 }
+
 .ielts {
   margin: 0;
   top: 82px;
@@ -452,6 +509,7 @@
   color: #0d1317;
   width: 58px;
 }
+
 .learn-more4 {
   position: absolute;
   top: 222px;
@@ -460,11 +518,13 @@
   height: 17px;
   color: #f58a07;
 }
+
 .feature-1,
 .features {
   position: absolute;
   height: 277px;
 }
+
 .feature-1 {
   text-decoration: none;
   top: 0;
@@ -472,16 +532,19 @@
   width: 407.7px;
   color: inherit;
 }
+
 .features {
   top: 292px;
   left: 325.3px;
   width: 1301.3px;
 }
+
 .cc-kha-hc,
 .lorem-ipsum-dolor3 {
   position: absolute;
   display: inline-block;
 }
+
 .lorem-ipsum-dolor3 {
   top: 102px;
   left: 996.3px;
@@ -492,6 +555,7 @@
   width: 630.3px;
   height: 102px;
 }
+
 .cc-kha-hc {
   margin: 0;
   top: 96px;
@@ -504,6 +568,7 @@
   color: #0d1317;
   width: 629.3px;
 }
+
 .feaures-section {
   position: absolute;
   top: 1732px;
@@ -515,6 +580,7 @@
   color: #5b5b5b;
   font-family: Poppins;
 }
+
 .learn-more7 {
   position: absolute;
   top: 0;
@@ -522,6 +588,7 @@
   line-height: 106.5%;
   font-weight: 500;
 }
+
 .icon3 {
   position: absolute;
   top: 4px;
@@ -530,6 +597,7 @@
   height: 10px;
   object-fit: cover;
 }
+
 .learn-more6 {
   position: absolute;
   top: 430px;
@@ -537,6 +605,7 @@
   width: 120px;
   height: 17px;
 }
+
 .lorem-ipsum-dolor4,
 .mua-kha-hc {
   position: absolute;
@@ -548,6 +617,7 @@
   display: inline-block;
   width: 400px;
 }
+
 .mua-kha-hc {
   margin: 0;
   top: 275px;
@@ -559,24 +629,28 @@
   width: 195px;
   height: 30px;
 }
+
 .help-3,
 .image-icon1 {
   position: absolute;
   top: 0;
   width: 400px;
 }
+
 .image-icon1 {
   left: 0;
   border-radius: 20px;
   height: 242px;
   object-fit: cover;
 }
+
 .help-3 {
   text-decoration: none;
   left: 880px;
   height: 447px;
   color: inherit;
 }
+
 .learn-more8 {
   position: absolute;
   top: 401px;
@@ -584,6 +658,7 @@
   width: 120px;
   height: 17px;
 }
+
 .lorem-ipsum-dolor5,
 .ng-kha-hc {
   position: absolute;
@@ -595,6 +670,7 @@
   display: inline-block;
   width: 400px;
 }
+
 .ng-kha-hc {
   margin: 0;
   top: 246px;
@@ -606,6 +682,7 @@
   width: 215px;
   height: 30px;
 }
+
 .image-icon2 {
   position: absolute;
   top: 0;
@@ -615,6 +692,7 @@
   height: 193px;
   object-fit: cover;
 }
+
 .help-2 {
   text-decoration: none;
   position: absolute;
@@ -624,6 +702,7 @@
   height: 418px;
   color: inherit;
 }
+
 .lorem-ipsum-dolor6,
 .xc-thc-chng {
   position: absolute;
@@ -635,6 +714,7 @@
   display: inline-block;
   width: 399px;
 }
+
 .xc-thc-chng {
   margin: 0;
   top: 275px;
@@ -647,6 +727,7 @@
   width: 257px;
   height: 30px;
 }
+
 .image-icon3 {
   position: absolute;
   top: 0;
@@ -656,22 +737,26 @@
   height: 242px;
   object-fit: cover;
 }
+
 .help-1,
 .help-posts {
   position: absolute;
   left: 0;
   height: 447px;
 }
+
 .help-1 {
   text-decoration: none;
   top: 0;
   width: 400px;
   color: inherit;
 }
+
 .help-posts {
   top: 293px;
   width: 1280px;
 }
+
 .hn-2000-chng,
 .lorem-ipsum-dolor7 {
   position: absolute;
@@ -684,6 +769,7 @@
   display: inline-block;
   width: 735px;
 }
+
 .hn-2000-chng {
   margin: 0;
   top: 0;
@@ -694,6 +780,7 @@
   font-family: inherit;
   color: #1d3444;
 }
+
 .help-section {
   position: absolute;
   top: 896px;
@@ -705,6 +792,7 @@
   color: #f58a07;
   font-family: Poppins;
 }
+
 .bg6 {
   position: absolute;
   top: 0;
@@ -713,6 +801,7 @@
   width: 1933px;
   height: 703px;
 }
+
 .image-icon4 {
   position: absolute;
   top: 29px;
@@ -721,6 +810,7 @@
   height: 645px;
   object-fit: cover;
 }
+
 .lorem-ipsum-dolor8 {
   position: absolute;
   top: 237px;
@@ -730,11 +820,13 @@
   display: inline-block;
   width: 571px;
 }
+
 .h-thng-xc,
 .header-text1 {
   position: absolute;
   width: 573px;
 }
+
 .h-thng-xc {
   margin: 0;
   top: 0;
@@ -749,11 +841,13 @@
   height: 280px;
   mix-blend-mode: normal;
 }
+
 .header-text1 {
   top: 176px;
   left: 310px;
   height: 297px;
 }
+
 .header1 {
   top: 97px;
   left: 0;
@@ -764,11 +858,13 @@
   color: #5b5b5b;
   font-family: Poppins;
 }
+
 .bg7,
 .header1,
 .log-in {
   position: absolute;
 }
+
 .bg7 {
   cursor: pointer;
   border: 0;
@@ -780,6 +876,7 @@
   width: 173px;
   height: 52px;
 }
+
 .log-in {
   height: 17.31%;
   width: 31.21%;
@@ -793,6 +890,7 @@
   text-align: left;
   display: inline-block;
 }
+
 .button1 {
   cursor: pointer;
   border: 0;
@@ -804,6 +902,7 @@
   width: 173px;
   height: 52px;
 }
+
 .team-abc {
   position: absolute;
   top: 0;
@@ -811,6 +910,7 @@
   line-height: 72px;
   font-weight: 600;
 }
+
 .home1 {
   width: 100%;
   position: relative;

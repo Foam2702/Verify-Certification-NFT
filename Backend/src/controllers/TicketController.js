@@ -3,8 +3,9 @@ const imageUpload = require("../service/uploadImage")
 const splitDate = require("../service/splitDate")
 const notificationModel = require("../models/NotificationModel")
 const notificationService = require("../service/notification")
+const organizationModel = require("../models/Organization")
 const fs = require('fs')
-const TicketModel = require("../models/TicketModel")
+
 module.exports = {
     getAllTicket: async (req, res, next) => {
         const ticket = await ticketModel.getAllTicket();
@@ -12,10 +13,13 @@ module.exports = {
     },
     sendTicketFromStudent: async (req, res, next) => {
         const ticket = req.body;
+        //console.log(ticket)
+
         const cidCertificate = "cidCertificate"
         const certificateUrl = "certificateUrl"
         const status = "status"
         let image = { ...ticket, ...req.file }
+        console.log(image)
         if (ticket.point == '') {
             ticket.point = null
         }
@@ -28,11 +32,12 @@ module.exports = {
         }
         ticket.dob = splitDate(req.body.dob);
         ticket.issueDate = splitDate(req.body.issueDate);
+
         ticket[status] = "processing"
 
         ticket[cidCertificate] = await imageUpload(image);
         ticket[certificateUrl] = `https://coral-able-takin-320.mypinata.cloud/ipfs/${ticket[cidCertificate]}`
-        //await notificationModel.insertNotification(ticket, false, "none")
+        await notificationModel.insertNotification(ticket, false, "none")
         await notificationService.newTicketNotification(ticket)
         const result = await ticketModel.insertTicket(ticket);
         if (result == true) {
@@ -68,12 +73,13 @@ module.exports = {
             })
         }
     },
-    getAllCities: async (req, res) => {
-        const cities = await TicketModel.getAllCities();
+    getAllInfoTicket: async (req, res) => {
+        const cities = await ticketModel.getAllCities();
+        const certificates = await organizationModel.getAllOrganization();
         res.json({
             "code": "200",
             "status": "success",
-            cities
+            cities, certificates
         }
         )
 

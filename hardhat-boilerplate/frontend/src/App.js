@@ -123,7 +123,9 @@ function App() {
             const signer = provider.getSigner();
             const contract = new ethers.Contract(SOULBOUND_ADDRESS, SOULBOUND.abi, signer);
             try {
-                const result = await contract.getOrganizationCodes;
+                // const result = await contract.getOrganizationCodes;
+                // console.log(result);
+                const result = await contract.getOrganizationCodes();
                 console.log(result);
 
             } catch (error) {

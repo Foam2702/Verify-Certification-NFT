@@ -3,6 +3,7 @@ import "./CareersSection.css";
 import React, { useState, useEffect } from 'react';
 
 import axios from 'axios';
+import useSigner from "../state/signer";
 
 const CareersSection = () => {
   {/* Set state */ }
@@ -10,6 +11,8 @@ const CareersSection = () => {
   const [courses, setCourses] = useState([]);
   const [organization, setOrganization] = useState([]);
   const [file, setFile] = useState(null);
+  const { address, connectMetaMask } = useSigner()
+
   {/* Handle function */ }
   const onfileChange = (event) => {
     setFile(event.target.files);

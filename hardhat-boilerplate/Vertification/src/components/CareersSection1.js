@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useCallback } from "react";
 import "./CareersSection.css";
 import axios from "axios";
+import useSigner from "../state/signer";
+
 
 const CareersSection = () => {
   const onInputContainerClick = useCallback(() => {
@@ -95,7 +97,7 @@ const CareersSection = () => {
     }
     fetchDataCourses().catch(error => console.error(error));
   }, []);
-  {/*Format date to dd/mm/yyyy*/}
+  {/*Format date to dd/mm/yyyy*/ }
   function formatDate(input) {
     const datePart = input.match(/\d+/g);
     const year = datePart[0];
@@ -197,7 +199,7 @@ const CareersSection = () => {
           <div className="apply-now2">Apply Now</div>
           <input className="input12" placeholder="Choose..." type="text" />
         </div>
-    </form>
+      </form>
     </main>
   );
 };

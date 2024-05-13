@@ -7,7 +7,7 @@ import "./Vertifications.css";
 const Vertifications = () => {
   return (
     <div className="vertifications1">
-      <CareersSection />
+      <Header />
       <section className="header">
         <div className="header-image">
           <img className="image-icon" alt="" src="/image@2x.png" />
@@ -28,6 +28,7 @@ const Vertifications = () => {
         </div>
       </section>
       <Header />
+      <CareersSection />
       <footer className="footer">
         <FooterBottom />
         <FooterTop />

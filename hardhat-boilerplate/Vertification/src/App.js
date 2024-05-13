@@ -53,8 +53,8 @@ function App() {
 
     <SignerProvider>
       <Routes>
-        <Route path="/" element={<Vertifications />} />
-        <Route path="/home1" element={<Home />} />
+        <Route path="/verification" element={<Vertifications />} />
+        <Route path="/" element={<Home />} />
       </Routes>
     </SignerProvider>
 

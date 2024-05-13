@@ -145,7 +145,7 @@ const Home = () => {
           </a>
           <a className="help-1">
             <div className="learn-more6">
-              <div className="learn-more7">Learn More</div>
+              <button className="learn-more7" onClick={() => navigate('/verification')}>Learn More</button>
               <img className="icon3" alt="" src="/icon1@2x.png" />
             </div>
             <div className="lorem-ipsum-dolor6">{`Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur sit amet eros blandit, hendrerit elit et, `}</div>

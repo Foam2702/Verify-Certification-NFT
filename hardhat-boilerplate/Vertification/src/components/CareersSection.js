@@ -32,7 +32,7 @@ const CareersSection = () => {
     for (var x = 0; x < file.length; x++) {
       formData.append('imageCertificate', file[x])
     }
-    formData.append('owner', 'abcxyz');
+    formData.append('owner', address);
     formData.append('citizenId', data.citizenId);
     formData.append('name', data.name);
     formData.append('region', data.region);
@@ -47,13 +47,15 @@ const CareersSection = () => {
     formData.append('expiryDate', formatDate(data.expiryDate));
 
     try {
-      const response = await axios.post("http://localhost:8080/tickets", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        }
-      })
-      console.log(response.data);
-      console.log(formData)
+      // const response = await axios.post("http://localhost:8080/tickets", formData, {
+      //   headers: {
+      //     "Content-Type": "multipart/form-data",
+      //   }
+      // })
+      // console.log(response.data);
+      for (let pair of formData.entries()) {
+        console.log(pair[0] + ', ' + pair[1]);
+      }
     } catch (error) {
       console.error(error);
     }

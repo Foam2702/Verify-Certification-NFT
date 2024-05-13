@@ -1,14 +1,18 @@
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Home.css";
+import useSigner from "../state/signer";
+import { minifyAddress } from "../helpers";
+import AddressAvatar from "../components/AddressAvatar"
 
 const Home = () => {
   const navigate = useNavigate();
-
-  const onButton1Click = useCallback(() => {
-    navigate("/");
-  }, [navigate]);
-
+  const { address, connectMetaMask } = useSigner()
+  //if (address) return <AddressAvatar address={address} />;
+  // const connectMetaMask = useCallback(() => {
+  //   navigate("/");
+  // }, [navigate]);
+  console.log(address)
   return (
     <div className="home1">
       <section className="footer1">
@@ -171,9 +175,9 @@ const Home = () => {
           </h1>
         </div>
       </section>
-      <button className="button1" onClick={onButton1Click}>
-        <button className="bg7" />
-        <div className="log-in">LOG IN</div>
+      <button className="button1" onClick={connectMetaMask}>
+        {/* {<AddressAvatar address={address} /> && <div className="log-in">LOG IN</div>} */}
+        <div className="log-in">{address ? <AddressAvatar address={address} /> : "LOG IN"}</div>
       </button>
       <div className="team-abc">team ABC</div>
     </div>

@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 import Vertifications from "./pages/Vertifications";
 import Home from "./pages/Home";
+import { SignerProvider } from "./state/signer"
 
 function App() {
   const action = useNavigationType();
@@ -49,10 +50,15 @@ function App() {
   }, [pathname]);
 
   return (
-    <Routes>
-      <Route path="/" element={<Vertifications />} />
-      <Route path="/home1" element={<Home />} />
-    </Routes>
+
+    <SignerProvider>
+      <Routes>
+        <Route path="/" element={<Vertifications />} />
+        <Route path="/home1" element={<Home />} />
+      </Routes>
+    </SignerProvider>
+
+
   );
 }
 export default App;

@@ -27,7 +27,6 @@ const Vertifications = () => {
           </h1>
         </div>
       </section>
-      <Header />
       <CareersSection />
       <footer className="footer">
         <FooterBottom />

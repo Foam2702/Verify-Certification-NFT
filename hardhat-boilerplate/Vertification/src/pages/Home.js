@@ -4,6 +4,7 @@ import "./Home.css";
 import useSigner from "../state/signer";
 import { minifyAddress } from "../helpers";
 import AddressAvatar from "../components/AddressAvatar"
+import Header from "../components/Header";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -175,11 +176,8 @@ const Home = () => {
           </h1>
         </div>
       </section>
-      <button className="button1" onClick={connectMetaMask}>
-        {/* {<AddressAvatar address={address} /> && <div className="log-in">LOG IN</div>} */}
-        <div className="log-in">{address ? <AddressAvatar address={address} /> : "LOG IN"}</div>
-      </button>
-      <div className="team-abc">team ABC</div>
+
+      <Header />
     </div>
   );
 };

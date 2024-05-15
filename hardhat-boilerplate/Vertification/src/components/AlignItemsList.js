@@ -14,6 +14,7 @@ import { Button } from '@mui/material';
 import { Card, CardActionArea, CardContent, CardMedia, Grid } from '@mui/material';
 import { minifyAddress } from "../helpers";
 import { orange } from '@mui/material/colors';
+import { SvgIcon } from '@mui/material';
 
 
 export default function AlignItemsList() {
@@ -38,35 +39,38 @@ export default function AlignItemsList() {
     }, []);
 
     return (
-        <List sx={{ width: '100%', maxWidth: 1800, mx: "auto", mt: "50" }}>
-            {tickets.map((ticket, index) => (
+        <>
 
-                <ListItem key={index}
-                    alignItems="flex-start"
-                    sx={{ border: '1px solid grey', bgcolor: '#ffe0b2' }}
-                    onClick={() => handleTicketClick(ticket.owner_address, ticket.certificate_cid)} >
-                    <ListItemAvatar>
-                        <Avatar src={`https://coral-able-takin-320.mypinata.cloud/ipfs/${ticket.certificate_cid}`} />
-                    </ListItemAvatar>
-                    <ListItemText
-                        primary={ticket.name}
-                        secondary={
-                            <React.Fragment>
-                                <Typography
-                                    sx={{ display: 'inline' }}
-                                    component="span"
-                                    variant="body2"
-                                    color="text.primary"
-                                >
-                                    {ticket.certificate_name}
-                                </Typography>
-                            </React.Fragment>
-                        }
-                    />
-                </ListItem>
+            <List sx={{ width: '100%', maxWidth: 1000, mx: "auto", mt: "50" }}>
+                <Typography variant="h4">PENDING :</Typography>
+                {tickets.map((ticket, index) => (
+                    <ListItem key={index}
+                        alignItems="flex-start"
+                        sx={{ border: '1px solid grey', bgcolor: '#ffe0b2' }}
+                        onClick={() => handleTicketClick(ticket.owner_address, ticket.certificate_cid)} >
+                        <ListItemAvatar>
+                            <Avatar src={`https://coral-able-takin-320.mypinata.cloud/ipfs/${ticket.certificate_cid}`} />
+                        </ListItemAvatar>
+                        <ListItemText
+                            primary={ticket.owner_address}
+                            secondary={
+                                <React.Fragment>
+                                    <Typography
+                                        sx={{ display: 'inline' }}
+                                        component="span"
+                                        variant="body2"
+                                        color="text.primary"
+                                    >
+                                        {ticket.certificate_name}
+                                    </Typography>
+                                </React.Fragment>
+                            }
+                        />
+                    </ListItem>
 
-            ))}
-        </List>
+                ))}
+            </List>
+        </>
 
         // <Grid container spacing={2} justify="center" >
         //     {tickets.map((ticket, index) => (

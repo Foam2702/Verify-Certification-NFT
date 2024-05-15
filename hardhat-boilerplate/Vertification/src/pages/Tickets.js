@@ -6,7 +6,6 @@ import FooterTop from "../components/FooterTop";
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 
-
 import "./Vertifications.css";
 
 const Tickets = () => {

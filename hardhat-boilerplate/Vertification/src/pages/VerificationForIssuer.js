@@ -9,19 +9,6 @@ import "./Vertifications.css";
 import Ticket from '../components/Ticket';
 
 export default function VerificationForIssuer() {
-    // const [ticket, setTicket] = useState([])
-    // const { id } = useParams();
-    // useEffect(() => {
-    //     const fetchTicketsById = async () => {
-    //         const result = await axios(`http://localhost:8080/tickets/ticket/${id}`);
-
-    //         setTicket(result.data.ticket);
-    //         console.log(result.data.ticket)
-
-    //     }
-    //     fetchTicketsById().catch(error => console.error(error));
-
-    // }, [ticket])
 
     const [ticket, setTicket] = useState([]);
     const { id } = useParams();

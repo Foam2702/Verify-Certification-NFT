@@ -7,22 +7,18 @@ import { Button, CardActionArea, CardActions } from '@mui/material';
 import Link from '@mui/material/Link';
 
 export default function MultiActionAreaCard({ image }) {
-
     return (
-        <Card sx={{ maxWidth: 400 }}>
-            <CardActionArea>
-                <CardMedia
-                    component="img"
-                    height="140"
-                    image={image}
-                    alt="green iguana"
-                />
-            </CardActionArea>
-            <CardActions>
-                <Button size="large" color="primary">
-                    <Link href={image}>Link</Link>
-                </Button>
-            </CardActions>
+        <Card sx={{ width: 350 }}>
+            <Link href={image} target="_blank">
+                <CardActionArea>
+                    <CardMedia
+                        component="img"
+                        height="140"
+                        image={image}
+                        alt="green iguana"
+                    />
+                </CardActionArea>
+            </Link>
         </Card>
     );
 }

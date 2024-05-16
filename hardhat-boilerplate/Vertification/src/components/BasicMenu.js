@@ -15,6 +15,7 @@ export default function BasicMenu({ anchorEl, handleClose, open, menuItems }) {
         await new Promise(resolve => setTimeout(resolve, 500)); // wait for 2 seconds
         setLoading(false);
         navigate(`/tickets/ticket/${newItem.id}`);
+        handleClose();
     };
     return (
         <>

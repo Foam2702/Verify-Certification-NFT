@@ -63,9 +63,10 @@ module.exports = {
     getOneTicket: async (req, res, next) => {
         const { id } = req.params
         const ticket = await ticketModel.getOneTicket(id)
+        console.log(ticket)
         if (ticket != undefined) {
             const certificateUrl = "certificateUrl"
-            ticket[certificateUrl] = `https://coral-able-takin-320.mypinata.cloud/ipfs/${ticket.cid_certificate}`
+            ticket[certificateUrl] = `https://coral-able-takin-320.mypinata.cloud/ipfs/${ticket.certificate_cid}`
             res.json({
                 "code": "200",
                 "success": true,

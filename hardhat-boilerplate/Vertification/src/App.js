@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 import Vertifications from "./pages/Vertifications";
 import Home from "./pages/Home";
-import Tickets from "./pages/Tickets";
+import VerificationForIssuer from "./pages/VerificationForIssuer";
 import { SignerProvider } from "./state/signer"
 
 function App() {
@@ -54,7 +54,7 @@ function App() {
 
     <SignerProvider>
       <Routes>
-        <Route path="/ticket" element={<Tickets />} />
+        <Route path="/tickets/ticket/:id" element={<VerificationForIssuer />} />
         <Route path="/verification" element={<Vertifications />} />
         <Route path="/" element={<Home />} />
       </Routes>

@@ -5,8 +5,7 @@ import { useState, useEffect } from 'react';
 import Badge from '@mui/material/Badge';
 import axios from 'axios';
 
-const NotificationBell = ({ badgeContent }) => {
-
+const NotificationBell = () => {
     const [open, setOpen] = useState(false)
     const [anchorEl, setAnchorEl] = useState(null)
     const [tickets, setTickets] = useState([])

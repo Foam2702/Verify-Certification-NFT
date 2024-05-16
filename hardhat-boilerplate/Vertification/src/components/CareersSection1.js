@@ -167,10 +167,10 @@ const CareersSection = () => {
           <div className="bg15" />
           <h3 className="ti-ln-file">Tải lên file chứng chỉ gốc*</h3>
           <div className="apply-now9">Apply Now</div>
-          <div className="input10" onClick={onInputContainerClick}>
+          <button className="input10" onClick={onInputContainerClick}>
             <div className="bg16" />
             <div className="enter">Choose...</div>
-          </div>
+          </button>
         </div>
         <div className="career-3">
           <div className="bg17" />

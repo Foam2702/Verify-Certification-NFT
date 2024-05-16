@@ -1,15 +1,16 @@
 import * as React from 'react';
-import Button from '@mui/material/Button';
+import { useNavigate } from "react-router-dom";
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import Avatar from '@mui/material/Avatar';
-import { minifyAddress } from "../helpers";
 import Typography from '@mui/material/Typography';
-
+import AddressAvatar from './AddressAvatar';
 export default function BasicMenu({ anchorEl, handleClose, open, menuItems }) {
-    console.log(menuItems)
+    const navigate = useNavigate();
+    const handleItemClick = (item) => {
+        navigate(`/tickets/ticket/${item.id}`)
+    }
     return (
-        <div>
+        <>
             <Menu
                 id="basic-menu"
                 anchorEl={anchorEl}
@@ -18,21 +19,34 @@ export default function BasicMenu({ anchorEl, handleClose, open, menuItems }) {
                 MenuListProps={{
                     'aria-labelledby': 'basic-button',
                 }}
+                sx={{
+                    maxHeight: '700px',  // Adjust this value as needed
+                    overflow: 'auto',
+                }}
             >
                 {menuItems.map((item, index) => (
-                    <MenuItem key={index} style={{ fontSize: '20px', padding: '10px', width: '500px', marginBottom: '10px' }} onClick={handleClose}>
-                        <Avatar src={`https://coral-able-takin-320.mypinata.cloud/ipfs/${item.certificate_cid}`} />
-                        <Typography fontWeight="bold" style={{ marginRight: '10px' }}>
-                            {minifyAddress(item.owner_address)}
-                        </Typography>
-                        <Typography style={{ marginRight: '10px' }}>yêu cầu xác thực cứng chỉ</Typography>
-                        <Typography fontWeight="bold">
-                            {item.certificate_name}
-                        </Typography>
+                    item.status === "processing" && (
+                        <MenuItem key={index}
+                            style={{
+                                fontSize: '20px',
+                                padding: '10px',
+                                width: '500px',
+                                marginBottom: '10px',
 
-                    </MenuItem>
+                            }}
+                            onClick={() => handleItemClick(item)}
+                        >
+                            <Typography fontWeight="bold" style={{ marginRight: '10px' }}>
+                                <AddressAvatar address={item.owner_address} />
+                            </Typography>
+                            <Typography style={{ marginRight: '10px' }}>yêu cầu xác thực chứng chỉ</Typography>
+                            <Typography fontWeight="bold">
+                                {item.certificate_name}
+                            </Typography>
+                        </MenuItem>
+                    )
                 ))}
             </Menu>
-        </div>
+        </>
     );
 }

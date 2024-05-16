@@ -136,8 +136,8 @@ const CareersSection = () => {
           <h3 className="tn-chng-ch">Tên chứng chỉ*</h3>
           <select className="input3" option={courses} name="certificateName" onChange={handleCourseChange} >
             <option value="">Chọn chứng chỉ ...</option>
-            {courses.map((course) => (
-              <option key={course.id} value={course.certificate}>
+            {courses.map((course, index) => (
+              <option key={index} value={course.certificate}>
                 {course.certificate}
               </option>
             ))}

@@ -41,10 +41,9 @@ module.exports = {
         }
 
     },
-    getOneTicket: async (owner, cid) => {
+    getOneTicket: async (id) => {
         const result = await sql
-            `SELECT  * FROM ticket WHERE owner_address=${owner} 
-        and certificate_cid=${cid};`;
+            `SELECT  * FROM ticket WHERE id=${id} `;
         return result[0];
     },
     getAllCities: async () => {

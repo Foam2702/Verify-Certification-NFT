@@ -8,8 +8,12 @@ const fs = require('fs')
 
 module.exports = {
     getAllTicket: async (req, res, next) => {
-        const ticket = await ticketModel.getAllTicket();
-        res.json(ticket);
+        const tickets = await ticketModel.getAllTicket();
+        res.json({
+            "code": "200",
+            "success": true,
+            "tickets": tickets,
+        });
     },
     sendTicketFromStudent: async (req, res, next) => {
         const ticket = req.body;
@@ -57,13 +61,17 @@ module.exports = {
         }
     },
     getOneTicket: async (req, res, next) => {
-        const owner = req.query.owner_address;
-        const cid = req.query.certificate_cid
-        const ticket = await ticketModel.getOneTicket(owner, cid)
+        const { id } = req.params
+        const ticket = await ticketModel.getOneTicket(id)
         if (ticket != undefined) {
             const certificateUrl = "certificateUrl"
             ticket[certificateUrl] = `https://coral-able-takin-320.mypinata.cloud/ipfs/${ticket.cid_certificate}`
-            res.json(ticket)
+            res.json({
+                "code": "200",
+                "success": true,
+                "ticket": ticket
+            })
+
         }
         else {
             res.json({

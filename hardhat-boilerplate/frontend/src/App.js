@@ -23,9 +23,6 @@ function App() {
             console.log("Wallet exists")
         }
         const account = await ethereum.request({ method: 'eth_requestAccounts' })
-
-
-
         setCurrentAccount(account[0])
     }
 

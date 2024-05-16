@@ -8,8 +8,7 @@ import MultiActionAreaCard from "./MultiACtionAreaCard";
 import { formatDate } from '../helpers/index'
 
 const Ticket = ({ ticket }) => {
-
-    const { address, connectMetaMask } = useSigner()
+    const { address, connectWallet } = useSigner()
     const handleSubmit = async (event) => {
         event.preventDefault();
         const form = document.querySelector('form');

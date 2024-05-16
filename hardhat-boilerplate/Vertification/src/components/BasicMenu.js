@@ -6,9 +6,9 @@ import Typography from '@mui/material/Typography';
 import AddressAvatar from './AddressAvatar';
 import CircularProgress from '@mui/material/CircularProgress';
 import "./BasicMenu.css"
+
 export default function BasicMenu({ anchorEl, handleClose, open, menuItems }) {
     const [loading, setLoading] = useState(false);
-
     const navigate = useNavigate();
     const handleItemClick = async (newItem) => {
         setLoading(true);

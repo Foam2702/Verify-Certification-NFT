@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Home.css";
 import useSigner from "../state/signer";
@@ -8,12 +8,8 @@ import Header from "../components/Header";
 
 const Home = () => {
   const navigate = useNavigate();
-  const { address, connectMetaMask } = useSigner()
-  //if (address) return <AddressAvatar address={address} />;
-  // const connectMetaMask = useCallback(() => {
-  //   navigate("/");
-  // }, [navigate]);
-  console.log(address)
+  const { signer, loading, address, connectWallet } = useSigner();
+  console.log("HOME", address)
   return (
     <div className="home1">
       <section className="footer1">

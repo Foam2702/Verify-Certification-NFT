@@ -14,7 +14,6 @@ function App() {
   const action = useNavigationType();
   const location = useLocation();
   const pathname = location.pathname;
-
   useEffect(() => {
     if (action !== "POP") {
       window.scrollTo(0, 0);
@@ -49,7 +48,6 @@ function App() {
       }
     }
   }, [pathname]);
-
   return (
 
     <SignerProvider>

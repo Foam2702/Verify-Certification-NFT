@@ -11,7 +11,7 @@ const CareersSection = () => {
   const [courses, setCourses] = useState([]);
   const [organization, setOrganization] = useState([]);
   const [file, setFile] = useState(null);
-  const { address, connectMetaMask } = useSigner()
+  const { address, connectWallet } = useSigner()
 
   {/* Handle function */ }
   const onfileChange = (event) => {
@@ -47,12 +47,12 @@ const CareersSection = () => {
     formData.append('expiryDate', formatDate(data.expiryDate));
 
     try {
-      // const response = await axios.post("http://localhost:8080/tickets", formData, {
-      //   headers: {
-      //     "Content-Type": "multipart/form-data",
-      //   }
-      // })
-      // console.log(response.data);
+      const response = await axios.post("http://localhost:8080/tickets", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        }
+      })
+      console.log(response.data);
       for (let pair of formData.entries()) {
         console.log(pair[0] + ', ' + pair[1]);
       }

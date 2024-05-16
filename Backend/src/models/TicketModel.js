@@ -49,6 +49,11 @@ module.exports = {
     getAllCities: async () => {
         const cities = await sql`SELECT * FROM city;`;
         return cities;
+    },
+    getTicketFromOrg: async (org) => {
+        const result = await sql
+            `SELECT  * FROM ticket WHERE licensing_authority=${org} `;
+        return result;
     }
 
 

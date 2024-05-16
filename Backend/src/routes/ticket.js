@@ -29,5 +29,5 @@ router
     .get(ticketController.getOneTicket)
 router
     .route("/all").get(ticketController.getAllTicket)
-
+router.route("/:org").get(ticketController.getTicketFromOrg)
 module.exports = router;

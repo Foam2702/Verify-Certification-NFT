@@ -92,6 +92,15 @@ module.exports = {
         }
         )
 
+    },
+    getTicketFromOrg: async (req, res) => {
+        const { org } = req.params
+        const tickets = await ticketModel.getTicketFromOrg(org)
+        res.json({
+            "code": "200",
+            "success": true,
+            "tickets": tickets
+        })
     }
 
 }

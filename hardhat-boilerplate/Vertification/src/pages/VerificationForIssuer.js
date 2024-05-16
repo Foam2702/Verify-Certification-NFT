@@ -6,26 +6,44 @@ import Header from "../components/Header";
 import FooterBottom from "../components/FooterBottom";
 import FooterTop from "../components/FooterTop";
 import "./Vertifications.css";
+import Ticket from '../components/Ticket';
 
 export default function VerificationForIssuer() {
-    const [ticket, setTicket] = useState([])
+    // const [ticket, setTicket] = useState([])
+    // const { id } = useParams();
+    // useEffect(() => {
+    //     const fetchTicketsById = async () => {
+    //         const result = await axios(`http://localhost:8080/tickets/ticket/${id}`);
+
+    //         setTicket(result.data.ticket);
+    //         console.log(result.data.ticket)
+
+    //     }
+    //     fetchTicketsById().catch(error => console.error(error));
+
+    // }, [ticket])
+
+    const [ticket, setTicket] = useState([]);
     const { id } = useParams();
-    console.log(ticket)
+
     useEffect(() => {
         const fetchTicketsById = async () => {
             const result = await axios(`http://localhost:8080/tickets/ticket/${id}`);
-
             setTicket(result.data.ticket);
             console.log(result.data.ticket)
 
-        }
-        fetchTicketsById().catch(error => console.error(error));
+        };
 
-    }, [])
+        fetchTicketsById();
+    }, [id]); // Dependency array
     return (
+
         <>
             <Header />
-            <Vertifications />
+            <Ticket
+                ticket={ticket}
+            />
+
             <footer className="footer">
                 <FooterBottom />
                 <FooterTop />

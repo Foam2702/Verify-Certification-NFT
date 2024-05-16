@@ -1,14 +1,21 @@
-import * as React from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Typography from '@mui/material/Typography';
 import AddressAvatar from './AddressAvatar';
+import CircularProgress from '@mui/material/CircularProgress';
+import "./BasicMenu.css"
 export default function BasicMenu({ anchorEl, handleClose, open, menuItems }) {
+    const [loading, setLoading] = useState(false);
+
     const navigate = useNavigate();
-    const handleItemClick = (item) => {
-        navigate(`/tickets/ticket/${item.id}`)
-    }
+    const handleItemClick = async (newItem) => {
+        setLoading(true);
+        await new Promise(resolve => setTimeout(resolve, 500)); // wait for 2 seconds
+        setLoading(false);
+        navigate(`/tickets/ticket/${newItem.id}`);
+    };
     return (
         <>
             <Menu
@@ -43,6 +50,12 @@ export default function BasicMenu({ anchorEl, handleClose, open, menuItems }) {
                             <Typography fontWeight="bold">
                                 {item.certificate_name}
                             </Typography>
+                            {loading && (
+                                <div className="loading-overlay">
+                                    <CircularProgress />
+                                </div>
+                            )}
+
                         </MenuItem>
                     )
                 ))}

@@ -10,3 +10,11 @@
     align-items: center;
     z-index: 9999;
 }
+
+.green-text {
+    color: green;
+}
+
+.red-text {
+    color: red;
+}

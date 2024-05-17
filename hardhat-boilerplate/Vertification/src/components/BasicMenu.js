@@ -33,7 +33,7 @@ export default function BasicMenu({ anchorEl, handleClose, open, menuItems }) {
                 }}
             >
                 {menuItems.map((item, index) => (
-                    item.status === "processing" && (
+                    (item.status === "processing") && (
                         <MenuItem key={index}
                             style={{
                                 fontSize: '20px',
@@ -47,7 +47,10 @@ export default function BasicMenu({ anchorEl, handleClose, open, menuItems }) {
                             <Typography fontWeight="bold" style={{ marginRight: '10px' }}>
                                 <AddressAvatar address={item.owner_address} />
                             </Typography>
-                            <Typography style={{ marginRight: '10px' }}>yêu cầu xác thực chứng chỉ</Typography>
+                            <Typography style={{ marginRight: '10px' }}>
+                                <span className="green-text">yêu cầu xác thực chứng chỉ</span>
+
+                            </Typography>
                             <Typography fontWeight="bold">
                                 {item.certificate_name}
                             </Typography>
@@ -59,8 +62,9 @@ export default function BasicMenu({ anchorEl, handleClose, open, menuItems }) {
 
                         </MenuItem>
                     )
+
                 ))}
-            </Menu>
+            </Menu >
         </>
     );
 }

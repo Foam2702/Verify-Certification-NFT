@@ -6,9 +6,22 @@ import axios from 'axios';
 import useSigner from "../state/signer";
 import MultiActionAreaCard from "./MultiACtionAreaCard";
 import { formatDate } from '../helpers/index'
+import { useNavigate } from "react-router-dom";
+
 
 const Ticket = ({ ticket }) => {
     const { address, connectWallet } = useSigner()
+    const navigate = useNavigate();
+    const handleReject = async (e) => {
+        e.preventDefault()
+        // const response = await axios.post("http://localhost:8080/tickets", formData, {
+        //     headers: {
+        //         "Content-Type": "multipart/form-data",
+        //     }
+        // })
+        const status = "reject"
+        const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}/${status}`)
+    }
     const handleSubmit = async (event) => {
         event.preventDefault();
         const form = document.querySelector('form');
@@ -49,18 +62,6 @@ const Ticket = ({ ticket }) => {
         }
 
     };
-
-    {/* UseEffect */ }
-
-
-
-    const onCancelBtnClick = useCallback(() => {
-        // Get the form element
-        const form = document.querySelector('form');
-
-        // Reset the form
-        form.reset();
-    }, []);
     function formatDateDB(input) {
         const datePart = input.match(/\d+/g);
         const year = datePart[0];
@@ -72,7 +73,7 @@ const Ticket = ({ ticket }) => {
     return (
 
         <main className="ticket-section">
-            <form encType="multipart/form-data" action="" onSubmit={handleSubmit}>
+            <form encType="multipart/form-data" action="" >
 
                 <h1 className="printInfo">THÔNG TIN CHỨNG CHỈ</h1>
 
@@ -173,12 +174,12 @@ const Ticket = ({ ticket }) => {
                     <div className="bg19Ticket" />
                     <div className="submit">Mint</div>
                 </button>
-                <button className="rejectbtnTicket" onClick={handleSubmit}>
+                <button className="rejectbtnTicket" onClick={handleReject}>
                     <div className="bgRejectTicket" />
                     <div className=" submit">Reject</div>
                 </button>
 
-                <button className="cancelbtnTicket" type="reset" onClick={onCancelBtnClick}>
+                <button className="cancelbtnTicket" type="reset" onClick={() => navigate("/")}>
                     <div className="bg20Ticket" />
                     <div className="submit">Cancel</div>
                 </button>

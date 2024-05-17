@@ -54,7 +54,18 @@ module.exports = {
         const result = await sql
             `SELECT  * FROM ticket WHERE licensing_authority=${org} `;
         return result;
+    },
+
+    updateStatusOneTicket: async (id, status) => {
+        try {
+            await sql`UPDATE ticket SET status=${status} WHERE id=${id}`;
+            return true;
+        } catch (error) {
+            console.error(error);
+            return false;
+        }
     }
+
 
 
 }

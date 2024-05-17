@@ -101,6 +101,45 @@ module.exports = {
             "success": true,
             "tickets": tickets
         })
+    },
+    updateStatusOneTicket: async (req, res) => {
+        const { id, status } = req.params
+        console.log(id, status)
+        const ticketFromDb = await ticketModel.getOneTicket(id)
+        if (ticketFromDb == undefined) {
+            res.json({
+                "code": "404",
+                "success": false,
+                "message": "ticket doesn't exist"
+            })
+        }
+        else {
+            if (ticketFromDb.status === status) {
+                res.json({
+                    "code": 404,
+                    "status": false,
+                    "message": `Already ${status}`
+                })
+            }
+            else {
+                const result = await ticketModel.updateStatusOneTicket(id, status)
+                if (result == true) {
+                    res.json({
+                        "code": "200",
+                        "success": true,
+                        "message": "updated successfully"
+                    })
+                }
+                else {
+                    res.json({
+                        "code": "404",
+                        "success": false,
+                        "message": "update failed"
+                    })
+                }
+            }
+
+        }
     }
 
 }

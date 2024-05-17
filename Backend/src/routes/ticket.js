@@ -27,7 +27,10 @@ router
 router
     .route("/ticket/:id")
     .get(ticketController.getOneTicket)
+router.route("/ticket/:id/:status")
+    .patch(ticketController.updateStatusOneTicket)
 router
     .route("/all").get(ticketController.getAllTicket)
-router.route("/:org").get(ticketController.getTicketFromOrg)
+router.
+    route("/:org").get(ticketController.getTicketFromOrg)
 module.exports = router;

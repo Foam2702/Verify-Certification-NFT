@@ -23,44 +23,10 @@ const Ticket = ({ ticket }) => {
         const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}/${status}`)
     }
     const handleSubmit = async (event) => {
-        event.preventDefault();
-        const form = document.querySelector('form');
-
-        // Get the form data
-        const data = Array.from(form.elements)
-            .filter((input) => input.name)
-            .reduce((obj, input) => Object.assign(obj, { [input.name]: input.value }), {});
-
-        const formData = new FormData();
-        for (var x = 0; x < file.length; x++) {
-            formData.append('imageCertificate', file[x])
-        }
-        formData.append('owner', address);
-        formData.append('citizenId', data.citizenId);
-        formData.append('name', data.name);
-        formData.append('region', data.region);
-        formData.append('dob', formatDate(data.dob));
-        formData.append('licensingAuthority', data.licensingAuthority);
-        formData.append('gender', data.gender);
-        formData.append('email', data.email);
-        formData.append('workUnit', data.workUnit);
-        formData.append('certificateName', data.certificateName);
-        formData.append('point', data.point);
-        formData.append('issueDate', formatDate(data.issueDate));
-        formData.append('expiryDate', formatDate(data.expiryDate));
-
-        try {
-            // const response = await axios.post("http://localhost:8080/tickets", formData, {
-            //     headers: {
-            //         "Content-Type": "multipart/form-data",
-            //     }
-            // })
-            console.log(response.data);
-
-        } catch (error) {
-            console.error(error);
-        }
-
+        event.preventDefault()
+        const status = "approved"
+        const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}/${status}`)
+        console.log(response)
     };
     function formatDateDB(input) {
         const datePart = input.match(/\d+/g);

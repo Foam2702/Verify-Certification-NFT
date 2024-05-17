@@ -4,7 +4,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(92, 114, 134, 0.1);
+    background-color: rgba(16, 19, 22, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -17,4 +17,8 @@
 
 .red-text {
     color: red;
+}
+
+.yellow-text {
+    color: rgb(150, 150, 5)
 }

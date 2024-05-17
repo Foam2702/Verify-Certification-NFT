@@ -3,6 +3,8 @@ import useSigner from "../state/signer";
 import AddressAvatar from "../components/AddressAvatar"
 import { useNavigate } from "react-router-dom";
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
+import CircularProgress from '@mui/material/CircularProgress';
+
 import NotificationBell from "./NotificationBell";
 import { SignerProvider } from "../state/signer"
 import { useState, useEffect } from "react";
@@ -10,6 +12,7 @@ import axios from 'axios';
 const { ethers } = require("ethers");
 import SOULBOUND from "../artifacts/contracts/SoulboundToken.sol/SoulboundToken.json"
 const SOULBOUND_ADDRESS = process.env.REACT_APP_SOULBOUND_ADDRESS
+import "./BasicMenu.css"
 
 const Header = () => {
   const { signer, loading, address, connectWallet } = useSigner();
@@ -57,6 +60,11 @@ const Header = () => {
 
       </button>
       <button className="log-in" onClick={connectWallet}>{address ? <AddressAvatar address={address} /> : "LOG IN"}</button>
+      {loading && (
+        <div className="loading-overlay">
+          <CircularProgress />
+        </div>
+      )}
       <div className="team-abc1">Team ABC</div>
     </nav >
   );

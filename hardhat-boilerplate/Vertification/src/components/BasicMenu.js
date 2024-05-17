@@ -5,10 +5,14 @@ import MenuItem from '@mui/material/MenuItem';
 import Typography from '@mui/material/Typography';
 import AddressAvatar from './AddressAvatar';
 import CircularProgress from '@mui/material/CircularProgress';
+import useSigner from "../state/signer";
+
 import "./BasicMenu.css"
 
 export default function BasicMenu({ anchorEl, handleClose, open, menuItems }) {
     const [loading, setLoading] = useState(false);
+    const { address } = useSigner();
+
     const navigate = useNavigate();
     const handleItemClick = async (newItem) => {
         setLoading(true);
@@ -48,11 +52,26 @@ export default function BasicMenu({ anchorEl, handleClose, open, menuItems }) {
                                 <AddressAvatar address={item.owner_address} />
                             </Typography>
                             <Typography style={{ marginRight: '10px' }}>
-                                <span className="green-text">yêu cầu xác thực chứng chỉ</span>
+                                {item.owner_address === address ?
+                                    <>
+                                        <span className="yellow-text">đang chờ phản hồi từ phía
 
-                            </Typography>
-                            <Typography fontWeight="bold">
-                                {item.certificate_name}
+                                        </span>
+                                        <span style={{ "margin": "5px", "fontWeight": "bold" }}>
+                                            {item.licensing_authority}
+                                        </span>
+
+                                    </>
+                                    :
+                                    <>
+                                        <span className="green-text">yêu cầu xác thực chứng chỉ
+                                        </span>
+                                        <span style={{ "margin": "5px", "fontWeight": "bold" }}>
+                                            {item.certificate_name}
+                                        </span>
+
+                                    </>
+                                }
                             </Typography>
                             {loading && (
                                 <div className="loading-overlay">

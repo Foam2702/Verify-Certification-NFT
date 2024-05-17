@@ -25,6 +25,8 @@ export const SignerProvider = ({ children }) => {
             const provider = new ethers.providers.Web3Provider(instance);
             const signer = provider.getSigner();
             const address = await signer.getAddress();
+            // Add a delay before setting the state
+            await new Promise(resolve => setTimeout(resolve, 2000));
             setSigner(signer);
             setAddress(address);
         } catch (e) {

@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import "./Ticket.css";
 import React, { useState, useEffect } from 'react';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import Link from '@mui/material/Link';
 import axios from 'axios';
@@ -9,10 +10,16 @@ import MultiActionAreaCard from "./MultiACtionAreaCard";
 import { formatDate } from '../helpers/index'
 import { useNavigate } from "react-router-dom";
 import AlertTicket from "./AlertTicket"
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 
 const Ticket = ({ ticket }) => {
     const { signer, address, connectWallet, contract } = useSigner()
     const [issuer, setIssuer] = useState([])
+    const [showAlert, setShowAlert] = useState(false);
+    const [messageAlert, setMessageAlert] = useState("")
+    const [loading, setLoading] = useState(false);
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -32,13 +39,42 @@ const Ticket = ({ ticket }) => {
         e.preventDefault()
         const status = "reject"
         const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}/${status}`)
+        console.log(response.data.message)
+        if (response.data.message === "updated successfully") {
+            setMessageAlert("Rejected Successfully")
+            setShowAlert(true);
+        }
+
     }
     const handleSubmit = async (event) => {
         event.preventDefault()
-        const status = "approved"
-        const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}/${status}`)
-        console.log(response)
+        // const status = "approved"
+        // const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}/${status}`)
+        // console.log(response)
+        const message = "updated successfully"
+        if (message === "updated successfully") {
+            setMessageAlert("Mint Successfully")
+            setShowAlert(true);
+        }
     };
+    const handleClose = async (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setLoading(true);
+        setShowAlert(false);
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        setLoading(false);
+        navigate("/")
+
+    };
+    const handleCancle = async () => {
+        setLoading(true);
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        setLoading(false);
+        navigate("/")
+
+    }
     function formatDateDB(input) {
         const datePart = input.match(/\d+/g);
         const year = datePart[0];
@@ -50,6 +86,11 @@ const Ticket = ({ ticket }) => {
 
     return (
         <>
+            {loading && (
+                <div className="loading-overlay">
+                    <CircularProgress />
+                </div>
+            )}
             <main className="ticket-section">
                 <form encType="multipart/form-data" action="" >
                     {issuer.includes(address) ?
@@ -159,7 +200,7 @@ const Ticket = ({ ticket }) => {
                                 <div className=" submit">Reject</div>
                             </button>
 
-                            <button className="cancelbtnTicket" type="reset" onClick={() => navigate("/")}>
+                            <button className="cancelbtnTicket" type="reset" onClick={handleCancle}>
                                 <div className="bg20Ticket" />
                                 <div className="submit">Cancel</div>
                             </button>
@@ -167,9 +208,16 @@ const Ticket = ({ ticket }) => {
                         :
                         <></>
                     }
-                    {/* Function button SUBMIT and CANCEL */}
-
-
+                    <Snackbar open={showAlert} autoHideDuration={6000} onClose={handleClose}>
+                        <Alert
+                            onClose={handleClose}
+                            severity="success"
+                            variant="filled"
+                            sx={{ width: '100%' }}
+                        >
+                            {messageAlert}
+                        </Alert>
+                    </Snackbar>
                 </form>
 
             </main >

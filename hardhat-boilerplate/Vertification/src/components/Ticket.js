@@ -148,21 +148,27 @@ const Ticket = ({ ticket }) => {
                         <h3 className="imageCertificateTitle">Hình ảnh chứng chỉ</h3>
                         <MultiActionAreaCard image={ticket.certificateUrl} />
                     </div>
+                    {issuer.includes(address) ?
+                        <>
+                            <button className="submitbtnTicket" onClick={handleSubmit}>
+                                <div className="bg19Ticket" />
+                                <div className="submit">Mint</div>
+                            </button>
+                            <button className="rejectbtnTicket" onClick={handleReject}>
+                                <div className="bgRejectTicket" />
+                                <div className=" submit">Reject</div>
+                            </button>
 
+                            <button className="cancelbtnTicket" type="reset" onClick={() => navigate("/")}>
+                                <div className="bg20Ticket" />
+                                <div className="submit">Cancel</div>
+                            </button>
+                        </>
+                        :
+                        <></>
+                    }
                     {/* Function button SUBMIT and CANCEL */}
-                    <button className="submitbtnTicket" onClick={handleSubmit}>
-                        <div className="bg19Ticket" />
-                        <div className="submit">Mint</div>
-                    </button>
-                    <button className="rejectbtnTicket" onClick={handleReject}>
-                        <div className="bgRejectTicket" />
-                        <div className=" submit">Reject</div>
-                    </button>
 
-                    <button className="cancelbtnTicket" type="reset" onClick={() => navigate("/")}>
-                        <div className="bg20Ticket" />
-                        <div className="submit">Cancel</div>
-                    </button>
 
                 </form>
 

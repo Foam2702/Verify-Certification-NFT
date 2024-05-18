@@ -21,7 +21,7 @@ export default function AlertTicket({ severity }) {
     }, [severity]);
 
     return (
-        <Alert severity={alert}>
+        <Alert variant="filled" severity={alert}>
             {message}
         </Alert>
     );

@@ -553,7 +553,8 @@
 }
 
 .printInfo {
-    margin: auto;
+    margin-bottom: 50px;
+    /* margin: auto; */
     top: 0;
     left: 400px;
     font-size: 48px;

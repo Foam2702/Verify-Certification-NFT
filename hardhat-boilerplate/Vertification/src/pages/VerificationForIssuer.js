@@ -17,7 +17,6 @@ export default function VerificationForIssuer() {
         const fetchTicketsById = async () => {
             const result = await axios(`http://localhost:8080/tickets/ticket/${id}`);
             setTicket(result.data.ticket);
-            console.log(result.data.ticket)
 
         };
 

@@ -16,11 +16,8 @@ const NotificationBell = ({ tickets }) => {
     const handleClose = () => {
         setOpen(false)
     }
-
-
     const newNotifications = `You have ${tickets.length} new notifications!`
     const noNotifications = 'No new notifications'
-
     return (
         <>
             <Tooltip title={tickets.length ? newNotifications : noNotifications} >

@@ -9,7 +9,6 @@ import Header from "../components/Header";
 const Home = () => {
   const navigate = useNavigate();
   const { signer, loading, address, connectWallet } = useSigner();
-  console.log("HOME", address)
   return (
     <div className="home1">
       <section className="footer1">

@@ -1,13 +1,9 @@
 import "./Header.css";
 import useSigner from "../state/signer";
 import AddressAvatar from "../components/AddressAvatar"
-import { useNavigate } from "react-router-dom";
-import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import CircularProgress from '@mui/material/CircularProgress';
-
+import React, { useState, useEffect } from 'react';
 import NotificationBell from "./NotificationBell";
-import { SignerProvider } from "../state/signer"
-import { useState, useEffect } from "react";
 import axios from 'axios';
 const { ethers } = require("ethers");
 import SOULBOUND from "../artifacts/contracts/SoulboundToken.sol/SoulboundToken.json"
@@ -17,8 +13,7 @@ import "./BasicMenu.css"
 const Header = () => {
   const { signer, loading, address, connectWallet } = useSigner();
   const [tickets, setTickets] = useState([])
-  console.log("ADD", address)
-  console.log("TICKETS,", tickets)
+
   useEffect(() => {
     const fetchTickets = async () => {
       const allTickets = await axios("http://localhost:8080/tickets/all");

@@ -52,10 +52,8 @@ export default function BasicMenu({ anchorEl, handleClose, open, menuItems }) {
                                         onClick={() => handleItemClick(item)}
                                     >
                                         <Typography style={{ marginRight: '10px' }}>
-
                                             <>
                                                 {item.status === "processing" && (
-
                                                     <>
                                                         <span style={{ "margin": "5px", "fontWeight": "bold" }}>
                                                             <AddressAvatar address={item.licensing_authority} />
@@ -90,9 +88,7 @@ export default function BasicMenu({ anchorEl, handleClose, open, menuItems }) {
                                                 )}
                                             </>
                                         </Typography>
-
                                     </MenuItem>
-
                                 ) : (
 
                                     item.status === "processing" && (
@@ -116,13 +112,10 @@ export default function BasicMenu({ anchorEl, handleClose, open, menuItems }) {
                                                     </span>
                                                 </>
                                             </Typography>
-
                                         </MenuItem>
-
                                     )
                                 )
                             }
-
                         </>);
                 }
             })}

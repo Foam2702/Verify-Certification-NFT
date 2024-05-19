@@ -18,6 +18,7 @@ const NotificationBell = ({ tickets }) => {
     }
     const newNotifications = `You have ${tickets.length} new notifications!`
     const noNotifications = 'No new notifications'
+    console.log("TICKETS", tickets, tickets.length)
     return (
         <>
             <Tooltip title={tickets.length ? newNotifications : noNotifications} >
@@ -37,6 +38,7 @@ const NotificationBell = ({ tickets }) => {
                             <NotificationsActiveIcon color="action" fontSize="large" />
                         </Badge>
                     </IconButton>
+
                 )}
 
             </Tooltip>

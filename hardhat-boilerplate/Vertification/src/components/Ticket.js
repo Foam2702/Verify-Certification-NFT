@@ -1,9 +1,6 @@
-import { useCallback } from "react";
 import "./Ticket.css";
 import React, { useState, useEffect } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
-
-import Link from '@mui/material/Link';
 import axios from 'axios';
 import useSigner from "../state/signer";
 import MultiActionAreaCard from "./MultiACtionAreaCard";
@@ -206,7 +203,7 @@ const Ticket = ({ ticket }) => {
                         <h3 className="imageCertificateTitle">Hình ảnh chứng chỉ</h3>
                         <MultiActionAreaCard image={ticket.certificateUrl} />
                     </div>
-                    {/* {issuer.includes(address) ?
+                    {issuer.includes(address) ?
                         <>
                             <button className="submitbtnTicket" onClick={handleSubmit}>
                                 <div className="bg19Ticket" />
@@ -224,21 +221,9 @@ const Ticket = ({ ticket }) => {
                         </>
                         :
                         <></>
-                    } */}
+                    }
 
-                    <button className="submitbtnTicket" onClick={handleSubmit}>
-                        <div className="bg19Ticket" />
-                        <div className="submit">Mint</div>
-                    </button>
-                    <button className="rejectbtnTicket" onClick={handleReject}>
-                        <div className="bgRejectTicket" />
-                        <div className=" submit">Reject</div>
-                    </button>
 
-                    <button className="cancelbtnTicket" type="reset" onClick={handleCancle}>
-                        <div className="bg20Ticket" />
-                        <div className="submit">Cancel</div>
-                    </button>
 
                     <Snackbar open={showAlert} autoHideDuration={6000} onClose={handleClose}>
                         <Alert

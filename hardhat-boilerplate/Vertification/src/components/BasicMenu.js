@@ -39,84 +39,80 @@ export default function BasicMenu({ anchorEl, handleClose, open, menuItems }) {
             {menuItems.map((item, index) => {
                 if (item.status === "processing" || item.status === "reject" || item.status === 'approved') {
                     return (
-                        <>
-                            {
-                                item.owner_address === address ? (
-                                    <MenuItem key={index}
-                                        style={{
-                                            fontSize: '20px',
-                                            padding: '10px',
-                                            width: '500px',
-                                            marginBottom: '10px',
-                                        }}
-                                        onClick={() => handleItemClick(item)}
-                                    >
-                                        <Typography style={{ marginRight: '10px' }}>
+                        item.owner_address === address ? (
+                            <MenuItem key={index}
+                                style={{
+                                    fontSize: '20px',
+                                    padding: '10px',
+                                    width: '500px',
+                                    marginBottom: '10px',
+                                }}
+                                onClick={() => handleItemClick(item)}
+                            >
+                                <Typography style={{ marginRight: '10px' }}>
+                                    <>
+                                        {item.status === "processing" && (
                                             <>
-                                                {item.status === "processing" && (
-                                                    <>
-                                                        <span style={{ "margin": "5px", "fontWeight": "bold" }}>
-                                                            <AddressAvatar address={item.licensing_authority} />
-                                                        </span>
-                                                        <span className="yellow-text">đang xét duyệt chứng chỉ</span>
-                                                        <span style={{ "margin": "5px", "fontWeight": "bold" }}>
-                                                            {item.certificate_name}
-                                                        </span>
-                                                    </>
-                                                )}
-                                                {item.status === "reject" && (
-                                                    <>
-                                                        <span style={{ "margin": "5px", "fontWeight": "bold" }}>
-                                                            <AddressAvatar address={item.licensing_authority} />
-                                                        </span>
-                                                        <span className="red-text">đã từ chối xác thực chứng chỉ</span>
-                                                        <span style={{ "margin": "5px", "fontWeight": "bold" }}>
-                                                            {item.certificate_name}
-                                                        </span>
-                                                    </>
-                                                )}
-                                                {item.status === "approved" && (
-                                                    <>
-                                                        <span style={{ "margin": "5px", "fontWeight": "bold" }}>
-                                                            <AddressAvatar address={item.licensing_authority} />
-                                                        </span>
-                                                        <span className="green-text">đã mint soulbound cho chứng chỉ</span>
-                                                        <span style={{ "margin": "5px", "fontWeight": "bold" }}>
-                                                            {item.certificate_name}
-                                                        </span>
-                                                    </>
-                                                )}
+                                                <span style={{ "margin": "5px", "fontWeight": "bold" }}>
+                                                    <AddressAvatar address={item.licensing_authority} />
+                                                </span>
+                                                <span className="yellow-text">đang xét duyệt chứng chỉ</span>
+                                                <span style={{ "margin": "5px", "fontWeight": "bold" }}>
+                                                    {item.certificate_name}
+                                                </span>
                                             </>
-                                        </Typography>
-                                    </MenuItem>
-                                ) : (
-
-                                    item.status === "processing" && (
-                                        <MenuItem style={{
-                                            fontSize: '20px',
-                                            padding: '10px',
-                                            width: '500px',
-                                            marginBottom: '10px',
-                                        }}
-                                            onClick={() => handleItemClick(item)}
-                                        >
-                                            <Typography style={{ marginRight: '10px' }}>
-
-                                                <>
-                                                    <span style={{ fontWeight: "bold" }}>
-                                                        <AddressAvatar address={item.owner_address} />
-                                                    </span>
-                                                    <span className="yellow-text">yêu cầu xác thực chứng chỉ</span>
-                                                    <span style={{ "margin": "5px", "fontWeight": "bold" }}>
-                                                        {item.certificate_name}
-                                                    </span>
-                                                </>
-                                            </Typography>
-                                        </MenuItem>
-                                    )
-                                )
-                            }
-                        </>);
+                                        )}
+                                        {item.status === "reject" && (
+                                            <>
+                                                <span style={{ "margin": "5px", "fontWeight": "bold" }}>
+                                                    <AddressAvatar address={item.licensing_authority} />
+                                                </span>
+                                                <span className="red-text">đã từ chối xác thực chứng chỉ</span>
+                                                <span style={{ "margin": "5px", "fontWeight": "bold" }}>
+                                                    {item.certificate_name}
+                                                </span>
+                                            </>
+                                        )}
+                                        {item.status === "approved" && (
+                                            <>
+                                                <span style={{ "margin": "5px", "fontWeight": "bold" }}>
+                                                    <AddressAvatar address={item.licensing_authority} />
+                                                </span>
+                                                <span className="green-text">đã mint soulbound cho chứng chỉ</span>
+                                                <span style={{ "margin": "5px", "fontWeight": "bold" }}>
+                                                    {item.certificate_name}
+                                                </span>
+                                            </>
+                                        )}
+                                    </>
+                                </Typography>
+                            </MenuItem>
+                        ) : (
+                            item.status === "processing" && (
+                                <MenuItem style={{
+                                    fontSize: '20px',
+                                    padding: '10px',
+                                    width: '500px',
+                                    marginBottom: '10px',
+                                    backgroundColor: '#black',
+                                }}
+                                    onClick={() => handleItemClick(item)}
+                                >
+                                    <Typography style={{ marginRight: '10px' }}>
+                                        <>
+                                            <span style={{ fontWeight: "bold" }}>
+                                                <AddressAvatar address={item.owner_address} />
+                                            </span>
+                                            <span className="yellow-text">yêu cầu xác thực chứng chỉ</span>
+                                            <span style={{ "margin": "5px", "fontWeight": "bold" }}>
+                                                {item.certificate_name}
+                                            </span>
+                                        </>
+                                    </Typography>
+                                </MenuItem>
+                            )
+                        )
+                    );
                 }
             })}
             {

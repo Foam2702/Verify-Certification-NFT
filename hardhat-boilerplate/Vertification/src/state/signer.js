@@ -30,6 +30,7 @@ export const SignerProvider = ({ children }) => {
             const provider = new ethers.providers.Web3Provider(instance);
             const signer = provider.getSigner();
             const address = await signer.getAddress();
+
             const newContract = new ethers.Contract(SOULBOUND_ADDRESS, SOULBOUND.abi, signer);
             setContract(newContract)
             // Add a delay before setting the state

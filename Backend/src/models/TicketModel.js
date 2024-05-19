@@ -11,7 +11,6 @@ module.exports = {
         SELECT MAX(id) FROM ticket;
     `;
         const maxId = maxIdResult[0].max || 0; // Handle if there are no records in the table
-        console.log(ticket)
         try {
             await sql`
             INSERT INTO ticket (id, owner_address, citizen_id, dob, name,certificate_cid, licensing_authority, 
@@ -32,7 +31,7 @@ module.exports = {
             ${ticket.issueDate},
             ${ticket.expiryDate},
             ${ticket.region},
-            ${ticket.status},
+            ${ticket.status}
         );
     `;
             return true;

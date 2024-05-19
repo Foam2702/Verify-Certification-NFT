@@ -11,9 +11,9 @@ module.exports = {
         }
 
     },
-    getOneCourse: async (slug) => {
+    getOneCourse: async (id) => {
         const result = sql`
-            SELECT * FROM course WHERE slug=${slug}
+            SELECT * FROM course WHERE id=${id}
         `
         return result;
     },
@@ -28,6 +28,13 @@ module.exports = {
             SELECT * FROM course LIMIT 3
         `
         return result;
+    },
+    getExamForCourse: async (id) => {
+        const result = await sql`
+            SELECT * FROM question WHERE course=${id}
+        `
+        return result;
+
     }
 
 }

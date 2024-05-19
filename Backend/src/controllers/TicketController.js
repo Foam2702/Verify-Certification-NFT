@@ -23,7 +23,6 @@ module.exports = {
         const certificateUrl = "certificateUrl"
         const status = "status"
         let image = { ...ticket, ...req.file }
-        console.log(image)
         if (ticket.point == '') {
             ticket.point = null
         }
@@ -41,6 +40,7 @@ module.exports = {
 
         ticket[cidCertificate] = await imageUpload(image);
         ticket[certificateUrl] = `https://coral-able-takin-320.mypinata.cloud/ipfs/${ticket[cidCertificate]}`
+
         await notificationModel.insertNotification(ticket, false, "none")
         await notificationService.newTicketNotification(ticket)
         const result = await ticketModel.insertTicket(ticket);

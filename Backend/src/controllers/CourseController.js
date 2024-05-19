@@ -9,15 +9,21 @@ module.exports = {
         })
     },
     getOneCourse: async (req, res) => {
-        const slug = req.query.slug;
-        const course = await courseModel.getOneCourse(slug);
+        const { id } = req.params;
+
+        const course = await courseModel.getOneCourse(id);
         res.json({
             status: 200,
             course
         })
 
     },
-    createCourse: async (req, res) => {
-
+    getExamForCourse: async (req, res) => {
+        const { id } = req.params;
+        const exams = await courseModel.getExamForCourse(id);
+        res.json({
+            status: 200,
+            exams
+        })
     }
 }

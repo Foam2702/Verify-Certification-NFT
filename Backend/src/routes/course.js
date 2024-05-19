@@ -23,8 +23,11 @@ router
     .route("/")
     .get(courseController.getAllCourses)
 router
-    .route("/course")
+    .route("/course/:id")
     .get(courseController.getOneCourse);
+router
+    .route("/course/:id/exam")
+    .get(courseController.getExamForCourse)
 
 
 module.exports = router;

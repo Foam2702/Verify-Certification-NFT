@@ -13,7 +13,8 @@ module.exports = {
 
         const course = await courseModel.getOneCourse(id);
         res.json({
-            status: 200,
+            code: 200,
+            status: "success",
             course
         })
 
@@ -22,7 +23,8 @@ module.exports = {
         const { id } = req.params;
         const exams = await courseModel.getExamForCourse(id);
         res.json({
-            status: 200,
+            status: "success",
+            code: 200,
             exams
         })
     }

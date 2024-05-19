@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.3;
+pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
-contract SoulboundToken is ERC721 {
+contract SoulboundToken is ERC721URIStorage {
     address public owner;
     using Counters for Counters.Counter;
     Counters.Counter private _nSBTs;
@@ -135,38 +135,19 @@ contract SoulboundToken is ERC721 {
     // Hàm tạo một SBT mới cho một địa chỉ.
 
     function mintSBTForAddress(
-      address recipient,
-      string memory fullName,
-      string memory certificateHash,
-      string memory citizenID,
-      string memory hometown,
-      string memory nationality,
-      uint256 birthDate
+        address recipient,
+        string memory tokenURI
     ) public {
-      require(msg.sender == owner, "Only the owner can mint SBTs for addresses");
+        require(msg.sender == owner || verifierList[msg.sender].isVerifier, "Only the owner or verifiers can mint SBTs for addresses");
 
-      _nSBTs.increment(); // Tăng ID SBT
-      uint256 newSBTId = _nSBTs.current(); // Lấy ID của SBT mới
+        _nSBTs.increment(); // Tăng ID SBT
+        uint256 newSBTId = _nSBTs.current(); // Lấy ID của SBT mới
 
-      // Gọi hàm setSBTInfo để tạo một đối tượng SBTInfo mới
-      SBTInfo memory newSBTInfo = setSBTInfo(
-        fullName,
-        certificateHash,
-        citizenID,
-        hometown,
-        nationality,
-        birthDate
-      );
-      
-      // Cập nhật thông tin cho SBT mới
-      newSBTInfo.sBTId = newSBTId;
-      newSBTInfo.ownerAddress = recipient;
-      
-      // Lưu thông tin SBT vào mapping
-      idToSBT[newSBTId] = newSBTInfo;
-
-      // Gọi hàm `_safeMint` để tạo NFT cho địa chỉ nhận
-      _safeMint(recipient, newSBTId);
+        // Gọi hàm `_safeMint` để tạo NFT cho địa chỉ nhận
+        _safeMint(recipient, newSBTId);
+        
+        // Gọi hàm `_setTokenURI` để thiết lập URI cho token mới
+        _setTokenURI(newSBTId, tokenURI);
     }
 
     // Hàm tìm các địa chỉ có mã tổ chức cụ thể

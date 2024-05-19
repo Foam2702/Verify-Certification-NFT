@@ -56,7 +56,6 @@ const Ticket = ({ ticket }) => {
         const metadata = await pinJSONToIPFS(ticket)
         //const metadata = "QmZPzoF532e2eECRtAY8UwPD6nkk6jFE9jVLye2ZRM99pa"
         const ipfsMetadata = `ipfs://${metadata}`
-        console.log("METADATA", metadata)
         const { ethereum } = window
         if (ethereum) {
             // const date = new Date(ticket.dob)

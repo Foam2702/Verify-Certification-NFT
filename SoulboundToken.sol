@@ -143,7 +143,7 @@ contract SoulboundToken is ERC721 {
       string memory nationality,
       uint256 birthDate
     ) public {
-      require(msg.sender == owner, "Only the owner can mint SBTs for addresses");
+      require(msg.sender == owner || verifierList[msg.sender].isVerifier, "Only the owner or verifiers can mint SBTs for addresses");
 
       _nSBTs.increment(); // Tăng ID SBT
       uint256 newSBTId = _nSBTs.current(); // Lấy ID của SBT mới

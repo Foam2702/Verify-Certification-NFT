@@ -133,7 +133,7 @@ contract SoulboundToken is ERC721 {
     }
 
     // Hàm tạo một SBT mới cho một địa chỉ.
-
+   
     function mintSBTForAddress(
       address recipient,
       string memory fullName,
@@ -197,6 +197,9 @@ contract SoulboundToken is ERC721 {
 
         return result;
     }
+ 
+
+}
 
     
 }

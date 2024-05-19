@@ -25,6 +25,7 @@ const Header = () => {
           for (const ticket of allTickets.data.tickets) {
             try {
               const result = await contract.getVerifiersByOrganizationCode(ticket.licensing_authority);
+              console.log("result", result)
               if (result.includes(address)) {
                 const ticketFromOrg = await axios(`http://localhost:8080/tickets/${ticket.licensing_authority}`);
                 if (Array.isArray(ticketFromOrg.data.tickets)) {

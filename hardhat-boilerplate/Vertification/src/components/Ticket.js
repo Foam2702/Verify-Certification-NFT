@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import AlertTicket from "./AlertTicket"
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import { pinJSONToIPFS } from "../helpers/index";
 
 const Ticket = ({ ticket }) => {
     const { signer, address, connectWallet, contract } = useSigner()
@@ -51,6 +52,23 @@ const Ticket = ({ ticket }) => {
         // const status = "approved"
         // const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}/${status}`)
         // console.log(response)
+        console.log("TICKET", ticket)
+        const metadata = await pinJSONToIPFS(ticket)
+        //const metadata = "QmZPzoF532e2eECRtAY8UwPD6nkk6jFE9jVLye2ZRM99pa"
+        const ipfsMetadata = `ipfs://${metadata}`
+        console.log("METADATA", metadata)
+        const { ethereum } = window
+        if (ethereum) {
+            // const date = new Date(ticket.dob)
+
+            const result = await contract.mintSBTForAddress(
+                ticket.owner_address,
+                ipfsMetadata
+            );
+            console.log("RESULT", result)
+            const sbt = await contract.getMySBTs()
+            console.log(sbt)
+        }
         const message = "updated successfully"
         if (message === "updated successfully") {
             setMessageAlert("Mint Successfully")
@@ -189,7 +207,7 @@ const Ticket = ({ ticket }) => {
                         <h3 className="imageCertificateTitle">Hình ảnh chứng chỉ</h3>
                         <MultiActionAreaCard image={ticket.certificateUrl} />
                     </div>
-                    {issuer.includes(address) ?
+                    {/* {issuer.includes(address) ?
                         <>
                             <button className="submitbtnTicket" onClick={handleSubmit}>
                                 <div className="bg19Ticket" />
@@ -207,7 +225,22 @@ const Ticket = ({ ticket }) => {
                         </>
                         :
                         <></>
-                    }
+                    } */}
+
+                    <button className="submitbtnTicket" onClick={handleSubmit}>
+                        <div className="bg19Ticket" />
+                        <div className="submit">Mint</div>
+                    </button>
+                    <button className="rejectbtnTicket" onClick={handleReject}>
+                        <div className="bgRejectTicket" />
+                        <div className=" submit">Reject</div>
+                    </button>
+
+                    <button className="cancelbtnTicket" type="reset" onClick={handleCancle}>
+                        <div className="bg20Ticket" />
+                        <div className="submit">Cancel</div>
+                    </button>
+
                     <Snackbar open={showAlert} autoHideDuration={6000} onClose={handleClose}>
                         <Alert
                             onClose={handleClose}

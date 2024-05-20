@@ -17,6 +17,7 @@ const Ticket = ({ ticket }) => {
     const [showAlert, setShowAlert] = useState(false);
     const [messageAlert, setMessageAlert] = useState("")
     const [loading, setLoading] = useState(false);
+    const [countdown, setCountdown] = useState(3)
 
     const navigate = useNavigate();
 
@@ -27,7 +28,6 @@ const Ticket = ({ ticket }) => {
                 const result = await contract.getVerifiersByOrganizationCode(ticket.licensing_authority);
                 setIssuer(result)
             }
-
         }
         if (ticket) { // Only run if ticket is defined
             checkIssuer().catch(error => console.error(error));
@@ -39,6 +39,9 @@ const Ticket = ({ ticket }) => {
         const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}/${status}`)
         console.log(response.data.message)
         if (response.data.message === "updated successfully") {
+            setLoading(true)
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            setLoading(false);
             setMessageAlert("Rejected Successfully")
             setShowAlert(true);
         }
@@ -46,27 +49,22 @@ const Ticket = ({ ticket }) => {
     }
     const handleSubmit = async (event) => {
         event.preventDefault()
-        // const status = "approved"
-        // const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}/${status}`)
-        // console.log(response)
-        console.log("TICKET", ticket)
-        const metadata = await pinJSONToIPFS(ticket)
-        //const metadata = "QmZPzoF532e2eECRtAY8UwPD6nkk6jFE9jVLye2ZRM99pa"
-        const ipfsMetadata = `ipfs://${metadata}`
-        const { ethereum } = window
-        if (ethereum) {
-            // const date = new Date(ticket.dob)
-
-            const result = await contract.mintSBTForAddress(
-                ticket.owner_address,
-                ipfsMetadata
-            );
-            console.log("RESULT", result)
-            const sbt = await contract.getMySBTs()
-            console.log(sbt)
-        }
-        const message = "updated successfully"
-        if (message === "updated successfully") {
+        const status = "approved"
+        const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}/${status}`)
+        console.log(response.data.message)
+        // const metadata = await pinJSONToIPFS(ticket)
+        // const ipfsMetadata = `ipfs://${metadata}`
+        // const { ethereum } = window
+        // if (ethereum) {
+        //     const result = await contract.mintSBTForAddress(
+        //         ticket.owner_address,
+        //         ipfsMetadata
+        //     );
+        // }
+        if (response.data.message === "updated successfully") {
+            setLoading(true);
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            setLoading(false);
             setMessageAlert("Mint Successfully")
             setShowAlert(true);
         }
@@ -75,10 +73,10 @@ const Ticket = ({ ticket }) => {
         if (reason === 'clickaway') {
             return;
         }
-        setLoading(true);
-        setShowAlert(false);
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        setLoading(false);
+        // setLoading(true);
+        // setShowAlert(false);
+        // await new Promise(resolve => setTimeout(resolve, 2000));
+        // setLoading(false);
         navigate("/")
 
     };
@@ -97,7 +95,17 @@ const Ticket = ({ ticket }) => {
 
         return day + '/' + month + '/' + year;
     }
-
+    useEffect(() => {
+        let timer;
+        if (showAlert && countdown > 0) {
+            timer = setTimeout(() => {
+                setCountdown(countdown - 1);
+            }, 1000);
+        } else if (countdown === 0) {
+            setShowAlert(false);
+        }
+        return () => clearTimeout(timer);
+    }, [showAlert, countdown]);
     return (
         <>
             {loading && (
@@ -213,7 +221,6 @@ const Ticket = ({ ticket }) => {
                                 <div className="bgRejectTicket" />
                                 <div className=" submit">Reject</div>
                             </button>
-
                             <button className="cancelbtnTicket" type="reset" onClick={handleCancle}>
                                 <div className="bg20Ticket" />
                                 <div className="submit">Cancel</div>
@@ -222,21 +229,17 @@ const Ticket = ({ ticket }) => {
                         :
                         <></>
                     }
-
-
-
-                    <Snackbar open={showAlert} autoHideDuration={6000} onClose={handleClose}>
+                    <Snackbar open={showAlert} autoHideDuration={3000} onClose={handleClose}>
                         <Alert
                             onClose={handleClose}
                             severity="success"
                             variant="filled"
                             sx={{ width: '100%' }}
                         >
-                            {messageAlert}
+                            {messageAlert}.Back to home at {countdown}
                         </Alert>
                     </Snackbar>
                 </form>
-
             </main >
         </>
 

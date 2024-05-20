@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Home.css";
 import useSigner from "../state/signer";
@@ -9,6 +9,13 @@ import Header from "../components/Header";
 const Home = () => {
   const navigate = useNavigate();
   const { signer, loading, address, connectWallet } = useSigner();
+  const [token, setToken] = useState(null)
+  const options = { method: 'GET', headers: { accept: 'application/json' } };
+
+  fetch('https://testnets-api.opensea.io/api/v2/chain/sepolia/account/0x32DE93BB670F3d4aE1181b615954ABeEe81fC9B3/nfts', options)
+    .then(response => response.json())
+    .then(response => console.log(response))
+    .catch(err => console.error(err));
   return (
     <div className="home1">
       <section className="footer1">

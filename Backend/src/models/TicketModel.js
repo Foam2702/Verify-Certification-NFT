@@ -7,15 +7,19 @@ module.exports = {
         return tickets;
     },
     insertTicket: async (ticket) => {
-        const maxIdResult = await sql`
-        SELECT MAX(id) FROM ticket;
-    `;
+        const existingTicket = await sql`SELECT * FROM ticket WHERE certificate_cid=${ticket.cidCertificate}`;
+        if (existingTicket.length > 0) {
+            return false; // certificate_cid already exists
+        }
+
+        const maxIdResult = await sql`SELECT MAX(id) FROM ticket`;
         const maxId = maxIdResult[0].max || 0; // Handle if there are no records in the table
+
         try {
             await sql`
-            INSERT INTO ticket (id, owner_address, citizen_id, dob, name,certificate_cid, licensing_authority, 
-            gender, email, work_unit, certificate_name, point, issue_date, expiry_date,region,status )
-            VALUES (
+        INSERT INTO ticket (id, owner_address, citizen_id, dob, name,certificate_cid, licensing_authority, 
+        gender, email, work_unit, certificate_name, point, issue_date, expiry_date,region,status )
+        VALUES (
             ${maxId + 1},
             ${ticket.owner},
             ${ticket.citizenId},
@@ -32,14 +36,12 @@ module.exports = {
             ${ticket.expiryDate},
             ${ticket.region},
             ${ticket.status}
-        );
-    `;
+        );`;
             return true;
         }
         catch (err) {
             return err;
         }
-
     },
     getOneTicket: async (id) => {
         const result = await sql

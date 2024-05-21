@@ -2,7 +2,6 @@ import { useCallback } from "react";
 import "./Ticket.css";
 import React, { useState, useEffect } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
-
 import Link from '@mui/material/Link';
 import axios from 'axios';
 import useSigner from "../state/signer";
@@ -22,9 +21,10 @@ const Ticket = ({ ticket }) => {
     const [showAlert, setShowAlert] = useState(false);
     const [messageAlert, setMessageAlert] = useState("")
     const [loading, setLoading] = useState(false);
+    const [update, setUpdate] = useState(false)
+    const [countdown, setCountdown] = useState(3)
 
     const navigate = useNavigate();
-
     useEffect(() => {
         const checkIssuer = async () => {
             const { ethereum } = window;
@@ -32,31 +32,64 @@ const Ticket = ({ ticket }) => {
                 const result = await contract.getVerifiersByOrganizationCode(ticket.licensing_authority);
                 setIssuer(result)
             }
-
         }
         if (ticket) { // Only run if ticket is defined
             checkIssuer().catch(error => console.error(error));
         }
     }, [ticket]) // Add ticket as a dependency
+    useEffect(() => {
+        let timer;
+        if (showAlert && countdown > 0) {
+            timer = setTimeout(() => {
+                setCountdown(countdown - 1);
+            }, 1000);
+        } else if (countdown === 0) {
+            setShowAlert(false);
+        }
+        return () => clearTimeout(timer);
+    }, [showAlert, countdown]);
     const handleReject = async (e) => {
         e.preventDefault()
         const status = "reject"
         const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}/${status}`)
         console.log(response.data.message)
         if (response.data.message === "updated successfully") {
+            setUpdate(true)
             setMessageAlert("Rejected Successfully")
+            setShowAlert(true);
+
+        }
+        else if (response.data.message === "update failed") {
+            setUpdate(false)
+            setMessageAlert("Already Rejected")
             setShowAlert(true);
         }
 
     }
     const handleSubmit = async (event) => {
         event.preventDefault()
-        // const status = "approved"
-        // const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}/${status}`)
-        // console.log(response)
-        const message = "updated successfully"
-        if (message === "updated successfully") {
+        const status = "approved"
+        const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}/${status}`)
+        console.log(response.data.message)
+        // const metadata = await pinJSONToIPFS(ticket)
+        // const ipfsMetadata = `ipfs://${metadata}`
+        // const { ethereum } = window
+        // if (ethereum) {
+        //     const result = await contract.mintSBTForAddress(
+        //         ticket.owner_address,
+        //         ipfsMetadata
+        //     );
+        // }
+        if (response.data.message === "updated successfully") {
+            setLoading(true);
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            setLoading(false);
             setMessageAlert("Mint Successfully")
+            setShowAlert(true);
+        }
+        else if (response.data.message === "update failed") {
+            setUpdate(false)
+            setMessageAlert("Mint Fail")
             setShowAlert(true);
         }
     };
@@ -95,14 +128,15 @@ const Ticket = ({ ticket }) => {
                 </div>
             )}
             <main className="body-section1">
-                {issuer.includes(address) ?
-                    <div className="body-header">
-                        <h1 className="body-header-text2">Điền thông tin chứng chỉ của bạn</h1>
-                    </div>
-                    :
-                    <AlertTicket severity={ticket.status} />
-                }
+
                 <form className="careers-section" encType="multipart/form-data" action="" >
+                    {issuer.includes(address) ?
+                        <div className="body-header">
+                            <h1 className="body-header-text2">Thông tin chứng chỉ</h1>
+                        </div>
+                        :
+                        <AlertTicket severity={ticket.status} />
+                    }
                     <div className="careers-section-inner">
                         <div className="name-parent">
                             <div className="name">
@@ -129,7 +163,7 @@ const Ticket = ({ ticket }) => {
                             </div>
                             <div className="date-of-birth">
                                 <h3 className="date-of-birth1">Ngày Sinh</h3>
-                                <h3 className="input-date-of-birth" name="dob" type="date">{ticket.dob}</h3>
+                                <h3 className="input-date-of-birth" name="dob" type="date">{formatDate(ticket.dob)}</h3>
                             </div>
                             <div className="home-town">
                                 <h3 className="home-town-text">Quê quán</h3>
@@ -162,11 +196,11 @@ const Ticket = ({ ticket }) => {
                             </div>
                             <div className="date-vertification">
                                 <h3 className="date-vertification-text">Ngày cấp*</h3>
-                                <h3 className="input-date-vertification" name="issueDate" type="date" >{ticket.issue_date}</h3>
+                                <h3 className="input-date-vertification" name="issueDate" type="date" >{formatDate(ticket.issue_date)}</h3>
                             </div>
                             <div className="expired-date">
                                 <h3 className="expired-date-text">Hạn sử dụng chứng chỉ*</h3>
-                                <h3 className="input-expired-date" name="expiryDate" type="date">{ticket.issue_date}</h3>
+                                <h3 className="input-expired-date" name="expiryDate" type="date">{formatDate(ticket.expiry_date)}</h3>
                             </div>
                         </div>
 
@@ -176,21 +210,10 @@ const Ticket = ({ ticket }) => {
                             <h3 className="upload-file-text">Hình ảnh chứng chỉ</h3>
                             <div className="input-upload-file">
                                 <div className="input-box-background" />
-                                {/* <input className="example-here"
-                                    name="imageCertificate"
-                                    type="file"
-                                    accept=".jpg"
-                                    multiple
-                                /> */}
                                 <MultiActionAreaCard image={ticket.certificateUrl} />
-
                             </div>
                         </div>
                     </div>
-
-                    {/* Funtion Upload File */}
-
-
                     {issuer.includes(address) ?
                         <>
                             <div className="body-button1">
@@ -208,14 +231,14 @@ const Ticket = ({ ticket }) => {
                         :
                         <></>
                     }
-                    <Snackbar open={showAlert} autoHideDuration={6000} onClose={handleClose}>
+                    <Snackbar open={showAlert} autoHideDuration={3000} onClose={handleClose}>
                         <Alert
                             onClose={handleClose}
-                            severity="success"
+                            severity={update ? "success" : "error"}
                             variant="filled"
                             sx={{ width: '100%' }}
                         >
-                            {messageAlert}
+                            {messageAlert}.Back to home at {countdown}
                         </Alert>
                     </Snackbar>
                 </form>

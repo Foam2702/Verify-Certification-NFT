@@ -5,18 +5,16 @@ import CircularProgress from '@mui/material/CircularProgress';
 import React, { useState, useEffect } from 'react';
 import NotificationBell from "./NotificationBell";
 import axios from 'axios';
-const { ethers } = require("ethers");
 import SOULBOUND from "../artifacts/contracts/SoulboundToken.sol/SoulboundToken.json"
-const SOULBOUND_ADDRESS = process.env.REACT_APP_SOULBOUND_ADDRESS
 import "./BasicMenu.css"
-
 import "./HeaderSection.css";
+const { ethers } = require("ethers");
 
 const HeaderSection = () => {
+  const SOULBOUND_ADDRESS = process.env.REACT_APP_SOULBOUND_ADDRESS
 
   const { signer, loading, address, connectWallet } = useSigner();
   const [tickets, setTickets] = useState([])
-
   useEffect(() => {
     const fetchTickets = async () => {
       const allTickets = await axios("http://localhost:8080/tickets/all");

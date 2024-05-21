@@ -835,6 +835,7 @@
 .input-upload-file {
   align-self: stretch;
   border-radius: var(--br-12xl);
+  background-color: var(--studio-darkmode-allwhite-ffffff);
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -888,7 +889,7 @@
   font-weight: 600;
   font-family: var(--font-poppins);
   color: var(--studio-darkmode-allwhite-ffffff);
-  text-align: left;
+  text-align: center;
   display: inline-block;
   min-width: 66px;
 }
@@ -909,7 +910,36 @@
   background-color: var(--color-chocolate);
 }
 
+.reject-button {
+  cursor: pointer;
+  border: 0;
+  padding: var(--padding-mid) var(--padding-26xl);
+  background-color: var(--color-red);
+  border-radius: var(--br-12xl);
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.reject-button:hover {
+  background-color: var(--color-chocolate);
+}
+
 .cancel {
+  position: relative;
+  font-size: var(--font-size-lg);
+  line-height: 106.5%;
+  text-transform: capitalize;
+  font-weight: 600;
+  font-family: var(--font-poppins);
+  color: var(--studio-darkmode-allwhite-ffffff);
+  text-align: left;
+  display: inline-block;
+  min-width: 65px;
+}
+
+.reject {
   position: relative;
   font-size: var(--font-size-lg);
   line-height: 106.5%;

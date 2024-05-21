@@ -2,14 +2,15 @@ import TopHeader from "../components/TopHeader";
 import HeaderContainer from "../components/HeaderContainer";
 import FrameComponent from "../components/FrameComponent";
 import "./LisenceView.css";
-
+import HeaderSection from "../components/HeaderSection";
 const LisenceView = () => {
   return (
     <div className="lisenceview">
       <section className="header-section-parent">
         <div className="header-section">
-          <TopHeader />
-          <HeaderContainer />
+          {/* <TopHeader /> */}
+          {/* <HeaderContainer /> */}
+          <HeaderSection />
         </div>
         <div className="body-header-wrapper">
           <div className="body-header">

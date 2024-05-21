@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 import AlertTicket from "./AlertTicket"
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
-import "./BodyFormSection.css";
+import "./BodySection.css";
 import "../pages/LisenceView"
 
 
@@ -193,19 +193,17 @@ const Ticket = ({ ticket }) => {
 
                     {issuer.includes(address) ?
                         <>
-                            <button className="submitbtnTicket" onClick={handleSubmit}>
-                                <div className="bg19Ticket" />
-                                <div className="submit">Mint</div>
-                            </button>
-                            <button className="rejectbtnTicket" onClick={handleReject}>
-                                <div className="bgRejectTicket" />
-                                <div className=" submit">Reject</div>
-                            </button>
-
-                            <button className="cancelbtnTicket" type="reset" onClick={handleCancle}>
-                                <div className="bg20Ticket" />
-                                <div className="submit">Cancel</div>
-                            </button>
+                            <div className="body-button1">
+                                <button className="submit-button" onClick={handleSubmit}>
+                                    <div className="submit">Mint</div>
+                                </button>
+                                <button className="reject-button" onClick={handleReject}>
+                                    <div className="reject">Reject</div>
+                                </button>
+                                <button className="cancel-button" onClick={handleCancle}>
+                                    <div className="cancel">Cancel</div>
+                                </button>
+                            </div>
                         </>
                         :
                         <></>

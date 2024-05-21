@@ -10,12 +10,7 @@ const TopHeader = () => {
           </div>
         </div>
         <div className="navigation-right2">
-          <nav className="navigation-menu2">
-            <div className="explore2">Explore</div>
-            <div className="search2">Search</div>
-            <div className="hotels2">Hotels</div>
-            <div className="offers2">Offers</div>
-          </nav>
+
           <div className="account-section2">
             <img
               className="hamburger-menu-icon2"

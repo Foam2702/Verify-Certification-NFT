@@ -2,10 +2,12 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Alegreya+Sans+SC:wght@900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap");
+
 body {
   margin: 0;
   line-height: normal;
 }
+
 :root {
   /* fonts */
   --font-poppins: Poppins;
@@ -46,7 +48,7 @@ body {
   --color-gray: #0d1317;
   --color-cornflowerblue: #1262af;
   --color-lightblue: rgba(193, 228, 255, 0.3);
-
+  --color-red: red;
   /* Gaps */
   --gap-xl: 20px;
   --gap-80xl-9: 99.9px;

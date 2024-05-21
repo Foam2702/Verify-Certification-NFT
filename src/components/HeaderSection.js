@@ -63,12 +63,7 @@ const HeaderSection = () => {
             </div>
           </div>
           <div className="navigation-right">
-            <div className="navigation-menu">
-              <div className="explore">Explore</div>
-              <div className="search">Search</div>
-              <div className="hotels">Hotels</div>
-              <div className="offers">Offers</div>
-            </div>
+
             <div className="account-section">
               <img
                 className="hamburger-menu-icon"
@@ -76,8 +71,8 @@ const HeaderSection = () => {
                 src="/hamburgermenu@2x.png"
               />
               <button>
-              <NotificationBell  tickets={tickets} />
-              {/* 
+                <NotificationBell tickets={tickets} />
+                {/* 
               <img
                 className="notification-bell-icon"
                 loading="lazy"
@@ -87,19 +82,19 @@ const HeaderSection = () => {
               */}
               </button>
               <button className="button" onClick={connectWallet}>{address ? <AddressAvatar address={address} /> : "LOG IN"}</button>
-                {loading && (
-                  <div className="profile">
-                                      <img
+              {loading && (
+                <div className="profile">
+                  <img
                     className="profile-picture-icon"
                     loading="lazy"
                     alt=""
                     src="/profile-picture@2x.png"
                   />
                   <div className="profile-background" />
-                    <CircularProgress />
-                  </div>
-                )}
-                {/* 
+                  <CircularProgress />
+                </div>
+              )}
+              {/* 
               <button className="button">
                 <div className="profile" >
                   <img

@@ -4,9 +4,9 @@ import axios from 'axios';
 import useSigner from "../state/signer";
 
 
-import "./BodyFormSection.css";
+import "./BodySection.css";
 
-const BodyFormSection = () => {
+const BodySection = () => {
 
   {/* Set state */ }
   const [regions, setRegions] = useState([]);
@@ -127,7 +127,7 @@ const BodyFormSection = () => {
             <div className="name">
               <h3 className="name1">{`Họ và tên `}</h3>
               <input className="input-name" name="name" placeholder="Type here..." type="text" />
-              <div className="apply-now">Apply Now</div>
+
             </div>
             <div className="gender">
               <h3 className="gender1">Giới tính*</h3>
@@ -135,12 +135,12 @@ const BodyFormSection = () => {
                 <option value="male">Male</option>
                 <option value="female">Female</option>
               </select>
-              <div className="apply-now1">Apply Now</div>
+
             </div>
             <div className="email">
               <h3 className="email1">Email</h3>
               <input className="input-email" name="email" placeholder="abc@abc.com" type="email" />
-              <div className="apply-now2">Apply Now</div>
+
             </div>
           </div>
         </div>
@@ -149,12 +149,12 @@ const BodyFormSection = () => {
             <div className="cccd">
               <h3 className="cccd1">Số CCCD*</h3>
               <input className="input-cccd" name="citizenId" placeholder="Type here..." type="text" />
-              <div className="apply-now3">Apply Now</div>
+
             </div>
             <div className="date-of-birth">
               <h3 className="date-of-birth1">Ngày Sinh</h3>
               <input className="input-date-of-birth" name="dob" placeholder="Choose..." type="date" />
-              <div className="apply-now4">Apply Now</div>
+
             </div>
             <div className="home-town">
               <h3 className="home-town-text">Quê quán</h3>
@@ -166,7 +166,7 @@ const BodyFormSection = () => {
                   </option>
                 ))}
               </select>
-              <div className="apply-now5">Apply Now</div>
+
             </div>
           </div>
         </div>
@@ -175,7 +175,7 @@ const BodyFormSection = () => {
             <div className="working-unit">
               <h3 className="working-unit-text">Đơn vị công tác</h3>
               <input className="input-working-unit" name="workUnit" placeholder="Type here..." type="text" />
-              <div className="apply-now6">Apply Now</div>
+
             </div>
             <div className="name-of-vertification">
               <h3 className="name-of-vertification1">Tên chứng chỉ*</h3>
@@ -187,27 +187,27 @@ const BodyFormSection = () => {
                   </option>
                 ))}
               </select>
-              <div className="apply-now7">Apply Now</div>
+
             </div>
             <div className="score">
               <h3 className="score-text">Điểm</h3>
               <input className="input-score" name="point" placeholder="Type here..." type="text" />
-              <div className="apply-now8">Apply Now</div>
+
             </div>
             <div className="vertification-unit">
               <h3 className="vertification-unit-text">Đơn vị cấp phép*</h3>
               <input className="input-vertification-unit" name="licensingAuthority" type="text" disabled value={organization} />
-              <div className="apply-now9">Apply Now</div>
+
             </div>
             <div className="date-vertification">
               <h3 className="date-vertification-text">Ngày cấp*</h3>
               <input className="input-date-vertification" name="issueDate" placeholder="Choose..." type="date" />
-              <div className="apply-now10">Apply Now</div>
+
             </div>
             <div className="expired-date">
               <h3 className="expired-date-text">Hạn sử dụng chứng chỉ*</h3>
               <input className="input-expired-date" name="expiryDate" placeholder="Choose..." type="date" />
-              <div className="apply-now11">Apply Now</div>
+
             </div>
           </div>
         </div>
@@ -223,7 +223,7 @@ const BodyFormSection = () => {
                 multiple
                 onChange={onfileChange} />
             </div>
-            <div className="apply-now12">Apply Now</div>
+
           </div>
         </div>
         <div className="body-button">
@@ -239,4 +239,4 @@ const BodyFormSection = () => {
   );
 };
 
-export default BodyFormSection;
+export default BodySection;

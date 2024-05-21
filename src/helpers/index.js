@@ -55,3 +55,8 @@ export const pinJSONToIPFS = async (ticket) => {
         console.log(error);
     }
 };
+
+export function replaceBaseUrl(ipfsLink, newBaseUrl) {
+    const ipfsHash = ipfsLink.split('/').pop();
+    return `${newBaseUrl}/ipfs/${ipfsHash}`;
+}

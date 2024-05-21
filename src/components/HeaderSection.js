@@ -1,4 +1,6 @@
 //import "./Header.css";
+import { Navigate, useNavigate } from "react-router-dom";
+
 import useSigner from "../state/signer";
 import AddressAvatar from "../components/AddressAvatar"
 import CircularProgress from '@mui/material/CircularProgress';
@@ -12,9 +14,10 @@ const { ethers } = require("ethers");
 
 const HeaderSection = () => {
   const SOULBOUND_ADDRESS = process.env.REACT_APP_SOULBOUND_ADDRESS
-
   const { signer, loading, address, connectWallet } = useSigner();
   const [tickets, setTickets] = useState([])
+  const navigate = useNavigate();
+
   useEffect(() => {
     const fetchTickets = async () => {
       const allTickets = await axios("http://localhost:8080/tickets/all");
@@ -70,16 +73,17 @@ const HeaderSection = () => {
               />
               <button>
                 <NotificationBell tickets={tickets} />
-                {/* 
-              <img
-                className="notification-bell-icon"
-                loading="lazy"
-                alt=""
-                src="/notification-bell@2x.png"
-              />
-              */}
+
               </button>
-              <button className="button" onClick={connectWallet}>{address ? <AddressAvatar address={address} /> : "LOG IN"}</button>
+              <button className="button" onClick={() => {
+                if (address) {
+                  navigate("/lisenceview");
+                } else {
+                  connectWallet();
+                }
+              }}>
+                {address ? <AddressAvatar address={address} /> : "LOG IN"}
+              </button>
               {loading && (
                 <div className="profile">
                   <img
@@ -92,19 +96,7 @@ const HeaderSection = () => {
                   <CircularProgress />
                 </div>
               )}
-              {/* 
-              <button className="button">
-                <div className="profile" >
-                  <img
-                    className="profile-picture-icon"
-                    loading="lazy"
-                    alt=""
-                    src="/profile-picture@2x.png"
-                  />
-                  <div className="profile-background" />
-                </div>
-              </button>
-              */}
+
             </div>
           </div>
         </div>

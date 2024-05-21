@@ -40,7 +40,7 @@ export const SignerProvider = ({ children }) => {
             console.log(e);
         }
         setLoading(false);
-        navigate("/");
+        // navigate("/");
     };
     const contextValue = { contract, signer, loading, address, connectWallet };
     return (

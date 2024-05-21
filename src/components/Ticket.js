@@ -12,6 +12,9 @@ import { useNavigate } from "react-router-dom";
 import AlertTicket from "./AlertTicket"
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import "./BodyFormSection.css";
+import "../pages/LisenceView"
+
 
 const Ticket = ({ ticket }) => {
     const { signer, address, connectWallet, contract } = useSigner()
@@ -91,104 +94,103 @@ const Ticket = ({ ticket }) => {
                     <CircularProgress />
                 </div>
             )}
-            <main className="ticket-section">
-                <form encType="multipart/form-data" action="" >
-                    {issuer.includes(address) ?
-                        <h1 className="printInfo">THÔNG TIN CHỨNG CHỈ</h1>
-                        :
-                        <AlertTicket severity={ticket.status} />
-                    }
-                    <div className="career-10">
-                        <div className="bg8" />
-                        <h3 className="n-v-cp">Đơn vị cấp phép</h3>
-                        <h3 className="viewinput1">{ticket.licensing_authority}</h3>
+            <main className="body-section1">
+                {issuer.includes(address) ?
+                    <div className="body-header">
+                        <h1 className="body-header-text2">Điền thông tin chứng chỉ của bạn</h1>
                     </div>
-
-                    <div className="career-11">
-                        <div className="bg8" />
-                        <h3 className="ngy-cp">Ngày cấp</h3>
-                        <h3 className="viewinput1">{formatDate(ticket.issue_date)}</h3>
+                    :
+                    <AlertTicket severity={ticket.status} />
+                }
+                <form className="careers-section" encType="multipart/form-data" action="" >
+                    <div className="careers-section-inner">
+                        <div className="name-parent">
+                            <div className="name">
+                                <h3 className="name1">Họ và tên</h3>
+                                <h3 className="input-name" name="name" type="text">{ticket.name}</h3>
+                            </div>
+                            <div className="gender">
+                                <h3 className="gender1">Giới tính*</h3>
+                                <h3 className="input-gender" name="gender">
+                                    {ticket.gender}
+                                </h3>
+                            </div>
+                            <div className="email">
+                                <h3 className="email1">Email</h3>
+                                <h3 className="input-email" name="email" type="email">{ticket.email}</h3>
+                            </div>
+                        </div>
                     </div>
+                    <div className="careers-section-child">
+                        <div className="cccd-parent">
+                            <div className="cccd">
+                                <h3 className="cccd1">Số CCCD*</h3>
+                                <h3 className="input-cccd" name="citizenId" type="text">{ticket.citizen_id}</h3>
+                            </div>
+                            <div className="date-of-birth">
+                                <h3 className="date-of-birth1">Ngày Sinh</h3>
+                                <h3 className="input-date-of-birth" name="dob" type="date">{ticket.dob}</h3>
+                            </div>
+                            <div className="home-town">
+                                <h3 className="home-town-text">Quê quán</h3>
+                                <h3 className="input-home-town" name="region" >
+                                    {ticket.region}
+                                </h3>
 
-                    <div className="career-8">
-                        <div className="bg8" />
-                        <h3 className="tn-chng-ch">Tên chứng chỉ</h3>
-                        <h3 className="viewinput1">{ticket.certificate_name}</h3>
+                            </div>
+                        </div>
                     </div>
-
-                    {/* Function Date of Birth */}
-                    <div className="career-5">
-                        <div className="bg8" />
-
-                        <h3 className="ngy-sinh">Ngày sinh</h3>
-                        <h3 className="viewinput1">{formatDate(ticket.dob)}</h3>
-
-                    </div>
-
-                    {/* Function Regions */}
-                    <div className="career-6">
-                        <div className="bg8" />
-
-                        <h3 className="qu-qun">Quê quán</h3>
-                        <h3 className="viewinput1">{ticket.region}</h3>
-
-                    </div>
-
-                    {/* Function WorkUnit */}
-                    <div className="career-7">
-                        <div className="bg8" />
-                        <h3 className="n-v-cng">Đơn vị công tác</h3>
-                        <h3 className="viewinput1">{ticket.work_unit}</h3>
-                    </div>
-
-                    {/* Function ID */}
-                    <div className="career-2">
-                        <div className="bg8" />
-                        <h3 className="gii-tnh">Giới tính</h3>
-                        <h3 className="viewinput1">{ticket.gender}</h3>
+                    <div className="careers-section-inner1">
+                        <div className="working-unit-parent">
+                            <div className="working-unit">
+                                <h3 className="working-unit-text">Đơn vị công tác</h3>
+                                <h3 className="input-working-unit" name="workUnit" type="text">{ticket.work_unit}</h3>
+                            </div>
+                            <div className="name-of-vertification">
+                                <h3 className="name-of-vertification1">Tên chứng chỉ*</h3>
+                                <h3 className="input-name-of-vertification" name="certificateName"  >
+                                    {ticket.certificate_name}
+                                </h3>
+                            </div>
+                            <div className="score">
+                                <h3 className="score-text">Điểm</h3>
+                                <h3 className="input-score" name="point" type="text" >{ticket.point}</h3>
+                            </div>
+                            <div className="vertification-unit">
+                                <h3 className="vertification-unit-text">Đơn vị cấp phép*</h3>
+                                <h3 className="input-vertification-unit" name="licensingAuthority" type="text" >{ticket.licensing_authority}</h3>
+                            </div>
+                            <div className="date-vertification">
+                                <h3 className="date-vertification-text">Ngày cấp*</h3>
+                                <h3 className="input-date-vertification" name="issueDate" type="date" >{ticket.issue_date}</h3>
+                            </div>
+                            <div className="expired-date">
+                                <h3 className="expired-date-text">Hạn sử dụng chứng chỉ*</h3>
+                                <h3 className="input-expired-date" name="expiryDate" type="date">{ticket.issue_date}</h3>
+                            </div>
+                        </div>
 
                     </div>
+                    <div className="upload-wrapper">
+                        <div className="upload">
+                            <h3 className="upload-file-text">Hình ảnh chứng chỉ</h3>
+                            <div className="input-upload-file">
+                                <div className="input-box-background" />
+                                {/* <input className="example-here"
+                                    name="imageCertificate"
+                                    type="file"
+                                    accept=".jpg"
+                                    multiple
+                                /> */}
+                                <MultiActionAreaCard image={ticket.certificateUrl} />
 
-                    {/* Function Point */}
-                    <div className="career-9">
-                        <div className="bg8" />
-                        <h3 className="im">Điểm</h3>
-                        <h3 className="viewinput1">{ticket.point}</h3>
-                    </div>
-
-                    {/* Funtion Expired Date */}
-                    <div className="career-12">
-                        <div className="bg8" />
-                        <h3 className="hn-s-dng">Hạn sử dụng chứng chỉ</h3>
-                        <h3 className="viewinput1">{formatDate(ticket.expiry_date)}</h3>
-                    </div>
-
-                    <div className="career-3">
-                        <div className="bg17" />
-                        <h3 className="email">Email</h3>
-                        <h3 className="viewinput1">{ticket.email}</h3>
-                    </div>
-
-
-                    <div className="career-1">
-                        <div className="bg8" />
-                        <h3 className="h-v-tn">Họ và tên</h3>
-                        <h3 className="viewinput1">{ticket.name}</h3>
-                    </div>
-
-
-                    <div className="career-14">
-                        <div className="bg8" />
-                        <h3 className="s-cccd">Số CCCD</h3>
-                        <h3 className="viewinput1">{ticket.citizen_id}</h3>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Funtion Upload File */}
-                    <div className="imageCertificate">
-                        {/* <div className="bg15" /> */}
-                        <h3 className="imageCertificateTitle">Hình ảnh chứng chỉ</h3>
-                        <MultiActionAreaCard image={ticket.certificateUrl} />
-                    </div>
+
+
                     {issuer.includes(address) ?
                         <>
                             <button className="submitbtnTicket" onClick={handleSubmit}>

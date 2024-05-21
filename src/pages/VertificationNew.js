@@ -1,4 +1,4 @@
-import HeaderSection1 from "../components/HeaderSection1";
+import HeaderSection from "../components/HeaderSection";
 import BodyFormSection from "../components/Body Section";
 import Footer from "../components/Footer";
 import "./VertificationNew.css";
@@ -6,7 +6,7 @@ import "./VertificationNew.css";
 const VertificationNew = () => {
   return (
     <div className="vertificationnew">
-      <HeaderSection1 />
+      <HeaderSection />
       <BodyFormSection />
       <Footer
         shapeLeft="/shape-left1.svg"

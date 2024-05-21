@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react'
 //import Vertifications from "./Vertifications";
 import axios from "axios";
-import HeaderSection1 from "../components/HeaderSection1";
+import HeaderSection from "../components/HeaderSection";
 import Footer from "../components/Footer";
 //import FooterTop from "../components/FooterTop";
 //import "./Vertifications.css";
@@ -24,14 +24,19 @@ export default function VerificationForIssuer() {
     }, [id]); // Dependency array
     return (
 
-        <>
-            <HeaderSection1 />
+        <div className="vertificationnew">
+            <HeaderSection />
             <Ticket
                 ticket={ticket}
             />
 
-                <Footer/>
+            <Footer
+                shapeLeft="/shape-left1.svg"
+                socialIcontwitter="/socialicontwitter1.svg"
+                footerDebugCommit="unset"
+                footerMarginTop="unset"
+            />
 
-        </>
+        </div>
     );
 }

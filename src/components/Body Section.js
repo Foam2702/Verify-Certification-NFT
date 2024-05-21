@@ -132,14 +132,14 @@ const BodyFormSection = () => {
             <div className="gender">
               <h3 className="gender1">Giới tính*</h3>
               <select className="input-gender" name="gender">
-              <option value="male">Male</option>
-              <option value="female">Female</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
               </select>
               <div className="apply-now1">Apply Now</div>
             </div>
             <div className="email">
               <h3 className="email1">Email</h3>
-              <input className="input-email" ame="email" placeholder="abc@abc.com" type="email" />
+              <input className="input-email" name="email" placeholder="abc@abc.com" type="email" />
               <div className="apply-now2">Apply Now</div>
             </div>
           </div>
@@ -153,18 +153,18 @@ const BodyFormSection = () => {
             </div>
             <div className="date-of-birth">
               <h3 className="date-of-birth1">Ngày Sinh</h3>
-              <input className="input-date-of-birth" name="dob" placeholder="Choose..." type="date"  />
+              <input className="input-date-of-birth" name="dob" placeholder="Choose..." type="date" />
               <div className="apply-now4">Apply Now</div>
             </div>
             <div className="home-town">
               <h3 className="home-town-text">Quê quán</h3>
               <select className="input-home-town" name="region" >
                 <option value="">Chọn tỉnh thành ...</option>
-                  {regions.map((region) => (
-                <option key={region._id} value={region.name}>
-                  {region.name}
-                </option>
-              ))}
+                {regions.map((region) => (
+                  <option key={region._id} value={region.name}>
+                    {region.name}
+                  </option>
+                ))}
               </select>
               <div className="apply-now5">Apply Now</div>
             </div>
@@ -174,7 +174,7 @@ const BodyFormSection = () => {
           <div className="working-unit-parent">
             <div className="working-unit">
               <h3 className="working-unit-text">Đơn vị công tác</h3>
-              <input  className="input-working-unit"  name="workUnit" placeholder="Type here..." type="text" />
+              <input className="input-working-unit" name="workUnit" placeholder="Type here..." type="text" />
               <div className="apply-now6">Apply Now</div>
             </div>
             <div className="name-of-vertification">
@@ -217,20 +217,20 @@ const BodyFormSection = () => {
             <div className="input-upload-file">
               <div className="input-box-background" />
               <input className="example-here"
-              name="imageCertificate"
-              type="file"
-              accept=".jpg"
-              multiple
-              onChange={onfileChange} />
+                name="imageCertificate"
+                type="file"
+                accept=".jpg"
+                multiple
+                onChange={onfileChange} />
             </div>
             <div className="apply-now12">Apply Now</div>
           </div>
         </div>
         <div className="body-button">
-          <button className="submit-button"  onClick={handleSubmit}>
+          <button className="submit-button" onClick={handleSubmit}>
             <div className="submit">Submit</div>
           </button>
-          <button className="cancel-button" onClick={onCancelBtnClick}> 
+          <button className="cancel-button" onClick={onCancelBtnClick}>
             <div className="cancel">Cancel</div>
           </button>
         </div>

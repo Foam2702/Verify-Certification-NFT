@@ -3,6 +3,7 @@ import Alert from '@mui/material/Alert';
 import CheckIcon from '@mui/icons-material/Check';
 import { useState, useEffect } from 'react'
 
+
 export default function AlertTicket({ severity }) {
     const [alert, setAlert] = useState("");
     const [message, setMessage] = useState("");
@@ -16,13 +17,14 @@ export default function AlertTicket({ severity }) {
             setMessage("Rejected from Issuer");
         } else if (severity === "approved") {
             setAlert("success");
-            setMessage("Mint SoulBound Token.Check your wallet");
+            setMessage("Minted SoulBound Token");
         }
     }, [severity]);
 
     return (
         <Alert variant="filled" severity={alert}>
             {message}
+
         </Alert>
     );
 }

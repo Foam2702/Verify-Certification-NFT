@@ -11,6 +11,8 @@ import { useNavigate } from "react-router-dom";
 import AlertTicket from "./AlertTicket"
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
+import { pinJSONToIPFS } from "../helpers/index"
 import "./BodySection.css";
 import "../pages/LisenceView"
 
@@ -23,6 +25,7 @@ const Ticket = ({ ticket }) => {
     const [loading, setLoading] = useState(false);
     const [update, setUpdate] = useState(false)
     const [countdown, setCountdown] = useState(3)
+    const [transaction, setTransaction] = useState("")
 
     const navigate = useNavigate();
     useEffect(() => {
@@ -68,9 +71,6 @@ const Ticket = ({ ticket }) => {
     }
     const handleSubmit = async (event) => {
         event.preventDefault()
-        const status = "approved"
-        const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}/${status}`)
-        console.log(response.data.message)
         // const metadata = await pinJSONToIPFS(ticket)
         // const ipfsMetadata = `ipfs://${metadata}`
         // const { ethereum } = window
@@ -79,7 +79,12 @@ const Ticket = ({ ticket }) => {
         //         ticket.owner_address,
         //         ipfsMetadata
         //     );
+        //     console.log(result)
         // }
+        const status = "approved"
+        const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}/${status}`)
+        console.log(response.data.message)
+
         if (response.data.message === "updated successfully") {
             setLoading(true);
             await new Promise(resolve => setTimeout(resolve, 1000));
@@ -92,6 +97,43 @@ const Ticket = ({ ticket }) => {
             setMessageAlert("Mint Fail")
             setShowAlert(true);
         }
+        const result = {
+            "hash": "0x15226010cb612b8c4c5804accf76987c064dc062df7d6910b8fa9b9a30955fda",
+            "type": 2,
+            "accessList": null,
+            "blockHash": null,
+            "blockNumber": null,
+            "transactionIndex": null,
+            "confirmations": 0,
+            "from": "0x125FA7939E614CBb4a4794bD984d2c4e79375666",
+            "gasPrice": {
+                "type": "BigNumber",
+                "hex": "0x03b2a4fe37"
+            },
+            "maxPriorityFeePerGas": {
+                "type": "BigNumber",
+                "hex": "0x59682f00"
+            },
+            "maxFeePerGas": {
+                "type": "BigNumber",
+                "hex": "0x03b2a4fe37"
+            },
+            "gasLimit": {
+                "type": "BigNumber",
+                "hex": "0x0211c5"
+            },
+            "to": "0xAd8268226D68c793349A9E287117D8823C2ed0b1",
+            "value": {
+                "type": "BigNumber",
+                "hex": "0x00"
+            },
+            "nonce": 26,
+            "data": "0xfc3949eb00000000000000000000000032de93bb670f3d4ae1181b615954abeee81fc9b300000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000035697066733a2f2f516d57566e7a7779685047764e687a4c594153597279415979694b5a526457596f696838357333356e61797834640000000000000000000000",
+            "creates": null,
+            "chainId": 0
+        }
+        setTransaction(result.hash)
+
     };
     const handleClose = async (event, reason) => {
         if (reason === 'clickaway') {
@@ -134,8 +176,10 @@ const Ticket = ({ ticket }) => {
                         <div className="body-header">
                             <h1 className="body-header-text2">Thông tin chứng chỉ</h1>
                         </div>
-                        :
-                        <AlertTicket severity={ticket.status} />
+                        : <>
+                            <AlertTicket severity={ticket.status} />
+
+                        </>
                     }
                     <div className="careers-section-inner">
                         <div className="name-parent">
@@ -234,7 +278,7 @@ const Ticket = ({ ticket }) => {
                     <Snackbar open={showAlert} autoHideDuration={3000} onClose={handleClose}>
                         <Alert
                             onClose={handleClose}
-                            severity={update ? "success" : "error"}
+                            severity="success"
                             variant="filled"
                             sx={{ width: '100%' }}
                         >

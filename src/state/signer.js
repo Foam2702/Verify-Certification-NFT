@@ -33,14 +33,14 @@ export const SignerProvider = ({ children }) => {
             const newContract = new ethers.Contract(SOULBOUND_ADDRESS, SOULBOUND.abi, signer);
             setContract(newContract)
             // Add a delay before setting the state
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise(resolve => setTimeout(resolve, 1000));
             setSigner(signer);
             setAddress(address);
         } catch (e) {
             console.log(e);
         }
         setLoading(false);
-        // navigate("/");
+        navigate("/");
     };
     const contextValue = { contract, signer, loading, address, connectWallet };
     return (

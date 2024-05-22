@@ -10,7 +10,6 @@
 .body-header-text2 {
   margin: 0;
   height: 69px;
-  width: 502px;
   position: relative;
   font-size: inherit;
   letter-spacing: -0.03em;
@@ -26,7 +25,7 @@
 .body-header-wrapper {
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
+  align-items: center;
   box-sizing: border-box;
   max-width: 100%;
 }

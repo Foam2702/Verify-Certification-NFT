@@ -82,7 +82,7 @@ const Ticket = ({ ticket }) => {
         // }
         if (response.data.message === "updated successfully") {
             setLoading(true);
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise(resolve => setTimeout(resolve, 1000));
             setLoading(false);
             setMessageAlert("Mint Successfully")
             setShowAlert(true);
@@ -99,14 +99,14 @@ const Ticket = ({ ticket }) => {
         }
         setLoading(true);
         setShowAlert(false);
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, 1000));
         setLoading(false);
         navigate("/")
 
     };
     const handleCancle = async () => {
         setLoading(true);
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, 1000));
         setLoading(false);
         navigate("/")
 

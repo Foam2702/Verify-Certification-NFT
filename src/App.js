@@ -10,10 +10,13 @@ import VertificationNew from "./pages/VertificationNew";
 import VerificationForIssuer from "./pages/VerificationForIssuer";
 import { SignerProvider } from "./state/signer"
 import LisenceView from "./pages/LisenceView";
+import useSigner from "./state/signer";
+import CircularProgress from '@mui/material/CircularProgress';
 function App() {
   const action = useNavigationType();
   const location = useLocation();
   const pathname = location.pathname;
+  const { loading } = useSigner();
 
   useEffect(() => {
     if (action !== "POP") {
@@ -34,10 +37,10 @@ function App() {
         title = "";
         metaDescription = "";
         break;
-        case "/lisenceview":
-          title = "";
-          metaDescription = "";
-          break;
+      case "/lisenceview":
+        title = "";
+        metaDescription = "";
+        break;
     }
 
     if (title) {
@@ -56,6 +59,11 @@ function App() {
 
   return (
     <SignerProvider>
+      {loading && (
+        <div className="loading-overlay">
+          <CircularProgress />
+        </div>
+      )}
       <Routes>
         <Route path="/lisenceview" element={<LisenceView />} />
         <Route path="/tickets/ticket/:id" element={<VerificationForIssuer />} />

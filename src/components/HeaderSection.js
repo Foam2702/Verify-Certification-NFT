@@ -16,6 +16,7 @@ const HeaderSection = () => {
   const SOULBOUND_ADDRESS = process.env.REACT_APP_SOULBOUND_ADDRESS
   const { signer, loading, address, connectWallet } = useSigner();
   const [tickets, setTickets] = useState([])
+  const [loadingPage, setLoadingPage] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -59,9 +60,15 @@ const HeaderSection = () => {
       <div className="top-header">
         <div className="top-container">
           <div className="fickleflight-logo-wrapper">
-            <div className="fickleflight-logo">
+            <button className="fickleflight-logo" onClick={() => {
+              setLoadingPage(true); // Start loading
+              setTimeout(() => {
+                navigate("/");
+                setLoadingPage(false); // Stop loading
+              }, 1000); // Delay of 2 seconds
+            }}>
               <h3 className="abc">ABC</h3>
-            </div>
+            </button>
           </div>
           <div className="navigation-right">
 
@@ -75,9 +82,15 @@ const HeaderSection = () => {
                 <NotificationBell tickets={tickets} />
 
               </button>
-              <button className="button" onClick={() => {
+              <button className="button" onClick={async () => {
                 if (address) {
-                  navigate("/lisenceview");
+                  setLoadingPage(true); // Start loading
+                  setTimeout(() => {
+                    navigate("/lisenceview");
+                    setLoadingPage(false); // Stop loading
+
+                  }, 1000); // Delay of 2 seconds
+
                 } else {
                   connectWallet();
                 }
@@ -93,6 +106,11 @@ const HeaderSection = () => {
                     src="/profile-picture@2x.png"
                   />
                   <div className="profile-background" />
+                  <CircularProgress />
+                </div>
+              )}
+              {loadingPage && (
+                <div className="loading-overlay">
                   <CircularProgress />
                 </div>
               )}

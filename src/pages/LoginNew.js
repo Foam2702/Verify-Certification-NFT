@@ -6,7 +6,9 @@ import "./LoginNew.css";
 
 const LoginNew = () => {
   return (
+
     <div className="loginnew">
+
       <HeaderSection />
       <section className="body-section">
         <div className="body-header-1">

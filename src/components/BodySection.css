@@ -981,10 +981,10 @@
 
 .body-section1,
 .careers-section {
-  align-self: stretch;
+  align-self: center;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: center;
   max-width: 100%;
 }
 
@@ -995,7 +995,7 @@
 }
 
 .body-section1 {
-  align-items: flex-start;
+  align-items: center;
   gap: var(--gap-31xl);
   text-align: left;
   font-size: var(--font-size-29xl);

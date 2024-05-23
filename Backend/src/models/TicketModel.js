@@ -58,16 +58,15 @@ module.exports = {
         return result;
     },
 
-    updateStatusOneTicket: async (id, status) => {
+    updateOneTicket: async (id, status, transaction_hash) => {
+        transaction_hash = transaction_hash || null;
         try {
-            await sql`UPDATE ticket SET status=${status} WHERE id=${id}`;
+            await sql`UPDATE ticket SET status=${status} , transaction_hash=${transaction_hash} WHERE id=${id}`;
             return true;
         } catch (error) {
             console.error(error);
             return false;
         }
-    }
-
-
+    },
 
 }

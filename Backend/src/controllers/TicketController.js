@@ -102,9 +102,9 @@ module.exports = {
             "tickets": tickets
         })
     },
-    updateStatusOneTicket: async (req, res) => {
-        const { id, status } = req.params
-        console.log(id, status)
+    updateOneTicket: async (req, res) => {
+        const { id } = req.params
+        const { status, transaction_hash } = req.query
         const ticketFromDb = await ticketModel.getOneTicket(id)
         if (ticketFromDb == undefined) {
             res.json({
@@ -122,7 +122,7 @@ module.exports = {
                 })
             }
             else {
-                const result = await ticketModel.updateStatusOneTicket(id, status)
+                const result = await ticketModel.updateOneTicket(id, status, transaction_hash)
                 if (result == true) {
                     res.json({
                         "code": "200",
@@ -139,6 +139,7 @@ module.exports = {
                 }
             }
         }
-    }
+    },
+
 
 }

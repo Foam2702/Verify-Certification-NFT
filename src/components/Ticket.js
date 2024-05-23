@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 import Link from '@mui/material/Link';
 import axios from 'axios';
+import Web3 from 'web3';
 import useSigner from "../state/signer";
 import MultiActionAreaCard from "./MultiACtionAreaCard";
 import { formatDate } from '../helpers/index'
@@ -11,6 +12,8 @@ import { useNavigate } from "react-router-dom";
 import AlertTicket from "./AlertTicket"
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import Button from '@mui/material/Button';
+
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import { pinJSONToIPFS } from "../helpers/index"
 import "./BodySection.css";
@@ -18,7 +21,7 @@ import "../pages/LisenceView"
 
 
 const Ticket = ({ ticket }) => {
-    const { signer, address, connectWallet, contract } = useSigner()
+    const { signer, address, connectWallet, contract, provider } = useSigner()
     const [issuer, setIssuer] = useState([])
     const [showAlert, setShowAlert] = useState(false);
     const [messageAlert, setMessageAlert] = useState("")
@@ -26,7 +29,7 @@ const Ticket = ({ ticket }) => {
     const [update, setUpdate] = useState(false)
     const [countdown, setCountdown] = useState(3)
     const [transaction, setTransaction] = useState("")
-
+    const web3 = new Web3(window.ethereum);
     const navigate = useNavigate();
     useEffect(() => {
         const checkIssuer = async () => {
@@ -54,13 +57,12 @@ const Ticket = ({ ticket }) => {
     const handleReject = async (e) => {
         e.preventDefault()
         const status = "reject"
-        const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}/${status}`)
+        const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}?status=${status}`)
         console.log(response.data.message)
         if (response.data.message === "updated successfully") {
             setUpdate(true)
             setMessageAlert("Rejected Successfully")
             setShowAlert(true);
-
         }
         else if (response.data.message === "update failed") {
             setUpdate(false)
@@ -81,22 +83,7 @@ const Ticket = ({ ticket }) => {
         //     );
         //     console.log(result)
         // }
-        const status = "approved"
-        const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}/${status}`)
-        console.log(response.data.message)
 
-        if (response.data.message === "updated successfully") {
-            setLoading(true);
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            setLoading(false);
-            setMessageAlert("Mint Successfully")
-            setShowAlert(true);
-        }
-        else if (response.data.message === "update failed") {
-            setUpdate(false)
-            setMessageAlert("Mint Fail")
-            setShowAlert(true);
-        }
         const result = {
             "hash": "0x15226010cb612b8c4c5804accf76987c064dc062df7d6910b8fa9b9a30955fda",
             "type": 2,
@@ -132,8 +119,25 @@ const Ticket = ({ ticket }) => {
             "creates": null,
             "chainId": 0
         }
-        setTransaction(result.hash)
+        const status = "approved"
+        const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}?status=${status}&transaction_hash=${result.hash}`)
+        console.log(response.data.message)
 
+        if (response.data.message === "updated successfully") {
+            setLoading(true);
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            setLoading(false);
+            setMessageAlert("Mint Successfully")
+            setShowAlert(true);
+        }
+        else if (response.data.message === "update failed") {
+            setUpdate(false)
+            setMessageAlert("Mint Fail")
+            setShowAlert(true);
+        }
+
+
+        // setTransaction(result.hash)
     };
     const handleClose = async (event, reason) => {
         if (reason === 'clickaway') {
@@ -161,7 +165,39 @@ const Ticket = ({ ticket }) => {
 
         return day + '/' + month + '/' + year;
     }
+    async function addNFTToWallet() {
+        const { ethereum } = window
+        web3.eth.getTransactionReceipt(result.hash).then(function (data) {
+            let transaction = data;
+            let logs = data.logs;
+            console.log(logs);
+            console.log(web3.utils.hexToNumber(logs[0].topics[3]));
+        });
+        try {
+            // wasAdded is a boolean. Like any RPC method, an error can be thrown.
+            const wasAdded = await ethereum // Or window.ethereum if you don't support EIP-6963.
+                .request({
+                    method: "wallet_watchAsset",
+                    params: {
+                        type: "ERC721", // Or "ERC1155".
+                        options: {
+                            // The address of the token.
+                            address: "0xad8268226d68c793349a9e287117d8823c2ed0b1",
+                            // ERC-721 or ERC-1155 token ID.
+                            tokenId: web3.utils.hexToNumber(logs[0].topics[3]),
+                        },
+                    },
+                });
 
+            if (wasAdded) {
+                console.log("User successfully added the token!");
+            } else {
+                console.log("User did not add the token.");
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
     return (
         <>
             {loading && (
@@ -178,6 +214,10 @@ const Ticket = ({ ticket }) => {
                         </div>
                         : <>
                             <AlertTicket severity={ticket.status} />
+                            {ticket.status === 'approved' ?
+                                <Button variant="contained" onClick={addNFTToWallet}>Import NFT to MetaMask </Button>
+                                : <></>
+                            }
 
                         </>
                     }

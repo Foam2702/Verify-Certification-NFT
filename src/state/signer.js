@@ -14,6 +14,7 @@ export const SignerProvider = ({ children }) => {
     const [address, setAddress] = useState("");
     const [loading, setLoading] = useState(false);
     const [contract, setContract] = useState(null)
+    const [provider, setProvider] = useState(null)
 
     useEffect(() => {
         const web3modal = new Web3Modal();
@@ -32,17 +33,17 @@ export const SignerProvider = ({ children }) => {
             const address = await signer.getAddress();
             const newContract = new ethers.Contract(SOULBOUND_ADDRESS, SOULBOUND.abi, signer);
             setContract(newContract)
-            // Add a delay before setting the state
             await new Promise(resolve => setTimeout(resolve, 1000));
             setSigner(signer);
             setAddress(address);
+            setProvider(provider)
         } catch (e) {
             console.log(e);
         }
         setLoading(false);
         navigate("/");
     };
-    const contextValue = { contract, signer, loading, address, connectWallet };
+    const contextValue = { provider, contract, signer, loading, address, connectWallet };
     return (
         <SignerContext.Provider value={contextValue}>
             {children}

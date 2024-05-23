@@ -102,6 +102,7 @@
   box-sizing: border-box;
   max-width: 100%;
   font-size: var(--font-size-5xl);
+  margin-bottom: 1%;
 }
 
 .header-section-parent,

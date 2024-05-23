@@ -29,7 +29,10 @@ const Ticket = ({ ticket }) => {
     const [update, setUpdate] = useState(false)
     const [countdown, setCountdown] = useState(3)
     const [transaction, setTransaction] = useState("")
+    const [addressContract, setAddressContract] = useState("")
+    const [tokenID, setTokenID] = useState("")
     const web3 = new Web3(window.ethereum);
+
     const navigate = useNavigate();
     useEffect(() => {
         const checkIssuer = async () => {
@@ -54,6 +57,24 @@ const Ticket = ({ ticket }) => {
         }
         return () => clearTimeout(timer);
     }, [showAlert, countdown]);
+    useEffect(() => {
+        const getAddContractAndTokenID = async () => {
+            try {
+                const data = await web3.eth.getTransactionReceipt(ticket.transaction_hash);
+                let transaction = data;
+                let logs = data.logs;
+                console.log('logs:', logs);
+                const tokenIdValue = web3.utils.hexToNumber(logs[0].topics[3]);
+                console.log('tokenIdValue:', tokenIdValue);
+                setTokenID(tokenIdValue.toString());
+                setAddressContract(logs[0].address)
+            } catch (err) {
+                console.log(err)
+            }
+        }
+        console.log('Calling getAddContractAndTokenID');
+        getAddContractAndTokenID()
+    }, [ticket])
     const handleReject = async (e) => {
         e.preventDefault()
         const status = "reject"
@@ -73,68 +94,71 @@ const Ticket = ({ ticket }) => {
     }
     const handleSubmit = async (event) => {
         event.preventDefault()
-        // const metadata = await pinJSONToIPFS(ticket)
-        // const ipfsMetadata = `ipfs://${metadata}`
-        // const { ethereum } = window
-        // if (ethereum) {
-        //     const result = await contract.mintSBTForAddress(
-        //         ticket.owner_address,
-        //         ipfsMetadata
-        //     );
-        //     console.log(result)
+        const metadata = await pinJSONToIPFS(ticket)
+        const ipfsMetadata = `ipfs://${metadata}`
+        const { ethereum } = window
+        if (ethereum) {
+            const result = await contract.mintSBTForAddress(
+                ticket.owner_address,
+                ipfsMetadata
+            );
+            setAddressContract(result.to)
+            console.log(result)
+            const status = "approved"
+            const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}?status=${status}&transaction_hash=${result.hash}`)
+
+            console.log(response.data.message)
+
+            if (response.data.message === "updated successfully") {
+                setLoading(true);
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                setLoading(false);
+                setMessageAlert("Mint Successfully")
+                setShowAlert(true);
+            }
+            else if (response.data.message === "update failed") {
+                setUpdate(false)
+                setMessageAlert("Mint Fail")
+                setShowAlert(true);
+            }
+        }
+
+        // const result = {
+        //     "hash": "0x15226010cb612b8c4c5804accf76987c064dc062df7d6910b8fa9b9a30955fda",
+        //     "type": 2,
+        //     "accessList": null,
+        //     "blockHash": null,
+        //     "blockNumber": null,
+        //     "transactionIndex": null,
+        //     "confirmations": 0,
+        //     "from": "0x125FA7939E614CBb4a4794bD984d2c4e79375666",
+        //     "gasPrice": {
+        //         "type": "BigNumber",
+        //         "hex": "0x03b2a4fe37"
+        //     },
+        //     "maxPriorityFeePerGas": {
+        //         "type": "BigNumber",
+        //         "hex": "0x59682f00"
+        //     },
+        //     "maxFeePerGas": {
+        //         "type": "BigNumber",
+        //         "hex": "0x03b2a4fe37"
+        //     },
+        //     "gasLimit": {
+        //         "type": "BigNumber",
+        //         "hex": "0x0211c5"
+        //     },
+        //     "to": "0xAd8268226D68c793349A9E287117D8823C2ed0b1",
+        //     "value": {
+        //         "type": "BigNumber",
+        //         "hex": "0x00"
+        //     },
+        //     "nonce": 26,
+        //     "data": "0xfc3949eb00000000000000000000000032de93bb670f3d4ae1181b615954abeee81fc9b300000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000035697066733a2f2f516d57566e7a7779685047764e687a4c594153597279415979694b5a526457596f696838357333356e61797834640000000000000000000000",
+        //     "creates": null,
+        //     "chainId": 0
         // }
 
-        const result = {
-            "hash": "0x15226010cb612b8c4c5804accf76987c064dc062df7d6910b8fa9b9a30955fda",
-            "type": 2,
-            "accessList": null,
-            "blockHash": null,
-            "blockNumber": null,
-            "transactionIndex": null,
-            "confirmations": 0,
-            "from": "0x125FA7939E614CBb4a4794bD984d2c4e79375666",
-            "gasPrice": {
-                "type": "BigNumber",
-                "hex": "0x03b2a4fe37"
-            },
-            "maxPriorityFeePerGas": {
-                "type": "BigNumber",
-                "hex": "0x59682f00"
-            },
-            "maxFeePerGas": {
-                "type": "BigNumber",
-                "hex": "0x03b2a4fe37"
-            },
-            "gasLimit": {
-                "type": "BigNumber",
-                "hex": "0x0211c5"
-            },
-            "to": "0xAd8268226D68c793349A9E287117D8823C2ed0b1",
-            "value": {
-                "type": "BigNumber",
-                "hex": "0x00"
-            },
-            "nonce": 26,
-            "data": "0xfc3949eb00000000000000000000000032de93bb670f3d4ae1181b615954abeee81fc9b300000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000035697066733a2f2f516d57566e7a7779685047764e687a4c594153597279415979694b5a526457596f696838357333356e61797834640000000000000000000000",
-            "creates": null,
-            "chainId": 0
-        }
-        const status = "approved"
-        const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}?status=${status}&transaction_hash=${result.hash}`)
-        console.log(response.data.message)
-
-        if (response.data.message === "updated successfully") {
-            setLoading(true);
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            setLoading(false);
-            setMessageAlert("Mint Successfully")
-            setShowAlert(true);
-        }
-        else if (response.data.message === "update failed") {
-            setUpdate(false)
-            setMessageAlert("Mint Fail")
-            setShowAlert(true);
-        }
 
 
         // setTransaction(result.hash)
@@ -166,37 +190,36 @@ const Ticket = ({ ticket }) => {
         return day + '/' + month + '/' + year;
     }
     async function addNFTToWallet() {
-        const { ethereum } = window
-        web3.eth.getTransactionReceipt(result.hash).then(function (data) {
-            let transaction = data;
-            let logs = data.logs;
-            console.log(logs);
-            console.log(web3.utils.hexToNumber(logs[0].topics[3]));
-        });
-        try {
-            // wasAdded is a boolean. Like any RPC method, an error can be thrown.
-            const wasAdded = await ethereum // Or window.ethereum if you don't support EIP-6963.
-                .request({
-                    method: "wallet_watchAsset",
+
+        if (addressContract && tokenID) {
+            console.log("ADDCT", addressContract)
+            console.log("TOKEN", tokenID)
+            try {
+                const wasAdded = await ethereum.request({
+                    method: 'wallet_watchAsset',
                     params: {
-                        type: "ERC721", // Or "ERC1155".
+                        type: 'ERC721', // Change to ERC721 for NFTs
                         options: {
-                            // The address of the token.
-                            address: "0xad8268226d68c793349a9e287117d8823c2ed0b1",
+                            address: addressContract,
                             // ERC-721 or ERC-1155 token ID.
-                            tokenId: web3.utils.hexToNumber(logs[0].topics[3]),
-                        },
+                            tokenId: tokenID,
+                        }
+
                     },
                 });
 
-            if (wasAdded) {
-                console.log("User successfully added the token!");
-            } else {
-                console.log("User did not add the token.");
+                if (wasAdded) {
+                    console.log('Thanks for your interest!');
+                } else {
+                    console.log('Your loss!');
+                }
+            } catch (error) {
+                console.log('Oops! Something went wrong:', error);
             }
-        } catch (error) {
-            console.log(error);
+        } else {
+            console.log('addressContract or tokenID is not defined');
         }
+
     }
     return (
         <>

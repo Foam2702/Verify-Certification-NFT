@@ -12,18 +12,26 @@ import { SignerProvider } from "./state/signer"
 import LisenceView from "./pages/LisenceView";
 import useSigner from "./state/signer";
 import CircularProgress from '@mui/material/CircularProgress';
+import { useNavigate } from "react-router-dom";
+
 function App() {
   const action = useNavigationType();
   const location = useLocation();
   const pathname = location.pathname;
-  const { loading } = useSigner();
+  const { loading, address } = useSigner();
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     if (action !== "POP") {
       window.scrollTo(0, 0);
     }
   }, [action, pathname]);
-
+  useEffect(() => {
+    if (address === null) {
+      navigate("/");
+    }
+  }, [address, navigate]);
   useEffect(() => {
     let title = "";
     let metaDescription = "";

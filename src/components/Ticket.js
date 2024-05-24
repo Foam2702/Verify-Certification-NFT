@@ -32,7 +32,6 @@ const Ticket = ({ ticket }) => {
     const [addressContract, setAddressContract] = useState("")
     const [tokenID, setTokenID] = useState("")
     const web3 = new Web3(window.ethereum);
-
     const navigate = useNavigate();
     useEffect(() => {
         const checkIssuer = async () => {
@@ -72,7 +71,6 @@ const Ticket = ({ ticket }) => {
                 console.log(err)
             }
         }
-        console.log('Calling getAddContractAndTokenID');
         getAddContractAndTokenID()
     }, [ticket])
     const handleReject = async (e) => {
@@ -122,46 +120,6 @@ const Ticket = ({ ticket }) => {
                 setShowAlert(true);
             }
         }
-
-        // const result = {
-        //     "hash": "0x15226010cb612b8c4c5804accf76987c064dc062df7d6910b8fa9b9a30955fda",
-        //     "type": 2,
-        //     "accessList": null,
-        //     "blockHash": null,
-        //     "blockNumber": null,
-        //     "transactionIndex": null,
-        //     "confirmations": 0,
-        //     "from": "0x125FA7939E614CBb4a4794bD984d2c4e79375666",
-        //     "gasPrice": {
-        //         "type": "BigNumber",
-        //         "hex": "0x03b2a4fe37"
-        //     },
-        //     "maxPriorityFeePerGas": {
-        //         "type": "BigNumber",
-        //         "hex": "0x59682f00"
-        //     },
-        //     "maxFeePerGas": {
-        //         "type": "BigNumber",
-        //         "hex": "0x03b2a4fe37"
-        //     },
-        //     "gasLimit": {
-        //         "type": "BigNumber",
-        //         "hex": "0x0211c5"
-        //     },
-        //     "to": "0xAd8268226D68c793349A9E287117D8823C2ed0b1",
-        //     "value": {
-        //         "type": "BigNumber",
-        //         "hex": "0x00"
-        //     },
-        //     "nonce": 26,
-        //     "data": "0xfc3949eb00000000000000000000000032de93bb670f3d4ae1181b615954abeee81fc9b300000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000035697066733a2f2f516d57566e7a7779685047764e687a4c594153597279415979694b5a526457596f696838357333356e61797834640000000000000000000000",
-        //     "creates": null,
-        //     "chainId": 0
-        // }
-
-
-
-        // setTransaction(result.hash)
     };
     const handleClose = async (event, reason) => {
         if (reason === 'clickaway') {
@@ -190,26 +148,33 @@ const Ticket = ({ ticket }) => {
         return day + '/' + month + '/' + year;
     }
     async function addNFTToWallet() {
-
         if (addressContract && tokenID) {
-            console.log("ADDCT", addressContract)
-            console.log("TOKEN", tokenID)
             try {
                 const wasAdded = await ethereum.request({
                     method: 'wallet_watchAsset',
                     params: {
-                        type: 'ERC721', // Change to ERC721 for NFTs
+                        type: 'ERC721',
                         options: {
                             address: addressContract,
-                            // ERC-721 or ERC-1155 token ID.
                             tokenId: tokenID,
                         }
-
                     },
                 });
-
                 if (wasAdded) {
-                    console.log('Thanks for your interest!');
+                    const result = await axios.delete(`http://localhost:8080/tickets/ticket/${ticket.id}`)
+                    console.log(result)
+                    if (result.data.code == "200") {
+                        setLoading(true);
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        setLoading(false);
+                        setMessageAlert("Added to Wallet")
+                        setShowAlert(true);
+                    }
+                    else if (result.data.code == "404") {
+                        setUpdate(false)
+                        setMessageAlert("Add to Wallet failed")
+                        setShowAlert(true);
+                    }
                 } else {
                     console.log('Your loss!');
                 }

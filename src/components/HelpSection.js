@@ -1,13 +1,26 @@
 import "./HelpSection.css";
 import { Navigate, useNavigate } from "react-router-dom";
+import * as React from 'react';
 import { useState } from "react";
-import CircularProgress from '@mui/material/CircularProgress';
 
+import CircularProgress from '@mui/material/CircularProgress';
+import useSigner from "../state/signer";
 const HelpSection = () => {
   const [loading, setLoading] = useState(false)
-
+  const [open, setOpen] = useState(false);
+  const { address, connectWallet } = useSigner()
   const navigate = useNavigate();
-
+  const handleVerification = async () => {
+    setLoading(true); // Start loading
+    setTimeout(() => {
+      if (!address) {
+        navigate("/");
+      } else {
+        navigate("/verification");
+      }
+      setLoading(false);
+    }, 1000);
+  }
   return (
     <>
       {loading && (
@@ -15,17 +28,10 @@ const HelpSection = () => {
           <CircularProgress />
         </div>
       )}
-
       <div className="help-section">
         <div className="link-to-pages">
           <div className="link-to-vertification-page">
-            <button onClick={() => {
-              setLoading(true); // Start loading
-              setTimeout(() => {
-                navigate("/verification");
-                setLoading(false); // Stop loading
-              }, 1000); // Delay of 2 seconds
-            }} >
+            <button onClick={handleVerification} >
               <img
                 className="vertification-image-icon"
                 loading="lazy"
@@ -36,13 +42,7 @@ const HelpSection = () => {
             <h3 className="vertification-text">Xác thực chứng chỉ</h3>
             <div className="describe-text">{`Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur sit amet eros blandit, hendrerit elit et, `}</div>
             <div className="learn-more-parent">
-              <button className="learn-more" onClick={() => {
-                setLoading(true); // Start loading
-                setTimeout(() => {
-                  navigate("/verification");
-                  setLoading(false); // Stop loading
-                }, 1000); // Delay of 2 seconds
-              }} >Learn More</button>
+              <button className="learn-more" onClick={handleVerification} >Learn More</button>
               <button className="icon-wrapper" >
                 <img className="icon" loading="lazy" alt="" src="/icon@2x.png" />
               </button>

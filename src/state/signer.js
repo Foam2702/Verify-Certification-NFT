@@ -16,10 +16,25 @@ export const SignerProvider = ({ children }) => {
     const [contract, setContract] = useState(null)
     const [provider, setProvider] = useState(null)
 
+    // useEffect(() => {
+    //     const web3modal = new Web3Modal();
+    //     if (web3modal.cachedProvider) connectWallet();
+    //     window.ethereum.on("accountsChanged", connectWallet);
+
+    // }, []);
     useEffect(() => {
         const web3modal = new Web3Modal();
         if (web3modal.cachedProvider) connectWallet();
-        window.ethereum.on("accountsChanged", connectWallet);
+        window.ethereum.on("accountsChanged", (accounts) => {
+            if (accounts.length === 0) {
+                // MetaMask is locked or the user has not connected any accounts
+                console.log('MetaMask is locked');
+                setAddress(null);
+            } else {
+                // MetaMask accounts are available
+                connectWallet();
+            }
+        });
     }, []);
 
 

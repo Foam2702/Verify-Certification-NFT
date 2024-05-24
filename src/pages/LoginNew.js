@@ -2,9 +2,12 @@ import HeaderSection from "../components/HeaderSection";
 import HelpSection from "../components/HelpSection";
 import FeauresSection from "../components/FeauresSection";
 import Footer from "../components/Footer";
+import { CircularProgress } from "@mui/material";
+import useSigner from "../state/signer";
 import "./LoginNew.css";
 
 const LoginNew = () => {
+
   return (
 
     <div className="loginnew">

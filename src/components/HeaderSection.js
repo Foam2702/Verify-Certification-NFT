@@ -18,7 +18,6 @@ const HeaderSection = () => {
   const [tickets, setTickets] = useState([])
   const [loadingPage, setLoadingPage] = useState(false);
   const navigate = useNavigate();
-
   useEffect(() => {
     const fetchTickets = async () => {
       const allTickets = await axios("http://localhost:8080/tickets/all");
@@ -97,18 +96,7 @@ const HeaderSection = () => {
               }}>
                 {address ? <AddressAvatar address={address} /> : "LOG IN"}
               </button>
-              {loading && (
-                <div className="profile">
-                  <img
-                    className="profile-picture-icon"
-                    loading="lazy"
-                    alt=""
-                    src="/profile-picture@2x.png"
-                  />
-                  <div className="profile-background" />
-                  <CircularProgress />
-                </div>
-              )}
+
               {loadingPage && (
                 <div className="loading-overlay">
                   <CircularProgress />
@@ -141,7 +129,7 @@ const HeaderSection = () => {
           </div>
         </div>
       </header>
-    </section>
+    </section >
   );
 };
 

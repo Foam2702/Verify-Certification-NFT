@@ -68,5 +68,14 @@ module.exports = {
             return false;
         }
     },
+    deleteOneTicket: async (id) => {
+        try {
+            await sql`DELETE FROM ticket WHERE id=${id}`;
+            return true;
+        } catch (error) {
+            console.error(error);
+            return false;
+        }
+    }
 
 }

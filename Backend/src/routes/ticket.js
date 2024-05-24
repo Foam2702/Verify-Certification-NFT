@@ -27,8 +27,10 @@ router
 router
     .route("/ticket/:id")
     .get(ticketController.getOneTicket)
+    .delete(ticketController.deleteOneTicket)
 router.route("/ticket/:id/")
     .patch(ticketController.updateOneTicket)
+
 
 router
     .route("/all").get(ticketController.getAllTicket)

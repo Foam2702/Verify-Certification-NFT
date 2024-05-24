@@ -8,6 +8,7 @@ import {
 import LoginNew from "./pages/LoginNew";
 import VertificationNew from "./pages/VertificationNew";
 import VerificationForIssuer from "./pages/VerificationForIssuer";
+import Exam from "./pages/Exam"
 import { SignerProvider } from "./state/signer"
 import LisenceView from "./pages/LisenceView";
 import useSigner from "./state/signer";
@@ -73,6 +74,7 @@ function App() {
         </div>
       )}
       <Routes>
+        <Route path="/courses/course/:id/exam" element={<Exam />} />
         <Route path="/lisenceview" element={<LisenceView />} />
         <Route path="/tickets/ticket/:id" element={<VerificationForIssuer />} />
         <Route path="/verification" element={<VertificationNew />} />

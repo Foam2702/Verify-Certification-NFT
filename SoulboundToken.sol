@@ -179,14 +179,15 @@ contract SoulboundToken is ERC721URIStorage {
         return result;
     }
 
+    // Hàm chuyển giao token (không thể chuyển soulbound token)
     function transfer(address to, uint256 tokenId) public {
-    require(msg.sender == ownerOf(tokenId), "Cannot transfer soulbound token.");
-    _transfer(msg.sender, to, tokenId);
-    }
-
-    function safeTransferFrom(address from, address to, uint256 tokenId) public override {
         require(msg.sender == ownerOf(tokenId), "Cannot transfer soulbound token.");
-        _safeTransfer(from, to, tokenId, "");
+        _transfer(msg.sender, to, tokenId);
+    }
+    // Hàm chuyển giao token an toàn (không thể chuyển soulbound token)
+   function safeTransferSBTFrom(address from, address to, uint256 tokenId) public {
+      require(msg.sender == ownerOf(tokenId), "Cannot transfer soulbound token.");
+      _safeTransfer(from, to, tokenId, "");
     }
 
     

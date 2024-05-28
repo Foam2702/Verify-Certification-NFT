@@ -1,8 +1,8 @@
 import "./HelpSection.css";
 
-const HelpSection = () => {
+const HelpSection = ({ className = "" }) => {
   return (
-    <div className="help-section">
+    <div className={`help-section ${className}`}>
       <div className="link-to-pages">
         <div className="link-to-vertification-page">
           <img
@@ -55,6 +55,10 @@ const HelpSection = () => {
       </div>
     </div>
   );
+};
+
+HelpSection.propTypes = {
+  className: PropTypes.string,
 };
 
 export default HelpSection;

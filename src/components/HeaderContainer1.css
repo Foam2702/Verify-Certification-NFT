@@ -1,0 +1,109 @@
+.title-14,
+.title-24 {
+  margin: 0;
+  position: relative;
+}
+.title-14 {
+  align-self: stretch;
+  font-size: inherit;
+  letter-spacing: -0.03em;
+  line-height: 72px;
+  font-weight: 600;
+  font-family: inherit;
+}
+.title-24 {
+  width: 557px;
+  font-size: var(--font-size-lg);
+  line-height: 30px;
+  font-weight: 500;
+  color: var(--color-dimgray-100);
+  display: inline-block;
+  max-width: 100%;
+}
+.titles4 {
+  width: 618px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--padding-xl) 0;
+  box-sizing: border-box;
+  gap: var(--gap-30xl);
+  min-width: 618px;
+  max-width: 100%;
+}
+.image-icon1 {
+  height: 501px;
+  flex: 1;
+  position: relative;
+  border-radius: var(--br-xl);
+  max-width: 100%;
+  overflow: hidden;
+  object-fit: cover;
+}
+.approve-image2 {
+  width: 558px;
+  flex-direction: row;
+  justify-content: center;
+  min-width: 558px;
+}
+.approve-image2,
+.header-container4,
+.header-content4 {
+  display: flex;
+  align-items: center;
+  max-width: 100%;
+}
+.header-content4 {
+  width: 1450px;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: var(--gap-xl);
+}
+.header-container4 {
+  align-self: stretch;
+  background-color: var(--color-aliceblue-200);
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: var(--padding-21xl) var(--padding-xl) var(--padding-79xl);
+  box-sizing: border-box;
+  min-height: 639px;
+  text-align: left;
+  font-size: var(--font-size-45xl);
+  color: var(--color-darkslategray-200);
+  font-family: var(--font-poppins);
+}
+@media screen and (max-width: 1425px) {
+  .approve-image2,
+  .image-icon1,
+  .titles4 {
+    flex: 1;
+  }
+  .header-content4 {
+    flex-wrap: wrap;
+  }
+}
+@media screen and (max-width: 825px) {
+  .title-14 {
+    font-size: var(--font-size-32xl);
+    line-height: 58px;
+  }
+  .titles4 {
+    gap: var(--gap-5xl);
+  }
+  .approve-image2,
+  .titles4 {
+    min-width: 100%;
+  }
+  .header-container4 {
+    padding-top: var(--padding-7xl);
+    padding-bottom: var(--padding-45xl);
+    box-sizing: border-box;
+  }
+}
+@media screen and (max-width: 450px) {
+  .title-14 {
+    font-size: var(--font-size-19xl);
+    line-height: 43px;
+  }
+}

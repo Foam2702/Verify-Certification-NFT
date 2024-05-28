@@ -1,8 +1,8 @@
 import "./HeaderSection1.css";
 
-const HeaderSection1 = () => {
+const HeaderSection1 = ({ className = "" }) => {
   return (
-    <section className="header-section2">
+    <section className={`header-section3 ${className}`}>
       <header className="top-header1">
         <div className="top-container1">
           <div className="fickleflight-logo-container">
@@ -71,6 +71,10 @@ const HeaderSection1 = () => {
       </div>
     </section>
   );
+};
+
+HeaderSection1.propTypes = {
+  className: PropTypes.string,
 };
 
 export default HeaderSection1;

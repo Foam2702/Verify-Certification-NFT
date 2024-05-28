@@ -210,7 +210,7 @@
   gap: var(--gap-xl);
 }
 .header-container1,
-.header-section2 {
+.header-section3 {
   align-self: stretch;
   display: flex;
   flex-direction: column;
@@ -223,7 +223,7 @@
   padding: var(--padding-21xl) var(--padding-xl);
   box-sizing: border-box;
 }
-.header-section2 {
+.header-section3 {
   align-items: flex-start;
   text-align: left;
   font-size: var(--font-size-45xl);

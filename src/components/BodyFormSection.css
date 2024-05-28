@@ -1,4 +1,4 @@
-.body-header-text3 {
+.body-header-text4 {
   margin: 0;
   height: 69px;
   width: 788px;
@@ -12,7 +12,7 @@
   flex-shrink: 0;
   max-width: 100%;
 }
-.body-header1 {
+.body-header2 {
   align-self: stretch;
   display: flex;
   flex-direction: row;
@@ -790,14 +790,14 @@
   text-align: left;
   display: inline-block;
 }
-.upload-container,
-.upload1 {
+.upload-frame,
+.upload2 {
   display: flex;
   align-items: flex-start;
   box-sizing: border-box;
   max-width: 100%;
 }
-.upload1 {
+.upload2 {
   width: 1279.2px;
   border-radius: var(--br-xl);
   background-color: var(--color-lightblue);
@@ -806,7 +806,7 @@
   padding: var(--padding-13xl) var(--padding-64xl);
   gap: var(--gap-lgi);
 }
-.upload-container {
+.upload-frame {
   align-self: stretch;
   flex-direction: row;
   justify-content: center;
@@ -902,7 +902,7 @@
 }
 @media screen and (max-width: 1400px) {
   .body-button,
-  .upload1 {
+  .upload2 {
     padding-left: var(--padding-22xl);
     padding-right: var(--padding-22xl);
     box-sizing: border-box;
@@ -916,7 +916,7 @@
   }
 }
 @media screen and (max-width: 925px) {
-  .body-header-text3 {
+  .body-header-text4 {
     font-size: var(--font-size-19xl);
     line-height: 45px;
   }
@@ -945,7 +945,7 @@
   }
 }
 @media screen and (max-width: 450px) {
-  .body-header-text3 {
+  .body-header-text4 {
     font-size: var(--font-size-10xl);
     line-height: 34px;
   }

@@ -1,8 +1,8 @@
 import "./FrameComponent.css";
 
-const FrameComponent = () => {
+const FrameComponent = ({ className = "" }) => {
   return (
-    <section className="body-button-parent">
+    <section className={`body-button-parent ${className}`}>
       <div className="body-button1">
         <button className="next-button">
           <div className="next">Next</div>
@@ -112,6 +112,10 @@ const FrameComponent = () => {
       </footer>
     </section>
   );
+};
+
+FrameComponent.propTypes = {
+  className: PropTypes.string,
 };
 
 export default FrameComponent;

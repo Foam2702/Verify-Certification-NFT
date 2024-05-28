@@ -1,8 +1,8 @@
 import "./FeauresSection.css";
 
-const FeauresSection = () => {
+const FeauresSection = ({ className = "" }) => {
   return (
-    <div className="feaures-section">
+    <div className={`feaures-section ${className}`}>
       <div className="body-header-2">
         <h1 className="body-header-3">
           Hơn 2000 chứng chỉ được xác thực tại ABC mỗi năm
@@ -49,6 +49,10 @@ const FeauresSection = () => {
       </div>
     </div>
   );
+};
+
+FeauresSection.propTypes = {
+  className: PropTypes.string,
 };
 
 export default FeauresSection;

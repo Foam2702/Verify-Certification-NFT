@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import "./Footer.css";
 
 const Footer = ({
+  className = "",
   shapeLeft,
   socialIcontwitter,
   footerDebugCommit,
@@ -15,7 +16,7 @@ const Footer = ({
   }, [footerDebugCommit, footerMarginTop]);
 
   return (
-    <footer className="footer" style={footerStyle}>
+    <footer className={`footer ${className}`} style={footerStyle}>
       <div className="footer-bottom">
         <div className="footer-bottom-background" />
         <img
@@ -118,6 +119,16 @@ const Footer = ({
       </div>
     </footer>
   );
+};
+
+Footer.propTypes = {
+  className: PropTypes.string,
+  shapeLeft: PropTypes.string,
+  socialIcontwitter: PropTypes.string,
+
+  /** Style props */
+  footerDebugCommit: PropTypes.any,
+  footerMarginTop: PropTypes.any,
 };
 
 export default Footer;

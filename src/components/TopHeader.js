@@ -1,8 +1,8 @@
 import "./TopHeader.css";
 
-const TopHeader = () => {
+const TopHeader = ({ className = "" }) => {
   return (
-    <header className="top-header2">
+    <header className={`top-header2 ${className}`}>
       <div className="top-container2">
         <div className="fickleflight-logo-frame">
           <div className="fickleflight-logo2">
@@ -20,7 +20,7 @@ const TopHeader = () => {
             <img
               className="hamburger-menu-icon2"
               alt=""
-              src="/hamburgermenu@2x.png"
+              src="/hamburgermenu1@2x.png"
             />
             <img
               className="notification-bell-icon2"
@@ -44,6 +44,10 @@ const TopHeader = () => {
       </div>
     </header>
   );
+};
+
+TopHeader.propTypes = {
+  className: PropTypes.string,
 };
 
 export default TopHeader;

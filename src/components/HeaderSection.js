@@ -12,7 +12,7 @@ import "./BasicMenu.css"
 
 import "./HeaderSection.css";
 
-const HeaderSection = () => {
+const HeaderSection = ({ className = "" }) => {
 
   const { signer, loading, address, connectWallet } = useSigner();
   const [tickets, setTickets] = useState([])
@@ -54,7 +54,7 @@ const HeaderSection = () => {
 
 
   return (
-    <section className="header-section1">
+    <section className={`header-section2 ${className}`}>
       <div className="top-header">
         <div className="top-container">
           <div className="fickleflight-logo-wrapper">
@@ -140,6 +140,10 @@ const HeaderSection = () => {
       </header>
     </section>
   );
+};
+
+HeaderSection.propTypes = {
+  className: PropTypes.string,
 };
 
 export default HeaderSection;

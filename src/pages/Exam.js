@@ -6,26 +6,46 @@ import RowRadioButtonsGroup from "../components/RowRadioButtonGroup";
 import HeaderExam from "../components/HeaderExam";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useParams } from 'react-router-dom';
+import ExamSection from "../components/ExamSection";
 
-const Exam = ({ course }) => {
+const Exam = () => {
     const [exams, setExams] = useState([])
+    const [course, setCourse] = useState(null)
+    const { id } = useParams();
+
     useEffect(() => {
         const fetchExam = async () => {
-            const result = await axios("http://localhost:8080/courses/course/1/exam")
+            const result = await axios(`http://localhost:8080/courses/course/${id}/exam`)
             console.log(result.data.exams)
             setExams(result.data.exams)
 
         }
         fetchExam()
-    }, [])
+        const fetchCourse = async () => {
+            const result = await axios(`http://localhost:8080/courses/course/${id}`)
+            console.log(result.data.course)
+            setCourse(result.data.course)
+        }
+        fetchCourse()
+    }, [id])
+    console.log("EXAM", course)
+
     return (
         <>
-            <HeaderExam />
-            <RowRadioButtonsGroup exam={exams} />
-            <Footer
-                shapeLeft="/shape-left@2x.png"
-                socialIcontwitter="/socialicontwitter@2x.png"
-            />
+
+            {course && exams &&
+                <>
+                    <HeaderExam />
+                    <ExamSection course={course} />
+                    <RowRadioButtonsGroup exam={exams} />
+                    <Footer
+                        shapeLeft="/shape-left@2x.png"
+                        socialIcontwitter="/socialicontwitter@2x.png"
+                    />
+                </>
+            }
+
         </>
     )
 }

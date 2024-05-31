@@ -2,41 +2,65 @@ import Course from "./Course";
 import "./BodyCourses.css";
 import { useEffect, useState } from 'react'
 import axios from "axios";
+import { Link } from 'react-router-dom';
+import { Navigate, useNavigate } from "react-router-dom";
+import useSigner from "../state/signer";
+import CircularProgress from '@mui/material/CircularProgress';
 
 const BodyCourses = ({ className = "" }) => {
     const [courses, setCourses] = useState([])
-    const [page, setPage] = useState(1) // Add a page state variable
+    const [loading, setLoading] = useState(false)
+    const { address, connectWallet } = useSigner()
+    const navigate = useNavigate();
 
+    const handleExam = (course) => {
+        setLoading(true); // Start loading
+        setTimeout(() => {
+            if (!address) {
+                navigate("/");
+            } else {
+                navigate(`/courses/course/${course}/exam`);
+            }
+            setLoading(false);
+        }, 1000);
+    }
     useEffect(() => {
         const fetchCourses = async () => {
-            const result = await axios.get(`http://localhost:8080/courses?page=${page}`) // Modify the URL to include the page query parameter
-            setCourses(result.data.courses)
+            const result = await axios.get(`http://localhost:8080/courses`)
+            if (Array.isArray(result.data.courses)) {
+                setCourses(result.data.courses)
+                console.log(result.data.courses)
+            }// Modify the URL to include the page query parameter
         }
-        fetchCourses()
-    }, [page]) // Add page as a dependency
+        fetchCourses().catch(error => console.error(error));
+    }, []) // Add page as a dependency
 
-    const handlePageChange = (newPage) => {
-        setPage(newPage);
-    }
 
     return (
-        <section className={`body-section2 ${className}`}>
-            <div className="body-header3">
-                <h1 className="body-header-text5">Danh mục khóa học</h1>
-            </div>
-            <div className="careers-section1">
-                {courses.map((course) => (
-                    <Course
-                        key={course.id}
-                        course1Image={course.image}
-                        courseHeader={course.name}
-                        courseDescription={course.description}
-                    />
-                ))}
-            </div>
-            <button onClick={() => handlePageChange(page - 1)}>Previous</button> {/* Add Previous button */}
-            <button onClick={() => handlePageChange(page + 1)}>Next</button> {/* Add Next button */}
-        </section>
+        <>
+            {loading && (
+                <div className="loading-overlay">
+                    <CircularProgress />
+                </div>
+            )}
+
+            <section className={`body-section2 ${className}`}>
+                <div className="body-header3">
+                    <h1 className="body-header-text5">Danh mục khóa học</h1>
+                </div>
+                <div className="careers-section1">
+                    {courses.map((course) => (
+                        <button onClick={() => handleExam(course.id)} key={course.id}>
+                            <Course
+                                course1Image={course.image}
+                                courseHeader={course.name}
+                                courseDescription={course.description}
+                            />
+                        </button>
+                    ))}
+                </div>
+            </section>
+        </>
     );
 };
 

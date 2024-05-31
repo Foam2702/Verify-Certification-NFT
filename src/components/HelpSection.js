@@ -21,6 +21,17 @@ const HelpSection = () => {
       setLoading(false);
     }, 1000);
   }
+  const handleBuyCourses = async () => {
+    setLoading(true); // Start loading
+    setTimeout(() => {
+      if (!address) {
+        navigate("/");
+      } else {
+        navigate("/coursetransfernew");
+      }
+      setLoading(false);
+    }, 1000);
+  }
   return (
     <>
       {loading && (
@@ -64,7 +75,7 @@ const HelpSection = () => {
               </div>
             </div>
           </div>
-          <div className="link-to-buy-course">
+          <button className="link-to-buy-course" onClick={handleBuyCourses}>
             <img
               className="buy-course-image"
               loading="lazy"
@@ -74,12 +85,12 @@ const HelpSection = () => {
             <h3 className="buy-course">Mua khóa học</h3>
             <div className="describe-text2">{`Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur sit amet eros blandit, hendrerit elit et, `}</div>
             <div className="learn-more-container">
-              <div className="learn-more2">Learn More</div>
+              <button className="learn-more2" onClick={handleBuyCourses}>Learn More</button>
               <div className="icon-frame">
                 <img className="icon2" alt="" src="/icon@2x.png" />
               </div>
             </div>
-          </div>
+          </button>
         </div>
       </div>
     </>

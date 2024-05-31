@@ -75,7 +75,7 @@ export default function RowRadioButtonsGroup({ exam }) {
                             <div>
                                 <div>
                                     <Paper elevation={2} style={{ width: '100%' }}>
-                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginLeft: '15px', paddingTop: '20px', paddingBottom: '20px' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginLeft: '15px', paddingTop: '20px', paddingBottom: '20px' }}>
                                             <Typography variant="h4" style={{ fontFamily: 'sans-serif Roboto', marginBottom: "15px" }}>
                                                 EXAM
                                             </Typography>

@@ -2,6 +2,8 @@ import TopHeader from "../components/TopHeader";
 import FrameComponent from "../components/FrameComponent";
 import "./LisenceView.css";
 import HeaderSection from "../components/HeaderSection";
+import VerifySection from '../components/VerifySection';
+
 import { useState, useEffect } from "react";
 import axios from "axios";
 import useSigner from "../state/signer";
@@ -31,7 +33,7 @@ const LisenceView = () => {
         <div className="header-section">
           <HeaderSection />
         </div>
-
+        <VerifySection />
         {certificates.length === 0 ? (
           <div>Chưa có chứng chỉ</div>
         ) : (
@@ -41,7 +43,7 @@ const LisenceView = () => {
                 <h1 className="body-header-text2">Thông tin chứng chỉ</h1>
               </div>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-start', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap' }}>
               {certificates.map((certificate, index) => {
                 const newImageUrl = replaceBaseUrl(certificate.image_url, "https://coral-able-takin-320.mypinata.cloud");
                 return (

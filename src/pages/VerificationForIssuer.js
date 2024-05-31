@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import axios from "axios";
 import HeaderSection from "../components/HeaderSection";
 import Footer from "../components/Footer";
+import VerifySection from '../components/VerifySection';
+
 //import FooterTop from "../components/FooterTop";
 //import "./Vertifications.css";
 import Ticket from '../components/Ticket';
@@ -26,6 +28,7 @@ export default function VerificationForIssuer() {
 
         <div className="vertificationnew">
             <HeaderSection />
+            <VerifySection />
             <Ticket
                 ticket={ticket}
             />

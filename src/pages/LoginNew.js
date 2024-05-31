@@ -2,6 +2,8 @@ import HeaderSection from "../components/HeaderSection";
 import HelpSection from "../components/HelpSection";
 import FeauresSection from "../components/FeauresSection";
 import Footer from "../components/Footer";
+import HomeSection from "../components/HomeSection"
+
 import { CircularProgress } from "@mui/material";
 import useSigner from "../state/signer";
 import "./LoginNew.css";
@@ -14,6 +16,8 @@ const LoginNew = () => {
 
       <HeaderSection />
       <section className="body-section">
+        <HomeSection />
+
         <div className="body-header-1">
           <h1 className="body-header-text">
             Hơn 2000 chứng chỉ được xác thực tại ABC mỗi năm

@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.3;
+pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract SoulboundToken is ERC721URIStorage {
-    address public owner;
+contract SoulboundToken is ERC721,ERC721URIStorage,Ownable {
     using Counters for Counters.Counter;
+    
     Counters.Counter private _nSBTs;
 
     struct SBTInfo {
@@ -38,10 +39,16 @@ contract SoulboundToken is ERC721URIStorage {
     string[] private organizationCodesList;
 
     // Khai báo modifier `onlyOwner` để chỉ cho phép chủ sở hữu hợp đồng thực hiện các hành động được quy định
-    constructor() ERC721("SoulboundToken", "SBT") {
-        owner = msg.sender;
+    constructor() ERC721("SoulboundToken", "SBT")Ownable(msg.sender) {
+       
+    }
+function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, ERC721URIStorage) returns (bool) {
+        return super.supportsInterface(interfaceId);
     }
 
+    function tokenURI(uint256 tokenId) public view virtual override(ERC721, ERC721URIStorage) returns (string memory) {
+        return super.tokenURI(tokenId);
+    }
     // Hàm thêm một địa chỉ vào danh sách các địa chỉ được phép xác thực
     function addVerifier(address verifier, string memory organizationCode) public {
         verifierList[verifier] = VerifierInfo(true, organizationCode);
@@ -137,8 +144,8 @@ contract SoulboundToken is ERC721URIStorage {
     function mintSBTForAddress(
         address recipient,
         string memory tokenURI
-    ) public {
-        require(msg.sender == owner || verifierList[msg.sender].isVerifier, "Only the owner or verifiers can mint SBTs for addresses");
+    ) public   {
+        
 
         _nSBTs.increment(); // Tăng ID SBT
         uint256 newSBTId = _nSBTs.current(); // Lấy ID của SBT mới

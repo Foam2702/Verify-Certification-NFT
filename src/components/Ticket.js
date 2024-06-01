@@ -59,7 +59,9 @@ const Ticket = ({ ticket }) => {
     useEffect(() => {
         const getAddContractAndTokenID = async () => {
             try {
+                console.log("DATA1111", ticket)
                 const data = await web3.eth.getTransactionReceipt(ticket.transaction_hash);
+                console.log("DATA", data)
                 let transaction = data;
                 let logs = data.logs;
                 console.log('logs:', logs);
@@ -108,6 +110,7 @@ const Ticket = ({ ticket }) => {
             console.log(response.data.message)
 
             if (response.data.message === "updated successfully") {
+                ticket.transaction_hash = result.hash
                 setLoading(true);
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 setLoading(false);
@@ -148,6 +151,8 @@ const Ticket = ({ ticket }) => {
         return day + '/' + month + '/' + year;
     }
     async function addNFTToWallet() {
+        console.log("ADD", addressContract)
+        console.log("TOKEN", tokenID)
         if (addressContract && tokenID) {
             try {
                 const wasAdded = await ethereum.request({

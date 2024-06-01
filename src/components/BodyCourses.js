@@ -33,7 +33,7 @@ const BodyCourses = ({ className = "" }) => {
             }// Modify the URL to include the page query parameter
         }
         fetchCourses().catch(error => console.error(error));
-    }, []) // Add page as a dependency
+    }, [courses]) // Add page as a dependency
 
 
     return (

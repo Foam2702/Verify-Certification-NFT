@@ -16,19 +16,29 @@ import MenuIcon from '@mui/material/Menu';
 import Divider from '@mui/material/Divider';
 import { makeStyles } from '@mui/material/styles';
 import Container from '@mui/material/Container';
+import { Navigate, useNavigate } from "react-router-dom";
 
-export default function RowRadioButtonsGroup({ exam }) {
+export default function RowRadioButtonsGroup({ course, exam }) {
     const [isSubmitted, setIsSubmitted] = React.useState(false)
-    const [value, setValue] = React.useState('');
     const [responseData, setResponseData] = React.useState([])
+    const [values, setValues] = React.useState(Array(exam.length).fill(''));
+
+    const navigate = useNavigate();
 
     function reloadForAnotherResponse() {
         window.location.reload(true);
     }
+
     const handleRadioChange = (value, i) => {
-        // Handle radio change
-        setValue(value);
+        // Create a new array and update the value at the index i
+        const newValues = [...values];
+        newValues[i] = value;
+        setValues(newValues);
     };
+    const submitResponse = () => {
+        console.log(values)
+    }
+
     // const handleRadioChange = (option, i) => {
     //     var questionId = exam[i].id
     //     var optionId = option
@@ -59,7 +69,7 @@ export default function RowRadioButtonsGroup({ exam }) {
                             <MenuIcon />
                         </IconButton>
                         <Typography variant="h6" style={{}}>
-                            Velocity Forms
+
                         </Typography>
                     </Toolbar>
                 </AppBar>
@@ -77,9 +87,11 @@ export default function RowRadioButtonsGroup({ exam }) {
                                     <Paper elevation={2} style={{ width: '100%' }}>
                                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginLeft: '15px', paddingTop: '20px', paddingBottom: '20px' }}>
                                             <Typography variant="h4" style={{ fontFamily: 'sans-serif Roboto', marginBottom: "15px" }}>
-                                                EXAM
+                                                EXAM for {course[0].name}
                                             </Typography>
-                                            <Typography variant="subtitle1">EXAM</Typography>
+                                            <Typography variant="subtitle1">
+                                                <p>You must score <span style={{ fontWeight: "bold" }}>&gt;=70%</span> to complete the {course[0].name}</p>
+                                            </Typography>
                                         </div>
                                     </Paper>
                                 </div>
@@ -102,7 +114,7 @@ export default function RowRadioButtonsGroup({ exam }) {
                                                 }}>
                                                     <Typography variant="subtitle1" style={{ marginLeft: '10px' }}>{i + 1}. {ques.question_text}</Typography>
                                                     <div>
-                                                        <RadioGroup aria-label="quiz" name="quiz" value={value} onChange={(e) => { handleRadioChange(e.target.value, i) }}>
+                                                        <RadioGroup aria-label="quiz" name="quiz" value={values[i]} onChange={(e) => { handleRadioChange(e.target.value, i) }}>
                                                             <FormControlLabel value={ques.option_a} control={<Radio />} label={ques.option_a} />
                                                             <FormControlLabel value={ques.option_b} control={<Radio />} label={ques.option_b} />
                                                             <FormControlLabel value={ques.option_c} control={<Radio />} label={ques.option_c} />
@@ -117,11 +129,15 @@ export default function RowRadioButtonsGroup({ exam }) {
                             </Grid>
                             <Grid>
                                 <br></br>
-                                <div style={{ display: 'flex' }}>
-                                    <Button variant="contained" color="primary" >
+                                <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
+                                    <Button variant="contained" color="primary" onClick={submitResponse} >
                                         Submit
                                     </Button>
+                                    <Button variant="contained" color="error" onClick={() => navigate('/coursetransfernew')} >
+                                        Cancel
+                                    </Button>
                                 </div>
+
                                 <br></br>
                                 <br></br>
                             </Grid>

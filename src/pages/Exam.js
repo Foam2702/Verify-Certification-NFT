@@ -38,7 +38,9 @@ const Exam = () => {
                 <>
                     <HeaderExam />
                     <ExamSection course={course} />
-                    <RowRadioButtonsGroup exam={exams} />
+                    <RowRadioButtonsGroup
+                        course={course}
+                        exam={exams} />
                     <Footer
                         shapeLeft="/shape-left@2x.png"
                         socialIcontwitter="/socialicontwitter@2x.png"

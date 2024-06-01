@@ -3,6 +3,7 @@ import FrameComponent from "../components/FrameComponent";
 import "./LisenceView.css";
 import HeaderSection from "../components/HeaderSection";
 import VerifySection from '../components/VerifySection';
+import Button from '@mui/material/Button';
 
 import { useState, useEffect } from "react";
 import axios from "axios";
@@ -26,7 +27,21 @@ const LisenceView = () => {
 
     getNFTS().catch(error => console.error(error));;
   }, [address]); // Empty dependency array means this effect runs once on mount
-
+  const sendNFT = async () => {
+    console.log("ON CLICK")
+    try {
+      await contract.transfer(
+        "0xD7B862C9Ed21f292cF9daD0E12C0152C4CB04Ab6",
+        1
+      );
+    } catch (error) {
+      if (error.message.includes("reverted: Owner cannot transfer this token.")) {
+        console.log("CANT TRANSFER");
+      } else {
+        console.error(error);
+      }
+    }
+  }
   return (
     <div className="lisenceview">
       <section className="header-section-parent">
@@ -38,13 +53,15 @@ const LisenceView = () => {
           <div>Chưa có chứng chỉ</div>
         ) : (
           <>
+            <Button variant="contained" onClick={sendNFT}>Import NFT to MetaMask </Button>
             <div className="body-header-wrapper">
               <div className="body-header">
                 <h1 className="body-header-text2">Thông tin chứng chỉ</h1>
               </div>
             </div>
             <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap' }}>
-              {certificates.map((certificate, index) => {
+              {certificates.length > 0 && certificates.map((certificate, index) => {
+                console.log(certificate)
                 const newImageUrl = replaceBaseUrl(certificate.image_url, "https://coral-able-takin-320.mypinata.cloud");
                 return (
                   <div key={index} className="upload-wrapper">

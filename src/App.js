@@ -8,14 +8,15 @@ import {
 import LoginNew from "./pages/LoginNew";
 import VertificationNew from "./pages/VertificationNew";
 import VerificationForIssuer from "./pages/VerificationForIssuer";
-import Exam from "./pages/Exam"
+import Exam from "./pages/Exam";
 import CourseTransferNew from "./pages/CourseTransferNew";
 import CourseInforNew from "./pages/CourseInforNew";
-import { SignerProvider } from "./state/signer"
+import { SignerProvider } from "./state/signer";
 import LisenceView from "./pages/LisenceView";
 import useSigner from "./state/signer";
-import CircularProgress from '@mui/material/CircularProgress';
+import CircularProgress from "@mui/material/CircularProgress";
 import { useNavigate } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
 
 function App() {
   const action = useNavigationType();
@@ -23,7 +24,6 @@ function App() {
   const pathname = location.pathname;
   const { loading, address } = useSigner();
   const navigate = useNavigate();
-
 
   useEffect(() => {
     if (action !== "POP") {

@@ -146,7 +146,6 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                     </Grid>
                 </Grid>
 
-                {/* //TODO: Add a footer here */}
             </div>
         </div>
     )

@@ -44,46 +44,23 @@ export const SignerProvider = ({ children }) => {
             setAddress(address);
             setProvider(provider);
 
-            // Move the event listener to the useEffect hook below
+            // Set up event listener for Transfer events
+            if (newContract) {
+                newContract.on("Transfer", (from, to, tokenId, event) => {
+                    console.log(`NFT Transfer detected: From ${from} to ${to} TokenID ${tokenId.toString()}`);
+                    console.log(event);
+                    if (from === address) {
+                        console.log("Owner initiated transfer detected.");
+                    } else {
+                        console.log("Transfer by non-owner detected.");
+                    }
+                });
+            }
         } catch (e) {
             console.log(e);
         }
         setLoading(false);
-        // navigate("/");
     };
-
-    useEffect(() => {
-        if (contract) {
-            const listener = async (from, to, tokenId, event) => {
-                console.log(`NFT Transfer detected: From ${from} to ${to} TokenID ${tokenId.toString()}`);
-                console.log(event);
-                if (from === address) {
-                    try {
-                        await contract.transfer(
-                            to,
-                            tokenId
-
-                        );
-                    } catch (error) {
-                        if (error.message.includes("reverted: Owner cannot transfer this token.")) {
-                            console.log("CANNOT TRANSFER");
-                        } else {
-                            console.error(error);
-                        }
-                    }
-                } else {
-                    console.log("Transfer by non-owner detected.");
-                }
-            };
-
-            contract.on("Transfer", listener);
-
-            // Cleanup the listener on component unmount
-            return () => {
-                contract.off("Transfer", listener);
-            };
-        }
-    }, [contract, address]);
 
     const contextValue = { provider, contract, signer, loading, address, connectWallet };
     return (

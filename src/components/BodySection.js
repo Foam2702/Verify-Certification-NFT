@@ -1,70 +1,115 @@
 import { useCallback } from "react";
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import useSigner from "../state/signer";
-
 
 import "./BodySection.css";
 
-const BodySection = () => {
+{
+  /*handleChange(e) {
+  this.setState({ [e.target.name]: e.target.value }, function () {
+    console.log(this.state);
+    var address = this.state.address;
+    var citizenId = this.state.citizenId;
+    var name = this.state.name;
+    var region = this.state.region;
+    var dob = this.state.dob;
+    var licensingAuthority = this.state.licensingAuthority;
+    var gender = this.state.gender;
+    var email = this.state.email;
+    var workUnit = this.state.workUnit;
+    var certificateName = this.state.certificateName;
+    var point = this.state.point;
+    var issueDate = this.state.issueDate;
+    var expiryDate = this.state.expiryDate;
+    var imageCertificate = this.state.imageCertificate;
+  });
+} */
+}
 
-  {/* Set state */ }
+const BodySection = () => {
+  {
+    /* Set state */
+  }
+  const [errors, setErrors] = useState({});
   const [regions, setRegions] = useState([]);
   const [courses, setCourses] = useState([]);
   const [organization, setOrganization] = useState([]);
   const [file, setFile] = useState(null);
-  const { address, connectWallet } = useSigner()
+  const { address, connectWallet } = useSigner();
 
-  {/* Handle function */ }
+  {
+    /* Handle function */
+  }
   const onfileChange = (event) => {
     setFile(event.target.files);
-    console.log(file)
-
+    console.log(file);
   };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const form = document.querySelector('form');
+
+    const form = document.querySelector("form");
 
     // Get the form data
     const data = Array.from(form.elements)
       .filter((input) => input.name)
-      .reduce((obj, input) => Object.assign(obj, { [input.name]: input.value }), {});
+      .reduce(
+        (obj, input) => Object.assign(obj, { [input.name]: input.value }),
+        {}
+      );
+    // don't remember from where i copied this code, but this works.
+    let re =
+      /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
+    if (re.test(data.email)) {
+      // this is a valid email address
+      // call setState({email: email}) to update the email
+      // or update the data in redux store.
+      console.log("valid email");
+    } else {
+      // invalid email, maybe show an error to the user.
+    }
     const formData = new FormData();
     for (var x = 0; x < file.length; x++) {
-      formData.append('imageCertificate', file[x])
+      formData.append("imageCertificate", file[x]);
     }
-    formData.append('owner', address);
-    formData.append('citizenId', data.citizenId);
-    formData.append('name', data.name);
-    formData.append('region', data.region);
-    formData.append('dob', formatDate(data.dob));
-    formData.append('licensingAuthority', data.licensingAuthority);
-    formData.append('gender', data.gender);
-    formData.append('email', data.email);
-    formData.append('workUnit', data.workUnit);
-    formData.append('certificateName', data.certificateName);
-    formData.append('point', data.point);
-    formData.append('issueDate', formatDate(data.issueDate));
-    formData.append('expiryDate', formatDate(data.expiryDate));
+    formData.append("owner", address);
+    formData.append("citizenId", data.citizenId);
+    formData.append("name", data.name);
+    formData.append("region", data.region);
+    formData.append("dob", formatDate(data.dob));
+    formData.append("licensingAuthority", data.licensingAuthority);
+    formData.append("gender", data.gender);
+    formData.append("email", data.email);
+    formData.append("workUnit", data.workUnit);
+    formData.append("certificateName", data.certificateName);
+    formData.append("point", data.point);
+    formData.append("issueDate", formatDate(data.issueDate));
+    formData.append("expiryDate", formatDate(data.expiryDate));
 
     try {
-      const response = await axios.post("http://localhost:8080/tickets", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
+      const response = await axios.post(
+        "http://localhost:8080/tickets",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         }
-      })
+      );
       console.log(response.data);
       for (let pair of formData.entries()) {
-        console.log(pair[0] + ', ' + pair[1]);
+        console.log(pair[0] + ", " + pair[1]);
       }
     } catch (error) {
       console.error(error);
     }
-
   };
 
-  {/* UseEffect */ }
+  {
+    /* UseEffect */
+  }
   useEffect(() => {
     const fetchDataRegions = async () => {
       const result = await axios("http://localhost:8080/tickets");
@@ -72,36 +117,34 @@ const BodySection = () => {
         setRegions(result.data.cities);
         console.log({ regions });
       } else {
-        throw new Error('Unexpected data format');
+        throw new Error("Unexpected data format");
       }
     };
 
-    fetchDataRegions().catch(error => console.error(error));
+    fetchDataRegions().catch((error) => console.error(error));
 
     const fetchDataCourses = async () => {
       const result = await axios("http://localhost:8080/tickets");
       if (Array.isArray(result.data.certificates)) {
         setCourses(result.data.certificates);
-        console.log(result.data.certificates)
+        console.log(result.data.certificates);
+      } else {
+        throw new Error("Unexpected data format");
       }
-      else {
-        throw new Error('Unexpected data format');
-      }
-    }
-    fetchDataCourses().catch(error => console.error(error));
-
-
+    };
+    fetchDataCourses().catch((error) => console.error(error));
   }, []);
 
   const handleCourseChange = (event) => {
-    const selectedCourse = courses.find(course => course.certificate === event.target.value);
-    setOrganization(selectedCourse ? selectedCourse.org : '');
+    const selectedCourse = courses.find(
+      (course) => course.certificate === event.target.value
+    );
+    setOrganization(selectedCourse ? selectedCourse.org : "");
   };
-
 
   const onCancelBtnClick = useCallback(() => {
     // Get the form element
-    const form = document.querySelector('form');
+    const form = document.querySelector("form");
 
     // Reset the form
     form.reset();
@@ -112,22 +155,30 @@ const BodySection = () => {
     const month = datePart[1];
     const day = datePart[2];
 
-    return day + '/' + month + '/' + year;
+    return day + "/" + month + "/" + year;
   }
-
 
   return (
     <section className="body-section1">
       <div className="body-header">
         <h1 className="body-header-text2">Điền thông tin chứng chỉ của bạn</h1>
       </div>
-      <form className="careers-section" encType="multipart/form-data" action="" onSubmit={handleSubmit}>
+      <form
+        className="careers-section"
+        encType="multipart/form-data"
+        action=""
+        onSubmit={handleSubmit}
+      >
         <div className="careers-section-inner">
           <div className="name-parent">
             <div className="name">
               <h3 className="name1">{`Họ và tên `}</h3>
-              <input className="input-name" name="name" placeholder="Type here..." type="text" />
-
+              <input
+                className="input-name"
+                name="name"
+                placeholder="Type here..."
+                type="text"
+              />
             </div>
             <div className="gender">
               <h3 className="gender1">Giới tính*</h3>
@@ -135,12 +186,15 @@ const BodySection = () => {
                 <option value="male">Male</option>
                 <option value="female">Female</option>
               </select>
-
             </div>
             <div className="email">
               <h3 className="email1">Email</h3>
-              <input className="input-email" name="email" placeholder="abc@abc.com" type="email" />
-
+              <input
+                className="input-email"
+                name="email"
+                placeholder="abc@abc.com"
+                type="email"
+              />
             </div>
           </div>
         </div>
@@ -148,17 +202,25 @@ const BodySection = () => {
           <div className="cccd-parent">
             <div className="cccd">
               <h3 className="cccd1">Số CCCD*</h3>
-              <input className="input-cccd" name="citizenId" placeholder="Type here..." type="text" />
-
+              <input
+                className="input-cccd"
+                name="citizenId"
+                placeholder="Type here..."
+                type="text"
+              />
             </div>
             <div className="date-of-birth">
               <h3 className="date-of-birth1">Ngày Sinh</h3>
-              <input className="input-date-of-birth" name="dob" placeholder="Choose..." type="date" />
-
+              <input
+                className="input-date-of-birth"
+                name="dob"
+                placeholder="Choose..."
+                type="date"
+              />
             </div>
             <div className="home-town">
               <h3 className="home-town-text">Quê quán</h3>
-              <select className="input-home-town" name="region" >
+              <select className="input-home-town" name="region">
                 <option value="">Chọn tỉnh thành ...</option>
                 {regions.map((region) => (
                   <option key={region._id} value={region.name}>
@@ -166,7 +228,6 @@ const BodySection = () => {
                   </option>
                 ))}
               </select>
-
             </div>
           </div>
         </div>
@@ -174,12 +235,21 @@ const BodySection = () => {
           <div className="working-unit-parent">
             <div className="working-unit">
               <h3 className="working-unit-text">Đơn vị công tác</h3>
-              <input className="input-working-unit" name="workUnit" placeholder="Type here..." type="text" />
-
+              <input
+                className="input-working-unit"
+                name="workUnit"
+                placeholder="Type here..."
+                type="text"
+              />
             </div>
             <div className="name-of-vertification">
               <h3 className="name-of-vertification1">Tên chứng chỉ*</h3>
-              <select className="input-name-of-vertification" option={courses} name="certificateName" onChange={handleCourseChange}  >
+              <select
+                className="input-name-of-vertification"
+                option={courses}
+                name="certificateName"
+                onChange={handleCourseChange}
+              >
                 <option value="">Chọn chứng chỉ ...</option>
                 {courses.map((course, index) => (
                   <option key={index} value={course.certificate}>
@@ -187,27 +257,43 @@ const BodySection = () => {
                   </option>
                 ))}
               </select>
-
             </div>
             <div className="score">
               <h3 className="score-text">Điểm</h3>
-              <input className="input-score" name="point" placeholder="Type here..." type="text" />
-
+              <input
+                className="input-score"
+                name="point"
+                placeholder="Type here..."
+                type="text"
+              />
             </div>
             <div className="vertification-unit">
               <h3 className="vertification-unit-text">Đơn vị cấp phép*</h3>
-              <input className="input-vertification-unit" name="licensingAuthority" type="text" disabled value={organization} />
-
+              <input
+                className="input-vertification-unit"
+                name="licensingAuthority"
+                type="text"
+                disabled
+                value={organization}
+              />
             </div>
             <div className="date-vertification">
               <h3 className="date-vertification-text">Ngày cấp*</h3>
-              <input className="input-date-vertification" name="issueDate" placeholder="Choose..." type="date" />
-
+              <input
+                className="input-date-vertification"
+                name="issueDate"
+                placeholder="Choose..."
+                type="date"
+              />
             </div>
             <div className="expired-date">
               <h3 className="expired-date-text">Hạn sử dụng chứng chỉ*</h3>
-              <input className="input-expired-date" name="expiryDate" placeholder="Choose..." type="date" />
-
+              <input
+                className="input-expired-date"
+                name="expiryDate"
+                placeholder="Choose..."
+                type="date"
+              />
             </div>
           </div>
         </div>
@@ -216,14 +302,15 @@ const BodySection = () => {
             <h3 className="upload-file-text">Tải lên file chứng chỉ gốc*</h3>
             <div className="input-upload-file">
               <div className="input-box-background" />
-              <input className="example-here"
+              <input
+                className="example-here"
                 name="imageCertificate"
                 type="file"
                 accept=".jpg"
                 multiple
-                onChange={onfileChange} />
+                onChange={onfileChange}
+              />
             </div>
-
           </div>
         </div>
         <div className="body-button">

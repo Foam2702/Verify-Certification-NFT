@@ -2,18 +2,21 @@ import HeaderSection from "../components/HeaderSection";
 import HelpSection from "../components/HelpSection";
 import FeauresSection from "../components/FeauresSection";
 import Footer from "../components/Footer";
-import HomeSection from "../components/HomeSection"
+import HomeSection from "../components/HomeSection";
 
 import { CircularProgress } from "@mui/material";
 import useSigner from "../state/signer";
 import "./LoginNew.css";
+import { motion } from "framer-motion";
 
 const LoginNew = () => {
-
   return (
-
-    <div className="loginnew">
-
+    <motion.div
+      exit={{ opacity: 0, y: -50 }}
+      initial={{ opacity: 0, y: -50 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="loginnew"
+    >
       <HeaderSection />
       <section className="body-section">
         <HomeSection />
@@ -35,7 +38,7 @@ const LoginNew = () => {
         shapeLeft="/shape-left@2x.png"
         socialIcontwitter="/socialicontwitter@2x.png"
       />
-    </div>
+    </motion.div>
   );
 };
 

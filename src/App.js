@@ -69,22 +69,28 @@ function App() {
   }, [pathname]);
 
   return (
-    <SignerProvider>
-      {loading && (
-        <div className="loading-overlay">
-          <CircularProgress />
-        </div>
-      )}
-      <Routes>
-        <Route path="/coursetransfernew" element={<CourseTransferNew />} />
-        <Route path="/courseinfornew" element={<CourseInforNew />} />
-        <Route path="/courses/course/:id/exam" element={<Exam />} />
-        <Route path="/lisenceview" element={<LisenceView />} />
-        <Route path="/tickets/ticket/:id" element={<VerificationForIssuer />} />
-        <Route path="/verification" element={<VertificationNew />} />
-        <Route path="/" element={<LoginNew />} />
-      </Routes>
-    </SignerProvider>
+    <AnimatePresence wait>
+      <SignerProvider>
+        {loading && (
+          <div className="loading-overlay">
+            <CircularProgress />
+          </div>
+        )}
+
+        <Routes>
+          <Route path="/coursetransfernew" element={<CourseTransferNew />} />
+          <Route path="/courseinfornew" element={<CourseInforNew />} />
+          <Route path="/courses/course/:id/exam" element={<Exam />} />
+          <Route path="/lisenceview" element={<LisenceView />} />
+          <Route
+            path="/tickets/ticket/:id"
+            element={<VerificationForIssuer />}
+          />
+          <Route path="/verification" element={<VertificationNew />} />
+          <Route path="/" element={<LoginNew />} />
+        </Routes>
+      </SignerProvider>
+    </AnimatePresence>
   );
 }
 export default App;

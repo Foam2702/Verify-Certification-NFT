@@ -27,5 +27,20 @@ module.exports = {
             code: 200,
             exams
         })
+    },
+    submitExam: async (req, res) => {
+        const { id } = req.params;
+        const { answers } = req.body;
+        const correctAns = courseModel.getCorrectAns()
+        // const result = await courseModel.submitExam(id, answers);
+        // res.json({
+        //     status: "success",
+        //     code: 200,
+        //     result
+        // })
+        res.json({
+            exam: answers,
+            id: id
+        })
     }
 }

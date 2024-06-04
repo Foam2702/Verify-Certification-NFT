@@ -28,6 +28,7 @@ router
 router
     .route("/course/:id/exam")
     .get(courseController.getExamForCourse)
+    .post(courseController.submitExam)
 
 
 module.exports = router;

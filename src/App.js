@@ -8,14 +8,15 @@ import {
 import LoginNew from "./pages/LoginNew";
 import VertificationNew from "./pages/VertificationNew";
 import VerificationForIssuer from "./pages/VerificationForIssuer";
-import Exam from "./pages/Exam"
+import Exam from "./pages/Exam";
 import CourseTransferNew from "./pages/CourseTransferNew";
 import CourseInforNew from "./pages/CourseInforNew";
-import { SignerProvider } from "./state/signer"
+import { SignerProvider } from "./state/signer";
 import LisenceView from "./pages/LisenceView";
 import useSigner from "./state/signer";
-import CircularProgress from '@mui/material/CircularProgress';
+import CircularProgress from "@mui/material/CircularProgress";
 import { useNavigate } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
 
 function App() {
   const action = useNavigationType();
@@ -23,7 +24,6 @@ function App() {
   const pathname = location.pathname;
   const { loading, address } = useSigner();
   const navigate = useNavigate();
-
 
   useEffect(() => {
     if (action !== "POP") {
@@ -69,22 +69,28 @@ function App() {
   }, [pathname]);
 
   return (
-    <SignerProvider>
-      {loading && (
-        <div className="loading-overlay">
-          <CircularProgress />
-        </div>
-      )}
-      <Routes>
-        <Route path="/coursetransfernew" element={<CourseTransferNew />} />
-        <Route path="/courseinfornew" element={<CourseInforNew />} />
-        <Route path="/courses/course/:id/exam" element={<Exam />} />
-        <Route path="/lisenceview" element={<LisenceView />} />
-        <Route path="/tickets/ticket/:id" element={<VerificationForIssuer />} />
-        <Route path="/verification" element={<VertificationNew />} />
-        <Route path="/" element={<LoginNew />} />
-      </Routes>
-    </SignerProvider>
+    <AnimatePresence wait>
+      <SignerProvider>
+        {loading && (
+          <div className="loading-overlay">
+            <CircularProgress />
+          </div>
+        )}
+
+        <Routes>
+          <Route path="/coursetransfernew" element={<CourseTransferNew />} />
+          <Route path="/courseinfornew" element={<CourseInforNew />} />
+          <Route path="/courses/course/:id/exam" element={<Exam />} />
+          <Route path="/lisenceview" element={<LisenceView />} />
+          <Route
+            path="/tickets/ticket/:id"
+            element={<VerificationForIssuer />}
+          />
+          <Route path="/verification" element={<VertificationNew />} />
+          <Route path="/" element={<LoginNew />} />
+        </Routes>
+      </SignerProvider>
+    </AnimatePresence>
   );
 }
 export default App;

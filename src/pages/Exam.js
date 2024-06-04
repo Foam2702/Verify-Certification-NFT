@@ -8,6 +8,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from 'react-router-dom';
 import ExamSection from "../components/ExamSection";
+import { useHistory } from 'react-router-dom';
+import { BrowserRouter as Router } from "react-router-dom";
 
 const Exam = () => {
     const [exams, setExams] = useState([])
@@ -36,15 +38,16 @@ const Exam = () => {
 
             {course && exams &&
                 <>
-                    <HeaderExam />
+                    {/* <HeaderExam /> */}
                     <ExamSection course={course} />
                     <RowRadioButtonsGroup
                         course={course}
-                        exam={exams} />
-                    <Footer
+                        exam={exams}
+                    />
+                    {/* <Footer
                         shapeLeft="/shape-left@2x.png"
                         socialIcontwitter="/socialicontwitter@2x.png"
-                    />
+                    /> */}
                 </>
             }
 

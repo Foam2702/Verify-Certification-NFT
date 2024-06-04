@@ -82,7 +82,7 @@ const HelpSection = () => {
               alt=""
               src="/buy-course-image@2x.png"
             />
-            <h3 className="buy-course">Mua khóa học</h3>
+            <h3 className="buy-course">Thi chứng chỉ</h3>
             <div className="describe-text2">{`Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur sit amet eros blandit, hendrerit elit et, `}</div>
             <div className="learn-more-container">
               <button className="learn-more2" onClick={handleBuyCourses}>Learn More</button>

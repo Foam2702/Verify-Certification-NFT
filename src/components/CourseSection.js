@@ -8,7 +8,7 @@ const CourseSection = ({ className = "" }) => {
       <div className="header-container3">
         <div className="header-content3">
           <div className="titles3">
-            <h1 className="title-13">Khóa học nào đang hot</h1>
+            <h1 className="title-13">Chứng chỉ nào đang hot</h1>
             <p className="title-23">
               Đến với trang web của chúng tôi - nơi cung cấp dịch vụ xác thực
               chứng chỉ uy tín và đáng tin cậy nhất. Với công nghệ tiên tiến,

@@ -3,14 +3,16 @@
   position: relative;
   max-width: 100%;
 }
+
 .course-1-image {
   align-self: stretch;
   height: 230px;
   border-radius: var(--br-xl) var(--br-xl) 0 0;
   overflow: hidden;
   flex-shrink: 0;
-  object-fit: cover;
+  object-fit: contain;
 }
+
 .background {
   width: 400px;
   height: 277px;
@@ -18,12 +20,14 @@
   background-color: var(--color-aliceblue-100);
   display: none;
 }
+
 .course-header,
 .lorem-ipsum-dolor3 {
   margin: 0;
   align-self: stretch;
   font-weight: 500;
 }
+
 .course-header {
   position: relative;
   font-size: inherit;
@@ -32,15 +36,18 @@
   font-family: inherit;
   z-index: 1;
 }
+
 .lorem-ipsum-dolor3 {
   line-height: 28px;
 }
+
 .icon6,
 .learn-more6,
 .lorem-ipsum-dolor3 {
   position: relative;
   z-index: 1;
 }
+
 .learn-more6 {
   line-height: 106.5%;
   font-weight: 500;
@@ -48,25 +55,30 @@
   min-width: 90px;
   white-space: nowrap;
 }
+
 .icon6 {
   width: 22px;
   height: 10px;
 }
+
 .icon-wrapper4,
 .learn-more-parent3 {
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
 }
+
 .icon-wrapper4 {
   flex-direction: column;
   padding: var(--padding-9xs) 0 0;
 }
+
 .learn-more-parent3 {
   flex-direction: row;
   gap: var(--gap-5xs);
   color: var(--color-darkorange-100);
 }
+
 .background-parent,
 .course-1,
 .lorem-ipsum-dolor-sit-amet-co-parent {
@@ -75,16 +87,19 @@
   align-items: flex-start;
   justify-content: flex-start;
 }
+
 .lorem-ipsum-dolor-sit-amet-co-parent {
   align-self: stretch;
   gap: var(--gap-5xl);
   font-size: var(--font-size-base);
   color: var(--color-dimgray-100);
 }
+
 .background-parent,
 .course-1 {
   max-width: 100%;
 }
+
 .background-parent {
   align-self: stretch;
   border-radius: 0 0 var(--br-xl) var(--br-xl);
@@ -93,6 +108,7 @@
   box-sizing: border-box;
   gap: var(--gap-33xl);
 }
+
 .course-1 {
   width: 400px;
   min-width: 380px;
@@ -101,14 +117,17 @@
   color: var(--color-gray);
   font-family: var(--font-poppins);
 }
+
 @media screen and (max-width: 450px) {
   .course-header {
     font-size: var(--font-size-lgi);
     line-height: 29px;
   }
+
   .background-parent {
     gap: var(--gap-7xl);
   }
+
   .course-1 {
     min-width: 100%;
   }

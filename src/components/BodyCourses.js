@@ -46,7 +46,7 @@ const BodyCourses = ({ className = "" }) => {
 
             <section className={`body-section2 ${className}`}>
                 <div className="body-header3">
-                    <h1 className="body-header-text5">Danh mục khóa học</h1>
+                    <h1 className="body-header-text5">Danh mục chứng chỉ</h1>
                 </div>
                 <div className="careers-section1">
                     {courses.map((course) => (

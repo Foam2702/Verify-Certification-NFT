@@ -17,6 +17,8 @@ import Divider from '@mui/material/Divider';
 import { makeStyles } from '@mui/material/styles';
 import Container from '@mui/material/Container';
 import { Navigate, useNavigate } from "react-router-dom";
+import axios from "axios";
+
 
 export default function RowRadioButtonsGroup({ course, exam }) {
     const [isSubmitted, setIsSubmitted] = React.useState(false)
@@ -35,8 +37,11 @@ export default function RowRadioButtonsGroup({ course, exam }) {
         newValues[i] = value;
         setValues(newValues);
     };
-    const submitResponse = () => {
+    const submitResponse = async () => {
         console.log(values)
+        console.log(course[0].id)
+        const result = await axios(`http://localhost:8080/courses/course/${course[0].id}/exam`)
+        console.log(result.data)
     }
 
     // const handleRadioChange = (option, i) => {

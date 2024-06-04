@@ -1003,6 +1003,14 @@
   font-family: var(--font-poppins);
 }
 
+input:valid {
+  border-color: initial;
+}
+
+.invalid-input {
+  border: 1px solid red;
+}
+
 @media screen and (max-width: 1875px) {
   .body-button {
     flex-wrap: wrap;

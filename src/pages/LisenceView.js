@@ -4,6 +4,7 @@ import "./LisenceView.css";
 import HeaderSection from "../components/HeaderSection";
 import VerifySection from '../components/VerifySection';
 import Button from '@mui/material/Button';
+import Footer from "../components/Footer";
 
 import { useState, useEffect } from "react";
 import axios from "axios";
@@ -82,7 +83,11 @@ const LisenceView = () => {
           </>
         )}
       </section>
-      <FrameComponent />
+      {/* <FrameComponent /> */}
+      <Footer
+        shapeLeft="/shape-left@2x.png"
+        socialIcontwitter="/socialicontwitter@2x.png"
+      />
     </div >
   );
 };

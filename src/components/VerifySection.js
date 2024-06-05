@@ -15,7 +15,7 @@ const VerifySection = ({ className = "" }) => {
                         chứng chỉ uy tín và đáng tin cậy nhất. Với công nghệ tiên tiến,
                         chúng tôi cam kết đảm bảo tính bảo mật cao nhất cho mọi giao dịch
                         của bạn. Hãy đến với chúng tôi để trải nghiệm sự an tâm và chuyên
-                        nghiệp ngay hôm nay!"
+                        nghiệp ngay hôm nay!
                     </div>
                 </div>
                 <div className="approve-image1">

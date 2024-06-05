@@ -1,6 +1,6 @@
 // import HeaderSection from "../components/HeaderSection2";
 import BodyCourses from "../components/BodyCourses";
-import Footer from "../components/Footer1";
+import Footer from "../components/Footer";
 import HeaderSection from "../components/HeaderSection";
 import CourseSection from "../components/CourseSection"
 import "./CourseTransferNew.css";
@@ -14,8 +14,10 @@ const CourseTransferNew = () => {
       <CourseSection />
 
       <BodyCourses />
-      <Footer />
-    </div>
+      <Footer
+        shapeLeft="/shape-left@2x.png"
+        socialIcontwitter="/socialicontwitter@2x.png"
+      />    </div>
   );
 };
 

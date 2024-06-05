@@ -51,7 +51,8 @@ const HelpSection = () => {
               />
             </button>
             <h3 className="vertification-text">Xác thực chứng chỉ</h3>
-            <div className="describe-text">{`Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur sit amet eros blandit, hendrerit elit et, `}</div>
+            <div className="describe-text">{`Xác thực chứng chỉ nhanh chóng và chính xác bằng công nghệ Soulbound Token.
+                              Đảm bảo tính minh bạch, bảo mật và không thể thay đổi của chứng chỉ. `}</div>
             <div className="learn-more-parent">
               <button className="learn-more" onClick={handleVerification} >Learn More</button>
               <button className="icon-wrapper" >
@@ -66,8 +67,9 @@ const HelpSection = () => {
               alt=""
               src="/upload-to-upload-image@2x.png"
             />
-            <h3 className="upload-to-course">Đăng khóa học</h3>
-            <div className="describe-text1">{`Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur sit amet eros blandit, hendrerit elit et, `}</div>
+            <h3 className="upload-to-course">Đăng bài thi</h3>
+            <div className="describe-text1">{`Cho phép các tổ chức, cá nhân đăng tải các bài thi chứng chỉ một cách dễ dàng.
+                                            Quản lý và theo dõi bài thi, đảm bảo quá trình thi diễn ra suôn sẻ và hiệu quả.`}</div>
             <div className="learn-more-group">
               <div className="learn-more1">Learn More</div>
               <div className="icon-container">
@@ -83,7 +85,8 @@ const HelpSection = () => {
               src="/buy-course-image@2x.png"
             />
             <h3 className="buy-course">Thi chứng chỉ</h3>
-            <div className="describe-text2">{`Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur sit amet eros blandit, hendrerit elit et, `}</div>
+            <div className="describe-text2">{`Cung cấp nền tảng thi trực tuyến an toàn, tiện lợi.
+                                              Đảm bảo tính công bằng và minh bạch trong quá trình thi, kết quả được xác thực ngay lập tức bằng SBT.`}</div>
             <div className="learn-more-container">
               <button className="learn-more2" onClick={handleBuyCourses}>Learn More</button>
               <div className="icon-frame">

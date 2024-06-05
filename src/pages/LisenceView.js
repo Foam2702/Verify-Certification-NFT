@@ -53,7 +53,7 @@ const LisenceView = () => {
           <div>Chưa có chứng chỉ</div>
         ) : (
           <>
-            <Button variant="contained" onClick={sendNFT}>Import NFT to MetaMask </Button>
+            {/* <Button variant="contained" onClick={sendNFT}>Import NFT to MetaMask </Button> */}
             <div className="body-header-wrapper">
               <div className="body-header">
                 <h1 className="body-header-text2">Thông tin chứng chỉ</h1>

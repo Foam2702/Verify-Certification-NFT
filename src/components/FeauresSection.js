@@ -23,18 +23,7 @@ const FeauresSection = () => {
         {courses.map((course, index) => (
           <div className={`course${index + 1}`} key={course.id}>
             <div className="course-background" />
-            {/* <MultiActionAreaCard image={course.image} />            <div className="course-types">
-              <h3 className={course.name}>{course.name}</h3>
-            </div>
-            <div className="course-descriptions">
-              <div className="lorem-ipsum-dolor">{course.description}</div>
-            </div>
-            <div className="frame-div">
-              <div className="learn-more3">Learn More</div>
-              <div className="icon-wrapper1">
-                <img className="icon3" alt="" src="/icon-3@2x.png" />
-              </div>
-            </div> */}
+
             <Course
               course1Image={course.image}
               courseHeader={course.name}

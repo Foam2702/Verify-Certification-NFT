@@ -28,12 +28,7 @@ const Footer = ({
           <div className="footer-columns">
             <div className="column-one">
               <div className="logo-info">
-                <img
-                  className="logo-icon"
-                  loading="lazy"
-                  alt=""
-                  src="/logo.svg"
-                />
+
                 <div className="company-info">
                   <h1 className="bespoke-software-solutions">
                     Bespoke software solutions
@@ -67,7 +62,7 @@ const Footer = ({
                 </div>
               </div>
               <div className="all-rights-reserved">
-                © All rights reserved – Finsweet
+                © All rights reserved – VSCourses
               </div>
             </div>
             <div className="column-two">
@@ -83,7 +78,7 @@ const Footer = ({
               <div className="connect-links">
                 <div className="connect">Connect</div>
                 <div className="hifinsweetcom-parent">
-                  <div className="hifinsweetcom">hi@finsweet.com</div>
+                  <div className="hifinsweetcom">vscourses@gmail.com</div>
                   <div className="contact">+(123) 456-7890</div>
                 </div>
               </div>

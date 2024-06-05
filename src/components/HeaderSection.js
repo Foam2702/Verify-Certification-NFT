@@ -66,7 +66,7 @@ const HeaderSection = () => {
                 setLoadingPage(false); // Stop loading
               }, 1000); // Delay of 2 seconds
             }}>
-              <img className="abc" src="./VSCourses.svg"></img>
+              <img className="abc" src="/VSCourses.svg" />
             </button>
           </div>
           <div className="navigation-right">

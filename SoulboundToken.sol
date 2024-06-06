@@ -42,13 +42,15 @@ contract SoulboundToken is ERC721,ERC721URIStorage,Ownable {
     constructor() ERC721("SoulboundToken", "SBT")Ownable(msg.sender) {
        
     }
-function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, ERC721URIStorage) returns (bool) {
+
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, ERC721URIStorage) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 
     function tokenURI(uint256 tokenId) public view virtual override(ERC721, ERC721URIStorage) returns (string memory) {
         return super.tokenURI(tokenId);
     }
+
     // Hàm thêm một địa chỉ vào danh sách các địa chỉ được phép xác thực
     function addVerifier(address verifier, string memory organizationCode) public {
         verifierList[verifier] = VerifierInfo(true, organizationCode);
@@ -58,6 +60,47 @@ function supportsInterface(bytes4 interfaceId) public view virtual override(ERC7
         if (!uniqueOrganizationCodes[organizationCode]) {
             uniqueOrganizationCodes[organizationCode] = true;
             organizationCodesList.push(organizationCode);
+        }
+    }
+
+    // Hàm xóa một địa chỉ từ danh sách các địa chỉ được phép xác thực
+    function removeVerifier(address verifier) public onlyOwner {
+        require(verifierList[verifier].isVerifier, "Address is not a verifier");
+
+        // Lấy mã tổ chức của verifier
+        string memory organizationCode = verifierList[verifier].organizationCode;
+
+        // Xóa địa chỉ khỏi mapping verifierList
+        delete verifierList[verifier];
+
+        // Xóa địa chỉ khỏi mảng verifierAddresses
+        for (uint256 i = 0; i < verifierAddresses.length; i++) {
+            if (verifierAddresses[i] == verifier) {
+                verifierAddresses[i] = verifierAddresses[verifierAddresses.length - 1];
+                verifierAddresses.pop();
+                break;
+            }
+        }
+
+        // Kiểm tra xem có bất kỳ verifier nào khác sử dụng cùng mã tổ chức hay không
+        bool organizationCodeUsed = false;
+        for (uint256 i = 0; i < verifierAddresses.length; i++) {
+            if (keccak256(bytes(verifierList[verifierAddresses[i]].organizationCode)) == keccak256(bytes(organizationCode))) {
+                organizationCodeUsed = true;
+                break;
+            }
+        }
+
+        // Nếu không còn verifier nào sử dụng mã tổ chức này, xóa mã tổ chức
+        if (!organizationCodeUsed) {
+            uniqueOrganizationCodes[organizationCode] = false;
+            for (uint256 i = 0; i < organizationCodesList.length; i++) {
+                if (keccak256(bytes(organizationCodesList[i])) == keccak256(bytes(organizationCode))) {
+                    organizationCodesList[i] = organizationCodesList[organizationCodesList.length - 1];
+                    organizationCodesList.pop();
+                    break;
+                }
+            }
         }
     }
 
@@ -75,7 +118,8 @@ function supportsInterface(bytes4 interfaceId) public view virtual override(ERC7
     function getOrganizationCode(address addr) public view returns (string memory) {
         return verifierList[addr].organizationCode;
     }
-     // Hàm phục hồi địa chỉ người ký
+
+    // Hàm phục hồi địa chỉ người ký
     function recover(bytes32 _ethSignedMessageHash, bytes memory _sig) public pure returns (address) {
       (bytes32 r, bytes32 s, uint8 v) = _split(_sig);
       return ecrecover(_ethSignedMessageHash, v, r, s);
@@ -140,10 +184,9 @@ function supportsInterface(bytes4 interfaceId) public view virtual override(ERC7
     }
 
     // Hàm tạo một SBT mới cho một địa chỉ.
-
     function mintSBTForAddress(
         address recipient,
-        string memory tokenURI
+        string memory myTokenURI
     ) public   {
         
 
@@ -154,7 +197,7 @@ function supportsInterface(bytes4 interfaceId) public view virtual override(ERC7
         _safeMint(recipient, newSBTId);
         
         // Gọi hàm `_setTokenURI` để thiết lập URI cho token mới
-        _setTokenURI(newSBTId, tokenURI);
+        _setTokenURI(newSBTId, myTokenURI);
     }
 
     // Hàm tìm các địa chỉ có mã tổ chức cụ thể
@@ -186,7 +229,7 @@ function supportsInterface(bytes4 interfaceId) public view virtual override(ERC7
         return result;
     }
 
-    // Hàm chuyển giao token (không thể chuyển soulbound token)
+     // Hàm chuyển giao token (không thể chuyển soulbound token)
     function transfer(address to, uint256 tokenId) public {
         require(msg.sender == ownerOf(tokenId), "Cannot transfer soulbound token.");
         _transfer(msg.sender, to, tokenId);
@@ -196,6 +239,5 @@ function supportsInterface(bytes4 interfaceId) public view virtual override(ERC7
       require(msg.sender == ownerOf(tokenId), "Cannot transfer soulbound token.");
       _safeTransfer(from, to, tokenId, "");
     }
-
     
 }

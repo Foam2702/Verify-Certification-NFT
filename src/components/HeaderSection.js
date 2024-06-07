@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import Box from '@mui/material/Box';
-
+import Admin from "../pages/Admin";
 import AddressAvatar from "../components/AddressAvatar"
 import CircularProgress from '@mui/material/CircularProgress';
 import React, { useState, useEffect } from 'react';
@@ -20,7 +20,7 @@ const { ethers } = require("ethers");
 const settings = [
   { name: 'My Certificates', route: '/lisenceview' },
   { name: 'My Courses', route: '/courseinfornew' },
-  { name: 'Issuer Management', route: '/issuer-management' },
+  { name: 'Issuer Management', route: '/admin' },
   { name: 'Logout', route: '/logout' }
 ]; const HeaderSection = () => {
   const SOULBOUND_ADDRESS = process.env.REACT_APP_SOULBOUND_ADDRESS
@@ -95,6 +95,7 @@ const settings = [
     fetchTickets().catch(error => console.error(error));
   }, [signer, address]);
 
+  const filteredSettings = address === '0xED877A7B3c30ed50e983b7B9a26524C1C4c0eB02' ? settings : settings.filter(setting => setting.name !== 'Issuer Management');
 
   return (
     <section className="header-section1">
@@ -148,7 +149,7 @@ const settings = [
                       open={Boolean(anchorElUser)}
                       onClose={handleCloseUserMenu}
                     >
-                      {settings.map((setting) => (
+                      {filteredSettings.map((setting) => (
                         <MenuItem key={setting} onClick={() => handleMenuItemClick(setting.route)}
                           sx={{ my: 1 }}>
                           <Typography textAlign="center" sx={{ fontSize: '1.3rem' }}>{setting.name}</Typography>

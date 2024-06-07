@@ -17,7 +17,7 @@ import useSigner from "./state/signer";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
-
+import Admin from "./pages/Admin";
 function App() {
   const action = useNavigationType();
   const location = useLocation();
@@ -78,6 +78,8 @@ function App() {
         )}
 
         <Routes>
+          <Route path="/admin" element={<Admin />} />
+
           <Route path="/coursetransfernew" element={<CourseTransferNew />} />
           <Route path="/courseinfornew" element={<CourseInforNew />} />
           <Route path="/courses/course/:id/exam" element={<Exam />} />

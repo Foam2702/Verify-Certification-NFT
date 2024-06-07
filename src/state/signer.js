@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import Web3Modal from 'web3modal';
 import { useNavigate } from "react-router-dom";
 import SOULBOUND from "../artifacts/contracts/SoulboundToken.sol/SoulboundToken.json";
+
 const { ethers } = require("ethers");
 const SOULBOUND_ADDRESS = process.env.REACT_APP_SOULBOUND_ADDRESS;
 
@@ -25,6 +26,7 @@ export const SignerProvider = ({ children }) => {
                 setAddress(null);
             } else {
                 connectWallet();
+                navigate("/")
             }
         });
     }, []);
@@ -61,6 +63,7 @@ export const SignerProvider = ({ children }) => {
         }
         setLoading(false);
     };
+
 
     const contextValue = { provider, contract, signer, loading, address, connectWallet };
     return (

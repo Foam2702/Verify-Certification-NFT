@@ -21,7 +21,7 @@ const settings = [
   { name: 'My Certificates', route: '/lisenceview' },
   { name: 'My Courses', route: '/courseinfornew' },
   { name: 'Issuer Management', route: '/admin' },
-  { name: 'Logout', route: '/logout' }
+
 ]; const HeaderSection = () => {
   const SOULBOUND_ADDRESS = process.env.REACT_APP_SOULBOUND_ADDRESS
   const { signer, loading, address, connectWallet } = useSigner();
@@ -46,15 +46,14 @@ const settings = [
     setAnchorElUser(null);
   };
   const handleMenuItemClick = (route) => {
+
     if (address) {
       setLoadingPage(true); // Start loading
       setTimeout(() => {
         handleCloseUserMenu();
         navigate(route);
         setLoadingPage(false); // Stop loading
-
-      }, 500); // Delay of 2 seconds
-
+      }, 500); // Delay of 0.5 second
     } else {
       connectWallet();
     }
@@ -95,7 +94,7 @@ const settings = [
     fetchTickets().catch(error => console.error(error));
   }, [signer, address]);
 
-  const filteredSettings = address === '0xED877A7B3c30ed50e983b7B9a26524C1C4c0eB02' ? settings : settings.filter(setting => setting.name !== 'Issuer Management');
+  const filteredSettings = address === '0x32DE93BB670F3d4aE1181b615954ABeEe81fC9B3' ? settings : settings.filter(setting => setting.name !== 'Issuer Management');
 
   return (
     <section className="header-section1">

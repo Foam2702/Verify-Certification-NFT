@@ -41,16 +41,31 @@ function App() {
 
     switch (pathname) {
       case "/":
-        title = "";
-        metaDescription = "";
+        title = "VSCourses";
         break;
-      case "/vertification":
-        title = "";
-        metaDescription = "";
+      case "/admin":
+        title = "Admin Dashboard";
+        break;
+      case "/coursetransfernew":
+        title = "Course Transfer";
+        break;
+      case "/courseinfornew":
+        title = "Course Information";
+        break;
+      case "/courses/course/:id/exam":
+        title = "Course Exam";
         break;
       case "/lisenceview":
-        title = "";
-        metaDescription = "";
+        title = "License View";
+        break;
+      case "/tickets/ticket/:id":
+        title = "Ticket Verification";
+        break;
+      case "/verification":
+        title = "Verification";
+        break;
+      default:
+        title = "VSCourses";
         break;
     }
 
@@ -79,7 +94,6 @@ function App() {
 
         <Routes>
           <Route path="/admin" element={<Admin />} />
-
           <Route path="/coursetransfernew" element={<CourseTransferNew />} />
           <Route path="/courseinfornew" element={<CourseInforNew />} />
           <Route path="/courses/course/:id/exam" element={<Exam />} />

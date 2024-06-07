@@ -1,10 +1,13 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import useSigner from "../state/signer";
-
+import HeaderSection from '../components/HeaderSection';
+import Footer from '../components/Footer';
+import AddIssuer from '../components/AddIssuer';
+import AddIssuerSection from '../components/AddIssuerSection';
 const Admin = () => {
     const { address } = useSigner();
-    const adminAddress = '0xED877A7B3c30ed50e983b7B9a26524C1C4c0eB02';
+    const adminAddress = '0x32DE93BB670F3d4aE1181b615954ABeEe81fC9B3';
 
     // If the address does not match the admin address, redirect to home page
     if (address !== adminAddress) {
@@ -12,11 +15,17 @@ const Admin = () => {
     }
 
     return (
-        <div>
-            <h1>Admin Dashboard</h1>
-            <p>Welcome, Admin!</p>
-            {/* Add more admin-specific content here */}
-        </div>
+        <>
+            <HeaderSection />
+            <AddIssuerSection />
+            <AddIssuer />
+            <Footer
+                shapeLeft="/shape-left1.svg"
+                socialIcontwitter="/socialicontwitter1.svg"
+                footerDebugCommit="unset"
+                footerMarginTop="unset"
+            />
+        </>
     );
 };
 

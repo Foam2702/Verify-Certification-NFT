@@ -1,10 +1,9 @@
-import React, { useEffect } from "react";
+import React from "react";
 import HeaderSection from "../components/HeaderSection";
 import BodySection from "../components/BodySection";
 import Footer from "../components/Footer";
 import VerifySection from "../components/VerifySection";
-import useSigner from "../state/signer";
-import { useNavigate } from "react-router-dom";
+
 
 import "./VertificationNew.css";
 import { motion } from "framer-motion";

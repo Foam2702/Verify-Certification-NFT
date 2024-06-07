@@ -2,8 +2,7 @@ import Course from "./Course";
 import "./BodyCourses.css";
 import { useEffect, useState } from 'react'
 import axios from "axios";
-import { Link } from 'react-router-dom';
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import useSigner from "../state/signer";
 import CircularProgress from '@mui/material/CircularProgress';
 

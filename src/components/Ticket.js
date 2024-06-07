@@ -1,8 +1,6 @@
-import { useCallback } from "react";
 import "./Ticket.css";
 import React, { useState, useEffect } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
-import Link from '@mui/material/Link';
 import axios from 'axios';
 import Web3 from 'web3';
 import useSigner from "../state/signer";
@@ -13,8 +11,6 @@ import AlertTicket from "./AlertTicket"
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
-
-import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import { pinJSONToIPFS } from "../helpers/index"
 import "./BodySection.css";
 import "../pages/LisenceView"

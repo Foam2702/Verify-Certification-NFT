@@ -1,15 +1,8 @@
-import HeaderSection from "../components/HeaderSection";
-import HelpSection from "../components/HelpSection";
-import FeauresSection from "../components/FeauresSection";
-import Footer from "../components/Footer";
 import RowRadioButtonsGroup from "../components/RowRadioButtonGroup";
-import HeaderExam from "../components/HeaderExam";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from 'react-router-dom';
 import ExamSection from "../components/ExamSection";
-import { useHistory } from 'react-router-dom';
-import { BrowserRouter as Router } from "react-router-dom";
 
 const Exam = () => {
     const [exams, setExams] = useState([])

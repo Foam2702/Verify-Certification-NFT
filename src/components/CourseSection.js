@@ -1,5 +1,4 @@
 import "./CourseSection.css";
-import PropTypes from 'prop-types';
 
 const CourseSection = ({ className = "" }) => {
   return (

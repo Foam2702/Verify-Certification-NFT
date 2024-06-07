@@ -1,11 +1,7 @@
-import TopHeader from "../components/TopHeader";
-import FrameComponent from "../components/FrameComponent";
 import "./LisenceView.css";
 import HeaderSection from "../components/HeaderSection";
 import VerifySection from '../components/VerifySection';
-import Button from '@mui/material/Button';
 import Footer from "../components/Footer";
-
 import { useState, useEffect } from "react";
 import axios from "axios";
 import useSigner from "../state/signer";
@@ -83,7 +79,6 @@ const LisenceView = () => {
           </>
         )}
       </section>
-      {/* <FrameComponent /> */}
       <Footer
         shapeLeft="/shape-left@2x.png"
         socialIcontwitter="/socialicontwitter@2x.png"

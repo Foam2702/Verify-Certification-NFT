@@ -1,5 +1,5 @@
 //import "./Header.css";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import useSigner from "../state/signer";
 import AddressAvatar from "../components/AddressAvatar"

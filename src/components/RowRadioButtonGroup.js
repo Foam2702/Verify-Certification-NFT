@@ -1,10 +1,7 @@
 import * as React from 'react';
-import { styled } from '@mui/system';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import FormControl from '@mui/material/FormControl';
-import FormLabel from '@mui/material/FormLabel';
 import { Grid } from '@mui/material';
 import { Paper, Typography } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -13,12 +10,8 @@ import Toolbar from '@mui/material/Toolbar';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/material/Menu';
-import Divider from '@mui/material/Divider';
-import { makeStyles } from '@mui/material/styles';
-import Container from '@mui/material/Container';
-import { Navigate, useNavigate } from "react-router-dom";
-import axios from "axios";
-
+import { useNavigate } from "react-router-dom";
+import axios from 'axios'
 
 export default function RowRadioButtonsGroup({ course, exam }) {
     const [isSubmitted, setIsSubmitted] = React.useState(false)

@@ -1,7 +1,13 @@
 //import "./Header.css";
-import { Navigate, useNavigate } from "react-router-dom";
-
+import { useNavigate } from "react-router-dom";
+import Menu from '@mui/material/Menu';
 import useSigner from "../state/signer";
+import MenuItem from '@mui/material/MenuItem';
+import Typography from '@mui/material/Typography';
+import Tooltip from '@mui/material/Tooltip';
+import IconButton from '@mui/material/IconButton';
+import Box from '@mui/material/Box';
+
 import AddressAvatar from "../components/AddressAvatar"
 import CircularProgress from '@mui/material/CircularProgress';
 import React, { useState, useEffect } from 'react';
@@ -11,13 +17,49 @@ import SOULBOUND from "../artifacts/contracts/SoulboundToken.sol/SoulboundToken.
 import "./BasicMenu.css"
 import "./HeaderSection.css";
 const { ethers } = require("ethers");
-
-const HeaderSection = () => {
+const settings = [
+  { name: 'My Certificates', route: '/lisenceview' },
+  { name: 'My Courses', route: '/courseinfornew' },
+  { name: 'Issuer Management', route: '/issuer-management' },
+  { name: 'Logout', route: '/logout' }
+]; const HeaderSection = () => {
   const SOULBOUND_ADDRESS = process.env.REACT_APP_SOULBOUND_ADDRESS
   const { signer, loading, address, connectWallet } = useSigner();
   const [tickets, setTickets] = useState([])
   const [loadingPage, setLoadingPage] = useState(false);
+  const [anchorElNav, setAnchorElNav] = React.useState(null);
+  const [anchorElUser, setAnchorElUser] = React.useState(null);
   const navigate = useNavigate();
+
+  const handleOpenNavMenu = (event) => {
+    setAnchorElNav(event.currentTarget);
+  };
+  const handleOpenUserMenu = (event) => {
+    setAnchorElUser(event.currentTarget);
+  };
+
+  const handleCloseNavMenu = () => {
+    setAnchorElNav(null);
+  };
+
+  const handleCloseUserMenu = () => {
+    setAnchorElUser(null);
+  };
+  const handleMenuItemClick = (route) => {
+    if (address) {
+      setLoadingPage(true); // Start loading
+      setTimeout(() => {
+        handleCloseUserMenu();
+        navigate(route);
+        setLoadingPage(false); // Stop loading
+
+      }, 500); // Delay of 2 seconds
+
+    } else {
+      connectWallet();
+    }
+
+  };
   useEffect(() => {
     const fetchTickets = async () => {
       const allTickets = await axios("http://localhost:8080/tickets/all");
@@ -81,21 +123,46 @@ const HeaderSection = () => {
                 <NotificationBell tickets={tickets} />
 
               </button>
-              <button className="button" onClick={async () => {
-                if (address) {
-                  setLoadingPage(true); // Start loading
-                  setTimeout(() => {
-                    navigate("/lisenceview");
-                    setLoadingPage(false); // Stop loading
 
-                  }, 1000); // Delay of 2 seconds
+              <Box sx={{ flexGrow: 0 }}>
+                {address ? (
+                  <>
+                    <Tooltip title="Open settings">
+                      <IconButton sx={{ p: 0 }} onClick={handleOpenUserMenu}>
+                        <AddressAvatar address={address} />
+                      </IconButton>
+                    </Tooltip>
+                    <Menu
+                      sx={{ mt: '45px', '& .MuiPaper-root': { width: '300px' } }} // Set your desired width here
+                      id="menu-appbar"
+                      anchorEl={anchorElUser}
+                      anchorOrigin={{
+                        vertical: 'top',
+                        horizontal: 'right',
+                      }}
+                      keepMounted
+                      transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'right',
+                      }}
+                      open={Boolean(anchorElUser)}
+                      onClose={handleCloseUserMenu}
+                    >
+                      {settings.map((setting) => (
+                        <MenuItem key={setting} onClick={() => handleMenuItemClick(setting.route)}
+                          sx={{ my: 1 }}>
+                          <Typography textAlign="center" sx={{ fontSize: '1.3rem' }}>{setting.name}</Typography>
+                        </MenuItem>
+                      ))}
+                    </Menu>
+                  </>
+                ) : (
+                  "LOG IN"
+                )}
+              </Box>
 
-                } else {
-                  connectWallet();
-                }
-              }}>
-                {address ? <AddressAvatar address={address} /> : "LOG IN"}
-              </button>
+
+
 
               {loadingPage && (
                 <div className="loading-overlay">

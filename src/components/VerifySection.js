@@ -1,5 +1,4 @@
 import "./VerifySection.css";
-import PropTypes from 'prop-types';
 
 const VerifySection = ({ className = "" }) => {
     return (

@@ -3,9 +3,6 @@ import HelpSection from "../components/HelpSection";
 import FeauresSection from "../components/FeauresSection";
 import Footer from "../components/Footer";
 import HomeSection from "../components/HomeSection";
-
-import { CircularProgress } from "@mui/material";
-import useSigner from "../state/signer";
 import "./LoginNew.css";
 import { motion } from "framer-motion";
 

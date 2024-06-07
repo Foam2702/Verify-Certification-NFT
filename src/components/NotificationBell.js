@@ -1,11 +1,9 @@
 import { IconButton, Tooltip } from "@mui/material"
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import BasicMenu from "./BasicMenu"
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Badge from '@mui/material/Badge';
-import axios from 'axios';
-import useSigner from "../state/signer";
-const { ethers } = require("ethers");
+
 const NotificationBell = ({ tickets }) => {
     const [open, setOpen] = useState(false)
     const [anchorEl, setAnchorEl] = useState(null)

@@ -101,6 +101,51 @@ const AddIssuer = () => {
             }
         },
     ];
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        const formJson = Object.fromEntries(formData.entries());
+        const newAddress = formJson.address;
+        console.log(newAddress);
+        const newOrganization = formJson.organization;
+        console.log(newOrganization);
+        if (issuers.some(issuer => issuer.address === newAddress)) {
+            console.log("Issuer with this address already exists.");
+            // Optionally, you can set an alert message here to inform the user.
+            setAlertSeverity("error");
+
+            setMessageAlert("Issuer with this address already exists.");
+            setShowAlert(true);
+        } else {
+            // Your code to add a new issuer
+            console.log(newAddress);
+            console.log(newOrganization);
+            try {
+                const tx = await contract.addVerifier(newAddress, newOrganization);
+                setLoading(true)
+                await tx.wait();
+                setLoading(false)
+
+                console.log(tx);
+                setAlertSeverity("success");
+                setMessageAlert("Add Issuer successfully");
+                setShowAlert(true);
+                setRefresh(prevFlag => !prevFlag)
+
+            } catch (err) {
+                console.log("ERR", err);
+                setAlertSeverity("error");
+                // Check if the error code indicates the user rejected the transaction
+                if (err.code === "ACTION_REJECTED") {
+                    setMessageAlert("Rejected transaction");
+                } else {
+                    setMessageAlert("Failed to add new issuer");
+                }
+                setShowAlert(true);
+            }
+        }
+        handleClose();
+    };
     const handleDelete = async (address) => {
         try {
             const tx = await contract.removeVerifier(address);
@@ -111,6 +156,8 @@ const AddIssuer = () => {
             setAlertSeverity("success");
             setMessageAlert("Delete Issuer successfully");
             setShowAlert(true);
+            setRefresh(prevFlag => !prevFlag)
+
         } catch (err) {
             console.log("ERR", err);
             setAlertSeverity("error");
@@ -148,49 +195,8 @@ const AddIssuer = () => {
                 onClose={handleClose}
                 PaperProps={{
                     component: 'form',
-                    onSubmit: async (event) => {
-                        event.preventDefault();
-                        const formData = new FormData(event.currentTarget);
-                        const formJson = Object.fromEntries(formData.entries());
-                        const newAddress = formJson.address;
-                        console.log(newAddress);
-                        const newOrganization = formJson.organization;
-                        console.log(newOrganization);
-                        if (issuers.some(issuer => issuer.address === newAddress)) {
-                            console.log("Issuer with this address already exists.");
-                            // Optionally, you can set an alert message here to inform the user.
-                            setAlertSeverity("error");
+                    onSubmit: handleSubmit
 
-                            setMessageAlert("Issuer with this address already exists.");
-                            setShowAlert(true);
-                        } else {
-                            // Your code to add a new issuer
-                            console.log(newAddress);
-                            console.log(newOrganization);
-                            try {
-                                const tx = await contract.addVerifier(newAddress, newOrganization);
-                                setLoading(true)
-                                await tx.wait();
-                                setLoading(false)
-
-                                console.log(tx);
-                                setAlertSeverity("success");
-                                setMessageAlert("Add Issuer successfully");
-                                setShowAlert(true);
-                            } catch (err) {
-                                console.log("ERR", err);
-                                setAlertSeverity("error");
-                                // Check if the error code indicates the user rejected the transaction
-                                if (err.code === "ACTION_REJECTED") {
-                                    setMessageAlert("Rejected transaction");
-                                } else {
-                                    setMessageAlert("Failed to add new issuer");
-                                }
-                                setShowAlert(true);
-                            }
-                        }
-                        handleClose();
-                    },
                 }}
 
                 maxWidth="md" // Adjust this value as needed (sm, md, lg, xl)

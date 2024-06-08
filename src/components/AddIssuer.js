@@ -15,6 +15,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';// import Header from "../../components/Header";
 import useSigner from "../state/signer";
 import CircularProgress from '@mui/material/CircularProgress';
+import CachedIcon from '@mui/icons-material/Cached';
+import { Tooltip, IconButton } from '@mui/material';
 
 const AddIssuer = () => {
     const { signer, address, connectWallet, contract, provider } = useSigner()
@@ -24,7 +26,7 @@ const AddIssuer = () => {
     const [messageAlert, setMessageAlert] = useState("")
     const [loading, setLoading] = useState(false);
     const [alertSeverity, setAlertSeverity] = useState("");
-
+    const [refresh, setRefresh] = useState(false);
     const handleClickOpen = () => {
         setOpen(true);
     };
@@ -55,12 +57,12 @@ const AddIssuer = () => {
                         });
                     });
                 }
-
+                console.log(results)
                 setIssuers(results)
             }
         }
         fetchOrg();
-    }, [])
+    }, [refresh])
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const columns = [
@@ -92,14 +94,36 @@ const AddIssuer = () => {
                 // };
 
                 return (
-                    <Button variant="contained" color="error" startIcon={<DeleteIcon />} sx={{ fontSize: "0.7em " }} >
+                    <Button variant="contained" color="error" startIcon={<DeleteIcon />} sx={{ fontSize: "0.7em " }} onClick={() => handleDelete(params.row.address)}>
                         Delete
                     </Button>
                 );
             }
         },
     ];
-
+    const handleDelete = async (address) => {
+        try {
+            const tx = await contract.removeVerifier(address);
+            setLoading(true)
+            await tx.wait();
+            setLoading(false)
+            console.log(tx);
+            setAlertSeverity("success");
+            setMessageAlert("Delete Issuer successfully");
+            setShowAlert(true);
+        } catch (err) {
+            console.log("ERR", err);
+            setAlertSeverity("error");
+            // Check if the error code indicates the user rejected the transaction
+            if (err.code === "ACTION_REJECTED") {
+                setMessageAlert("Rejected transaction");
+            } else {
+                setMessageAlert("Failed to add new issuer");
+            }
+            setShowAlert(true);
+        }
+        console.log(address)
+    }
     return (
         <>
             {loading && (
@@ -112,6 +136,12 @@ const AddIssuer = () => {
                     <AddIcon />
                     NEW ISSUER
                 </Button>
+                <Tooltip title="Refresh" sx={{ mx: '20px' }}>
+                    <IconButton size="large" onClick={() => setRefresh(prevFlag => !prevFlag)}>
+                        <CachedIcon fontSize="large" />
+                    </IconButton>
+                </Tooltip>
+
             </Box>
             <Dialog
                 open={open}
@@ -147,7 +177,6 @@ const AddIssuer = () => {
                                 setAlertSeverity("success");
                                 setMessageAlert("Add Issuer successfully");
                                 setShowAlert(true);
-                                window.location.reload();
                             } catch (err) {
                                 console.log("ERR", err);
                                 setAlertSeverity("error");

@@ -16,7 +16,7 @@ const HomeSection = () => {
                         className="person-image-icon"
                         loading="lazy"
                         alt=""
-                        src="/person-image@2x.png"
+                        src="/soulbound-token-development (1).jpg"
                     />
                 </div>
             </div>

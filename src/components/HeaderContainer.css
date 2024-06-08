@@ -32,7 +32,7 @@
 }
 
 .approve-image-icon1 {
-  height: 400px;
+  height: 500px;
   flex: 1;
   position: relative;
   border-radius: var(--br-xl);
@@ -42,12 +42,12 @@
 }
 
 .approve-image1 {
-  width: 400px;
+  width: 500px;
   flex-direction: row;
   justify-content: center;
   padding: var(--padding-xl) 0;
   box-sizing: border-box;
-  min-width: 400px;
+  min-width: 500px;
 }
 
 .approve-image1,

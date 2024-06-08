@@ -1,12 +1,12 @@
-import "./AddIssuerSection.css";
+import "./VerifySection.css";
 
-const AddIssuerSection = ({ className = "" }) => {
+const LisenceSection = ({ className = "" }) => {
     return (
-        <div className={`new-header-container ${className}`}>
+        <div className={`new-header-container  ${className}`}>
             <div className="new-header-content">
                 <div className="new-titles">
                     <h1 className="new-title">
-                        Admin Dashboard
+                        Danh sách chứng chỉ thuộc về bạn
                     </h1>
                     {/* <div className="title-22">
                         Đến với trang web của chúng tôi - nơi cung cấp dịch vụ xác thực
@@ -21,7 +21,7 @@ const AddIssuerSection = ({ className = "" }) => {
                         className="new-approve-image-icon"
                         loading="lazy"
                         alt=""
-                        src="/admin-worker-vector.webp"
+                        src="/blog_header_what_is_a_certificate_0.jpg"
                     />
                 </div>
             </div>
@@ -30,4 +30,4 @@ const AddIssuerSection = ({ className = "" }) => {
 };
 
 
-export default AddIssuerSection;
+export default LisenceSection;

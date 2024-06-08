@@ -4,10 +4,10 @@ const CourseSection = ({ className = "" }) => {
   return (
     <section className={`header-section4 ${className}`}>
 
-      <div className="header-container3">
-        <div className="header-content3">
-          <div className="titles3">
-            <h1 className="title-13">Chứng chỉ nào đang hot</h1>
+      <div className="new-header-container">
+        <div className="new-header-content">
+          <div className="new-titles">
+            <h1 className="new-title">Chứng chỉ nào đang hot</h1>
             <p className="title-23">
               Đến với trang web của chúng tôi - nơi cung cấp dịch vụ xác thực
               chứng chỉ uy tín và đáng tin cậy nhất. Với công nghệ tiên tiến,
@@ -16,12 +16,12 @@ const CourseSection = ({ className = "" }) => {
               nghiệp ngay hôm nay!"
             </p>
           </div>
-          <div className="course-transfer-image">
+          <div className="new-approve-image">
             <img
-              className="image-icon"
+              className="new-approve-image-icon"
               loading="lazy"
               alt=""
-              src="/image@2x.png"
+              src="/Best-online-course-platforms.webp"
             />
           </div>
         </div>

@@ -1,6 +1,6 @@
 import "./LisenceView.css";
 import HeaderSection from "../components/HeaderSection";
-import VerifySection from '../components/VerifySection';
+import LisenceSection from '../components/LisenceSection';
 import Footer from "../components/Footer";
 import { useState, useEffect } from "react";
 import axios from "axios";
@@ -45,7 +45,7 @@ const LisenceView = () => {
         <div className="header-section">
           <HeaderSection />
         </div>
-        <VerifySection />
+        <LisenceSection />
         {certificates.length === 0 ? (
           <div>Chưa có chứng chỉ</div>
         ) : (

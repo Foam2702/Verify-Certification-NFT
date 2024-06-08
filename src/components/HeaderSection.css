@@ -201,6 +201,7 @@
   max-width: 100%;
   overflow: hidden;
   object-fit: cover;
+  border-radius: 50px;
 }
 
 .header-content,
@@ -215,6 +216,7 @@
   width: 746px;
   justify-content: center;
   min-width: 746px;
+
 }
 
 .header-content {

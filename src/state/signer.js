@@ -26,7 +26,6 @@ export const SignerProvider = ({ children }) => {
                 setAddress(null);
             } else {
                 connectWallet();
-                navigate("/")
             }
         });
     }, []);

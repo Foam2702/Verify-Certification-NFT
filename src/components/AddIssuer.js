@@ -1,18 +1,44 @@
 import { Box, Typography, useTheme } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../theme";
-import { mockDataTeam } from "../data/mockData";
-import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
-import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
-import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
+import TextField from '@mui/material/TextField';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 import { useState, useEffect } from 'react'
 import Button from '@mui/material/Button';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';// import Header from "../../components/Header";
 import useSigner from "../state/signer";
+import CircularProgress from '@mui/material/CircularProgress';
+
 const AddIssuer = () => {
     const { signer, address, connectWallet, contract, provider } = useSigner()
     const [issuers, setIssuers] = useState([])
+    const [open, setOpen] = useState(false);
+    const [showAlert, setShowAlert] = useState(false);
+    const [messageAlert, setMessageAlert] = useState("")
+    const [loading, setLoading] = useState(false);
+    const [alertSeverity, setAlertSeverity] = useState("");
+
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
+    const handleCloseAlert = async (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setShowAlert(false);
+
+    };
     useEffect(() => {
         const fetchOrg = async () => {
             if (signer && contract) {
@@ -29,7 +55,6 @@ const AddIssuer = () => {
                         });
                     });
                 }
-                console.log(results);
 
                 setIssuers(results)
             }
@@ -67,7 +92,7 @@ const AddIssuer = () => {
                 // };
 
                 return (
-                    <Button variant="outlined" color="error" startIcon={<DeleteIcon />} sx={{ fontSize: "0.7em " }} >
+                    <Button variant="contained" color="error" startIcon={<DeleteIcon />} sx={{ fontSize: "0.7em " }} >
                         Delete
                     </Button>
                 );
@@ -77,10 +102,126 @@ const AddIssuer = () => {
 
     return (
         <>
-            <Button variant="contained" color="success" sx={{ my: "20px", fontSize: "1.3em " }} >
-                <AddIcon></AddIcon>
-                NEW ISSUER
-            </Button>
+            {loading && (
+                <div className="loading-overlay">
+                    <CircularProgress />
+                </div>
+            )}
+            <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                <Button variant="contained" color="success" sx={{ my: "20px", fontSize: "1em" }} onClick={handleClickOpen}>
+                    <AddIcon />
+                    NEW ISSUER
+                </Button>
+            </Box>
+            <Dialog
+                open={open}
+                onClose={handleClose}
+                PaperProps={{
+                    component: 'form',
+                    onSubmit: async (event) => {
+                        event.preventDefault();
+                        const formData = new FormData(event.currentTarget);
+                        const formJson = Object.fromEntries(formData.entries());
+                        const newAddress = formJson.address;
+                        console.log(newAddress);
+                        const newOrganization = formJson.organization;
+                        console.log(newOrganization);
+                        if (issuers.some(issuer => issuer.address === newAddress)) {
+                            console.log("Issuer with this address already exists.");
+                            // Optionally, you can set an alert message here to inform the user.
+                            setAlertSeverity("error");
+
+                            setMessageAlert("Issuer with this address already exists.");
+                            setShowAlert(true);
+                        } else {
+                            // Your code to add a new issuer
+                            console.log(newAddress);
+                            console.log(newOrganization);
+                            try {
+                                const tx = await contract.addVerifier(newAddress, newOrganization);
+                                setLoading(true)
+                                await tx.wait();
+                                setLoading(false)
+
+                                console.log(tx);
+                                setAlertSeverity("success");
+                                setMessageAlert("Add Issuer successfully");
+                                setShowAlert(true);
+                                window.location.reload();
+                            } catch (err) {
+                                console.log("ERR", err);
+                                setAlertSeverity("error");
+                                // Check if the error code indicates the user rejected the transaction
+                                if (err.code === "ACTION_REJECTED") {
+                                    setMessageAlert("Rejected transaction");
+                                } else {
+                                    setMessageAlert("Failed to add new issuer");
+                                }
+                                setShowAlert(true);
+                            }
+                        }
+                        handleClose();
+                    },
+                }}
+
+                maxWidth="md" // Adjust this value as needed (sm, md, lg, xl)
+                sx={{
+                    '& .MuiDialogContent-root': { fontSize: '1.25rem' }, // Adjust font size for dialog content
+                    '& .MuiTextField-root': { fontSize: '1.25rem' }, // Adjust font size for text fields
+                    '& .MuiButton-root': { fontSize: '1.25rem' }, // Adjust font size for buttons
+                }}
+            >
+                <DialogTitle sx={{ fontSize: '1.5rem' }}>New Issuer</DialogTitle>
+                <DialogContent>
+                    <DialogContentText sx={{ fontSize: '1.5rem' }}>
+                        To add new issuer to organization, please enter wallet address and organization here.
+                    </DialogContentText>
+                    <TextField
+                        autoFocus
+                        required
+                        margin="normal"
+                        id="name"
+                        name="address"
+                        label="Wallet Address"
+                        type="address"
+                        fullWidth
+                        variant="outlined"
+                        sx={{
+                            '& .MuiInputBase-input': {
+                                fontSize: '1.25rem', // Increase font size
+                            },
+                            '& .MuiInputLabel-root': {
+                                fontSize: '1.25rem', // Increase label font size
+                            },
+
+                        }}
+                    />
+                    <TextField
+
+                        required
+                        margin="normal"
+                        id="org"
+                        name="organization"
+                        label="Organization"
+                        type="text"
+                        fullWidth
+                        variant="outlined"
+                        sx={{
+                            '& .MuiInputBase-input': {
+                                fontSize: '1.25rem', // Increase font size
+                            },
+                            '& .MuiInputLabel-root': {
+                                fontSize: '1.25rem', // Increase label font size
+                            }
+                        }}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button type="submit">Add</Button>
+
+                    <Button onClick={handleClose}>Cancel</Button>
+                </DialogActions>
+            </Dialog>
             <Box m="20px">
                 <Box
                     m="40px 0 0 0"
@@ -117,7 +258,16 @@ const AddIssuer = () => {
                 </Box>
 
             </Box>
-
+            <Snackbar open={showAlert} autoHideDuration={3000} onClose={handleCloseAlert}>
+                <Alert
+                    onClose={handleCloseAlert}
+                    severity={alertSeverity}
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                >
+                    {messageAlert}
+                </Alert>
+            </Snackbar>
         </>
     );
 };

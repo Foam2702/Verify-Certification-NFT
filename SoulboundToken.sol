@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts@4.7.0/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts@4.7.0/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts@4.7.0/access/Ownable.sol";
+import "@openzeppelin/contracts@4.7.0/utils/Counters.sol"; 
 
 contract SoulboundToken is ERC721,ERC721URIStorage,Ownable {
     using Counters for Counters.Counter;
@@ -39,13 +39,17 @@ contract SoulboundToken is ERC721,ERC721URIStorage,Ownable {
     string[] private organizationCodesList;
 
     // Khai báo modifier `onlyOwner` để chỉ cho phép chủ sở hữu hợp đồng thực hiện các hành động được quy định
-    constructor() ERC721("SoulboundToken", "SBT")Ownable(msg.sender) {
-       
+    constructor() ERC721("SoulboundToken", "SBT") Ownable() {}
+
+
+    function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
+        super._burn(tokenId);
     }
 
-    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, ERC721URIStorage) returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
+
 
     function tokenURI(uint256 tokenId) public view virtual override(ERC721, ERC721URIStorage) returns (string memory) {
         return super.tokenURI(tokenId);
@@ -119,7 +123,7 @@ contract SoulboundToken is ERC721,ERC721URIStorage,Ownable {
         return verifierList[addr].organizationCode;
     }
 
-    // Hàm phục hồi địa chỉ người ký
+     // Hàm phục hồi địa chỉ người ký
     function recover(bytes32 _ethSignedMessageHash, bytes memory _sig) public pure returns (address) {
       (bytes32 r, bytes32 s, uint8 v) = _split(_sig);
       return ecrecover(_ethSignedMessageHash, v, r, s);
@@ -228,16 +232,14 @@ contract SoulboundToken is ERC721,ERC721URIStorage,Ownable {
 
         return result;
     }
-
-     // Hàm chuyển giao token (không thể chuyển soulbound token)
-    function transfer(address to, uint256 tokenId) public {
-        require(msg.sender == ownerOf(tokenId), "Cannot transfer soulbound token.");
-        _transfer(msg.sender, to, tokenId);
-    }
-    // Hàm chuyển giao token an toàn (không thể chuyển soulbound token)
-   function safeTransferSBTFrom(address from, address to, uint256 tokenId) public {
-      require(msg.sender == ownerOf(tokenId), "Cannot transfer soulbound token.");
-      _safeTransfer(from, to, tokenId, "");
+    // Hàm ngăn chặn chuyển token sang tài khoản khác
+    function _beforeTokenTransfer(
+        address from, 
+        address to, 
+        uint256 tokenId
+    ) internal override virtual {
+        require(from == address(0), "Err: Soulbound token transfer is BLOCKED");   
+        super._beforeTokenTransfer(from, to, tokenId);  
     }
     
 }

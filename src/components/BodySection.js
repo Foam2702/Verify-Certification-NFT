@@ -5,30 +5,9 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import { useNavigate } from "react-router-dom";
+import { encryptData } from "../helpers";
 
 import "./BodySection.css";
-
-{
-  /*handleChange(e) {
-  this.setState({ [e.target.name]: e.target.value }, function () {
-    console.log(this.state);
-    var address = this.state.address;
-    var citizenId = this.state.citizenId;
-    var name = this.state.name;
-    var region = this.state.region;
-    var dob = this.state.dob;
-    var licensingAuthority = this.state.licensingAuthority;
-    var gender = this.state.gender;
-    var email = this.state.email;
-    var workUnit = this.state.workUnit;
-    var certificateName = this.state.certificateName;
-    var point = this.state.point;
-    var issueDate = this.state.issueDate;
-    var expiryDate = this.state.expiryDate;
-    var imageCertificate = this.state.imageCertificate;
-  });
-} */
-}
 
 const BodySection = () => {
   {
@@ -39,7 +18,7 @@ const BodySection = () => {
   const [courses, setCourses] = useState([]);
   const [organization, setOrganization] = useState([]);
   const [file, setFile] = useState(null);
-  const { address, connectWallet } = useSigner();
+  const { signer, address, connectWallet, contract, provider, getPublicKey } = useSigner();
   const [showAlert, setShowAlert] = useState(false);
   const [messageAlert, setMessageAlert] = useState("")
   const [loading, setLoading] = useState(false);
@@ -91,42 +70,43 @@ const BodySection = () => {
       console.log("No file selected");
       return;
     }
-
+    const publicKey = await getPublicKey()
+    console.log("pub", publicKey)
     formData.append("owner", address);
-    formData.append("citizenId", data.citizenId);
-    formData.append("name", data.name);
-    formData.append("region", data.region);
-    formData.append("dob", formatDate(data.dob));
+    formData.append("citizenId", encryptData(data.citizenId, publicKey));
+    formData.append("name", encryptData(data.name, publicKey));
+    formData.append("region", encryptData(data.region, publicKey));
+    formData.append("dob", encryptData(formatDate(data.dob), publicKey));
     formData.append("licensingAuthority", data.licensingAuthority);
-    formData.append("gender", data.gender);
-    formData.append("email", data.email);
-    formData.append("workUnit", data.workUnit);
-    formData.append("certificateName", data.certificateName);
-    formData.append("point", data.point);
-    formData.append("issueDate", formatDate(data.issueDate));
-    formData.append("expiryDate", formatDate(data.expiryDate));
+    formData.append("gender", encryptData(data.gender, publicKey));
+    formData.append("email", encryptData(data.email, publicKey));
+    formData.append("workUnit", encryptData(data.workUnit, publicKey));
+    formData.append("certificateName", encryptData(data.certificateName, publicKey));
+    formData.append("point", encryptData(data.point, publicKey));
+    formData.append("issueDate", encryptData(formatDate(data.issueDate), publicKey));
+    formData.append("expiryDate", encryptData(formatDate(data.expiryDate), publicKey));
 
     try {
-      const response = await axios.post("http://localhost:8080/tickets", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      // const response = await axios.post("http://localhost:8080/tickets", formData, {
+      //   headers: {
+      //     "Content-Type": "multipart/form-data",
+      //   },
+      // });
 
-      console.log(response.data.message);
+      // console.log(response.data.message);
 
-      if (response.data.message === "sent successfully") {
-        setLoading(true);
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setLoading(false);
-        setAlertSeverity("success");
-        setMessageAlert("Send to issuer successfully");
-        setShowAlert(true);
-      } else if (response.data.message === "ticket already exist") {
-        setAlertSeverity("error");
-        setMessageAlert("Certificate already exist");
-        setShowAlert(true);
-      }
+      // if (response.data.message === "sent successfully") {
+      //   setLoading(true);
+      //   await new Promise(resolve => setTimeout(resolve, 1000));
+      //   setLoading(false);
+      //   setAlertSeverity("success");
+      //   setMessageAlert("Send to issuer successfully");
+      //   setShowAlert(true);
+      // } else if (response.data.message === "ticket already exist") {
+      //   setAlertSeverity("error");
+      //   setMessageAlert("Certificate already exist");
+      //   setShowAlert(true);
+      // }
 
       for (let pair of formData.entries()) {
         console.log(pair[0] + ", " + pair[1]);

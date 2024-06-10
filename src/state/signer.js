@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import Web3Modal from 'web3modal';
 import { useNavigate } from "react-router-dom";
 import SOULBOUND from "../artifacts/contracts/SoulboundToken.sol/SoulboundToken.json";
-
+import { Buffer } from 'buffer'
 const { ethers } = require("ethers");
 const SOULBOUND_ADDRESS = process.env.REACT_APP_SOULBOUND_ADDRESS;
 
@@ -16,18 +16,26 @@ export const SignerProvider = ({ children }) => {
     const [loading, setLoading] = useState(false);
     const [contract, setContract] = useState(null);
     const [provider, setProvider] = useState(null);
+    const [publicKey, setPublicKey] = useState(null);
 
     useEffect(() => {
         const web3modal = new Web3Modal();
-        if (web3modal.cachedProvider) connectWallet();
+        if (web3modal.cachedProvider) {
+            console.log("IN CACHED")
+
+            connectWallet();
+        }
+
         window.ethereum.on("accountsChanged", (accounts) => {
             if (accounts.length === 0) {
                 console.log('MetaMask is locked');
                 setAddress(null);
             } else {
+                console.log("IN ELSE")
                 connectWallet();
             }
         });
+
     }, []);
 
     const connectWallet = async () => {
@@ -39,6 +47,7 @@ export const SignerProvider = ({ children }) => {
             const signer = provider.getSigner();
             const address = await signer.getAddress();
             const newContract = new ethers.Contract(SOULBOUND_ADDRESS, SOULBOUND.abi, signer);
+
             setContract(newContract);
             await new Promise(resolve => setTimeout(resolve, 1000));
             setSigner(signer);
@@ -63,8 +72,33 @@ export const SignerProvider = ({ children }) => {
         setLoading(false);
     };
 
+    async function getPublicKey() {
+        try {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            await provider.send("eth_requestAccounts", []); // Yêu cầu kết nối với Metamask
+            const signer = provider.getSigner();
 
-    const contextValue = { provider, contract, signer, loading, address, connectWallet };
+            // Nhập địa chỉ ví bạn muốn lấy public key
+            const address = await signer.getAddress();
+
+            // Tạo một thông điệp ngẫu nhiên để ký
+            const message = "Lấy public key từ chữ ký của thông điệp này.";
+            const signature = await signer.signMessage(message);
+
+            // Từ chữ ký, lấy ra public key
+            const publicKey = ethers.utils.recoverPublicKey(ethers.utils.hashMessage(message), signature);
+            return (publicKey)
+        } catch (err) {
+            console.log(err)
+        }
+        // Kết nối với Metamask thông qua Web3Provider
+
+    }
+
+
+
+
+    const contextValue = { provider, contract, signer, loading, address, connectWallet, getPublicKey };
     return (
         <SignerContext.Provider value={contextValue}>
             {children}

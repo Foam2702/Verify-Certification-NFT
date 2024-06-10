@@ -3,7 +3,7 @@ const HomeSection = () => {
         <header className="header-container">
             <div className="header-content">
                 <div className="titles">
-                    <h1 className="title-1">HỆ THỐNG XÁC THỰC CHỨNG CHỈ VSCourses</h1>
+                    <h1 className="title-1">Hệ thống xác thực chứng chỉ VSCourses</h1>
                     <div className="title-2">
                         VSCourses là nền tảng tiên tiến sử dụng công nghệ Soulbound Token để xác thực và quản lý chứng chỉ một cách an toàn và minh bạch.Với công nghệ tiên tiến,
                         chúng tôi cam kết đảm bảo tính bảo mật cao nhất cho mọi giao dịch

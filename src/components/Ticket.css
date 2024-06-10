@@ -1,4 +1,5 @@
 .body-button1 {
+    display: flex;
     justify-content: space-between;
     padding: 0 var(--padding-745xl);
     gap: var(--gap-xl);

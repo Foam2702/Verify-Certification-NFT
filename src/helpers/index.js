@@ -1,5 +1,10 @@
 
 import axios from 'axios';
+const { ec: EC } = require('elliptic');
+const crypto = require('crypto');
+
+const ec = new EC('secp256k1');
+
 const JWT = process.env.REACT_APP_JWT; // Make sure to set this in your React app environment variables
 export const minifyAddress = (address) => {
     const start = address.substring(0, 5);
@@ -60,3 +65,49 @@ export function replaceBaseUrl(ipfsLink, newBaseUrl) {
     const ipfsHash = ipfsLink.split('/').pop();
     return `${newBaseUrl}/ipfs/${ipfsHash}`;
 }
+
+export function encryptData(data, publicKeyHex) {
+    // Generate a new ephemeral key pair
+    const ephemeralKeyPair = ec.genKeyPair();
+    const publicKey = ec.keyFromPublic(publicKeyHex, 'hex');
+
+    // Derive a shared secret using the ephemeral private key and the recipient's public key
+    const sharedKey = ephemeralKeyPair.derive(publicKey.getPublic()).toString(16);
+    const key = crypto.createHash('sha256').update(sharedKey).digest();
+    console.log('Khóa chia sẻ khi mã hóa:', sharedKey); // Kiểm tra khóa chia sẻ khi mã hóa
+
+    // Encrypt the data using AES-256-CBC
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+    let encrypted = cipher.update(data, 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+
+    // Return the ephemeral public key, IV, and encrypted data
+    const ephemeralPublicKeyHex = ephemeralKeyPair.getPublic('hex');
+    return {
+        ephemeralPublicKey: ephemeralPublicKeyHex,
+        iv: iv.toString('hex'),
+        encryptedData: encrypted
+    };
+}
+
+export function decryptData(encryptedObject, privateKeyHex) {
+    const { ephemeralPublicKey, iv, encryptedData } = encryptedObject;
+    const privateKey = ec.keyFromPrivate(privateKeyHex, 'hex');
+    const ephemeralPublic = ec.keyFromPublic(ephemeralPublicKey, 'hex');
+
+    // Derive the shared secret using the recipient's private key and the ephemeral public key
+    const sharedKey = privateKey.derive(ephemeralPublic.getPublic()).toString(16);
+    const key = crypto.createHash('sha256').update(sharedKey).digest();
+    console.log('Khóa chia sẻ khi giải mã:', sharedKey); // Kiểm tra khóa chia sẻ khi giải mã
+
+    // Decrypt the data using AES-256-CBC
+    const ivBuffer = Buffer.from(iv, 'hex');
+    const decipher = crypto.createDecipheriv('aes-256-cbc', key, ivBuffer);
+    let decrypted = decipher.update(encryptedData, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+
+    return decrypted;
+}
+
+

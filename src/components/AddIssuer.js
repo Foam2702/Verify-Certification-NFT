@@ -17,9 +17,10 @@ import useSigner from "../state/signer";
 import CircularProgress from '@mui/material/CircularProgress';
 import CachedIcon from '@mui/icons-material/Cached';
 import { Tooltip, IconButton } from '@mui/material';
+import { minifyAddress } from "../helpers";
 
 const AddIssuer = () => {
-    const { signer, address, connectWallet, contract, provider } = useSigner()
+    const { signer, address, connectWallet, contract, provider, getPublicKey } = useSigner()
     const [issuers, setIssuers] = useState([])
     const [open, setOpen] = useState(false);
     const [showAlert, setShowAlert] = useState(false);
@@ -58,6 +59,7 @@ const AddIssuer = () => {
                     });
                 }
                 console.log(results)
+
                 setIssuers(results)
             }
         }

@@ -5,7 +5,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import { useNavigate } from "react-router-dom";
-import { encryptData } from "../helpers";
+import { encryptData, remove0x } from "../helpers";
 
 import "./BodySection.css";
 
@@ -70,21 +70,19 @@ const BodySection = () => {
       console.log("No file selected");
       return;
     }
-    const publicKey = await getPublicKey()
-    console.log("pub", publicKey)
+    const publicKey = await getPublicKey();
+    console.log("pub", remove0x(publicKey));
+
+    // Encrypt and append each field to formData
+    const fieldsToEncrypt = ['citizenId', 'name', 'region', 'dob', 'gender', 'email', 'workUnit', 'certificateName', 'point', 'issueDate', 'expiryDate'];
+    for (const field of fieldsToEncrypt) {
+      const encryptedData = await encryptData(data[field], remove0x(publicKey));
+      formData.append(field, JSON.stringify(encryptedData));
+    }
+
+    // Append non-encrypted fields directly
     formData.append("owner", address);
-    formData.append("citizenId", encryptData(data.citizenId, publicKey));
-    formData.append("name", encryptData(data.name, publicKey));
-    formData.append("region", encryptData(data.region, publicKey));
-    formData.append("dob", encryptData(formatDate(data.dob), publicKey));
     formData.append("licensingAuthority", data.licensingAuthority);
-    formData.append("gender", encryptData(data.gender, publicKey));
-    formData.append("email", encryptData(data.email, publicKey));
-    formData.append("workUnit", encryptData(data.workUnit, publicKey));
-    formData.append("certificateName", encryptData(data.certificateName, publicKey));
-    formData.append("point", encryptData(data.point, publicKey));
-    formData.append("issueDate", encryptData(formatDate(data.issueDate), publicKey));
-    formData.append("expiryDate", encryptData(formatDate(data.expiryDate), publicKey));
 
     try {
       // const response = await axios.post("http://localhost:8080/tickets", formData, {

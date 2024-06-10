@@ -68,7 +68,7 @@ contract SoulboundToken is ERC721,ERC721URIStorage,Ownable {
     }
 
     // Hàm xóa một địa chỉ từ danh sách các địa chỉ được phép xác thực
-    function removeVerifier(address verifier) public onlyOwner {
+    function removeVerifier(address verifier) public  {
         require(verifierList[verifier].isVerifier, "Address is not a verifier");
 
         // Lấy mã tổ chức của verifier

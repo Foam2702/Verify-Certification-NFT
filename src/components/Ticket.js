@@ -22,9 +22,10 @@ import AlertTicket from "./AlertTicket"
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
-import { pinJSONToIPFS, extractEncryptedDataFromJson } from "../helpers/index"
+import { pinJSONToIPFS, extractEncryptedDataFromJson, decryptData } from "../helpers/index"
 import "./BodySection.css";
 import "../pages/LisenceView"
+import { useDecryptTicket } from "./useDecryptTicket";
 
 
 const Ticket = ({ ticket }) => {
@@ -39,6 +40,7 @@ const Ticket = ({ ticket }) => {
     const [addressContract, setAddressContract] = useState("")
     const [tokenID, setTokenID] = useState("")
     const [open, setOpen] = useState(false);
+    const [privateKey, setPrivateKey] = useState("")
 
     const web3 = new Web3(window.ethereum);
     const navigate = useNavigate();
@@ -164,6 +166,7 @@ const Ticket = ({ ticket }) => {
         const formData = new FormData(event.currentTarget);
         const formJson = Object.fromEntries(formData.entries());
         const privatekey = formJson.privatekey;
+        setPrivateKey(privatekey)
         console.log(privatekey);
     }
     function formatDateDB(input) {
@@ -215,6 +218,16 @@ const Ticket = ({ ticket }) => {
         }
 
     }
+    const decryptedName = useDecryptTicket(ticket.name, ticket, privateKey);
+    const decryptedGender = useDecryptTicket(ticket.gender, ticket, privateKey);
+    const decryptedEmail = useDecryptTicket(ticket.email, ticket, privateKey);
+    const decryptedCitizenId = useDecryptTicket(ticket.citizen_id, ticket, privateKey);
+    const decryptedDob = useDecryptTicket(ticket.dob, ticket, privateKey);
+    const decryptedRegion = useDecryptTicket(ticket.region, ticket, privateKey);
+    const decryptedWorkUnit = useDecryptTicket(ticket.work_unit, ticket, privateKey);
+    const decryptedPoint = useDecryptTicket(ticket.point, ticket, privateKey);
+    const decryptedIssueDate = useDecryptTicket(ticket.issue_date, ticket, privateKey);
+    const decryptedExpiryDate = useDecryptTicket(ticket.expiry_date, ticket, privateKey);
     return (
         <>
             {loading && (
@@ -281,7 +294,7 @@ const Ticket = ({ ticket }) => {
 
                                 </DialogContent>
                                 <DialogActions>
-                                    <Button type="submit">Giải mã</Button>
+                                    <Button onClick={handleCloseDialog} type="submit">Giải mã</Button>
 
                                     <Button onClick={handleCloseDialog}>Hủy bỏ</Button>
                                 </DialogActions>
@@ -303,18 +316,27 @@ const Ticket = ({ ticket }) => {
                         <div className="name-parent">
                             <div className="name">
                                 <h3 className="name1">Họ và tên</h3>
+                                {privateKey ?
+                                    <h3 className="input-name" name="name" type="text">{decryptedName}</h3>
+                                    :
+                                    <h3 className="input-name" name="name" type="text">{extractEncryptedDataFromJson(ticket.name)}</h3>
+                                }
 
-                                <h3 className="input-name" name="name" type="text">{extractEncryptedDataFromJson(ticket.name)}</h3>
                             </div>
                             <div className="gender">
                                 <h3 className="gender1">Giới tính*</h3>
                                 <h3 className="input-gender" name="gender">
-                                    {extractEncryptedDataFromJson(ticket.gender)}
+                                    {privateKey ? decryptedGender : extractEncryptedDataFromJson(ticket.gender)}
                                 </h3>
                             </div>
                             <div className="email">
                                 <h3 className="email1">Email</h3>
-                                <h3 className="input-email" name="email" type="email">{extractEncryptedDataFromJson(ticket.email)}</h3>
+                                {privateKey ?
+                                    <h3 className="input-email" name="email" type="email">{decryptedEmail}</h3>
+                                    :
+                                    <h3 className="input-email" name="email" type="email">{extractEncryptedDataFromJson(ticket.email)}</h3>
+
+                                }
                             </div>
                         </div>
                     </div>
@@ -322,16 +344,20 @@ const Ticket = ({ ticket }) => {
                         <div className="cccd-parent">
                             <div className="cccd">
                                 <h3 className="cccd1">Số CCCD*</h3>
-                                <h3 className="input-cccd" name="citizenId" type="text">{extractEncryptedDataFromJson(ticket.citizen_id)}</h3>
+                                <h3 className="input-cccd" name="citizenId" type="text">
+                                    {privateKey ? decryptedCitizenId : extractEncryptedDataFromJson(ticket.citizen_id)}
+                                </h3>
                             </div>
                             <div className="date-of-birth">
                                 <h3 className="date-of-birth1">Ngày Sinh</h3>
-                                <h3 className="input-date-of-birth" name="dob" type="text">{extractEncryptedDataFromJson(ticket.dob)}</h3>
+                                <h3 className="input-date-of-birth" name="dob" type="text">
+                                    {privateKey ? decryptedDob : extractEncryptedDataFromJson(ticket.dob)}
+                                </h3>
                             </div>
                             <div className="home-town">
                                 <h3 className="home-town-text">Quê quán</h3>
-                                <h3 className="input-home-town" name="region" >
-                                    {extractEncryptedDataFromJson(ticket.region)}
+                                <h3 className="input-home-town" name="region">
+                                    {privateKey ? decryptedRegion : extractEncryptedDataFromJson(ticket.region)}
                                 </h3>
 
                             </div>
@@ -341,12 +367,16 @@ const Ticket = ({ ticket }) => {
                         <div className="working-unit-parent">
                             <div className="working-unit">
                                 <h3 className="working-unit-text">Đơn vị công tác</h3>
-                                <h3 className="input-working-unit" name="workUnit" type="text">{extractEncryptedDataFromJson(ticket.work_unit)}</h3>
+                                <h3 className="input-working-unit" name="workUnit" type="text">
+                                    {privateKey ? decryptedWorkUnit : extractEncryptedDataFromJson(ticket.work_unit)}
+                                </h3>
                             </div>
 
                             <div className="score">
                                 <h3 className="score-text">Điểm</h3>
-                                <h3 className="input-score" name="point" type="text" >{extractEncryptedDataFromJson(ticket.point)}</h3>
+                                <h3 className="input-score" name="point" type="text">
+                                    {privateKey ? decryptedPoint : extractEncryptedDataFromJson(ticket.point)}
+                                </h3>
                             </div>
                             <div className="name-of-vertification">
                                 <h3 className="name-of-vertification1">Tên chứng chỉ*</h3>
@@ -357,11 +387,15 @@ const Ticket = ({ ticket }) => {
 
                             <div className="date-vertification">
                                 <h3 className="date-vertification-text">Ngày cấp*</h3>
-                                <h3 className="input-date-vertification" name="issueDate" type="text" >{extractEncryptedDataFromJson(ticket.issue_date)}</h3>
+                                <h3 className="input-date-vertification" name="issueDate" type="text">
+                                    {privateKey ? decryptedIssueDate : extractEncryptedDataFromJson(ticket.issue_date)}
+                                </h3>
                             </div>
                             <div className="expired-date">
                                 <h3 className="expired-date-text">Hạn sử dụng chứng chỉ*</h3>
-                                <h3 className="input-expired-date" name="expiryDate" type="text">{extractEncryptedDataFromJson(ticket.expiry_date)}</h3>
+                                <h3 className="input-expired-date" name="expiryDate" type="text">
+                                    {privateKey ? decryptedExpiryDate : extractEncryptedDataFromJson(ticket.expiry_date)}
+                                </h3>
                             </div>
                             <div className="vertification-unit">
                                 <h3 className="vertification-unit-text">Đơn vị cấp phép*</h3>

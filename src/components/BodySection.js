@@ -354,16 +354,7 @@ const BodySection = () => {
                   type="text"
                 />
               </div>
-              <div className="vertification-unit">
-                <h3 className="vertification-unit-text">Đơn vị cấp phép*</h3>
-                <input
-                  className="input-vertification-unit"
-                  name="licensingAuthority"
-                  type="text"
-                  disabled
-                  value={organization}
-                />
-              </div>
+
               <div className="date-vertification">
                 <h3 className="date-vertification-text">Ngày cấp*</h3>
                 <input
@@ -380,6 +371,16 @@ const BodySection = () => {
                   name="expiryDate"
                   placeholder="Choose..."
                   type="date"
+                />
+              </div>
+              <div className="vertification-unit">
+                <h3 className="vertification-unit-text">Đơn vị cấp phép*</h3>
+                <input
+                  className="input-vertification-unit"
+                  name="licensingAuthority"
+                  type="text"
+                  disabled
+                  value={organization}
                 />
               </div>
             </div>

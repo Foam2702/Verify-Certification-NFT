@@ -5,6 +5,17 @@ import axios from 'axios';
 import Web3 from 'web3';
 import useSigner from "../state/signer";
 import MultiActionAreaCard from "./MultiACtionAreaCard";
+import TextField from '@mui/material/TextField';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import { Box, Typography, useTheme } from "@mui/material";
+import AddIcon from '@mui/icons-material/Add';// import Header from "../../components/Header";
+import { Tooltip, IconButton } from '@mui/material';
+import CachedIcon from '@mui/icons-material/Cached';
+
 import { formatDate } from '../helpers/index'
 import { useNavigate } from "react-router-dom";
 import AlertTicket from "./AlertTicket"
@@ -27,6 +38,8 @@ const Ticket = ({ ticket }) => {
     const [transaction, setTransaction] = useState("")
     const [addressContract, setAddressContract] = useState("")
     const [tokenID, setTokenID] = useState("")
+    const [open, setOpen] = useState(false);
+
     const web3 = new Web3(window.ethereum);
     const navigate = useNavigate();
 
@@ -41,7 +54,8 @@ const Ticket = ({ ticket }) => {
         if (ticket) { // Only run if ticket is defined
             checkIssuer().catch(error => console.error(error));
         }
-    }, [ticket]) // Add ticket as a dependency
+        console.log("IMR")
+    }, [ticket, address, signer]) // Add ticket as a dependency
     useEffect(() => {
         let timer;
         if (showAlert && countdown > 0) {
@@ -56,9 +70,7 @@ const Ticket = ({ ticket }) => {
     useEffect(() => {
         const getAddContractAndTokenID = async () => {
             try {
-                console.log("DATA1111", ticket)
                 const data = await web3.eth.getTransactionReceipt(ticket.transaction_hash);
-                console.log("DATA", data)
                 let transaction = data;
                 let logs = data.logs;
                 console.log('logs:', logs);
@@ -139,6 +151,21 @@ const Ticket = ({ ticket }) => {
         navigate("/")
 
     }
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
+
+    const handleCloseDialog = () => {
+        setOpen(false);
+    };
+
+    const handleSubmitPrivateKey = async (event) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        const formJson = Object.fromEntries(formData.entries());
+        const privatekey = formJson.privatekey;
+        console.log(privatekey);
+    }
     function formatDateDB(input) {
         const datePart = input.match(/\d+/g);
         const year = datePart[0];
@@ -196,16 +223,74 @@ const Ticket = ({ ticket }) => {
                 </div>
             )}
             <main className="body-section1">
-
                 <form className="careers-section" encType="multipart/form-data" action="" >
                     {issuer.includes(address) ?
-                        <div className="body-header">
-                            <h1 className="body-header-text2">Thông tin chứng chỉ</h1>
+                        <div>
+
+                            <div className="body-header">
+                                <h1 className="body-header-text2">Thông tin chứng chỉ</h1>
+
+                            </div>
+                            <Box sx={{ display: "flex", justifyContent: "center" }}>
+                                <Button variant="outlined" sx={{ my: "20px", fontSize: "0.5em" }} onClick={handleClickOpen}>
+                                    XEM THÔNG TIN
+                                </Button>
+
+                            </Box>
+                            <Dialog
+                                open={open}
+                                onClose={handleCloseDialog}
+                                PaperProps={{
+                                    component: 'form',
+                                    onSubmit: handleSubmitPrivateKey
+
+                                }}
+
+                                maxWidth="md" // Adjust this value as needed (sm, md, lg, xl)
+                                sx={{
+                                    '& .MuiDialogContent-root': { fontSize: '1.25rem' }, // Adjust font size for dialog content
+                                    '& .MuiTextField-root': { fontSize: '1.25rem' }, // Adjust font size for text fields
+                                    '& .MuiButton-root': { fontSize: '1.25rem' }, // Adjust font size for buttons
+                                }}
+                            >
+                                <DialogTitle sx={{ fontSize: '1.5rem' }}>Private Key</DialogTitle>
+                                <DialogContent>
+                                    <DialogContentText sx={{ fontSize: '1.5rem' }}>
+                                        Để giải mã dữ liệu, vui lòng nhập private key từ ví MetaMask
+                                    </DialogContentText>
+                                    <TextField
+                                        autoFocus
+                                        required
+                                        margin="normal"
+
+                                        name="privatekey"
+                                        label="Private Key"
+                                        type="privatekey"
+                                        fullWidth
+                                        variant="outlined"
+                                        sx={{
+                                            '& .MuiInputBase-input': {
+                                                fontSize: '1.25rem', // Increase font size
+                                            },
+                                            '& .MuiInputLabel-root': {
+                                                fontSize: '1.25rem', // Increase label font size
+                                            },
+
+                                        }}
+                                    />
+
+                                </DialogContent>
+                                <DialogActions>
+                                    <Button type="submit">Giải mã</Button>
+
+                                    <Button onClick={handleCloseDialog}>Hủy bỏ</Button>
+                                </DialogActions>
+                            </Dialog>
                         </div>
                         : <>
                             <AlertTicket severity={ticket.status} sx={{ fontSize: "1.5em" }} />
                             <Alert variant="outlined" severity="info" sx={{ fontSize: "1.5rem" }}>
-                                Toàn bộ dữ liệu đã được mã hóa
+                                Toàn bộ thông tin đã được mã hóa
                             </Alert>
                             {ticket.status === 'approved' ?
                                 <Button variant="contained" onClick={addNFTToWallet}>Import NFT to MetaMask </Button>
@@ -269,10 +354,7 @@ const Ticket = ({ ticket }) => {
                                     {ticket.certificate_name}
                                 </h3>
                             </div>
-                            <div className="vertification-unit">
-                                <h3 className="vertification-unit-text">Đơn vị cấp phép*</h3>
-                                <h3 className="input-vertification-unit" name="licensingAuthority" type="text" >{ticket.licensing_authority}</h3>
-                            </div>
+
                             <div className="date-vertification">
                                 <h3 className="date-vertification-text">Ngày cấp*</h3>
                                 <h3 className="input-date-vertification" name="issueDate" type="text" >{extractEncryptedDataFromJson(ticket.issue_date)}</h3>
@@ -280,6 +362,10 @@ const Ticket = ({ ticket }) => {
                             <div className="expired-date">
                                 <h3 className="expired-date-text">Hạn sử dụng chứng chỉ*</h3>
                                 <h3 className="input-expired-date" name="expiryDate" type="text">{extractEncryptedDataFromJson(ticket.expiry_date)}</h3>
+                            </div>
+                            <div className="vertification-unit">
+                                <h3 className="vertification-unit-text">Đơn vị cấp phép*</h3>
+                                <h3 className="input-vertification-unit" name="licensingAuthority" type="text" >{ticket.licensing_authority}</h3>
                             </div>
                         </div>
 

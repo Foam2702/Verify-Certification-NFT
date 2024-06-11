@@ -24,12 +24,13 @@ const settings = [
 
 ]; const HeaderSection = () => {
   const SOULBOUND_ADDRESS = process.env.REACT_APP_SOULBOUND_ADDRESS
-  const { signer, loading, address, connectWallet } = useSigner();
+  const { signer, loading, address, connectWallet, getPublicKey } = useSigner();
   const [tickets, setTickets] = useState([])
   const [loadingPage, setLoadingPage] = useState(false);
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const navigate = useNavigate();
+
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -94,7 +95,7 @@ const settings = [
     fetchTickets().catch(error => console.error(error));
   }, [signer, address]);
 
-  const filteredSettings = address === '0x32DE93BB670F3d4aE1181b615954ABeEe81fC9B3' ? settings : settings.filter(setting => setting.name !== 'Issuer Management');
+  const filteredSettings = address === process.env.REACT_APP_ADMIN ? settings : settings.filter(setting => setting.name !== 'Issuer Management');
 
   return (
     <section className="header-section1">

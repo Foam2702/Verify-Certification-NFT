@@ -13,7 +13,7 @@ const Admin = () => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const { address } = useSigner();
-    const adminAddress = '0x32DE93BB670F3d4aE1181b615954ABeEe81fC9B3';
+    const adminAddress = process.env.REACT_APP_ADMIN;
 
     // If the address does not match the admin address, redirect to home page
     if (address !== adminAddress) {

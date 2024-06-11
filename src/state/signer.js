@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import Web3Modal from 'web3modal';
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import SOULBOUND from "../artifacts/contracts/SoulboundToken.sol/SoulboundToken.json";
 import { Buffer } from 'buffer'
@@ -16,7 +17,6 @@ export const SignerProvider = ({ children }) => {
     const [loading, setLoading] = useState(false);
     const [contract, setContract] = useState(null);
     const [provider, setProvider] = useState(null);
-    const [publicKey, setPublicKey] = useState(null);
 
     useEffect(() => {
         const web3modal = new Web3Modal();
@@ -28,11 +28,10 @@ export const SignerProvider = ({ children }) => {
 
         window.ethereum.on("accountsChanged", (accounts) => {
             if (accounts.length === 0) {
-                console.log('MetaMask is locked');
                 setAddress(null);
             } else {
-                console.log("IN ELSE")
                 connectWallet();
+
             }
         });
 
@@ -71,32 +70,24 @@ export const SignerProvider = ({ children }) => {
         }
         setLoading(false);
     };
-
     async function getPublicKey() {
         try {
             const provider = new ethers.providers.Web3Provider(window.ethereum);
             await provider.send("eth_requestAccounts", []); // Yêu cầu kết nối với Metamask
             const signer = provider.getSigner();
-
-            // Nhập địa chỉ ví bạn muốn lấy public key
-            const address = await signer.getAddress();
-
             // Tạo một thông điệp ngẫu nhiên để ký
-            const message = "Lấy public key từ chữ ký của thông điệp này.";
+            const message =
+                `Welcome to VSCourses! \n\nThis request will not trigger a blockchain transaction or cost any gas fees.\n\nWallet address: ${address}`;
+
             const signature = await signer.signMessage(message);
 
             // Từ chữ ký, lấy ra public key
             const publicKey = ethers.utils.recoverPublicKey(ethers.utils.hashMessage(message), signature);
-            return (publicKey)
+            return publicKey;
         } catch (err) {
-            console.log(err)
+            return (err)
         }
-        // Kết nối với Metamask thông qua Web3Provider
-
     }
-
-
-
 
     const contextValue = { provider, contract, signer, loading, address, connectWallet, getPublicKey };
     return (

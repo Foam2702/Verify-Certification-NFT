@@ -33,10 +33,17 @@ const BodySection = () => {
     setFile(event.target.files);
     console.log(file);
   };
+  const checkIssuer = async (licensing_authority) => {
+    const { ethereum } = window;
+    if (ethereum) {
+      const result = await contract.getVerifiersByOrganizationCode(licensing_authority);
+      return result
+    }
+  }
+
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
     const form = document.querySelector("form");
 
     // Get the form data
@@ -46,6 +53,38 @@ const BodySection = () => {
         (obj, input) => Object.assign(obj, { [input.name]: input.value }),
         {}
       );
+    const insertPubToDB = async () => {
+      if (address) {
+        const checkPublicExist = await axios.get(`http://localhost:8080/addresses/${address}`);
+        console.log(checkPublicExist.data.address);
+        if (checkPublicExist.data.address.length === 0) {
+          const publicKey = await getPublicKey(); // Await the result of getPublicKey
+          console.log(publicKey)
+          // Check if publicKey is an instance of Error, if so, do nothing
+          if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
+            console.log('Error retrieving public key:', publicKey);
+            setAlertSeverity("warning");
+            setMessageAlert("You must sign to submit");
+            setShowAlert(true);
+
+            return;
+          }
+          await axios.post(`http://localhost:8080/addresses/${address}`, {
+            address: address, // Include the address in the body
+            publicKey: publicKey // Include the public key in the body
+          });
+
+        }
+        else {
+          setAlertSeverity("success");
+          setMessageAlert(`Submitted successfully. Please wait for confirmation from the ${data.licensingAuthority}`);
+          setShowAlert(true);
+        }
+
+      }
+    };
+    insertPubToDB();
+
 
     // Check if all fields are filled and add red border to empty fields
 
@@ -70,48 +109,51 @@ const BodySection = () => {
       console.log("No file selected");
       return;
     }
-    const publicKey = await getPublicKey();
-    console.log("pub", remove0x(publicKey));
+    const issuers = await checkIssuer(data.licensingAuthority)
+    console.log("issuers", issuers)
+    const publicKeys = await axios.get(`http://localhost:8080/addresses/${issuers}`)
+    // const publicKey = await getPublicKey();
+    console.log("pub", publicKeys);
 
-    // Encrypt and append each field to formData
-    const fieldsToEncrypt = ['citizenId', 'name', 'region', 'dob', 'gender', 'email', 'workUnit', 'certificateName', 'point', 'issueDate', 'expiryDate'];
-    for (const field of fieldsToEncrypt) {
-      const encryptedData = await encryptData(data[field], remove0x(publicKey));
-      formData.append(field, JSON.stringify(encryptedData));
-    }
+    // // Encrypt and append each field to formData
+    // const fieldsToEncrypt = ['citizenId', 'name', 'region', 'dob', 'gender', 'email', 'workUnit', 'certificateName', 'point', 'issueDate', 'expiryDate'];
+    // for (const field of fieldsToEncrypt) {
+    //   const encryptedData = await encryptData(data[field], remove0x(publicKey));
+    //   formData.append(field, JSON.stringify(encryptedData));
+    // }
 
-    // Append non-encrypted fields directly
-    formData.append("owner", address);
-    formData.append("licensingAuthority", data.licensingAuthority);
+    // // Append non-encrypted fields directly
+    // formData.append("owner", address);
+    // formData.append("licensingAuthority", data.licensingAuthority);
 
-    try {
-      // const response = await axios.post("http://localhost:8080/tickets", formData, {
-      //   headers: {
-      //     "Content-Type": "multipart/form-data",
-      //   },
-      // });
+    // try {
+    //   const response = await axios.post("http://localhost:8080/tickets", formData, {
+    //     headers: {
+    //       "Content-Type": "multipart/form-data",
+    //     },
+    //   });
 
-      // console.log(response.data.message);
+    //   console.log(response.data.message);
 
-      // if (response.data.message === "sent successfully") {
-      //   setLoading(true);
-      //   await new Promise(resolve => setTimeout(resolve, 1000));
-      //   setLoading(false);
-      //   setAlertSeverity("success");
-      //   setMessageAlert("Send to issuer successfully");
-      //   setShowAlert(true);
-      // } else if (response.data.message === "ticket already exist") {
-      //   setAlertSeverity("error");
-      //   setMessageAlert("Certificate already exist");
-      //   setShowAlert(true);
-      // }
+    //   if (response.data.message === "sent successfully") {
+    //     setLoading(true);
+    //     await new Promise(resolve => setTimeout(resolve, 1000));
+    //     setLoading(false);
+    //     setAlertSeverity("success");
+    //     setMessageAlert("Send to issuer successfully");
+    //     setShowAlert(true);
+    //   } else if (response.data.message === "ticket already exist") {
+    //     setAlertSeverity("error");
+    //     setMessageAlert("Certificate already exist");
+    //     setShowAlert(true);
+    //   }
 
-      for (let pair of formData.entries()) {
-        console.log(pair[0] + ", " + pair[1]);
-      }
-    } catch (error) {
-      console.error(error);
-    }
+    //   for (let pair of formData.entries()) {
+    //     console.log(pair[0] + ", " + pair[1]);
+    //   }
+    // } catch (error) {
+    //   console.error(error);
+    // }
   };
 
 
@@ -119,27 +161,26 @@ const BodySection = () => {
     if (reason === 'clickaway') {
       return;
     }
-    setLoading(true);
+    // setLoading(true);
     setShowAlert(false);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setLoading(false);
-    navigate("/")
+    // await new Promise(resolve => setTimeout(resolve, 1000));
+    // setLoading(false);
 
   };
   {
     /* UseEffect */
   }
-  useEffect(() => {
-    let timer;
-    if (showAlert && countdown > 0) {
-      timer = setTimeout(() => {
-        setCountdown(countdown - 1);
-      }, 1000);
-    } else if (countdown === 0) {
-      setShowAlert(false);
-    }
-    return () => clearTimeout(timer);
-  }, [showAlert, countdown]);
+  // useEffect(() => {
+  //   let timer;
+  //   if (showAlert && countdown > 0) {
+  //     timer = setTimeout(() => {
+  //       setCountdown(countdown - 1);
+  //     }, 1000);
+  //   } else if (countdown === 0) {
+  //     setShowAlert(false);
+  //   }
+  //   return () => clearTimeout(timer);
+  // }, [showAlert, countdown]);
   useEffect(() => {
     const fetchDataRegions = async () => {
       const result = await axios("http://localhost:8080/tickets");
@@ -357,14 +398,17 @@ const BodySection = () => {
             </button>
           </div>
         </form>
-        <Snackbar open={showAlert} autoHideDuration={3000} onClose={handleClose}>
+        <Snackbar open={showAlert} autoHideDuration={10000} onClose={handleClose}>
           <Alert
             onClose={handleClose}
             severity={alertSeverity}
             variant="filled"
-            sx={{ width: '100%' }}
+            sx={{
+              width: '100%',
+              fontSize: '1.25rem', // Increase font size
+            }}
           >
-            {messageAlert}.Back to home at {countdown}
+            {messageAlert}
           </Alert>
         </Snackbar>
       </section>

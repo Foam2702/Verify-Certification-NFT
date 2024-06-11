@@ -24,7 +24,7 @@ export default function VerificationForIssuer() {
             if (address) {
                 const result = await axios(`http://localhost:8080/tickets/ticket/${id}`);
 
-                if (result.data.ticket.issuer_address === address) {
+                if (result.data.ticket.issuer_address === address || result.data.ticket.owner_address === address) {
                     setTicket(result.data.ticket);
                 }
                 else {

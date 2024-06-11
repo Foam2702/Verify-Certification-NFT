@@ -6,9 +6,9 @@ import Badge from '@mui/material/Badge';
 
 const NotificationBell = ({ tickets }) => {
     const [open, setOpen] = useState(false)
-    const [anchorEl, setAnchorEl] = useState(null)
+    const [anchorEl, setanchorEl] = useState(null)
     const handleOpen = (e) => {
-        setAnchorEl(e.currentTarget)
+        setanchorEl(e.currentTarget)
         setOpen(true)
     }
     const handleClose = () => {

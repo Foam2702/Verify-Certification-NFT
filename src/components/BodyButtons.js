@@ -4,11 +4,11 @@ import PropTypes from 'prop-types';
 const BodyButtons = ({ className = "" }) => {
   return (
     <section className={`body-buttons ${className}`}>
-      <div className="body-button2">
+      {/* <div className="body-button2">
         <button className="next-button1">
           <b className="next1">Next</b>
         </button>
-      </div>
+      </div> */}
       <footer className="footer3">
         <div className="footer-bottom3">
           <div className="footer-bottom-background3" />

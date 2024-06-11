@@ -61,13 +61,13 @@ const Ticket = ({ ticket }) => {
             const { ethereum } = window;
             if (ethereum) {
                 const result = await contract.getVerifiersByOrganizationCode(ticket.licensing_authority);
+                console.log("RESULT", result)
                 setIssuer(result)
             }
         }
         if (ticket) { // Only run if ticket is defined
             checkIssuer().catch(error => console.error(error));
         }
-        console.log("IMR")
     }, [ticket, address, signer]) // Add ticket as a dependency
     // useEffect(() => {
     //     let timer;
@@ -327,7 +327,7 @@ const Ticket = ({ ticket }) => {
             )}
             <main className="body-section1">
                 <form className="careers-section" encType="multipart/form-data" action="" >
-                    {issuer.includes(address) ?
+                    {ticket.issuer_address === address ?
                         <div>
 
                             <div className="body-header">

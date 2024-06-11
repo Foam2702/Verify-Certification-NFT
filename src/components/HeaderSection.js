@@ -27,24 +27,24 @@ const settings = [
   const { signer, loading, address, connectWallet, getPublicKey } = useSigner();
   const [tickets, setTickets] = useState([])
   const [loadingPage, setLoadingPage] = useState(false);
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const [anchorElNav, setanchorElNav] = React.useState(null);
+  const [anchorElUser, setanchorElUser] = React.useState(null);
   const navigate = useNavigate();
 
 
   const handleOpenNavMenu = (event) => {
-    setAnchorElNav(event.currentTarget);
+    setanchorElNav(event.currentTarget);
   };
   const handleOpenUserMenu = (event) => {
-    setAnchorElUser(event.currentTarget);
+    setanchorElUser(event.currentTarget);
   };
 
   const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
+    setanchorElNav(null);
   };
 
   const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
+    setanchorElUser(null);
   };
   const handleMenuItemClick = (route) => {
 
@@ -67,7 +67,7 @@ const settings = [
         let newTickets = [];
         for (const ticket of allTickets.data.tickets) {
           try {
-            if (ticket.issuer_address === address) {
+            if (ticket.issuer_address === address || ticket.owner_address === address) {
               newTickets.push(ticket);
             }
           } catch (error) {

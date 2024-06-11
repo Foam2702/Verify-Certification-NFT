@@ -29,12 +29,12 @@ module.exports = {
         if (ticket.expiryDate == '') {
             ticket.expiryDate = null
         }
-        else {
-            ticket.expiryDate = splitDate(req.body.expiryDate);
+        // else {
+        //     ticket.expiryDate = splitDate(req.body.expiryDate);
 
-        }
-        ticket.dob = splitDate(req.body.dob);
-        ticket.issueDate = splitDate(req.body.issueDate);
+        // }
+        // ticket.dob = splitDate(req.body.dob);
+        // ticket.issueDate = splitDate(req.body.issueDate);
 
         ticket[status] = "processing"
 

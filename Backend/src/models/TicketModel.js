@@ -18,7 +18,7 @@ module.exports = {
         try {
             await sql`
         INSERT INTO ticket (id, owner_address, citizen_id, dob, name,certificate_cid, licensing_authority, 
-        gender, email, work_unit, certificate_name, point, issue_date, expiry_date,region,status )
+        gender, email, work_unit, certificate_name, point, issue_date, expiry_date,region,status,issuer_address )
         VALUES (
             ${maxId + 1},
             ${ticket.owner},
@@ -35,7 +35,8 @@ module.exports = {
             ${ticket.issueDate},
             ${ticket.expiryDate},
             ${ticket.region},
-            ${ticket.status}
+            ${ticket.status},
+            ${ticket.issuerAddress}
         );`;
             return true;
         }

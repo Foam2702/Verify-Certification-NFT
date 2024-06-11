@@ -17,7 +17,7 @@ module.exports = {
     },
     sendTicketFromStudent: async (req, res, next) => {
         const ticket = req.body;
-        //console.log(ticket)
+        console.log(ticket)
 
         const cidCertificate = "cidCertificate"
         const certificateUrl = "certificateUrl"
@@ -53,6 +53,7 @@ module.exports = {
             })
         }
         else {
+            console.log(result)
             res.json({
                 "message": "ticket already exist",
                 "code": "404",

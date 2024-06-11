@@ -86,7 +86,6 @@ export async function encryptData(data, publicKeyHex) {
 }
 export async function decryptData(encryptedObject, privateKeyHex) {
     const { ephemeralPublicKey, iv, encryptedData } = encryptedObject;
-    console.log(ephemeralPublicKey, iv, encryptedData)
     const privateKey = ec.keyFromPrivate(privateKeyHex, 'hex');
     const ephemeralPublic = ec.keyFromPublic(ephemeralPublicKey, 'hex');
 

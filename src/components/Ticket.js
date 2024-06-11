@@ -25,7 +25,6 @@ import Button from '@mui/material/Button';
 import { pinJSONToIPFS, extractEncryptedDataFromJson, decryptData } from "../helpers/index"
 import "./BodySection.css";
 import "../pages/LisenceView"
-import { useDecryptTicket } from "./useDecryptTicket";
 
 
 const Ticket = ({ ticket }) => {
@@ -38,10 +37,22 @@ const Ticket = ({ ticket }) => {
     const [countdown, setCountdown] = useState(3)
     const [transaction, setTransaction] = useState("")
     const [addressContract, setAddressContract] = useState("")
+    const [alertSeverity, setAlertSeverity] = useState("");
+    const [correctPriv, setCorrectPriv] = useState(false)
     const [tokenID, setTokenID] = useState("")
     const [open, setOpen] = useState(false);
     const [privateKey, setPrivateKey] = useState("")
-
+    const [error, setError] = useState(null);
+    const [decryptedName, setDecryptedName] = useState('');
+    const [decryptedGender, setDecryptedGender] = useState('');
+    const [decryptedEmail, setDecryptedEmail] = useState('');
+    const [decryptedCitizenId, setDecryptedCitizenId] = useState('');
+    const [decryptedDob, setDecryptedDob] = useState('');
+    const [decryptedRegion, setDecryptedRegion] = useState('');
+    const [decryptedWorkUnit, setDecryptedWorkUnit] = useState('');
+    const [decryptedPoint, setDecryptedPoint] = useState('');
+    const [decryptedIssueDate, setDecryptedIssueDate] = useState('');
+    const [decryptedExpiryDate, setDecryptedExpiryDate] = useState('');
     const web3 = new Web3(window.ethereum);
     const navigate = useNavigate();
 
@@ -58,17 +69,17 @@ const Ticket = ({ ticket }) => {
         }
         console.log("IMR")
     }, [ticket, address, signer]) // Add ticket as a dependency
-    useEffect(() => {
-        let timer;
-        if (showAlert && countdown > 0) {
-            timer = setTimeout(() => {
-                setCountdown(countdown - 1);
-            }, 1000);
-        } else if (countdown === 0) {
-            setShowAlert(false);
-        }
-        return () => clearTimeout(timer);
-    }, [showAlert, countdown]);
+    // useEffect(() => {
+    //     let timer;
+    //     if (showAlert && countdown > 0) {
+    //         timer = setTimeout(() => {
+    //             setCountdown(countdown - 1);
+    //         }, 1000);
+    //     } else if (countdown === 0) {
+    //         setShowAlert(false);
+    //     }
+    //     return () => clearTimeout(timer);
+    // }, [showAlert, countdown]);
     useEffect(() => {
         const getAddContractAndTokenID = async () => {
             try {
@@ -86,6 +97,41 @@ const Ticket = ({ ticket }) => {
         }
         getAddContractAndTokenID()
     }, [ticket])
+    useEffect(() => {
+        const decryptAllFields = async () => {
+            try {
+                const name = await handleDecryptTicket(ticket.name, privateKey);
+                const gender = await handleDecryptTicket(ticket.gender, privateKey);
+                const email = await handleDecryptTicket(ticket.email, privateKey);
+                const citizenId = await handleDecryptTicket(ticket.citizen_id, privateKey);
+                const dob = await handleDecryptTicket(ticket.dob, privateKey);
+                const region = await handleDecryptTicket(ticket.region, privateKey);
+                const workUnit = await handleDecryptTicket(ticket.work_unit, privateKey);
+                const point = await handleDecryptTicket(ticket.point, privateKey);
+                const issueDate = await handleDecryptTicket(ticket.issue_date, privateKey);
+                const expiryDate = await handleDecryptTicket(ticket.expiry_date, privateKey);
+                setDecryptedName(name);
+                setDecryptedGender(gender);
+                setDecryptedEmail(email);
+                setDecryptedCitizenId(citizenId);
+                setDecryptedDob(dob);
+                setDecryptedRegion(region);
+                setDecryptedWorkUnit(workUnit);
+                setDecryptedPoint(point);
+                setDecryptedIssueDate(issueDate);
+                setDecryptedExpiryDate(expiryDate);
+                setError(null); // Clear any previous errors
+            } catch (err) {
+                // setError("Wrong private key"); // No need to set error here since it's already set in handleDecryptTicket
+            }
+        };
+
+        if (ticket && privateKey) {
+            decryptAllFields();
+        }
+    }, [ticket, privateKey]);
+
+
     const handleReject = async (e) => {
         e.preventDefault()
         const status = "reject"
@@ -93,11 +139,14 @@ const Ticket = ({ ticket }) => {
         console.log(response.data.message)
         if (response.data.message === "updated successfully") {
             setUpdate(true)
+            setAlertSeverity("success")
             setMessageAlert("Rejected Successfully")
             setShowAlert(true);
         }
         else if (response.data.message === "update failed") {
             setUpdate(false)
+            setAlertSeverity("error")
+
             setMessageAlert("Already Rejected")
             setShowAlert(true);
         }
@@ -125,11 +174,15 @@ const Ticket = ({ ticket }) => {
                 setLoading(true);
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 setLoading(false);
+                setAlertSeverity("success")
+
                 setMessageAlert("Mint Successfully")
                 setShowAlert(true);
             }
             else if (response.data.message === "update failed") {
                 setUpdate(false)
+                setAlertSeverity("error")
+
                 setMessageAlert("Mint Fail")
                 setShowAlert(true);
             }
@@ -139,16 +192,14 @@ const Ticket = ({ ticket }) => {
         if (reason === 'clickaway') {
             return;
         }
-        setLoading(true);
         setShowAlert(false);
         await new Promise(resolve => setTimeout(resolve, 1000));
-        setLoading(false);
-        navigate("/")
+
 
     };
     const handleCancle = async () => {
         setLoading(true);
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // await new Promise(resolve => setTimeout(resolve, 1000));
         setLoading(false);
         navigate("/")
 
@@ -167,7 +218,6 @@ const Ticket = ({ ticket }) => {
         const formJson = Object.fromEntries(formData.entries());
         const privatekey = formJson.privatekey;
         setPrivateKey(privatekey)
-        console.log(privatekey);
     }
     function formatDateDB(input) {
         const datePart = input.match(/\d+/g);
@@ -199,11 +249,15 @@ const Ticket = ({ ticket }) => {
                         setLoading(true);
                         await new Promise(resolve => setTimeout(resolve, 1000));
                         setLoading(false);
+                        setAlertSeverity("success")
+
                         setMessageAlert("Added to Wallet")
                         setShowAlert(true);
                     }
                     else if (result.data.code == "404") {
                         setUpdate(false)
+                        setAlertSeverity("error")
+
                         setMessageAlert("Add to Wallet failed")
                         setShowAlert(true);
                     }
@@ -218,16 +272,52 @@ const Ticket = ({ ticket }) => {
         }
 
     }
-    const decryptedName = useDecryptTicket(ticket.name, ticket, privateKey);
-    const decryptedGender = useDecryptTicket(ticket.gender, ticket, privateKey);
-    const decryptedEmail = useDecryptTicket(ticket.email, ticket, privateKey);
-    const decryptedCitizenId = useDecryptTicket(ticket.citizen_id, ticket, privateKey);
-    const decryptedDob = useDecryptTicket(ticket.dob, ticket, privateKey);
-    const decryptedRegion = useDecryptTicket(ticket.region, ticket, privateKey);
-    const decryptedWorkUnit = useDecryptTicket(ticket.work_unit, ticket, privateKey);
-    const decryptedPoint = useDecryptTicket(ticket.point, ticket, privateKey);
-    const decryptedIssueDate = useDecryptTicket(ticket.issue_date, ticket, privateKey);
-    const decryptedExpiryDate = useDecryptTicket(ticket.expiry_date, ticket, privateKey);
+    const handleDecryptTicket = async (prop, privateKey) => {
+        try {
+            const result = await decryptData(JSON.parse(prop), privateKey);
+            if (result === "") {
+                setError("Wrong private key"); // Set the error state
+                setLoading(true);
+                setLoading(false);
+                setAlertSeverity("error")
+
+                setMessageAlert("Wrong private key")
+                setShowAlert(true);
+                return extractEncryptedDataFromJson(prop.toString()); // Return the original prop value in case of error
+            }
+            setCorrectPriv(true)
+            setLoading(true);
+            // await new Promise(resolve => setTimeout(resolve, 1000));
+            setLoading(false);
+            setAlertSeverity("success")
+
+            setMessageAlert("Correct private key")
+            setShowAlert(true);
+            return result;
+        } catch (error) {
+            if (error.message.includes("Cipher key could not be derived")) {
+                setError("Wrong private key"); // Set the error state
+                setLoading(true);
+                // await new Promise(resolve => setTimeout(resolve, 1000));
+                setLoading(false);
+                setAlertSeverity("error")
+
+                setMessageAlert("Wrong private key")
+                setShowAlert(true);
+            } else {
+                setError("Error decrypting data"); // Set a generic decryption error message
+                setLoading(true);
+                // await new Promise(resolve => setTimeout(resolve, 1000));
+                setLoading(false);
+                setAlertSeverity("error")
+
+                setMessageAlert("Wrong private key")
+                setShowAlert(true);
+            }
+            return extractEncryptedDataFromJson(prop.toString()); // Return the original prop value in case of error
+
+        }
+    };
     return (
         <>
             {loading && (
@@ -244,12 +334,13 @@ const Ticket = ({ ticket }) => {
                                 <h1 className="body-header-text2">Thông tin chứng chỉ</h1>
 
                             </div>
-                            <Box sx={{ display: "flex", justifyContent: "center" }}>
+                            {correctPriv ? <></> : <Box sx={{ display: "flex", justifyContent: "center" }}>
                                 <Button variant="outlined" sx={{ my: "20px", fontSize: "0.5em" }} onClick={handleClickOpen}>
                                     XEM THÔNG TIN
                                 </Button>
 
-                            </Box>
+                            </Box>}
+
                             <Dialog
                                 open={open}
                                 onClose={handleCloseDialog}
@@ -316,10 +407,11 @@ const Ticket = ({ ticket }) => {
                         <div className="name-parent">
                             <div className="name">
                                 <h3 className="name1">Họ và tên</h3>
-                                {privateKey ?
+                                {(privateKey) ?
                                     <h3 className="input-name" name="name" type="text">{decryptedName}</h3>
                                     :
                                     <h3 className="input-name" name="name" type="text">{extractEncryptedDataFromJson(ticket.name)}</h3>
+
                                 }
 
                             </div>
@@ -433,13 +525,14 @@ const Ticket = ({ ticket }) => {
                     <Snackbar open={showAlert} autoHideDuration={3000} onClose={handleClose}>
                         <Alert
                             onClose={handleClose}
-                            severity="success"
+                            severity={alertSeverity}
                             variant="filled"
                             sx={{ width: '100%' }}
                         >
-                            {messageAlert}.Back to home at {countdown}
+                            {messageAlert}
                         </Alert>
                     </Snackbar>
+
                 </form>
 
             </main >

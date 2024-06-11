@@ -411,9 +411,7 @@ const Ticket = ({ ticket }) => {
                                     <h3 className="input-name" name="name" type="text">{decryptedName}</h3>
                                     :
                                     <h3 className="input-name" name="name" type="text">{extractEncryptedDataFromJson(ticket.name)}</h3>
-
                                 }
-
                             </div>
                             <div className="gender">
                                 <h3 className="gender1">Giới tính*</h3>

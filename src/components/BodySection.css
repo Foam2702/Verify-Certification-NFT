@@ -51,10 +51,11 @@
   padding: var(--padding-xs) var(--padding-xl-1) var(--padding-10xs);
   box-sizing: border-box;
   font-family: var(--font-inter);
-  font-weight: 500;
   font-size: var(--font-size-base);
-  color: var(--color-darkgray);
   min-width: 203px;
+  color: rgb(0, 0, 0);
+
+  font-size: 1.5rem
 }
 
 .apply-now {
@@ -113,6 +114,9 @@
   font-size: var(--font-size-base);
   color: var(--color-darkgray);
   max-width: 100%;
+  color: black;
+
+  font-size: 1.5rem
 }
 
 .apply-now1 {
@@ -171,7 +175,10 @@
   font-weight: 500;
   font-size: var(--font-size-base);
   color: var(--color-darkgray);
-  min-width: 203px;
+  min-width: 500px;
+  color: black;
+
+  font-size: 1.5rem
 }
 
 .apply-now2 {
@@ -202,7 +209,7 @@
   padding: var(--padding-lg) var(--padding-6xl);
   box-sizing: border-box;
   gap: var(--gap-lgi);
-  min-width: 292px;
+  min-width: 700px;
 }
 
 .careers-section-inner,
@@ -254,7 +261,10 @@
   font-weight: 500;
   font-size: var(--font-size-base);
   color: var(--color-darkgray);
-  min-width: 203px;
+  min-width: 400px;
+  color: rgb(0, 0, 0);
+
+  font-size: 1.5rem
 }
 
 .apply-now3 {
@@ -279,7 +289,7 @@
   padding: var(--padding-smi) var(--padding-5xl);
   box-sizing: border-box;
   gap: var(--gap-lgi);
-  min-width: 292px;
+  min-width: 500px;
   max-width: 100%;
 }
 
@@ -313,7 +323,10 @@
   font-weight: 500;
   font-size: var(--font-size-base);
   color: var(--color-darkgray);
-  min-width: 203px;
+  min-width: 400px;
+  color: rgb(0, 0, 0);
+
+  font-size: 1.5rem
 }
 
 .apply-now4 {
@@ -338,8 +351,9 @@
   padding: var(--padding-smi) var(--padding-5xl);
   box-sizing: border-box;
   gap: var(--gap-lgi);
-  min-width: 292px;
+  min-width: 500px;
   max-width: 100%;
+
 }
 
 .home-town-text {
@@ -370,6 +384,9 @@
   font-size: var(--font-size-base);
   color: var(--color-darkgray);
   min-width: 203px;
+  color: rgb(0, 0, 0);
+
+  font-size: 1.5rem
 }
 
 .apply-now5 {
@@ -451,7 +468,10 @@
   font-weight: 500;
   font-size: var(--font-size-base);
   color: var(--color-darkgray);
-  min-width: 203px;
+  min-width: 400px;
+  color: rgb(0, 0, 0);
+
+  font-size: 1.5rem
 }
 
 .apply-now6 {
@@ -466,14 +486,14 @@
 }
 
 .working-unit {
-  width: 390px;
+  flex: 1;
   border-radius: var(--br-xl);
   background-color: var(--color-lightblue);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
-  padding: var(--padding-lg) var(--padding-6xl);
+  padding: var(--padding-smi) var(--padding-5xl);
   box-sizing: border-box;
   gap: var(--gap-lgi);
   max-width: 100%;
@@ -508,7 +528,11 @@
   font-weight: 500;
   font-size: var(--font-size-base);
   color: var(--color-darkgray);
+  min-width: 400px;
   max-width: 100%;
+  color: rgb(0, 0, 0);
+
+  font-size: 1.5rem
 }
 
 .apply-now7 {
@@ -523,7 +547,7 @@
 }
 
 .name-of-vertification {
-  width: 390px;
+  flex: 1;
   border-radius: var(--br-xl);
   background-color: var(--color-lightblue);
   display: flex;
@@ -568,7 +592,10 @@
   font-weight: 500;
   font-size: var(--font-size-base);
   color: var(--color-darkgray);
-  min-width: 203px;
+  min-width: 400px;
+  color: rgb(0, 0, 0);
+
+  font-size: 1.5rem
 }
 
 .apply-now8 {
@@ -583,7 +610,7 @@
 }
 
 .score {
-  width: 390px;
+  flex: 1;
   border-radius: var(--br-xl);
   background-color: var(--color-lightblue);
   display: flex;
@@ -626,6 +653,9 @@
   color: var(--color-darkgray);
   min-width: 203px;
   max-width: 100%;
+  color: rgb(0, 0, 0);
+
+  font-size: 1.5rem
 }
 
 .apply-now9 {
@@ -640,7 +670,7 @@
 }
 
 .vertification-unit {
-  width: 388px;
+  flex: 1;
   border-radius: var(--br-xl);
   background-color: var(--color-lightblue);
   display: flex;
@@ -683,6 +713,9 @@
   font-size: var(--font-size-base);
   color: var(--color-darkgray);
   max-width: 100%;
+  color: rgb(0, 0, 0);
+
+  font-size: 1.5rem
 }
 
 .apply-now10 {
@@ -697,7 +730,7 @@
 }
 
 .date-vertification {
-  width: 388px;
+  flex: 1;
   border-radius: var(--br-xl);
   background-color: var(--color-lightblue);
   display: flex;
@@ -742,6 +775,9 @@
   font-size: var(--font-size-base);
   color: var(--color-darkgray);
   max-width: 100%;
+  color: rgb(0, 0, 0);
+
+  font-size: 1.5rem
 }
 
 .apply-now11 {
@@ -756,7 +792,7 @@
 }
 
 .expired-date {
-  width: 390px;
+  flex: 1;
   border-radius: var(--br-xl);
   background-color: var(--color-lightblue);
   display: flex;

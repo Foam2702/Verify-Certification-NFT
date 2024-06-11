@@ -10,18 +10,18 @@ export default function AlertTicket({ severity }) {
     useEffect(() => {
         if (severity === "processing") {
             setAlert("warning");
-            setMessage("In Processing");
+            setMessage("Đang chờ xét duyệt");
         } else if (severity === "reject") {
             setAlert("error");
-            setMessage("Rejected from Issuer");
+            setMessage("Đã từ chối");
         } else if (severity === "approved") {
             setAlert("success");
-            setMessage("Minted SoulBound Token");
+            setMessage("Đã mint SBT");
         }
     }, [severity]);
 
     return (
-        <Alert variant="filled" severity={alert}>
+        <Alert variant="filled" severity={alert} sx={{ fontSize: "1.5rem" }}>
             {message}
 
         </Alert>

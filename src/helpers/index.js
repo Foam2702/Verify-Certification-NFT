@@ -105,5 +105,15 @@ export function remove0x(input) {
     }
     return input;
 }
+export function extractEncryptedDataFromJson(jsonString) {
+    try {
+        const obj = JSON.parse(jsonString);
+        return obj.encryptedData || 'Encrypted data not found';
+    } catch (error) {
+        console.error('Error parsing JSON:', error);
+        return null;
+    }
+}
+
 
 

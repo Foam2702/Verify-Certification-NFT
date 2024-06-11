@@ -55,18 +55,14 @@ const BodySection = () => {
       );
     const insertPubToDB = async () => {
       if (address) {
-        const checkPublicExist = await axios.get(`http://localhost:8080/addresses/${address}`);
-        console.log(checkPublicExist.data.address);
-        if (checkPublicExist.data.address.length === 0) {
+        const checkPublicKeyExisted = await axios.get(`http://localhost:8080/addresses/${address}`);
+        if (checkPublicKeyExisted.data.address.length === 0) {
           const publicKey = await getPublicKey(); // Await the result of getPublicKey
-          console.log(publicKey)
-          // Check if publicKey is an instance of Error, if so, do nothing
           if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
             console.log('Error retrieving public key:', publicKey);
             setAlertSeverity("warning");
             setMessageAlert("You must sign to submit");
             setShowAlert(true);
-
             return;
           }
           await axios.post(`http://localhost:8080/addresses/${address}`, {
@@ -74,11 +70,6 @@ const BodySection = () => {
             publicKey: publicKey // Include the public key in the body
           });
 
-        }
-        else {
-          setAlertSeverity("success");
-          setMessageAlert(`Submitted successfully. Please wait for confirmation from the ${data.licensingAuthority}`);
-          setShowAlert(true);
         }
 
       }
@@ -109,51 +100,71 @@ const BodySection = () => {
       console.log("No file selected");
       return;
     }
-    const issuers = await checkIssuer(data.licensingAuthority)
-    console.log("issuers", issuers)
-    const publicKeys = await axios.get(`http://localhost:8080/addresses/${issuers}`)
-    // const publicKey = await getPublicKey();
-    console.log("pub", publicKeys);
+    const issuers = await checkIssuer(data.licensingAuthority);
+    const fieldsToEncrypt = ['citizenId', 'name', 'region', 'dob', 'gender', 'email', 'workUnit', 'point', 'issueDate', 'expiryDate'];
 
-    // // Encrypt and append each field to formData
-    // const fieldsToEncrypt = ['citizenId', 'name', 'region', 'dob', 'gender', 'email', 'workUnit', 'certificateName', 'point', 'issueDate', 'expiryDate'];
-    // for (const field of fieldsToEncrypt) {
-    //   const encryptedData = await encryptData(data[field], remove0x(publicKey));
-    //   formData.append(field, JSON.stringify(encryptedData));
-    // }
+    if (issuers.length === 0) {
+      setAlertSeverity("warning");
+      setMessageAlert(`No issuer found for ${data.licensingAuthority}`);
+      setShowAlert(true);
+      return;
+    }
+    else {
+      for (const issuer of issuers) {
+        const publicKeysResponse = await axios.get(`http://localhost:8080/addresses/${issuer}`);
 
-    // // Append non-encrypted fields directly
-    // formData.append("owner", address);
-    // formData.append("licensingAuthority", data.licensingAuthority);
+        if (publicKeysResponse.data.address.length === 0) {
+          setAlertSeverity("warning");
+          setMessageAlert(`${data.licensingAuthority} is busy. Please comeback later`);
+          setShowAlert(true);
+          return;
+        }
+        const publicKeyIssuer = publicKeysResponse.data.address[0].publickey
+        for (const field of fieldsToEncrypt) {
+          const encryptedData = await encryptData(data[field], remove0x(publicKeyIssuer));
+          formData.append(field, JSON.stringify(encryptedData));
+        }
 
-    // try {
-    //   const response = await axios.post("http://localhost:8080/tickets", formData, {
-    //     headers: {
-    //       "Content-Type": "multipart/form-data",
-    //     },
-    //   });
+        // Append non-encrypted fields directly
+        formData.append("certificateName", data.certificateName)
+        formData.append("owner", address);
+        formData.append("licensingAuthority", data.licensingAuthority);
+        formData.append("issuerAddress", publicKeysResponse.data.address[0].address)
 
-    //   console.log(response.data.message);
+      }
+    }
+    // Encrypt and append each field to formData
 
-    //   if (response.data.message === "sent successfully") {
-    //     setLoading(true);
-    //     await new Promise(resolve => setTimeout(resolve, 1000));
-    //     setLoading(false);
-    //     setAlertSeverity("success");
-    //     setMessageAlert("Send to issuer successfully");
-    //     setShowAlert(true);
-    //   } else if (response.data.message === "ticket already exist") {
-    //     setAlertSeverity("error");
-    //     setMessageAlert("Certificate already exist");
-    //     setShowAlert(true);
-    //   }
 
-    //   for (let pair of formData.entries()) {
-    //     console.log(pair[0] + ", " + pair[1]);
-    //   }
-    // } catch (error) {
-    //   console.error(error);
-    // }
+    try {
+      setLoading(true); // Start loading before sending the request
+      const response = await axios.post("http://localhost:8080/tickets", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      console.log(response.data.message);
+
+      if (response.data.message === "sent successfully") {
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate loading/waiting time
+        setAlertSeverity("success");
+        setMessageAlert(`Submitted successfully. Please wait for confirmation from the ${data.licensingAuthority}`);
+        setShowAlert(true);
+      } else if (response.data.message === "ticket already exist") {
+        setAlertSeverity("error");
+        setMessageAlert("Certificate already exist");
+        setShowAlert(true);
+      }
+
+      for (let pair of formData.entries()) {
+        console.log(pair[0] + ", " + pair[1]);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false); // Stop loading regardless of the request outcome
+    }
   };
 
 

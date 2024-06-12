@@ -18,9 +18,9 @@
 }
 
 .fickleflight-logo-wrapper {
-  width: 174px;
+  width: 182px;
   flex-direction: column;
-  padding: var(--padding-sm-8) 0 0;
+  /* padding: var(--padding-sm-8) 0 0; */
 }
 
 .explore,
@@ -163,10 +163,11 @@
   align-self: stretch;
   position: relative;
   font-size: inherit;
-  letter-spacing: 0em;
-  line-height: 72px;
-  font-weight: 900;
-  font-family: inherit;
+  letter-spacing: -0.03em;
+  line-height: 90px;
+  font-weight: 600;
+  white-space: nowrap;
+  font-family: var(--font-roboto);
 }
 
 .title-2 {
@@ -174,7 +175,7 @@
   position: relative;
   font-size: var(--font-size-lg);
   line-height: 30px;
-  font-weight: 500;
+  font-weight: 600;
   font-family: var(--font-poppins);
   color: var(--color-dimgray-100);
   display: inline-block;
@@ -238,7 +239,7 @@
 .header-container {
   background-color: var(--color-aliceblue-200);
   align-items: center;
-  padding: var(--padding-21xl) var(--padding-xl) var(--padding-119xl);
+  /* padding: var(--padding-21xl) var(--padding-xl) var(--padding-119xl); */
   box-sizing: border-box;
   min-height: 639px;
   font-size: var(--font-size-61xl);
@@ -255,6 +256,12 @@
   font-family: var(--font-poppins);
 }
 
+.small-image {
+  width: 600px;
+  /* Adjust the width as needed */
+  height: auto;
+  /* This will maintain the aspect ratio */
+}
 
 
 @media screen and (max-width: 1575px) {

@@ -5,8 +5,8 @@
 }
 
 .course-1-image {
-  align-self: stretch;
-  height: 230px;
+  align-self: center;
+  height: 300px;
   border-radius: var(--br-xl) var(--br-xl) 0 0;
   overflow: hidden;
   flex-shrink: 0;

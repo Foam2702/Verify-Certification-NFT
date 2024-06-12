@@ -6,15 +6,11 @@ const LisenceSection = ({ className = "" }) => {
             <div className="new-header-content">
                 <div className="new-titles">
                     <h1 className="new-title">
-                        Danh sách chứng chỉ thuộc về bạn
+                        Your Certificates
                     </h1>
-                    {/* <div className="title-22">
-                        Đến với trang web của chúng tôi - nơi cung cấp dịch vụ xác thực
-                        chứng chỉ uy tín và đáng tin cậy nhất. Với công nghệ tiên tiến,
-                        chúng tôi cam kết đảm bảo tính bảo mật cao nhất cho mọi giao dịch
-                        của bạn. Hãy đến với chúng tôi để trải nghiệm sự an tâm và chuyên
-                        nghiệp ngay hôm nay!
-                    </div> */}
+                    <div className="title-22">
+                        "These are your verified certificates that have been issued and soulbound tokens have been created on the blockchain!"
+                    </div>
                 </div>
                 <div className="new-approve-image">
                     <img

@@ -159,15 +159,16 @@
 }
 
 .title-1 {
-  margin: 0;
-  align-self: stretch;
+  width: 1000px;
   position: relative;
   font-size: inherit;
-  letter-spacing: -0.03em;
   line-height: 90px;
   font-weight: 600;
-  white-space: nowrap;
   font-family: var(--font-roboto);
+  /* letter-spacing: -0.03em; */
+  display: inline-block;
+  margin-left: auto;
+  margin-top: 100px;
 }
 
 .title-2 {
@@ -178,8 +179,8 @@
   font-weight: 600;
   font-family: var(--font-poppins);
   color: var(--color-dimgray-100);
-  display: inline-block;
   max-width: 100%;
+  display: inline-block;
 }
 
 .titles {

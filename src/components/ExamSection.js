@@ -8,7 +8,7 @@ const ExamSection = ({ course }) => {
             <header className="header-container">
                 <div className="header-content">
                     <div className="titles">
-                        <h1 className="title-1">{course[0].name}</h1>
+                        <div className="title-1">{course[0].name}</div>
                         <div className="title-2">
                             {course[0].description}
 

@@ -7,7 +7,7 @@
 
 .body-header-text {
   margin: auto;
-  width: 1400px;
+  /* width: 1400px; */
   height: auto;
   font-size: var(--font-size-45xl);
   letter-spacing: -0.03em;

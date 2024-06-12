@@ -3,7 +3,7 @@ const imageUpload = require("../service/uploadImage")
 const splitDate = require("../service/splitDate")
 const notificationModel = require("../models/NotificationModel")
 const notificationService = require("../service/notification")
-const organizationModel = require("../models/Organization")
+const organizationModel = require("../models/OrganizationModel")
 const fs = require('fs')
 
 module.exports = {

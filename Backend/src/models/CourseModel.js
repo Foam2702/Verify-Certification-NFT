@@ -3,7 +3,7 @@ const sql = require("../config/db")
 module.exports = {
     getAllCourses: async () => {
         try {
-            const courses = await sql`SELECT * FROM course`;
+            const courses = await sql`SELECT * FROM course C,organization O where C.licensing_authority=O.org`;
             return courses;
         }
         catch (err) {
@@ -13,7 +13,7 @@ module.exports = {
     },
     getOneCourse: async (id) => {
         const result = sql`
-            SELECT * FROM course WHERE id=${id}
+            SELECT * FROM course C,organization O WHERE C.id=${id} and C.licensing_authority=O.org
         `
         return result;
     },

@@ -36,6 +36,8 @@ const FeauresSection = () => {
               <Course
                 course1Image={course.image}
                 courseHeader={course.name}
+                courseOrg={course.licensing_authority}
+                courseOrgImg={course.image_licensing_authority}
               />
             </div>
           </div>

@@ -45,17 +45,23 @@ const BodyCourses = ({ className = "" }) => {
 
             <section className={`body-section2 ${className}`}>
                 <div className="body-header3">
-                    <h1 className="body-header-text5">Danh mục chứng chỉ</h1>
+                    <h1 className="body-header-text5">List of Certificates</h1>
                 </div>
                 <div className="careers-section1">
                     {courses.map((course) => (
+
                         <button onClick={() => handleExam(course.id)} key={course.id}>
+
                             <Course
                                 course1Image={course.image}
                                 courseHeader={course.name}
                                 courseDescription={course.description}
+                                courseOrg={course.licensing_authority}
+                                courseOrgImg={course.image_licensing_authority}
                             />
                         </button>
+
+
                     ))}
                 </div>
             </section>

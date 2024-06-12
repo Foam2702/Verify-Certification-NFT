@@ -51,6 +51,7 @@
 }
 
 .course {
+  cursor: pointer;
   display: inline-block;
   width: 401px;
   /* Đảm bảo rằng kích thước của course là cố định */
@@ -74,7 +75,7 @@
 
 .list-courses {
   display: flex;
-  animation: slide 50s linear infinite;
+  animation: slide 70s linear infinite;
   /* 20s có thể điều chỉnh cho tốc độ */
 }
 
@@ -84,7 +85,7 @@
   }
 
   100% {
-    transform: translateX(-40%);
+    transform: translateX(-46%);
   }
 }
 
@@ -92,7 +93,7 @@
   .list-courses {
     flex-wrap: wrap;
     justify-content: center;
-    animation: slide 50s linear infinite;
+    animation: slide 70s linear infinite;
   }
 }
 
@@ -108,7 +109,7 @@
     padding-left: var(--padding-66xl);
     padding-right: var(--padding-66xl);
     box-sizing: border-box;
-    animation: slide 50s linear infinite;
+    animation: slide 70s linear infinite;
   }
 
   .feaures-section {
@@ -123,14 +124,14 @@
   .secondcourse,
   .thirdcousr {
     min-width: 100%;
-    animation: slide 50s linear infinite;
+    animation: slide 70s linear infinite;
   }
 
   .list-courses {
     padding-left: var(--padding-23xl);
     padding-right: var(--padding-23xl);
     box-sizing: border-box;
-    animation: slide 50s linear infinite;
+    animation: slide 70s linear infinite;
   }
 
   .feaures-section {

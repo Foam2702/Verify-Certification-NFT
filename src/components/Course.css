@@ -6,7 +6,7 @@
 
 .course-1-image {
   align-self: center;
-  height: 300px;
+  height: 200px;
   border-radius: var(--br-xl) var(--br-xl) 0 0;
   overflow: hidden;
   flex-shrink: 0;
@@ -30,14 +30,17 @@
 
 .course-header {
   position: relative;
-  font-size: inherit;
+  font-size: 25px;
   letter-spacing: -0.03em;
   line-height: 36px;
   font-family: inherit;
+  font-weight: bold;
   z-index: 1;
 }
 
 .lorem-ipsum-dolor3 {
+  margin-top: 20px;
+  font-size: 20px;
   line-height: 28px;
 }
 
@@ -116,6 +119,24 @@
   font-size: var(--font-size-5xl);
   color: var(--color-gray);
   font-family: var(--font-poppins);
+}
+
+.org {
+  display: flex;
+
+}
+
+.org-image {
+  width: 35px;
+  height: 35px;
+
+}
+
+.org-name {
+  font-size: 15px;
+  margin-left: 10px;
+  margin-bottom: 15px;
+  margin-top: 10px;
 }
 
 @media screen and (max-width: 450px) {

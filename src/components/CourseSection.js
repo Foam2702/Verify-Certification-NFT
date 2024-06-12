@@ -7,13 +7,10 @@ const CourseSection = ({ className = "" }) => {
       <div className="new-header-container">
         <div className="new-header-content">
           <div className="new-titles">
-            <h1 className="new-title">Chứng chỉ nào đang hot</h1>
+            <h1 className="new-title">Trending Certifications</h1>
             <p className="title-23">
-              Đến với trang web của chúng tôi - nơi cung cấp dịch vụ xác thực
-              chứng chỉ uy tín và đáng tin cậy nhất. Với công nghệ tiên tiến,
-              chúng tôi cam kết đảm bảo tính bảo mật cao nhất cho mọi giao dịch
-              của bạn. Hãy đến với chúng tôi để trải nghiệm sự an tâm và chuyên
-              nghiệp ngay hôm nay!"
+              "We provide the in-demand certifications you seek.
+              To affirm your abilities and open up new opportunities, possessing a reputable certificate is essential!"
             </p>
           </div>
           <div className="new-approve-image">

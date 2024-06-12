@@ -27,7 +27,7 @@
 .name1 {
   margin: 0;
   position: relative;
-  font-size: var(--font-size-5xl);
+  font-size: var(--font-size-10xl);
   letter-spacing: -0.03em;
   line-height: 30px;
   font-weight: 500;
@@ -88,7 +88,7 @@
   margin: 0;
   width: 228px;
   position: relative;
-  font-size: var(--font-size-5xl);
+  font-size: var(--font-size-10xl);
   letter-spacing: -0.03em;
   line-height: 30px;
   font-weight: 500;
@@ -148,7 +148,7 @@
 .email1 {
   margin: 0;
   position: relative;
-  font-size: var(--font-size-5xl);
+  font-size: var(--font-size-10xl);
   letter-spacing: -0.03em;
   line-height: 30px;
   font-weight: 500;
@@ -234,7 +234,7 @@
 .cccd1 {
   margin: 0;
   position: relative;
-  font-size: var(--font-size-5xl);
+  font-size: var(--font-size-10xl);
   letter-spacing: -0.03em;
   line-height: 30px;
   font-weight: 500;
@@ -296,7 +296,7 @@
 .date-of-birth1 {
   margin: 0;
   position: relative;
-  font-size: var(--font-size-5xl);
+  font-size: var(--font-size-10xl);
   letter-spacing: -0.03em;
   line-height: 30px;
   font-weight: 500;
@@ -359,7 +359,7 @@
 .home-town-text {
   margin: 0;
   position: relative;
-  font-size: var(--font-size-5xl);
+  font-size: var(--font-size-10xl);
   letter-spacing: -0.03em;
   line-height: 30px;
   font-weight: 500;
@@ -441,7 +441,7 @@
 .working-unit-text {
   margin: 0;
   position: relative;
-  font-size: var(--font-size-5xl);
+  font-size: var(--font-size-10xl);
   letter-spacing: -0.03em;
   line-height: 30px;
   font-weight: 500;
@@ -501,9 +501,9 @@
 
 .name-of-vertification1 {
   margin: 0;
-  width: 228px;
+  width: 300px;
   position: relative;
-  font-size: var(--font-size-5xl);
+  font-size: var(--font-size-10xl);
   letter-spacing: -0.03em;
   line-height: 30px;
   font-weight: 500;
@@ -563,7 +563,7 @@
 .score-text {
   margin: 0;
   position: relative;
-  font-size: var(--font-size-5xl);
+  font-size: var(--font-size-10xl);
   letter-spacing: -0.03em;
   line-height: 30px;
   font-weight: 500;
@@ -626,7 +626,7 @@
 .vertification-unit-text {
   margin: 0;
   position: relative;
-  font-size: var(--font-size-5xl);
+  font-size: var(--font-size-10xl);
   letter-spacing: -0.03em;
   line-height: 30px;
   font-weight: 500;
@@ -686,7 +686,7 @@
 .date-vertification-text {
   margin: 0;
   position: relative;
-  font-size: var(--font-size-5xl);
+  font-size: var(--font-size-10xl);
   letter-spacing: -0.03em;
   line-height: 30px;
   font-weight: 500;
@@ -748,7 +748,7 @@
   width: 400px;
   height: 38px;
   position: relative;
-  font-size: var(--font-size-5xl);
+  font-size: var(--font-size-10xl);
   letter-spacing: -0.03em;
   line-height: 30px;
   font-weight: 500;
@@ -832,7 +832,7 @@
   margin: 0;
   width: 1102px;
   position: relative;
-  font-size: var(--font-size-5xl);
+  font-size: var(--font-size-10xl);
   letter-spacing: -0.03em;
   line-height: 30px;
   font-weight: 500;
@@ -1002,6 +1002,7 @@
   background-color: var(--color-dimgray-300);
   border-radius: var(--br-12xl);
   justify-content: flex-start;
+
 }
 
 .cancel-button:hover {

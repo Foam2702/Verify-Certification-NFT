@@ -3,8 +3,6 @@ import HeaderSection from "../components/HeaderSection";
 import BodySection from "../components/BodySection";
 import Footer from "../components/Footer";
 import VerifySection from "../components/VerifySection";
-
-
 import "./VertificationNew.css";
 import { motion } from "framer-motion";
 const VertificationNew = () => {

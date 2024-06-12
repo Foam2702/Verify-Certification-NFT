@@ -10,13 +10,13 @@ export default function AlertTicket({ severity }) {
     useEffect(() => {
         if (severity === "processing") {
             setAlert("warning");
-            setMessage("Đang chờ xét duyệt");
+            setMessage("In Processing");
         } else if (severity === "reject") {
             setAlert("error");
-            setMessage("Đã từ chối");
+            setMessage("Rejected");
         } else if (severity === "approved") {
             setAlert("success");
-            setMessage("Đã mint SBT");
+            setMessage("Minted");
         }
     }, [severity]);
 

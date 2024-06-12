@@ -325,18 +325,19 @@ const Ticket = ({ ticket }) => {
                     <CircularProgress />
                 </div>
             )}
+
             <main className="body-section1">
                 <form className="careers-section" encType="multipart/form-data" action="" >
                     {ticket.issuer_address === address ?
                         <div>
 
                             <div className="body-header">
-                                <h1 className="body-header-text2">Thông tin chứng chỉ</h1>
+                                <h1 className="body-header-text2">Certificate Information</h1>
 
                             </div>
                             {correctPriv ? <></> : <Box sx={{ display: "flex", justifyContent: "center" }}>
                                 <Button variant="outlined" sx={{ my: "20px", fontSize: "0.5em" }} onClick={handleClickOpen}>
-                                    XEM THÔNG TIN
+                                    Click to view
                                 </Button>
 
                             </Box>}
@@ -360,7 +361,7 @@ const Ticket = ({ ticket }) => {
                                 <DialogTitle sx={{ fontSize: '1.5rem' }}>Private Key</DialogTitle>
                                 <DialogContent>
                                     <DialogContentText sx={{ fontSize: '1.5rem' }}>
-                                        Để giải mã dữ liệu, vui lòng nhập private key từ ví MetaMask
+                                        Please enter private key from your MetaMask
                                     </DialogContentText>
                                     <TextField
                                         autoFocus
@@ -385,17 +386,16 @@ const Ticket = ({ ticket }) => {
 
                                 </DialogContent>
                                 <DialogActions>
-                                    <Button onClick={handleCloseDialog} type="submit">Giải mã</Button>
+                                    <Button onClick={handleCloseDialog} type="submit">Decrypt</Button>
 
-                                    <Button onClick={handleCloseDialog}>Hủy bỏ</Button>
+                                    <Button onClick={handleCloseDialog}>Cancel</Button>
                                 </DialogActions>
                             </Dialog>
                         </div>
                         : <>
                             <AlertTicket severity={ticket.status} sx={{ fontSize: "1.5em" }} />
                             <Alert variant="outlined" severity="info" sx={{ fontSize: "1.5rem" }}>
-                                Toàn bộ thông tin đã được mã hóa
-                            </Alert>
+                                All information has been encrypted                            </Alert>
                             {ticket.status === 'approved' ?
                                 <Button variant="contained" onClick={addNFTToWallet}>Import NFT to MetaMask </Button>
                                 : <></>
@@ -406,7 +406,7 @@ const Ticket = ({ ticket }) => {
                     <div className="careers-section-inner">
                         <div className="name-parent">
                             <div className="name">
-                                <h3 className="name1">Họ và tên</h3>
+                                <h3 className="name1">Name *</h3>
                                 {(privateKey) ?
                                     <h3 className="input-name" name="name" type="text">{decryptedName}</h3>
                                     :
@@ -414,13 +414,13 @@ const Ticket = ({ ticket }) => {
                                 }
                             </div>
                             <div className="gender">
-                                <h3 className="gender1">Giới tính*</h3>
+                                <h3 className="gender1">Gender *</h3>
                                 <h3 className="input-gender" name="gender">
                                     {privateKey ? decryptedGender : extractEncryptedDataFromJson(ticket.gender)}
                                 </h3>
                             </div>
                             <div className="email">
-                                <h3 className="email1">Email</h3>
+                                <h3 className="email1">Email *</h3>
                                 {privateKey ?
                                     <h3 className="input-email" name="email" type="email">{decryptedEmail}</h3>
                                     :
@@ -433,19 +433,19 @@ const Ticket = ({ ticket }) => {
                     <div className="careers-section-child">
                         <div className="cccd-parent">
                             <div className="cccd">
-                                <h3 className="cccd1">Số CCCD*</h3>
+                                <h3 className="cccd1">Citizen ID *</h3>
                                 <h3 className="input-cccd" name="citizenId" type="text">
                                     {privateKey ? decryptedCitizenId : extractEncryptedDataFromJson(ticket.citizen_id)}
                                 </h3>
                             </div>
                             <div className="date-of-birth">
-                                <h3 className="date-of-birth1">Ngày Sinh</h3>
+                                <h3 className="date-of-birth1">Date of birth *</h3>
                                 <h3 className="input-date-of-birth" name="dob" type="text">
                                     {privateKey ? decryptedDob : extractEncryptedDataFromJson(ticket.dob)}
                                 </h3>
                             </div>
                             <div className="home-town">
-                                <h3 className="home-town-text">Quê quán</h3>
+                                <h3 className="home-town-text">Region *</h3>
                                 <h3 className="input-home-town" name="region">
                                     {privateKey ? decryptedRegion : extractEncryptedDataFromJson(ticket.region)}
                                 </h3>
@@ -456,39 +456,39 @@ const Ticket = ({ ticket }) => {
                     <div className="careers-section-inner1">
                         <div className="working-unit-parent">
                             <div className="working-unit">
-                                <h3 className="working-unit-text">Đơn vị công tác</h3>
+                                <h3 className="working-unit-text">Work Unit *</h3>
                                 <h3 className="input-working-unit" name="workUnit" type="text">
                                     {privateKey ? decryptedWorkUnit : extractEncryptedDataFromJson(ticket.work_unit)}
                                 </h3>
                             </div>
 
                             <div className="score">
-                                <h3 className="score-text">Điểm</h3>
+                                <h3 className="score-text">Point</h3>
                                 <h3 className="input-score" name="point" type="text">
                                     {privateKey ? decryptedPoint : extractEncryptedDataFromJson(ticket.point)}
                                 </h3>
                             </div>
                             <div className="name-of-vertification">
-                                <h3 className="name-of-vertification1">Tên chứng chỉ*</h3>
+                                <h3 className="name-of-vertification1">Certificate name *</h3>
                                 <h3 className="input-name-of-vertification" name="certificateName"  >
                                     {ticket.certificate_name}
                                 </h3>
                             </div>
 
                             <div className="date-vertification">
-                                <h3 className="date-vertification-text">Ngày cấp*</h3>
+                                <h3 className="date-vertification-text">Issue Date *</h3>
                                 <h3 className="input-date-vertification" name="issueDate" type="text">
                                     {privateKey ? decryptedIssueDate : extractEncryptedDataFromJson(ticket.issue_date)}
                                 </h3>
                             </div>
                             <div className="expired-date">
-                                <h3 className="expired-date-text">Hạn sử dụng chứng chỉ*</h3>
+                                <h3 className="expired-date-text">Expiry Date</h3>
                                 <h3 className="input-expired-date" name="expiryDate" type="text">
                                     {privateKey ? decryptedExpiryDate : extractEncryptedDataFromJson(ticket.expiry_date)}
                                 </h3>
                             </div>
                             <div className="vertification-unit">
-                                <h3 className="vertification-unit-text">Đơn vị cấp phép*</h3>
+                                <h3 className="vertification-unit-text">Licensing Authority *</h3>
                                 <h3 className="input-vertification-unit" name="licensingAuthority" type="text" >{ticket.licensing_authority}</h3>
                             </div>
                         </div>
@@ -496,7 +496,7 @@ const Ticket = ({ ticket }) => {
                     </div>
                     <div className="upload-wrapper">
                         <div className="upload">
-                            <h3 className="upload-file-text">Hình ảnh chứng chỉ</h3>
+                            <h3 className="upload-file-text">Image of certificate</h3>
                             <div className="input-upload-file">
                                 <div className="input-box-background" />
                                 <MultiActionAreaCard image={ticket.certificateUrl} />

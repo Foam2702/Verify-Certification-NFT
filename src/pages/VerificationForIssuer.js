@@ -36,9 +36,10 @@ export default function VerificationForIssuer() {
     }, [id, address]); // Dependency array
     return (
 
-        <div className="vertificationnew">
+        <div >
             <HeaderSection />
             <VerifySection />
+
             <Ticket
                 ticket={ticket}
             />

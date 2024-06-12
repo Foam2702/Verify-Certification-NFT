@@ -259,7 +259,7 @@ const BodySection = () => {
           <div className="careers-section-inner">
             <div className="name-parent">
               <div className="name">
-                <h3 className="name1">Họ và tên</h3>
+                <h3 className="name1">Name *</h3>
                 <input
                   className="input-name"
                   name="name"
@@ -268,7 +268,7 @@ const BodySection = () => {
                 />
               </div>
               <div className="gender">
-                <h3 className="gender1">Giới tính*</h3>
+                <h3 className="gender1">Gender *</h3>
                 <select className="input-gender" name="gender">
                   <option value="male">Male</option>
                   <option value="female">Female</option>
@@ -288,7 +288,7 @@ const BodySection = () => {
           <div className="careers-section-child">
             <div className="cccd-parent">
               <div className="cccd">
-                <h3 className="cccd1">Số CCCD*</h3>
+                <h3 className="cccd1">Citizen ID *</h3>
                 <input
                   className="input-cccd"
                   name="citizenId"
@@ -297,7 +297,7 @@ const BodySection = () => {
                 />
               </div>
               <div className="date-of-birth">
-                <h3 className="date-of-birth1">Ngày Sinh</h3>
+                <h3 className="date-of-birth1">Date of birth *</h3>
                 <input
                   className="input-date-of-birth"
                   name="dob"
@@ -306,7 +306,7 @@ const BodySection = () => {
                 />
               </div>
               <div className="home-town">
-                <h3 className="home-town-text">Quê quán</h3>
+                <h3 className="home-town-text">Region *</h3>
                 <select className="input-home-town" name="region">
                   <option value="">Chọn tỉnh thành ...</option>
                   {regions.map((region) => (
@@ -321,7 +321,7 @@ const BodySection = () => {
           <div className="careers-section-inner1">
             <div className="working-unit-parent">
               <div className="working-unit">
-                <h3 className="working-unit-text">Đơn vị công tác</h3>
+                <h3 className="working-unit-text">Work unit *</h3>
                 <input
                   className="input-working-unit"
                   name="workUnit"
@@ -330,14 +330,14 @@ const BodySection = () => {
                 />
               </div>
               <div className="name-of-vertification">
-                <h3 className="name-of-vertification1">Tên chứng chỉ*</h3>
+                <h3 className="name-of-vertification1">Certificate name *</h3>
                 <select
                   className="input-name-of-vertification"
                   option={courses}
                   name="certificateName"
                   onChange={handleCourseChange}
                 >
-                  <option value="">Chọn chứng chỉ ...</option>
+                  <option value="">Select Certificate ...</option>
                   {courses.map((course, index) => (
                     <option key={index} value={course.certificate}>
                       {course.certificate}
@@ -356,7 +356,7 @@ const BodySection = () => {
               </div>
 
               <div className="date-vertification">
-                <h3 className="date-vertification-text">Ngày cấp*</h3>
+                <h3 className="date-vertification-text">Issue Date *</h3>
                 <input
                   className="input-date-vertification"
                   name="issueDate"
@@ -365,7 +365,7 @@ const BodySection = () => {
                 />
               </div>
               <div className="expired-date">
-                <h3 className="expired-date-text">Hạn sử dụng chứng chỉ*</h3>
+                <h3 className="expired-date-text">Expiry Date </h3>
                 <input
                   className="input-expired-date"
                   name="expiryDate"
@@ -374,7 +374,7 @@ const BodySection = () => {
                 />
               </div>
               <div className="vertification-unit">
-                <h3 className="vertification-unit-text">Đơn vị cấp phép*</h3>
+                <h3 className="vertification-unit-text">Licensing Authority *</h3>
                 <input
                   className="input-vertification-unit"
                   name="licensingAuthority"
@@ -387,7 +387,7 @@ const BodySection = () => {
           </div>
           <div className="upload-wrapper">
             <div className="upload">
-              <h3 className="upload-file-text">Tải lên file chứng chỉ gốc*</h3>
+              <h3 className="upload-file-text">Image of certificate *</h3>
               <div className="input-upload-file">
                 <div className="input-box-background" />
                 <input

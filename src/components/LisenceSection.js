@@ -5,12 +5,8 @@ const LisenceSection = ({ className = "" }) => {
         <div className={`new-header-container  ${className}`}>
             <div className="new-header-content">
                 <div className="new-titles">
-                    <h1 className="new-title">
-                        Your Certificates
-                    </h1>
-                    <div className="title-22">
-                        "These are your verified certificates that have been issued and soulbound tokens have been created on the blockchain!"
-                    </div>
+                    <img className="small-image" loading="lazy" src="/your certificates.svg"></img>
+
                 </div>
                 <div className="new-approve-image">
                     <img

@@ -21,7 +21,7 @@ import "./HeaderSection.css";
 const { ethers } = require("ethers");
 const settings = [
   { name: 'My Certificates', route: '/lisenceview' },
-  { name: 'My Courses', route: '/courseinfornew' },
+  { name: 'Certificate Examined', route: '/courseinfornew' },
   { name: 'Issuer Management', route: '/admin' },
 
 ]; const HeaderSection = () => {

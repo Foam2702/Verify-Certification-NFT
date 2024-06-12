@@ -7,7 +7,7 @@ const CourseSection = ({ className = "" }) => {
       <div className="new-header-container">
         <div className="new-header-content">
           <div className="new-titles">
-            <img className="small-image" loading="lazy" src="./trending certificates.svg"></img>
+            <img className="small-image" loading="lazy" src="/trending certificates.svg"></img>
 
           </div>
           <div className="new-approve-image">

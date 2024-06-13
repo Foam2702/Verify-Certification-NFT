@@ -44,7 +44,8 @@ module.exports = {
         // await notificationModel.insertNotification(ticket, false, "none")
         // await notificationService.newTicketNotification(ticket)
         const result = await ticketModel.insertTicket(ticket);
-        if (result == true) {
+        console.log("RESULT", result)
+        if (result === true) {
             res.json({
                 "ticket": ticket,
                 "code": "200",
@@ -63,7 +64,8 @@ module.exports = {
     },
     getOneTicket: async (req, res, next) => {
         const { id } = req.params
-        const ticket = await ticketModel.getOneTicket(id)
+        const { address } = req.query
+        const ticket = await ticketModel.getOneTicket(id, address)
         console.log(ticket)
         if (ticket != undefined) {
             const certificateUrl = "certificateUrl"

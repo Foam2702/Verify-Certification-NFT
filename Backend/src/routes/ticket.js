@@ -25,7 +25,7 @@ router
     .get(ticketController.getAllInfoTicket)
     .post(upload.single("imageCertificate"), ticketController.sendTicketFromStudent)
 router
-    .route("/ticket/:id")
+    .route("/ticket/:id/")
     .get(ticketController.getOneTicket)
     .delete(ticketController.deleteOneTicket)
 router.route("/ticket/:id/")

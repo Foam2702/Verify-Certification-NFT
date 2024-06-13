@@ -13,7 +13,7 @@ module.exports = {
     },
     getOneCourse: async (id) => {
         const result = sql`
-            SELECT * FROM course C,organization O WHERE C.id=${id} and C.licensing_authority=O.org
+        SELECT * FROM course C,organization O WHERE C.id=${id} and C.licensing_authority=O.org
         `
         return result;
     },

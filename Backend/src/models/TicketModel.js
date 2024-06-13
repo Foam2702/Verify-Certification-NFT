@@ -7,36 +7,31 @@ module.exports = {
         return tickets;
     },
     insertTicket: async (ticket) => {
-        const existingTicket = await sql`SELECT * FROM ticket WHERE certificate_cid=${ticket.cidCertificate}`;
-        if (existingTicket.length > 0) {
-            return false; // certificate_cid already exists
-        }
-
-        const maxIdResult = await sql`SELECT MAX(id) FROM ticket`;
-        const maxId = maxIdResult[0].max || 0; // Handle if there are no records in the table
 
         try {
             await sql`
-        INSERT INTO ticket (id, owner_address, citizen_id, dob, name,certificate_cid, licensing_authority, 
-        gender, email, work_unit, certificate_name, point, issue_date, expiry_date,region,status,issuer_address )
+        INSERT INTO ticket 
+        (id,issuer_address, owner_address,certificate_cid,certificate_name,
+        licensing_authority,name, citizen_id,gender,email, work_unit, region,status,dob,
+           expiry_date,issue_date,point)
         VALUES (
-            ${maxId + 1},
+            ${ticket.id},
+            ${ticket.issuerAddress},
             ${ticket.owner},
-            ${ticket.citizenId},
-            ${ticket.dob},
-            ${ticket.name},
             ${ticket.cidCertificate},
+            ${ticket.certificateName},
             ${ticket.licensingAuthority},
+            ${ticket.name},
+            ${ticket.citizenId},
             ${ticket.gender},
             ${ticket.email},
             ${ticket.workUnit},
-            ${ticket.certificateName},
-            ${ticket.point},
-            ${ticket.issueDate},
-            ${ticket.expiryDate},
             ${ticket.region},
             ${ticket.status},
-            ${ticket.issuerAddress}
+            ${ticket.dob},
+            ${ticket.expiryDate},
+            ${ticket.issueDate},
+            ${ticket.point}
         );`;
             return true;
         }
@@ -44,9 +39,11 @@ module.exports = {
             return err;
         }
     },
-    getOneTicket: async (id) => {
+    getOneTicket: async (id, address) => {
+        console.log(id)
+        console.log(address)
         const result = await sql
-            `SELECT  * FROM ticket WHERE id=${id} `;
+            `SELECT  * FROM ticket WHERE id=${id} and issuer_address=${address} or owner_address=${address} `;
         return result[0];
     },
     getAllCities: async () => {

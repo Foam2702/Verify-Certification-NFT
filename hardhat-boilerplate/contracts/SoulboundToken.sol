@@ -3,11 +3,12 @@ pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Pausable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract SoulboundToken is ERC721URIStorage {
-    address public owner;
+contract SoulboundToken is ERC721, ERC721URIStorage, ERC721Pausable, Ownable {
     using Counters for Counters.Counter;
+
     Counters.Counter private _nSBTs;
 
     struct SBTInfo {
@@ -38,8 +39,14 @@ contract SoulboundToken is ERC721URIStorage {
     string[] private organizationCodesList;
 
     // Khai báo modifier `onlyOwner` để chỉ cho phép chủ sở hữu hợp đồng thực hiện các hành động được quy định
-    constructor() ERC721("SoulboundToken", "SBT") {
-        owner = msg.sender;
+    constructor() ERC721("SoulboundToken", "SBT") Ownable(msg.sender) {}
+
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, ERC721URIStorage) returns (bool) {
+        return super.supportsInterface(interfaceId);
+    }
+
+    function tokenURI(uint256 tokenId) public view virtual override(ERC721, ERC721URIStorage) returns (string memory) {
+        return super.tokenURI(tokenId);
     }
 
     // Hàm thêm một địa chỉ vào danh sách các địa chỉ được phép xác thực
@@ -51,6 +58,47 @@ contract SoulboundToken is ERC721URIStorage {
         if (!uniqueOrganizationCodes[organizationCode]) {
             uniqueOrganizationCodes[organizationCode] = true;
             organizationCodesList.push(organizationCode);
+        }
+    }
+
+    // Hàm xóa một địa chỉ từ danh sách các địa chỉ được phép xác thực
+    function removeVerifier(address verifier) public {
+        require(verifierList[verifier].isVerifier, "Address is not a verifier");
+
+        // Lấy mã tổ chức của verifier
+        string memory organizationCode = verifierList[verifier].organizationCode;
+
+        // Xóa địa chỉ khỏi mapping verifierList
+        delete verifierList[verifier];
+
+        // Xóa địa chỉ khỏi mảng verifierAddresses
+        for (uint256 i = 0; i < verifierAddresses.length; i++) {
+            if (verifierAddresses[i] == verifier) {
+                verifierAddresses[i] = verifierAddresses[verifierAddresses.length - 1];
+                verifierAddresses.pop();
+                break;
+            }
+        }
+
+        // Kiểm tra xem có bất kỳ verifier nào khác sử dụng cùng mã tổ chức hay không
+        bool organizationCodeUsed = false;
+        for (uint256 i = 0; i < verifierAddresses.length; i++) {
+            if (keccak256(bytes(verifierList[verifierAddresses[i]].organizationCode)) == keccak256(bytes(organizationCode))) {
+                organizationCodeUsed = true;
+                break;
+            }
+        }
+
+        // Nếu không còn verifier nào sử dụng mã tổ chức này, xóa mã tổ chức
+        if (!organizationCodeUsed) {
+            uniqueOrganizationCodes[organizationCode] = false;
+            for (uint256 i = 0; i < organizationCodesList.length; i++) {
+                if (keccak256(bytes(organizationCodesList[i])) == keccak256(bytes(organizationCode))) {
+                    organizationCodesList[i] = organizationCodesList[organizationCodesList.length - 1];
+                    organizationCodesList.pop();
+                    break;
+                }
+            }
         }
     }
 
@@ -68,50 +116,51 @@ contract SoulboundToken is ERC721URIStorage {
     function getOrganizationCode(address addr) public view returns (string memory) {
         return verifierList[addr].organizationCode;
     }
-     // Hàm phục hồi địa chỉ người ký
+
+    // Hàm phục hồi địa chỉ người ký
     function recover(bytes32 _ethSignedMessageHash, bytes memory _sig) public pure returns (address) {
-      (bytes32 r, bytes32 s, uint8 v) = _split(_sig);
-      return ecrecover(_ethSignedMessageHash, v, r, s);
+        (bytes32 r, bytes32 s, uint8 v) = _split(_sig);
+        return ecrecover(_ethSignedMessageHash, v, r, s);
     }
-    
+
     // Hàm xác định các thành phần r,s,v trong 1 chữ ký
     function _split(bytes memory _sig) internal pure returns (bytes32 r, bytes32 s, uint8 v) {
-      require(_sig.length == 65, "invalid signature length");
-      assembly {
-        r := mload(add(_sig, 32))
-        s := mload(add(_sig, 64))
-        v := byte(0, mload(add(_sig, 96)))
-      }
+        require(_sig.length == 65, "invalid signature length");
+        assembly {
+            r := mload(add(_sig, 32))
+            s := mload(add(_sig, 64))
+            v := byte(0, mload(add(_sig, 96)))
+        }
     }
-    
+
     // Hàm trả về mảng các SBT thuộc sở hữu của người gọi hàm
     function getMySBTs() public view returns (SBTInfo[] memory) {
-      uint totalSBTCount = _nSBTs.current();
-      uint sbtCount = 0;
-      
-      // Đếm số lượng SBT mà người dùng hiện tại sở hữu
-      for (uint i = 1; i <= totalSBTCount; i++) {
-        if (idToSBT[i].ownerAddress == msg.sender) {
-          sbtCount += 1;
+        uint totalSBTCount = _nSBTs.current();
+        uint sbtCount = 0;
+
+        // Đếm số lượng SBT mà người dùng hiện tại sở hữu
+        for (uint i = 1; i <= totalSBTCount; i++) {
+            if (idToSBT[i].ownerAddress == msg.sender) {
+                sbtCount += 1;
+            }
         }
-      }
-      
-      // Tạo mảng để lưu trữ thông tin về SBT của người dùng hiện tại
-      SBTInfo[] memory sbts = new SBTInfo[](sbtCount);
-      uint currentIndex = 0;
-      
-      // Lặp lại tất cả SBT và lưu trữ thông tin về SBT của người dùng hiện tại vào mảng
-      for (uint i = 1; i <= totalSBTCount; i++) {
-        if (idToSBT[i].ownerAddress == msg.sender) {
-          sbts[currentIndex] = idToSBT[i];
-          currentIndex += 1;
+
+        // Tạo mảng để lưu trữ thông tin về SBT của người dùng hiện tại
+        SBTInfo[] memory sbts = new SBTInfo[](sbtCount);
+        uint currentIndex = 0;
+
+        // Lặp lại tất cả SBT và lưu trữ thông tin về SBT của người dùng hiện tại vào mảng
+        for (uint i = 1; i <= totalSBTCount; i++) {
+            if (idToSBT[i].ownerAddress == msg.sender) {
+                sbts[currentIndex] = idToSBT[i];
+                currentIndex += 1;
+            }
         }
-      }
-      
-      return sbts;
+
+        return sbts;
     }
-    
-    //hàm riêng để thiết lập thông tin 
+
+    // hàm riêng để thiết lập thông tin 
     function setSBTInfo(
         string memory fullName,
         string memory certificateHash,
@@ -133,21 +182,19 @@ contract SoulboundToken is ERC721URIStorage {
     }
 
     // Hàm tạo một SBT mới cho một địa chỉ.
-
     function mintSBTForAddress(
         address recipient,
-        string memory tokenURI
+        string memory myTokenURI
     ) public {
-        require(msg.sender == owner || verifierList[msg.sender].isVerifier, "Only the owner or verifiers can mint SBTs for addresses");
 
         _nSBTs.increment(); // Tăng ID SBT
         uint256 newSBTId = _nSBTs.current(); // Lấy ID của SBT mới
 
         // Gọi hàm `_safeMint` để tạo NFT cho địa chỉ nhận
         _safeMint(recipient, newSBTId);
-        
+
         // Gọi hàm `_setTokenURI` để thiết lập URI cho token mới
-        _setTokenURI(newSBTId, tokenURI);
+        _setTokenURI(newSBTId, myTokenURI);
     }
 
     // Hàm tìm các địa chỉ có mã tổ chức cụ thể
@@ -179,5 +226,17 @@ contract SoulboundToken is ERC721URIStorage {
         return result;
     }
 
-    
+    // Hàm ngăn chặn chuyển giao soulbound token)
+    function _update(address to, uint256 tokenId, address auth)
+        internal
+        override(ERC721, ERC721Pausable)
+        returns (address)
+    {
+        address from = _ownerOf(tokenId);
+        if (from != address(0) && to != address(0)) {
+            revert("Soulbound: Transfer failed");
+        }
+
+        return super._update(to, tokenId, auth);
+    }
 }

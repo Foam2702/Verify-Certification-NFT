@@ -3,14 +3,14 @@ import PropTypes from 'prop-types';
 
 const Course = ({ className = "", course1Image, courseHeader, courseDescription, courseOrg
   , courseOrgImg }) => {
-
+  const imagenotfound = "/imagenotfound.png"
   return (
     <div className={`course-1 ${className}`}>
       <img
         className="course-1-image"
         loading="lazy"
         alt=""
-        src={course1Image}
+        src={course1Image || imagenotfound}
       />
       <div className="background-parent">
         <div className="background" />

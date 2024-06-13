@@ -6,7 +6,7 @@ import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import { useNavigate } from "react-router-dom";
 import { encryptData, remove0x } from "../helpers";
-
+import { v4 as uuidv4 } from 'uuid'
 import "./BodySection.css";
 
 const BodySection = () => {
@@ -24,6 +24,7 @@ const BodySection = () => {
   const [loading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState(3)
   const [alertSeverity, setAlertSeverity] = useState("");
+  const [checkSent, setCheckSend] = useState(true)
   const navigate = useNavigate();
 
   {
@@ -91,15 +92,7 @@ const BodySection = () => {
     }
 
     // Assuming `file` and `address` are available in the scope
-    const formData = new FormData();
-    if (file && file.length > 0) {
-      for (let i = 0; i < file.length; i++) {
-        formData.append("imageCertificate", file[i]);
-      }
-    } else {
-      console.log("No file selected");
-      return;
-    }
+
     const issuers = await checkIssuer(data.licensingAuthority);
     const fieldsToEncrypt = ['citizenId', 'name', 'region', 'dob', 'gender', 'email', 'workUnit', 'point', 'issueDate', 'expiryDate'];
 
@@ -110,7 +103,17 @@ const BodySection = () => {
       return;
     }
     else {
+      const id = uuidv4();
       for (const issuer of issuers) {
+        const formData = new FormData();
+        if (file && file.length > 0) {
+          for (let i = 0; i < file.length; i++) {
+            formData.append("imageCertificate", file[i]);
+          }
+        } else {
+          console.log("No file selected");
+          return;
+        }
         const publicKeysResponse = await axios.get(`http://localhost:8080/addresses/${issuer}`);
 
         if (publicKeysResponse.data.address.length === 0) {
@@ -124,47 +127,52 @@ const BodySection = () => {
           const encryptedData = await encryptData(data[field], remove0x(publicKeyIssuer));
           formData.append(field, JSON.stringify(encryptedData));
         }
-
         // Append non-encrypted fields directly
         formData.append("certificateName", data.certificateName)
         formData.append("owner", address);
         formData.append("licensingAuthority", data.licensingAuthority);
         formData.append("issuerAddress", publicKeysResponse.data.address[0].address)
+        formData.append("id", id)
+        for (let pair of formData.entries()) {
+          console.log(pair[0] + ", " + pair[1]);
+        }
+        try {
+          setLoading(true); // Start loading before sending the request
+          const response = await axios.post("http://localhost:8080/tickets", formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          });
 
+          console.log(response.data.message);
+
+          if (response.data.message === "ticket already exist") {
+            setCheckSend(false)
+          }
+
+          for (let pair of formData.entries()) {
+            console.log(pair[0] + ", " + pair[1]);
+          }
+        } catch (error) {
+          console.error(error);
+        } finally {
+          setLoading(false); // Stop loading regardless of the request outcome
+        }
       }
     }
-    // Encrypt and append each field to formData
+    console.log("CHECK", checkSent)
+    if (checkSent === true) {
 
-
-    try {
-      setLoading(true); // Start loading before sending the request
-      const response = await axios.post("http://localhost:8080/tickets", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-      console.log(response.data.message);
-
-      if (response.data.message === "sent successfully") {
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate loading/waiting time
-        setAlertSeverity("success");
-        setMessageAlert(`Submitted successfully. Please wait for confirmation from the ${data.licensingAuthority}`);
-        setShowAlert(true);
-      } else if (response.data.message === "ticket already exist") {
-        setAlertSeverity("error");
-        setMessageAlert("Certificate already exist");
-        setShowAlert(true);
-      }
-
-      for (let pair of formData.entries()) {
-        console.log(pair[0] + ", " + pair[1]);
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false); // Stop loading regardless of the request outcome
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate loading/waiting time
+      setAlertSeverity("success");
+      setMessageAlert(`Submitted successfully. Please wait for confirmation from the ${data.licensingAuthority}`);
+      setShowAlert(true);
+    } else if (checkSent === false) {
+      setAlertSeverity("warning");
+      setMessageAlert("Cannot sent to some issuer");
+      setShowAlert(true);
     }
+
   };
 
 
@@ -238,6 +246,7 @@ const BodySection = () => {
 
     return day + "/" + month + "/" + year;
   }
+
 
   return (
     <>

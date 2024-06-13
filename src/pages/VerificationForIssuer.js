@@ -22,7 +22,7 @@ export default function VerificationForIssuer() {
     useEffect(() => {
         const fetchTicketsById = async () => {
             if (address) {
-                const result = await axios(`http://localhost:8080/tickets/ticket/${id}`);
+                const result = await axios(`http://localhost:8080/tickets/ticket/${id}?address=${address}`);
 
                 if (result.data.ticket.issuer_address === address || result.data.ticket.owner_address === address) {
                     setTicket(result.data.ticket);

@@ -20,7 +20,6 @@ export const SignerProvider = ({ children }) => {
     useEffect(() => {
         const web3modal = new Web3Modal();
         if (web3modal.cachedProvider) {
-            console.log("IN CACHED")
 
             connectWallet();
         }

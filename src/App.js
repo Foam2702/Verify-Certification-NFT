@@ -4,6 +4,7 @@ import {
   Route,
   useNavigationType,
   useLocation,
+
 } from "react-router-dom";
 import LoginNew from "./pages/LoginNew";
 import VertificationNew from "./pages/VertificationNew";
@@ -18,6 +19,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import Admin from "./pages/Admin";
+import NotFound from "./pages/NotFound";
 function App() {
   const action = useNavigationType();
   const location = useLocation();
@@ -94,6 +96,7 @@ function App() {
         )}
 
         <Routes>
+
           <Route path="/admin" element={<Admin />} />
           <Route path="/coursetransfernew" element={<CourseTransferNew />} />
           <Route path="/courseinfornew" element={<CourseInforNew />} />
@@ -105,6 +108,8 @@ function App() {
           />
           <Route path="/verification" element={<VertificationNew />} />
           <Route path="/" element={<LoginNew />} />
+          <Route path="*" element={<NotFound />} />
+
         </Routes>
       </SignerProvider>
     </AnimatePresence>

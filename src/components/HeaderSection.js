@@ -145,10 +145,13 @@ const settings = [
           <div className="fickleflight-logo-wrapper">
             <button className="fickleflight-logo" onClick={() => {
               setLoadingPage(true); // Start loading
-              setTimeout(() => {
-                navigate("/");
-                setLoadingPage(false); // Stop loading
-              }, 1000); // Delay of 2 seconds
+
+              navigate("/");
+              // reload the current page
+              window.location.reload();
+
+              setLoadingPage(false); // Stop loading
+
             }}>
               <img className="abc" src="/VSCourses.svg" />
             </button>

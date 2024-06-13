@@ -5,7 +5,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import { useNavigate } from "react-router-dom";
-import { encryptData, remove0x } from "../helpers";
+import { encryptData, remove0x, imageUpload, fetchImagePinata } from "../helpers";
 import { v4 as uuidv4 } from 'uuid'
 import "./BodySection.css";
 
@@ -32,7 +32,7 @@ const BodySection = () => {
   }
   const onfileChange = (event) => {
     setFile(event.target.files);
-    console.log(file);
+    console.log("FILE", file);
   };
   const checkIssuer = async (licensing_authority) => {
     const { ethereum } = window;
@@ -116,6 +116,10 @@ const BodySection = () => {
           for (let i = 0; i < file.length; i++) {
             formData.append("imageCertificate", file[i]);
           }
+          const fetchImage = await fetchImagePinata()
+          const image_res = await imageUpload(formData.get("imageCertificate"), address)
+          console.log("IMAGE RES", image_res)
+          console.log("EXIST", fetchImage)
         } else {
           console.log("No file selected");
           return;
@@ -276,7 +280,7 @@ const BodySection = () => {
 
       <section className="body-section1">
         <div className="body-header">
-          <h1 className="body-header-text2">Điền thông tin chứng chỉ của bạn</h1>
+          <h1 className="body-header-text2">Fill in your certificate information</h1>
         </div>
         <form
           className="careers-section"

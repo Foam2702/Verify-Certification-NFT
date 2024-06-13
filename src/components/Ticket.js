@@ -508,9 +508,10 @@ const Ticket = ({ ticket }) => {
                     <div className="upload-wrapper">
                         <div className="upload">
                             <h3 className="upload-file-text">Image of certificate</h3>
-                            <div className="input-upload-file">
+                            <div className="">
                                 <div className="input-box-background" />
                                 <MultiActionAreaCard image={ticket.certificateUrl} />
+
                             </div>
                         </div>
                     </div>

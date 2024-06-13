@@ -64,36 +64,33 @@ export function replaceBaseUrl(ipfsLink, newBaseUrl) {
 }
 
 export async function encryptData(data, publicKeyHex) {
-    // Generate a new ephemeral key pair
-    const ephemeralKeyPair = ec.genKeyPair();
     const publicKey = ec.keyFromPublic(publicKeyHex, 'hex');
+    const fixedIV = CryptoJS.enc.Hex.parse('00000000000000000000000000000000');
 
-    // Derive a shared secret using the ephemeral private key and the recipient's public key
-    const sharedKey = ephemeralKeyPair.derive(publicKey.getPublic()).toString(16);
+    // Derive a shared secret using the public key
+    const sharedKey = publicKey.getPublic().encode('hex'); // using public key as shared key
     const key = CryptoJS.SHA256(sharedKey).toString(CryptoJS.enc.Hex);
+    console.log('Khóa chia sẻ khi mã hóa:', sharedKey); // Kiểm tra khóa chia sẻ khi mã hóa
 
-    // Encrypt the data using AES-256-CBC
-    const iv = CryptoJS.lib.WordArray.random(16);
-    const cipher = CryptoJS.AES.encrypt(data, CryptoJS.enc.Hex.parse(key), { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
+    // Encrypt the data using AES-256-CBC with the fixed IV
+    const cipher = CryptoJS.AES.encrypt(data, CryptoJS.enc.Hex.parse(key), { iv: fixedIV, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
 
-    // Return the ephemeral public key, IV, and encrypted data
-    const ephemeralPublicKeyHex = ephemeralKeyPair.getPublic('hex');
     return {
-        ephemeralPublicKey: ephemeralPublicKeyHex,
-        iv: iv.toString(CryptoJS.enc.Hex),
+        iv: fixedIV.toString(CryptoJS.enc.Hex),
         encryptedData: cipher.toString()
     };
 }
 export async function decryptData(encryptedObject, privateKeyHex) {
-    const { ephemeralPublicKey, iv, encryptedData } = encryptedObject;
+    const { iv, encryptedData } = encryptedObject;
     const privateKey = ec.keyFromPrivate(privateKeyHex, 'hex');
-    const ephemeralPublic = ec.keyFromPublic(ephemeralPublicKey, 'hex');
+    const publicKey = privateKey.getPublic();
 
-    // Derive the shared secret using the recipient's private key and the ephemeral public key
-    const sharedKey = privateKey.derive(ephemeralPublic.getPublic()).toString(16);
+    // Derive the shared secret using the recipient's private key
+    const sharedKey = publicKey.encode('hex'); // using public key as shared key
     const key = CryptoJS.SHA256(sharedKey).toString(CryptoJS.enc.Hex);
+    console.log('Khóa chia sẻ khi giải mã:', sharedKey); // Kiểm tra khóa chia sẻ khi giải mã
 
-    // Decrypt the data using AES-256-CBC
+    // Decrypt the data using AES-256-CBC with the fixed IV
     const ivWordArray = CryptoJS.enc.Hex.parse(iv);
     const decrypted = CryptoJS.AES.decrypt(encryptedData, CryptoJS.enc.Hex.parse(key), { iv: ivWordArray, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
 
@@ -142,6 +139,51 @@ export function handleError(error) {
         console.error("Error message:", error.message);
     }
 }
+
+export async function imageUpload(image, owner) {
+    try {
+        const formData = new FormData();
+        const pinataMetadata = JSON.stringify({
+            name: `certificate of ${owner}`,
+        });
+        const pinataOptions = JSON.stringify({
+            cidVersion: 1,
+        });
+        formData.append("file", image);
+        formData.append("pinataMetadata", pinataMetadata);
+        formData.append("pinataOptions", pinataOptions);
+        const res = await axios.post(
+            "https://api.pinata.cloud/pinning/pinFileToIPFS",
+            formData,
+            {
+                headers: {
+                    Authorization: `Bearer ${JWT}`,
+                },
+            }
+        );
+
+        return res.data.IpfsHash
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export async function fetchImagePinata() {
+    const res = await axios(
+        "https://api.pinata.cloud/data/pinList?status=all&pageLimit=100",
+        {
+            headers: {
+                Authorization: `Bearer ${JWT}`,
+            },
+        }
+    );
+
+    return res.data.rows
+}
+
+
+
+
 
 
 

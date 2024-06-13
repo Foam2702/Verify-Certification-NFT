@@ -23,12 +23,17 @@ export default function VerificationForIssuer() {
         const fetchTicketsById = async () => {
             if (address) {
                 const result = await axios(`http://localhost:8080/tickets/ticket/${id}?address=${address}`);
+                console.log(result)
 
-                if (result.data.ticket.issuer_address === address || result.data.ticket.owner_address === address) {
-                    setTicket(result.data.ticket);
+                if (result.data.message === "ticket doesn't exist") {
+
+                    navigate("/")
                 }
                 else {
-                    navigate("/")
+                    if (result.data.ticket.issuer_address === address || result.data.ticket.owner_address === address) {
+
+                        setTicket(result.data.ticket);
+                    }
                 }
             }
         }

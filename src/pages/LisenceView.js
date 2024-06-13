@@ -17,8 +17,14 @@ const LisenceView = () => {
   useEffect(() => {
     const getNFTS = async () => {
       if (address) {
-        const result = await axios(`https://testnets-api.opensea.io/api/v2/chain/sepolia/account/${address}/nfts`, options)
-        setCertificates(result.data.nfts)
+        try {
+          const result = await axios(`https://testnets-api.opensea.io/api/v2/chain/sepolia/account/${address}/nfts`, options)
+          setCertificates(result.data.nfts)
+        }
+        catch (err) {
+          console.log(err)
+        }
+
       }
     }
 

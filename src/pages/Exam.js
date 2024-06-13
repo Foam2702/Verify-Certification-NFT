@@ -11,16 +11,28 @@ const Exam = () => {
 
     useEffect(() => {
         const fetchExam = async () => {
-            const result = await axios(`http://localhost:8080/courses/course/${id}/exam`)
-            console.log(result.data.exams)
-            setExams(result.data.exams)
+            try {
+                const result = await axios(`http://localhost:8080/courses/course/${id}/exam`)
+                console.log(result.data.exams)
+                setExams(result.data.exams)
+
+            }
+            catch (err) {
+                console.log(err)
+            }
 
         }
         fetchExam()
         const fetchCourse = async () => {
-            const result = await axios(`http://localhost:8080/courses/course/${id}`)
-            console.log(result.data.course)
-            setCourse(result.data.course)
+            try {
+                const result = await axios(`http://localhost:8080/courses/course/${id}`)
+                console.log(result.data.course)
+                setCourse(result.data.course)
+            }
+            catch (err) {
+                console.log(err)
+            }
+
         }
         fetchCourse()
     }, [id])

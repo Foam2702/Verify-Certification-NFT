@@ -22,18 +22,23 @@ export default function VerificationForIssuer() {
     useEffect(() => {
         const fetchTicketsById = async () => {
             if (address) {
-                const result = await axios(`http://localhost:8080/tickets/ticket/${id}?address=${address}`);
-                console.log(result)
+                try {
+                    const result = await axios(`http://localhost:8080/tickets/ticket/${id}?address=${address}`);
+                    console.log(result)
 
-                if (result.data.message === "ticket doesn't exist") {
+                    if (result.data.message === "ticket doesn't exist") {
 
-                    navigate("/")
-                }
-                else {
-                    if (result.data.ticket.issuer_address === address || result.data.ticket.owner_address === address) {
-
-                        setTicket(result.data.ticket);
+                        navigate("/")
                     }
+                    else {
+                        if (result.data.ticket.issuer_address === address || result.data.ticket.owner_address === address) {
+
+                            setTicket(result.data.ticket);
+                        }
+                    }
+
+                } catch (err) {
+                    console.log(err)
                 }
             }
         }

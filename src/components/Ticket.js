@@ -134,21 +134,27 @@ const Ticket = ({ ticket }) => {
 
     const handleReject = async (e) => {
         e.preventDefault()
-        const status = "reject"
-        const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}?status=${status}`)
-        console.log(response.data.message)
-        if (response.data.message === "updated successfully") {
-            setUpdate(true)
-            setAlertSeverity("success")
-            setMessageAlert("Rejected Successfully")
-            setShowAlert(true);
-        }
-        else if (response.data.message === "update failed") {
-            setUpdate(false)
-            setAlertSeverity("error")
+        try {
+            const status = "reject"
+            const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}?status=${status}`)
+            console.log(response.data.message)
+            if (response.data.message === "updated successfully") {
+                setUpdate(true)
+                setAlertSeverity("success")
+                setMessageAlert("Rejected Successfully")
+                setShowAlert(true);
+            }
+            else if (response.data.message === "update failed") {
+                setUpdate(false)
+                setAlertSeverity("error")
 
-            setMessageAlert("Already Rejected")
-            setShowAlert(true);
+                setMessageAlert("Already Rejected")
+                setShowAlert(true);
+            }
+
+        }
+        catch (err) {
+            console.log(err)
         }
 
     }
@@ -158,33 +164,38 @@ const Ticket = ({ ticket }) => {
         const ipfsMetadata = `ipfs://${metadata}`
         const { ethereum } = window
         if (ethereum) {
-            const result = await contract.mintSBTForAddress(
-                ticket.owner_address,
-                ipfsMetadata
-            );
-            setAddressContract(result.to)
-            console.log(result)
-            const status = "approved"
-            const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}?status=${status}&transaction_hash=${result.hash}`)
+            try {
+                const result = await contract.mintSBTForAddress(
+                    ticket.owner_address,
+                    ipfsMetadata
+                );
+                setAddressContract(result.to)
+                console.log(result)
+                const status = "approved"
+                const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}?status=${status}&transaction_hash=${result.hash}`)
 
-            console.log(response.data.message)
+                console.log(response.data.message)
 
-            if (response.data.message === "updated successfully") {
-                ticket.transaction_hash = result.hash
-                setLoading(true);
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                setLoading(false);
-                setAlertSeverity("success")
+                if (response.data.message === "updated successfully") {
+                    ticket.transaction_hash = result.hash
+                    setLoading(true);
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    setLoading(false);
+                    setAlertSeverity("success")
 
-                setMessageAlert("Mint Successfully")
-                setShowAlert(true);
+                    setMessageAlert("Mint Successfully")
+                    setShowAlert(true);
+                }
+                else if (response.data.message === "update failed") {
+                    setUpdate(false)
+                    setAlertSeverity("error")
+
+                    setMessageAlert("Mint Fail")
+                    setShowAlert(true);
+                }
             }
-            else if (response.data.message === "update failed") {
-                setUpdate(false)
-                setAlertSeverity("error")
-
-                setMessageAlert("Mint Fail")
-                setShowAlert(true);
+            catch (err) {
+                console.log(err)
             }
         }
     };

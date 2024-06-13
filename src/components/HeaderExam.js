@@ -20,35 +20,40 @@ const HeaderExam = () => {
     const navigate = useNavigate();
     useEffect(() => {
         const fetchTickets = async () => {
-            const allTickets = await axios("http://localhost:8080/tickets/all");
-            const { ethereum } = window;
-            if (ethereum) {
-                const contract = new ethers.Contract(SOULBOUND_ADDRESS, SOULBOUND.abi, signer);
-                if (Array.isArray(allTickets.data.tickets)) {
-                    let newTickets = [];
-                    for (const ticket of allTickets.data.tickets) {
-                        try {
-                            const result = await contract.getVerifiersByOrganizationCode(ticket.licensing_authority);
-                            if (result.includes(address)) {
-                                const ticketFromOrg = await axios(`http://localhost:8080/tickets/${ticket.licensing_authority}`);
-                                if (Array.isArray(ticketFromOrg.data.tickets)) {
-                                    newTickets = ticketFromOrg.data.tickets;
-                                    break;
-                                } else {
-                                    throw new Error('Unexpected data format');
+            try {
+                const allTickets = await axios("http://localhost:8080/tickets/all");
+                const { ethereum } = window;
+                if (ethereum) {
+                    const contract = new ethers.Contract(SOULBOUND_ADDRESS, SOULBOUND.abi, signer);
+                    if (Array.isArray(allTickets.data.tickets)) {
+                        let newTickets = [];
+                        for (const ticket of allTickets.data.tickets) {
+                            try {
+                                const result = await contract.getVerifiersByOrganizationCode(ticket.licensing_authority);
+                                if (result.includes(address)) {
+                                    const ticketFromOrg = await axios(`http://localhost:8080/tickets/${ticket.licensing_authority}`);
+                                    if (Array.isArray(ticketFromOrg.data.tickets)) {
+                                        newTickets = ticketFromOrg.data.tickets;
+                                        break;
+                                    } else {
+                                        throw new Error('Unexpected data format');
+                                    }
+                                } else if (ticket.owner_address === address) {
+                                    newTickets.push(ticket);
                                 }
-                            } else if (ticket.owner_address === address) {
-                                newTickets.push(ticket);
+                            } catch (error) {
+                                console.error('Error:', error);
                             }
-                        } catch (error) {
-                            console.error('Error:', error);
                         }
+                        setTickets(newTickets);
+                    } else {
+                        throw new Error('Unexpected data format');
                     }
-                    setTickets(newTickets);
-                } else {
-                    throw new Error('Unexpected data format');
                 }
+            } catch (err) {
+                console.log(err)
             }
+
         };
         fetchTickets().catch(error => console.error(error));
     }, [signer, address]);

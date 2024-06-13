@@ -5,7 +5,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import useSigner from "../state/signer";
 import CircularProgress from '@mui/material/CircularProgress';
-
+import { fetchData } from "../helpers";
 const BodyCourses = ({ className = "" }) => {
     const [courses, setCourses] = useState([])
     const [loading, setLoading] = useState(false)
@@ -25,11 +25,16 @@ const BodyCourses = ({ className = "" }) => {
     }
     useEffect(() => {
         const fetchCourses = async () => {
-            const result = await axios.get(`http://localhost:8080/courses`)
-            if (Array.isArray(result.data.courses)) {
-                setCourses(result.data.courses)
-                console.log(result.data.courses)
-            }// Modify the URL to include the page query parameter
+            try {
+                const result = await axios.get(`http://localhost:8080/courses`)
+                if (Array.isArray(result.data.courses)) {
+                    setCourses(result.data.courses)
+                    console.log(result.data.courses)
+                }// Modify the URL to include the page query parameter
+            } catch (err) {
+                console.log(err)
+            }
+
         }
         fetchCourses().catch(error => console.error(error));
     }, []) // Add page as a dependency

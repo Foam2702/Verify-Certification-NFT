@@ -56,22 +56,28 @@ const BodySection = () => {
       );
     const insertPubToDB = async () => {
       if (address) {
-        const checkPublicKeyExisted = await axios.get(`http://localhost:8080/addresses/${address}`);
-        if (checkPublicKeyExisted.data.address.length === 0) {
-          const publicKey = await getPublicKey(); // Await the result of getPublicKey
-          if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
-            console.log('Error retrieving public key:', publicKey);
-            setAlertSeverity("warning");
-            setMessageAlert("You must sign to submit");
-            setShowAlert(true);
-            return;
-          }
-          await axios.post(`http://localhost:8080/addresses/${address}`, {
-            address: address, // Include the address in the body
-            publicKey: publicKey // Include the public key in the body
-          });
+        try {
+          const checkPublicKeyExisted = await axios.get(`http://localhost:8080/addresses/${address}`);
+          if (checkPublicKeyExisted.data.address.length === 0) {
+            const publicKey = await getPublicKey(); // Await the result of getPublicKey
+            if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
+              console.log('Error retrieving public key:', publicKey);
+              setAlertSeverity("warning");
+              setMessageAlert("You must sign to submit");
+              setShowAlert(true);
+              return;
+            }
+            await axios.post(`http://localhost:8080/addresses/${address}`, {
+              address: address, // Include the address in the body
+              publicKey: publicKey // Include the public key in the body
+            });
 
+          }
         }
+        catch (err) {
+          console.log(err)
+        }
+
 
       }
     };
@@ -114,29 +120,29 @@ const BodySection = () => {
           console.log("No file selected");
           return;
         }
-        const publicKeysResponse = await axios.get(`http://localhost:8080/addresses/${issuer}`);
-
-        if (publicKeysResponse.data.address.length === 0) {
-          setAlertSeverity("warning");
-          setMessageAlert(`${data.licensingAuthority} is busy. Please comeback later`);
-          setShowAlert(true);
-          return;
-        }
-        const publicKeyIssuer = publicKeysResponse.data.address[0].publickey
-        for (const field of fieldsToEncrypt) {
-          const encryptedData = await encryptData(data[field], remove0x(publicKeyIssuer));
-          formData.append(field, JSON.stringify(encryptedData));
-        }
-        // Append non-encrypted fields directly
-        formData.append("certificateName", data.certificateName)
-        formData.append("owner", address);
-        formData.append("licensingAuthority", data.licensingAuthority);
-        formData.append("issuerAddress", publicKeysResponse.data.address[0].address)
-        formData.append("id", id)
-        for (let pair of formData.entries()) {
-          console.log(pair[0] + ", " + pair[1]);
-        }
         try {
+          const publicKeysResponse = await axios.get(`http://localhost:8080/addresses/${issuer}`);
+
+          if (publicKeysResponse.data.address.length === 0) {
+            setAlertSeverity("warning");
+            setMessageAlert(`${data.licensingAuthority} is busy. Please comeback later`);
+            setShowAlert(true);
+            return;
+          }
+          const publicKeyIssuer = publicKeysResponse.data.address[0].publickey
+          for (const field of fieldsToEncrypt) {
+            const encryptedData = await encryptData(data[field], remove0x(publicKeyIssuer));
+            formData.append(field, JSON.stringify(encryptedData));
+          }
+          // Append non-encrypted fields directly
+          formData.append("certificateName", data.certificateName)
+          formData.append("owner", address);
+          formData.append("licensingAuthority", data.licensingAuthority);
+          formData.append("issuerAddress", publicKeysResponse.data.address[0].address)
+          formData.append("id", id)
+          for (let pair of formData.entries()) {
+            console.log(pair[0] + ", " + pair[1]);
+          }
           setLoading(true); // Start loading before sending the request
           const response = await axios.post("http://localhost:8080/tickets", formData, {
             headers: {
@@ -202,25 +208,37 @@ const BodySection = () => {
   // }, [showAlert, countdown]);
   useEffect(() => {
     const fetchDataRegions = async () => {
-      const result = await axios("http://localhost:8080/tickets");
-      if (Array.isArray(result.data.cities)) {
-        setRegions(result.data.cities);
-        console.log({ regions });
-      } else {
-        throw new Error("Unexpected data format");
+      try {
+        const result = await axios("http://localhost:8080/tickets");
+        if (Array.isArray(result.data.cities)) {
+          setRegions(result.data.cities);
+          console.log({ regions });
+        } else {
+          throw new Error("Unexpected data format");
+        }
       }
+      catch (err) {
+        console.log(err)
+      }
+
     };
 
     fetchDataRegions().catch((error) => console.error(error));
 
     const fetchDataCourses = async () => {
-      const result = await axios("http://localhost:8080/tickets");
-      if (Array.isArray(result.data.certificates)) {
-        setCourses(result.data.certificates);
-        console.log(result.data.certificates);
-      } else {
-        throw new Error("Unexpected data format");
+      try {
+        const result = await axios("http://localhost:8080/tickets");
+        if (Array.isArray(result.data.certificates)) {
+          setCourses(result.data.certificates);
+          console.log(result.data.certificates);
+        } else {
+          throw new Error("Unexpected data format");
+        }
       }
+      catch (err) {
+        console.log(err)
+      }
+
     };
     fetchDataCourses().catch((error) => console.error(error));
   }, []);

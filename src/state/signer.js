@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import Web3Modal from 'web3modal';
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import SOULBOUND from "../artifacts/contracts/SoulboundToken.sol/SoulboundToken.json";
 import { Buffer } from 'buffer'

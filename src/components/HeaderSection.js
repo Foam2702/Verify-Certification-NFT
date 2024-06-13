@@ -78,46 +78,57 @@ const settings = [
   };
   useEffect(() => {
     const fetchTickets = async () => {
-      const allTickets = await axios("http://localhost:8080/tickets/all");
-      if (Array.isArray(allTickets.data.tickets)) {
-        let newTickets = [];
-        for (const ticket of allTickets.data.tickets) {
-          try {
-            if (ticket.issuer_address === address || ticket.owner_address === address) {
-              newTickets.push(ticket);
+      try {
+        const allTickets = await axios("http://localhost:8080/tickets/all");
+        if (Array.isArray(allTickets.data.tickets)) {
+          let newTickets = [];
+          for (const ticket of allTickets.data.tickets) {
+            try {
+              if (ticket.issuer_address === address || ticket.owner_address === address) {
+                newTickets.push(ticket);
+              }
+            } catch (error) {
+              console.error('Error:', error);
             }
-          } catch (error) {
-            console.error('Error:', error);
           }
+          setTickets(newTickets);
+        } else {
+          throw new Error('Unexpected data format');
         }
-        setTickets(newTickets);
-      } else {
-        throw new Error('Unexpected data format');
+      } catch (err) {
+        console.log(err)
       }
+
     };
     fetchTickets().catch(error => console.error(error));
   }, [signer, address]);
   useEffect(() => {
     const insertPubToDB = async () => {
       if (address) {
-        const checkPublicKeyExisted = await axios.get(`http://localhost:8080/addresses/${address}`);
-        if (checkPublicKeyExisted.data.address.length === 0) {
-          const publicKey = await getPublicKey(); // Await the result of getPublicKey
-          if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
-            console.log('Error retrieving public key:', publicKey);
-            setAlertSeverity("warning");
-            setMessageAlert("Reject to sign");
+        try {
+          const checkPublicKeyExisted = await axios.get(`http://localhost:8080/addresses/${address}`);
+          if (checkPublicKeyExisted.data.address.length === 0) {
+            const publicKey = await getPublicKey(); // Await the result of getPublicKey
+            if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
+              console.log('Error retrieving public key:', publicKey);
+              setAlertSeverity("warning");
+              setMessageAlert("Reject to sign");
+              setShowAlert(true);
+              return;
+            }
+            await axios.post(`http://localhost:8080/addresses/${address}`, {
+              address: address, // Include the address in the body
+              publicKey: publicKey // Include the public key in the body
+            });
+            setAlertSeverity("success");
+            setMessageAlert("Sign successfully");
             setShowAlert(true);
-            return;
-          }
-          await axios.post(`http://localhost:8080/addresses/${address}`, {
-            address: address, // Include the address in the body
-            publicKey: publicKey // Include the public key in the body
-          });
-          setAlertSeverity("success");
-          setMessageAlert("Sign successfully");
-          setShowAlert(true);
 
+          }
+
+        }
+        catch (err) {
+          console.log(err)
         }
 
       }

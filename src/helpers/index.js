@@ -70,7 +70,6 @@ export async function encryptData(data, publicKeyHex) {
     // Derive a shared secret using the public key
     const sharedKey = publicKey.getPublic().encode('hex'); // using public key as shared key
     const key = CryptoJS.SHA256(sharedKey).toString(CryptoJS.enc.Hex);
-    console.log('Khóa chia sẻ khi mã hóa:', sharedKey); // Kiểm tra khóa chia sẻ khi mã hóa
 
     // Encrypt the data using AES-256-CBC with the fixed IV
     const cipher = CryptoJS.AES.encrypt(data, CryptoJS.enc.Hex.parse(key), { iv: fixedIV, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
@@ -88,7 +87,6 @@ export async function decryptData(encryptedObject, privateKeyHex) {
     // Derive the shared secret using the recipient's private key
     const sharedKey = publicKey.encode('hex'); // using public key as shared key
     const key = CryptoJS.SHA256(sharedKey).toString(CryptoJS.enc.Hex);
-    console.log('Khóa chia sẻ khi giải mã:', sharedKey); // Kiểm tra khóa chia sẻ khi giải mã
 
     // Decrypt the data using AES-256-CBC with the fixed IV
     const ivWordArray = CryptoJS.enc.Hex.parse(iv);

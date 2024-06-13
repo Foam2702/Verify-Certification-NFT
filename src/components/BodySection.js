@@ -24,7 +24,6 @@ const BodySection = () => {
   const [loading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState(3)
   const [alertSeverity, setAlertSeverity] = useState("");
-  const [checkSent, setCheckSend] = useState(true)
   const navigate = useNavigate();
 
   {
@@ -46,6 +45,7 @@ const BodySection = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const form = document.querySelector("form");
+    setLoading(true); // Start loading before sending the request
 
     // Get the form data
     const data = Array.from(form.elements)
@@ -144,10 +144,7 @@ const BodySection = () => {
           formData.append("licensingAuthority", data.licensingAuthority);
           formData.append("issuerAddress", publicKeysResponse.data.address[0].address)
           formData.append("id", id)
-          for (let pair of formData.entries()) {
-            console.log(pair[0] + ", " + pair[1]);
-          }
-          setLoading(true); // Start loading before sending the request
+
           const response = await axios.post("http://localhost:8080/tickets", formData, {
             headers: {
               "Content-Type": "multipart/form-data",
@@ -157,31 +154,25 @@ const BodySection = () => {
           console.log(response.data.message);
 
           if (response.data.message === "ticket already exist") {
-            setCheckSend(false)
+            setAlertSeverity("warning");
+            setMessageAlert("Ticket already exist");
+            setShowAlert(true);
+            return
           }
 
-          for (let pair of formData.entries()) {
-            console.log(pair[0] + ", " + pair[1]);
-          }
+          // for (let pair of formData.entries()) {
+          //   console.log(pair[0] + ", " + pair[1]);
+          // }
         } catch (error) {
           console.error(error);
-        } finally {
-          setLoading(false); // Stop loading regardless of the request outcome
         }
       }
     }
-    console.log("CHECK", checkSent)
-    if (checkSent === true) {
+    setLoading(false); // Stop loading regardless of the request outcome
 
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate loading/waiting time
-      setAlertSeverity("success");
-      setMessageAlert(`Submitted successfully. Please wait for confirmation from the ${data.licensingAuthority}`);
-      setShowAlert(true);
-    } else if (checkSent === false) {
-      setAlertSeverity("warning");
-      setMessageAlert("Cannot sent to some issuer");
-      setShowAlert(true);
-    }
+    setAlertSeverity("success");
+    setMessageAlert(`Submitted successfully. Please wait for confirmation from the ${data.licensingAuthority}`);
+    setShowAlert(true);
 
   };
 

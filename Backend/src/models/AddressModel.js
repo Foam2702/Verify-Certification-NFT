@@ -19,8 +19,7 @@ module.exports = {
         return result;
     },
     insertAddressPub: async (address, pub) => {
-        console.log("ADD", address)
-        console.log("PUB", pub)
+
         const result = await sql`
             INSERT INTO address (address, publickey) VALUES (${address}, ${pub})
         `;

@@ -31,7 +31,6 @@ async function imageUpload(image) {
             if (err) {
                 console.error(err);
             } else {
-                console.log('File is deleted.');
             }
         });
         return res.data.IpfsHash

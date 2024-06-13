@@ -17,7 +17,6 @@ module.exports = {
     },
     sendTicketFromStudent: async (req, res, next) => {
         const ticket = req.body;
-        console.log(ticket)
 
         const cidCertificate = "cidCertificate"
         const certificateUrl = "certificateUrl"
@@ -44,7 +43,6 @@ module.exports = {
         // await notificationModel.insertNotification(ticket, false, "none")
         // await notificationService.newTicketNotification(ticket)
         const result = await ticketModel.insertTicket(ticket);
-        console.log("RESULT", result)
         if (result === true) {
             res.json({
                 "ticket": ticket,
@@ -54,7 +52,6 @@ module.exports = {
             })
         }
         else {
-            console.log(result)
             res.json({
                 "message": "ticket already exist",
                 "code": "404",
@@ -66,7 +63,6 @@ module.exports = {
         const { id } = req.params
         const { address } = req.query
         const ticket = await ticketModel.getOneTicket(id, address)
-        console.log(ticket)
         if (ticket != undefined) {
             const certificateUrl = "certificateUrl"
             ticket[certificateUrl] = `https://coral-able-takin-320.mypinata.cloud/ipfs/${ticket.certificate_cid}`

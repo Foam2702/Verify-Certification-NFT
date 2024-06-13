@@ -16,7 +16,6 @@ var storage = multer.diskStorage({
 var upload = multer({
     storage: storage,
     onFileUploadStart: function (file) {
-        console.log(file.originalname + ' is starting ...')
     },
 });
 

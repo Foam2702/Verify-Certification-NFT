@@ -43,7 +43,8 @@ module.exports = {
         console.log(id)
         console.log(address)
         const result = await sql
-            `SELECT  * FROM ticket WHERE id=${id} and issuer_address=${address} or owner_address=${address} `;
+            `SELECT  * FROM ticket WHERE (id=${id} 
+            and issuer_address=${address}) or (id=${id} and owner_address=${address}) `;
         return result[0];
     },
     getAllCities: async () => {

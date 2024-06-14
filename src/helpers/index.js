@@ -1,6 +1,11 @@
 import axios from 'axios';
 import { ec as EC } from 'elliptic';
 import CryptoJS from 'crypto-js';
+
+// import Hash from 'ipfs-only-hash'
+// import { createHelia } from 'helia'
+// import { dagJson } from '@helia/dag-json'
+// { hello: 'world' }
 const ec = new EC('secp256k1');
 const JWT = process.env.REACT_APP_JWT; // Make sure to set this in your React app environment variables
 export const minifyAddress = (address) => {
@@ -142,7 +147,7 @@ export async function imageUpload(image, owner) {
     try {
         const formData = new FormData();
         const pinataMetadata = JSON.stringify({
-            name: `certificate of ${owner}`,
+            name: `${owner}`,
         });
         const pinataOptions = JSON.stringify({
             cidVersion: 1,
@@ -166,19 +171,37 @@ export async function imageUpload(image, owner) {
     }
 }
 
-export async function fetchImagePinata() {
-    const res = await axios(
-        "https://api.pinata.cloud/data/pinList?status=all&pageLimit=100",
-        {
-            headers: {
-                Authorization: `Bearer ${JWT}`,
-            },
-        }
-    );
+export async function fetchImagePinata(imageHash) {
+    try {
+        const res = await axios(
+            `https://api.pinata.cloud/data/pinList?hashContains=${imageHash}&status=pinned`,
+            {
+                headers: {
+                    Authorization: `Bearer ${JWT}`,
+                },
+            }
+        );
 
-    return res.data.rows
+        return res.data.rows[0]
+    }
+    catch (err) {
+        console.log(err)
+    }
+
 }
+export async function addFileToIPFS(file) {
+    // const helia = await createHelia()
+    // const d = dagJson(helia)
 
+    // const object2 = { link: file }
+    // const myImmutableAddress2 = await d.add(object2)
+
+    // const retrievedObject = await d.get(myImmutableAddress2)
+    // console.log(retrievedObject)
+    // // { link: CID(baguqeerasor...) }
+
+    // console.log(await d.get(retrievedObject.link))
+}
 
 
 

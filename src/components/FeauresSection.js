@@ -2,7 +2,7 @@ import "./FeauresSection.css";
 import axios from "axios";
 import { useEffect, useState } from 'react';
 import Course from "./Course";
-
+import { Link } from "@mui/material";
 const FeauresSection = () => {
   const [courses, setCourses] = useState([]);
 
@@ -25,9 +25,14 @@ const FeauresSection = () => {
   const duplicatedCourses = [...courses, ...courses];
 
   return (
+    //feaures-section
     <div className="feaures-section">
       <div className="body-header-2">
-        {/* Add any header content here */}
+        <div>Most Popular Certificates</div>
+        {/* <Link sx={{
+          fontSize: "var(--font-size-10xl)",
+          boxSizing: "border-box",
+        }}>See all</Link> */}
       </div>
       <div className="list-courses">
         {duplicatedCourses.map((course, index) => (

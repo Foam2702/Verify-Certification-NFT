@@ -5,8 +5,9 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import { useNavigate } from "react-router-dom";
-import { encryptData, remove0x, imageUpload, fetchImagePinata } from "../helpers";
+import { encryptData, remove0x, imageUpload, fetchImagePinata, addFileToIPFS } from "../helpers";
 import { v4 as uuidv4 } from 'uuid'
+
 import "./BodySection.css";
 
 const BodySection = () => {
@@ -46,7 +47,6 @@ const BodySection = () => {
     event.preventDefault();
     const form = document.querySelector("form");
     setLoading(true); // Start loading before sending the request
-
     // Get the form data
     const data = Array.from(form.elements)
       .filter((input) => input.name)
@@ -82,12 +82,7 @@ const BodySection = () => {
       }
     };
     insertPubToDB();
-
-
-    // Check if all fields are filled and add red border to empty fields
-
-
-    // Email validation
+    const formData = new FormData();
     let emailPattern = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     if (!emailPattern.test(data.email)) {
       console.log("Invalid email address.");
@@ -96,8 +91,24 @@ const BodySection = () => {
     } else {
       console.log("Valid email");
     }
+    if (file && file.length > 0) {
+      for (let i = 0; i < file.length; i++) {
+        formData.append("imageCertificate", file[i]);
+      }
+      const image_res = await imageUpload(formData.get("imageCertificate"), address)
+      const fetchImage = await fetchImagePinata(image_res)
+      if (fetchImage.metadata.name !== address) {
+        setLoading(false); // Stop loading regardless of the request outcome
+        setAlertSeverity("warning");
+        setMessageAlert(`This certificate already belongs to someone else`);
+        setShowAlert(true);
+        return
+      }
 
-    // Assuming `file` and `address` are available in the scope
+    } else {
+      console.log("No file selected");
+      return;
+    }
 
     const issuers = await checkIssuer(data.licensingAuthority);
     const fieldsToEncrypt = ['citizenId', 'name', 'region', 'dob', 'gender', 'email', 'workUnit', 'point', 'issueDate', 'expiryDate'];
@@ -111,23 +122,23 @@ const BodySection = () => {
     else {
       const id = uuidv4();
       for (const issuer of issuers) {
-        const formData = new FormData();
-        if (file && file.length > 0) {
-          for (let i = 0; i < file.length; i++) {
-            formData.append("imageCertificate", file[i]);
-          }
-          const fetchImage = await fetchImagePinata()
-          const image_res = await imageUpload(formData.get("imageCertificate"), address)
-          console.log("IMAGE RES", image_res)
-          console.log("EXIST", fetchImage)
-        } else {
-          console.log("No file selected");
-          return;
-        }
+
         try {
+          // Stop loading regardless of the request outcome
+          const formData = new FormData();
+          if (file && file.length > 0) {
+            for (let i = 0; i < file.length; i++) {
+              formData.append("imageCertificate", file[i]);
+            }
+          } else {
+            console.log("No file selected");
+            return;
+          }
           const publicKeysResponse = await axios.get(`http://localhost:8080/addresses/${issuer}`);
 
           if (publicKeysResponse.data.address.length === 0) {
+            setLoading(false); // Stop loading regardless of the request outcome
+
             setAlertSeverity("warning");
             setMessageAlert(`${data.licensingAuthority} is busy. Please comeback later`);
             setShowAlert(true);
@@ -150,33 +161,28 @@ const BodySection = () => {
               "Content-Type": "multipart/form-data",
             },
           });
-
           console.log(response.data.message);
-
           if (response.data.message === "ticket already exist") {
+            setLoading(false); // Stop loading regardless of the request outcome
+
             setAlertSeverity("warning");
             setMessageAlert("Ticket already exist");
             setShowAlert(true);
             return
           }
-
-          // for (let pair of formData.entries()) {
-          //   console.log(pair[0] + ", " + pair[1]);
-          // }
+          for (let pair of formData.entries()) {
+            console.log(pair[0] + ", " + pair[1]);
+          }
         } catch (error) {
           console.error(error);
         }
       }
     }
     setLoading(false); // Stop loading regardless of the request outcome
-
     setAlertSeverity("success");
     setMessageAlert(`Submitted successfully. Please wait for confirmation from the ${data.licensingAuthority}`);
     setShowAlert(true);
-
   };
-
-
   const handleClose = async (event, reason) => {
     if (reason === 'clickaway') {
       return;
@@ -451,3 +457,4 @@ const BodySection = () => {
 };
 
 export default BodySection;
+

@@ -42,7 +42,33 @@ const BodySection = () => {
     }
   }
 
+  const insertPubToDB = async () => {
+    if (address) {
+      try {
+        const checkPublicKeyExisted = await axios.get(`http://localhost:8080/addresses/${address}`);
+        if (checkPublicKeyExisted.data.address.length === 0) {
+          const publicKey = await getPublicKey(); // Await the result of getPublicKey
+          if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
+            console.log('Error retrieving public key:', publicKey);
+            setAlertSeverity("warning");
+            setMessageAlert("You must sign to submit");
+            setShowAlert(true);
+            return;
+          }
+          await axios.post(`http://localhost:8080/addresses/${address}`, {
+            address: address, // Include the address in the body
+            publicKey: publicKey // Include the public key in the body
+          });
 
+        }
+      }
+      catch (err) {
+        console.log(err)
+      }
+
+
+    }
+  };
   const handleSubmit = async (event) => {
     event.preventDefault();
     const form = document.querySelector("form");
@@ -54,35 +80,11 @@ const BodySection = () => {
         (obj, input) => Object.assign(obj, { [input.name]: input.value }),
         {}
       );
-    const insertPubToDB = async () => {
-      if (address) {
-        try {
-          const checkPublicKeyExisted = await axios.get(`http://localhost:8080/addresses/${address}`);
-          if (checkPublicKeyExisted.data.address.length === 0) {
-            const publicKey = await getPublicKey(); // Await the result of getPublicKey
-            if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
-              console.log('Error retrieving public key:', publicKey);
-              setAlertSeverity("warning");
-              setMessageAlert("You must sign to submit");
-              setShowAlert(true);
-              return;
-            }
-            await axios.post(`http://localhost:8080/addresses/${address}`, {
-              address: address, // Include the address in the body
-              publicKey: publicKey // Include the public key in the body
-            });
 
-          }
-        }
-        catch (err) {
-          console.log(err)
-        }
-
-
-      }
-    };
     insertPubToDB();
     const formData = new FormData();
+
+    //Email
     let emailPattern = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     if (!emailPattern.test(data.email)) {
       console.log("Invalid email address.");
@@ -91,19 +93,30 @@ const BodySection = () => {
     } else {
       console.log("Valid email");
     }
+    //File
     if (file && file.length > 0) {
       for (let i = 0; i < file.length; i++) {
         formData.append("imageCertificate", file[i]);
       }
       const image_res = await imageUpload(formData.get("imageCertificate"), address)
       const fetchImage = await fetchImagePinata(image_res)
-      if (fetchImage.metadata.name !== address) {
+      if (fetchImage) {
+        if (fetchImage.metadata.name !== address) {
+          setLoading(false); // Stop loading regardless of the request outcome
+          setAlertSeverity("warning");
+          setMessageAlert(`This certificate already belongs to someone else`);
+          setShowAlert(true);
+          return
+        }
+      }
+      else {
         setLoading(false); // Stop loading regardless of the request outcome
-        setAlertSeverity("warning");
-        setMessageAlert(`This certificate already belongs to someone else`);
+        setAlertSeverity("error");
+        setMessageAlert(`Something went wrong`);
         setShowAlert(true);
         return
       }
+
 
     } else {
       console.log("No file selected");
@@ -121,8 +134,44 @@ const BodySection = () => {
     }
     else {
       const id = uuidv4();
-      for (const issuer of issuers) {
+      //ticket for owner
+      try {
+        const ownerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${address}`)
+        const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
 
+        for (const field of fieldsToEncrypt) {
+          const encryptedData = await encryptData(data[field], remove0x(publicKeyOwner));
+          formData.append(field, JSON.stringify(encryptedData));
+        }
+        // Append non-encrypted fields directly
+        formData.append("certificateName", data.certificateName)
+        formData.append("owner", address);
+        formData.append("licensingAuthority", data.licensingAuthority);
+        formData.append("issuerAddress", null)
+        formData.append("id", id)
+
+        const response = await axios.post("http://localhost:8080/tickets", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+        console.log(response.data.message);
+        if (response.data.message === "ticket already exist") {
+          setLoading(false); // Stop loading regardless of the request outcome
+
+          setAlertSeverity("warning");
+          setMessageAlert("Ticket already exist");
+          setShowAlert(true);
+          return
+        }
+        for (let pair of formData.entries()) {
+          console.log(pair[0] + ", " + pair[1]);
+        }
+      } catch (err) {
+        console.log(err)
+      }
+      //ticket for issuers
+      for (const issuer of issuers) {
         try {
           // Stop loading regardless of the request outcome
           const formData = new FormData();
@@ -134,17 +183,16 @@ const BodySection = () => {
             console.log("No file selected");
             return;
           }
-          const publicKeysResponse = await axios.get(`http://localhost:8080/addresses/${issuer}`);
-
-          if (publicKeysResponse.data.address.length === 0) {
+          const issuerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${issuer}`);
+          if (issuerPublicKeysResponse.data.address.length === 0) {
             setLoading(false); // Stop loading regardless of the request outcome
-
             setAlertSeverity("warning");
             setMessageAlert(`${data.licensingAuthority} is busy. Please comeback later`);
             setShowAlert(true);
             return;
           }
-          const publicKeyIssuer = publicKeysResponse.data.address[0].publickey
+          const publicKeyIssuer = issuerPublicKeysResponse.data.address[0].publickey
+
           for (const field of fieldsToEncrypt) {
             const encryptedData = await encryptData(data[field], remove0x(publicKeyIssuer));
             formData.append(field, JSON.stringify(encryptedData));
@@ -153,7 +201,7 @@ const BodySection = () => {
           formData.append("certificateName", data.certificateName)
           formData.append("owner", address);
           formData.append("licensingAuthority", data.licensingAuthority);
-          formData.append("issuerAddress", publicKeysResponse.data.address[0].address)
+          formData.append("issuerAddress", issuerPublicKeysResponse.data.address[0].address)
           formData.append("id", id)
 
           const response = await axios.post("http://localhost:8080/tickets", formData, {

@@ -339,81 +339,70 @@ const Ticket = ({ ticket }) => {
 
             <main className="body-section1">
                 <form className="careers-section" encType="multipart/form-data" action="" >
-                    {ticket.issuer_address === address ?
-                        <div>
+                    <div>
 
-                            <div className="body-header">
-                                <h1 className="body-header-text2">Certificate Information</h1>
+                        <div className="body-header">
+                            <h1 className="body-header-text2">Certificate Information</h1>
 
-                            </div>
-                            {correctPriv ? <></> : <Box sx={{ display: "flex", justifyContent: "center" }}>
-                                <Button variant="outlined" sx={{ my: "20px", fontSize: "0.5em" }} onClick={handleClickOpen}>
-                                    Click to view
-                                </Button>
-
-                            </Box>}
-
-                            <Dialog
-                                open={open}
-                                onClose={handleCloseDialog}
-                                PaperProps={{
-                                    component: 'form',
-                                    onSubmit: handleSubmitPrivateKey
-
-                                }}
-
-                                maxWidth="md" // Adjust this value as needed (sm, md, lg, xl)
-                                sx={{
-                                    '& .MuiDialogContent-root': { fontSize: '1.25rem' }, // Adjust font size for dialog content
-                                    '& .MuiTextField-root': { fontSize: '1.25rem' }, // Adjust font size for text fields
-                                    '& .MuiButton-root': { fontSize: '1.25rem' }, // Adjust font size for buttons
-                                }}
-                            >
-                                <DialogTitle sx={{ fontSize: '1.5rem' }}>Private Key</DialogTitle>
-                                <DialogContent>
-                                    <DialogContentText sx={{ fontSize: '1.5rem' }}>
-                                        Please enter private key from your MetaMask
-                                    </DialogContentText>
-                                    <TextField
-                                        autoFocus
-                                        required
-                                        margin="normal"
-
-                                        name="privatekey"
-                                        label="Private Key"
-                                        type="privatekey"
-                                        fullWidth
-                                        variant="outlined"
-                                        sx={{
-                                            '& .MuiInputBase-input': {
-                                                fontSize: '1.25rem', // Increase font size
-                                            },
-                                            '& .MuiInputLabel-root': {
-                                                fontSize: '1.25rem', // Increase label font size
-                                            },
-
-                                        }}
-                                    />
-
-                                </DialogContent>
-                                <DialogActions>
-                                    <Button onClick={handleCloseDialog} type="submit">Decrypt</Button>
-
-                                    <Button onClick={handleCloseDialog}>Cancel</Button>
-                                </DialogActions>
-                            </Dialog>
                         </div>
-                        : <>
-                            <AlertTicket severity={ticket.status} sx={{ fontSize: "1.5em" }} />
-                            <Alert variant="outlined" severity="info" sx={{ fontSize: "1.5rem" }}>
-                                All information has been encrypted                            </Alert>
-                            {ticket.status === 'approved' ?
-                                <Button variant="contained" onClick={addNFTToWallet}>Import NFT to MetaMask </Button>
-                                : <></>
-                            }
+                        {correctPriv ? <></> : <Box sx={{ display: "flex", justifyContent: "center" }}>
+                            <Button variant="outlined" sx={{ my: "20px", fontSize: "0.5em" }} onClick={handleClickOpen}>
+                                Click to view
+                            </Button>
 
-                        </>
-                    }
+                        </Box>}
+
+                        <Dialog
+                            open={open}
+                            onClose={handleCloseDialog}
+                            PaperProps={{
+                                component: 'form',
+                                onSubmit: handleSubmitPrivateKey
+
+                            }}
+
+                            maxWidth="md" // Adjust this value as needed (sm, md, lg, xl)
+                            sx={{
+                                '& .MuiDialogContent-root': { fontSize: '1.25rem' }, // Adjust font size for dialog content
+                                '& .MuiTextField-root': { fontSize: '1.25rem' }, // Adjust font size for text fields
+                                '& .MuiButton-root': { fontSize: '1.25rem' }, // Adjust font size for buttons
+                            }}
+                        >
+                            <DialogTitle sx={{ fontSize: '1.5rem' }}>Private Key</DialogTitle>
+                            <DialogContent>
+                                <DialogContentText sx={{ fontSize: '1.5rem' }}>
+                                    Please enter private key from your MetaMask
+                                </DialogContentText>
+                                <TextField
+                                    autoFocus
+                                    required
+                                    margin="normal"
+
+                                    name="privatekey"
+                                    label="Private Key"
+                                    type="privatekey"
+                                    fullWidth
+                                    variant="outlined"
+                                    sx={{
+                                        '& .MuiInputBase-input': {
+                                            fontSize: '1.25rem', // Increase font size
+                                        },
+                                        '& .MuiInputLabel-root': {
+                                            fontSize: '1.25rem', // Increase label font size
+                                        },
+
+                                    }}
+                                />
+
+                            </DialogContent>
+                            <DialogActions>
+                                <Button onClick={handleCloseDialog} type="submit">Decrypt</Button>
+
+                                <Button onClick={handleCloseDialog}>Cancel</Button>
+                            </DialogActions>
+                        </Dialog>
+                    </div>
+
                     <div className="careers-section-inner">
                         <div className="name-parent">
                             <div className="name">

@@ -99,6 +99,50 @@ export async function decryptData(encryptedObject, privateKeyHex) {
 
     return decrypted.toString(CryptoJS.enc.Utf8);
 }
+
+export async function imageFileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = () => reject(new Error('Error reading file'));
+        reader.readAsDataURL(file);
+    });
+}
+export async function base64ToImageFile(base64String, filename = 'image.png') {
+    // Split the base64 string in data and contentType
+    const block = base64String.split(";");
+    // Get the content type of the image
+    const contentType = block[0].split(":")[1];
+    // get the real base64 content of the file
+    const realData = block[1].split(",")[1];
+    // Convert it to a blob to upload
+    const blob = b64toBlob(realData, contentType);
+    // Create a FormData and append the file with "image" as parameter name
+    const formDataToUpload = new FormData();
+    formDataToUpload.append("image", blob, filename);
+    return formDataToUpload;
+}
+
+function b64toBlob(b64Data, contentType = '', sliceSize = 512) {
+    const byteCharacters = atob(b64Data);
+    const byteArrays = [];
+
+    for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+        const slice = byteCharacters.slice(offset, offset + sliceSize);
+
+        const byteNumbers = new Array(slice.length);
+        for (let i = 0; i < slice.length; i++) {
+            byteNumbers[i] = slice.charCodeAt(i);
+        }
+
+        const byteArray = new Uint8Array(byteNumbers);
+        byteArrays.push(byteArray);
+    }
+
+    const blob = new Blob(byteArrays, { type: contentType });
+    return blob;
+}
+// Now you can pass `base64ImageString` to `encryptData`
 export function remove0x(input) {
     if (input.startsWith('0x')) {
         return input.slice(2);

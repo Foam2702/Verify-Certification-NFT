@@ -5,7 +5,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import { useNavigate } from "react-router-dom";
-import { encryptData, remove0x, imageUpload, fetchImagePinata, addFileToIPFS } from "../helpers";
+import { encryptData, decryptData, remove0x, imageUpload, fetchImagePinata, addFileToIPFS, imageFileToBase64, base64ToImageFile } from "../helpers";
 import { v4 as uuidv4 } from 'uuid'
 
 import "./BodySection.css";
@@ -25,6 +25,7 @@ const BodySection = () => {
   const [loading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState(3)
   const [alertSeverity, setAlertSeverity] = useState("");
+  const [image, setImage] = useState(null)
   const navigate = useNavigate();
 
   {
@@ -98,6 +99,27 @@ const BodySection = () => {
       for (let i = 0; i < file.length; i++) {
         formData.append("imageCertificate", file[i]);
       }
+      ///////////test
+      const ownerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${address}`)
+      const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
+      const base64ImageString = await imageFileToBase64(formData.get("imageCertificate"));
+
+      console.log("FILEEEEEEEE", base64ImageString)
+      const imageEncrypt = await encryptData(base64ImageString, remove0x(publicKeyOwner));
+      console.log("imageEncrypt", imageEncrypt)
+      const imageDecrypt = await decryptData(imageEncrypt, "5168f0d408a381e0194cc59f6c34eec439beb8622f74e8c71a4200eee0bef091");
+      console.log("imageDncrypt", imageDecrypt)
+      const originalImage = await base64ToImageFile(base64ImageString)
+      console.log("ORIGINAL", originalImage)
+      if (imageDecrypt === base64ImageString) {
+        console.log("IMAGE", true)
+      }
+      else {
+        console.log("IMAGE", false)
+      }
+      setLoading(false); // Stop loading regardless of the request outcome
+
+      ////////////
       const image_res = await imageUpload(formData.get("imageCertificate"), address)
       const fetchImage = await fetchImagePinata(image_res)
       if (fetchImage) {
@@ -120,6 +142,8 @@ const BodySection = () => {
 
     } else {
       console.log("No file selected");
+      setLoading(false); // Stop loading regardless of the request outcome
+
       return;
     }
 
@@ -150,20 +174,20 @@ const BodySection = () => {
         formData.append("issuerAddress", null)
         formData.append("id", id)
 
-        const response = await axios.post("http://localhost:8080/tickets", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
-        console.log(response.data.message);
-        if (response.data.message === "ticket already exist") {
-          setLoading(false); // Stop loading regardless of the request outcome
+        // const response = await axios.post("http://localhost:8080/tickets", formData, {
+        //   headers: {
+        //     "Content-Type": "multipart/form-data",
+        //   },
+        // });
+        // console.log(response.data.message);
+        // if (response.data.message === "ticket already exist") {
+        setLoading(false); // Stop loading regardless of the request outcome
 
-          setAlertSeverity("warning");
-          setMessageAlert("Ticket already exist");
-          setShowAlert(true);
-          return
-        }
+        //   setAlertSeverity("warning");
+        //   setMessageAlert("Ticket already exist");
+        //   setShowAlert(true);
+        //   return
+        // }
         for (let pair of formData.entries()) {
           console.log(pair[0] + ", " + pair[1]);
         }
@@ -204,20 +228,20 @@ const BodySection = () => {
           formData.append("issuerAddress", issuerPublicKeysResponse.data.address[0].address)
           formData.append("id", id)
 
-          const response = await axios.post("http://localhost:8080/tickets", formData, {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          });
-          console.log(response.data.message);
-          if (response.data.message === "ticket already exist") {
-            setLoading(false); // Stop loading regardless of the request outcome
+          // const response = await axios.post("http://localhost:8080/tickets", formData, {
+          //   headers: {
+          //     "Content-Type": "multipart/form-data",
+          //   },
+          // });
+          // console.log(response.data.message);
+          // if (response.data.message === "ticket already exist") {
+          setLoading(false); // Stop loading regardless of the request outcome
 
-            setAlertSeverity("warning");
-            setMessageAlert("Ticket already exist");
-            setShowAlert(true);
-            return
-          }
+          //   setAlertSeverity("warning");
+          //   setMessageAlert("Ticket already exist");
+          //   setShowAlert(true);
+          //   return
+          // }
           for (let pair of formData.entries()) {
             console.log(pair[0] + ", " + pair[1]);
           }

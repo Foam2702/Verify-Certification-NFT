@@ -31,9 +31,6 @@ module.exports = {
             else {
                 await sql`
                     INSERT INTO ticket 
-                    (id,issuer_address, owner_address,certificate_cid,certificate_name,
-                    licensing_authority,name, citizen_id,gender,email, work_unit, region,status,dob,
-                    expiry_date,issue_date,point)
                     VALUES (
                         ${ticket.id},
                         ${ticket.issuerAddress},
@@ -41,6 +38,7 @@ module.exports = {
                         ${ticket.cidCertificate},
                         ${ticket.certificateName},
                         ${ticket.licensingAuthority},
+                        null,
                         ${ticket.name},
                         ${ticket.citizenId},
                         ${ticket.gender},
@@ -58,9 +56,7 @@ module.exports = {
             if (isDuplicate == false) {
                 await sql`
                     INSERT INTO ticket 
-                    (id,issuer_address, owner_address,certificate_cid,certificate_name,
-                    licensing_authority,name, citizen_id,gender,email, work_unit, region,status,dob,
-                    expiry_date,issue_date,point)
+              
                     VALUES (
                         ${ticket.id},
                         ${ticket.issuerAddress},
@@ -68,6 +64,7 @@ module.exports = {
                         ${ticket.cidCertificate},
                         ${ticket.certificateName},
                         ${ticket.licensingAuthority},
+                        null,
                         ${ticket.name},
                         ${ticket.citizenId},
                         ${ticket.gender},
@@ -88,6 +85,7 @@ module.exports = {
         } catch (err) {
             return err;
         }
+
     },
     getOneTicket: async (id, address) => {
 

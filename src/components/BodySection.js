@@ -25,7 +25,8 @@ const BodySection = () => {
   const [loading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState(3)
   const [alertSeverity, setAlertSeverity] = useState("");
-  const [image, setImage] = useState(null)
+  const [imageUrl, setImageUrl] = useState('');
+
   const navigate = useNavigate();
 
   {
@@ -110,34 +111,51 @@ const BodySection = () => {
       // const imageDecrypt = await decryptData(imageEncrypt, "5168f0d408a381e0194cc59f6c34eec439beb8622f74e8c71a4200eee0bef091");
       // console.log("imageDncrypt", imageDecrypt)
       // const originalImage = await base64ToImageFile(base64ImageString)
-      // console.log("ORIGINAL", originalImage)
+      // console.log("ORIGINAL", originalImage.get("image"))
+      // if (originalImage.get("image")) {
+      //   const url = URL.createObjectURL(originalImage.get("image"));
+      //   setImageUrl(url);
+
+      //   // Clean up the URL object after the component unmounts to avoid memory leaks
+      //   return () => URL.revokeObjectURL(url);
+      // }
       // if (imageDecrypt === base64ImageString) {
       //   console.log("IMAGE", true)
       // }
       // else {
       //   console.log("IMAGE", false)
       // }
-      // setLoading(false); 
+      // setLoading(false);
 
       ////////////
-      // const image_res = await imageUpload(formData.get("imageCertificate"), address)
-      // const fetchImage = await fetchImagePinata(image_res)
-      // if (fetchImage) {
-      //   if (fetchImage.metadata.name !== address) {
-      //     setLoading(false); // Stop loading regardless of the request outcome
-      //     setAlertSeverity("warning");
-      //     setMessageAlert(`This certificate already belongs to someone else`);
-      //     setShowAlert(true);
-      //     return
-      //   }
-      // }
-      // else {
-      //   setLoading(false); // Stop loading regardless of the request outcome
-      //   setAlertSeverity("error");
-      //   setMessageAlert(`Something went wrong`);
-      //   setShowAlert(true);
-      //   return
-      // }
+      const ownerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${address}`)
+      const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
+      const base64ImageString = await imageFileToBase64(formData.get("imageCertificate"));
+
+
+      const imageEncrypt = await encryptData(base64ImageString, remove0x(publicKeyOwner));
+      const image_res = await imageUpload(imageEncrypt, address)
+      console.log(image_res)
+      setLoading(false)
+      const fetchImage = await fetchImagePinata(image_res)
+      if (fetchImage) {
+        console.log(fetchImage.metadata.name.split('.')[0])
+        console.log(address)
+        if (fetchImage.metadata.name.split('.')[0] !== address) {
+          setLoading(false); // Stop loading regardless of the request outcome
+          setAlertSeverity("warning");
+          setMessageAlert(`This certificate already belongs to someone else`);
+          setShowAlert(true);
+          return
+        }
+      }
+      else {
+        setLoading(false); // Stop loading regardless of the request outcome
+        setAlertSeverity("error");
+        setMessageAlert(`Something went wrong`);
+        setShowAlert(true);
+        return
+      }
 
 
     } else {
@@ -147,88 +165,88 @@ const BodySection = () => {
       return;
     }
 
-    const issuers = await checkIssuer(data.licensingAuthority);
-    const fieldsToEncrypt = [
-      'citizenId', 'name', 'region', 'dob', 'gender', 'email',
-      'workUnit', 'point', 'issueDate', 'expiryDate',
-      "certificateName", "licensingAuthority"];
-    const image_res = await imageUpload(formData.get("imageCertificate"), address)
+    // const issuers = await checkIssuer(data.licensingAuthority);
+    // const fieldsToEncrypt = [
+    //   'citizenId', 'name', 'region', 'dob', 'gender', 'email',
+    //   'workUnit', 'point', 'issueDate', 'expiryDate',
+    //   "certificateName", "licensingAuthority"];
+    // const image_res = await imageUpload(formData.get("imageCertificate"), address)
 
-    if (issuers.length === 0) {
-      setAlertSeverity("warning");
-      setMessageAlert(`No issuer found for ${data.licensingAuthority}`);
-      setShowAlert(true);
-      return;
-    }
-    else {
-      //ticket for owner
-      try {
-        const id = uuidv4();
-        for (const field of fieldsToEncrypt) {
-          formData.append(field, data[field]);
-        }
-        formData.append("issuerAddress", '')
-        formData.append("cidCertificate", image_res)
-        formData.append("id", id)
-        formData.append("owner", address)
-        const response = await axios.post("http://localhost:8080/tickets", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
-        if (response.data.message === "ticket already exist") {
-          setLoading(false);
-          setAlertSeverity("warning");
-          setMessageAlert("Ticket already exist");
-          setShowAlert(true);
-          return
-        }
-        for (const issuer of issuers) {
-          const formData = new FormData();
-          const issuerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${issuer}`);
+    // if (issuers.length === 0) {
+    //   setAlertSeverity("warning");
+    //   setMessageAlert(`No issuer found for ${data.licensingAuthority}`);
+    //   setShowAlert(true);
+    //   return;
+    // }
+    // else {
+    //   //ticket for owner
+    //   try {
+    //     const id = uuidv4();
+    //     for (const field of fieldsToEncrypt) {
+    //       formData.append(field, data[field]);
+    //     }
+    //     formData.append("issuerAddress", '')
+    //     formData.append("cidCertificate", image_res)
+    //     formData.append("id", id)
+    //     formData.append("owner", address)
+    //     const response = await axios.post("http://localhost:8080/tickets", formData, {
+    //       headers: {
+    //         "Content-Type": "multipart/form-data",
+    //       },
+    //     });
+    //     if (response.data.message === "ticket already exist") {
+    //       setLoading(false);
+    //       setAlertSeverity("warning");
+    //       setMessageAlert("Ticket already exist");
+    //       setShowAlert(true);
+    //       return
+    //     }
+    //     for (const issuer of issuers) {
+    //       const formData = new FormData();
+    //       const issuerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${issuer}`);
 
-          if (issuerPublicKeysResponse.data.address.length === 0) {
-            setLoading(false); // Stop loading regardless of the request outcome
-            setAlertSeverity("warning");
-            setMessageAlert(`${data.licensingAuthority} is busy. Please comeback later`);
-            setShowAlert(true);
-            return;
-          }
+    //       if (issuerPublicKeysResponse.data.address.length === 0) {
+    //         setLoading(false); // Stop loading regardless of the request outcome
+    //         setAlertSeverity("warning");
+    //         setMessageAlert(`${data.licensingAuthority} is busy. Please comeback later`);
+    //         setShowAlert(true);
+    //         return;
+    //       }
 
-          for (const field of fieldsToEncrypt) {
-            formData.append(field, data[field]);
-          }
-          formData.append("issuerAddress", issuerPublicKeysResponse.data.address[0].address)
-          formData.append("cidCertificate", image_res)
-          formData.append("id", id)
-          formData.append("owner", address)
+    //       for (const field of fieldsToEncrypt) {
+    //         formData.append(field, data[field]);
+    //       }
+    //       formData.append("issuerAddress", issuerPublicKeysResponse.data.address[0].address)
+    //       formData.append("cidCertificate", image_res)
+    //       formData.append("id", id)
+    //       formData.append("owner", address)
 
-          const response = await axios.post("http://localhost:8080/tickets", formData, {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          });
-          console.log(response.data.message);
-          if (response.data.message === "ticket already exist") {
-            setLoading(false); // Stop loading regardless of the request outcome
-            setAlertSeverity("warning");
-            setMessageAlert("Ticket already exist");
-            setShowAlert(true);
-            return
-          }
-          for (let pair of formData.entries()) {
-            console.log(pair[0] + ", " + pair[1]);
-          }
-        }
-      } catch (err) {
-        console.log(err)
-      }
+    //       const response = await axios.post("http://localhost:8080/tickets", formData, {
+    //         headers: {
+    //           "Content-Type": "multipart/form-data",
+    //         },
+    //       });
+    //       console.log(response.data.message);
+    //       if (response.data.message === "ticket already exist") {
+    //         setLoading(false); // Stop loading regardless of the request outcome
+    //         setAlertSeverity("warning");
+    //         setMessageAlert("Ticket already exist");
+    //         setShowAlert(true);
+    //         return
+    //       }
+    //       for (let pair of formData.entries()) {
+    //         console.log(pair[0] + ", " + pair[1]);
+    //       }
+    //     }
+    //   } catch (err) {
+    //     console.log(err)
+    //   }
 
-    }
-    setLoading(false); // Stop loading regardless of the request outcome
-    setAlertSeverity("success");
-    setMessageAlert(`Submitted successfully. Please wait for confirmation from the ${data.licensingAuthority}`);
-    setShowAlert(true);
+    // }
+    // setLoading(false); // Stop loading regardless of the request outcome
+    // setAlertSeverity("success");
+    // setMessageAlert(`Submitted successfully. Please wait for confirmation from the ${data.licensingAuthority}`);
+    // setShowAlert(true);
   };
   const handleClose = async (event, reason) => {
     if (reason === 'clickaway') {
@@ -321,7 +339,10 @@ const BodySection = () => {
           <CircularProgress />
         </div>
       )}
-
+      <div>
+        HELLO
+        {imageUrl && <img src={imageUrl} alt="Uploaded" />}
+      </div>
       <section className="body-section1">
         <div className="body-header">
           <h1 className="body-header-text2">Fill in your certificate information</h1>

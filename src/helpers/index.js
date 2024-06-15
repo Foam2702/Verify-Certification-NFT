@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { ec as EC } from 'elliptic';
 import CryptoJS from 'crypto-js';
-
+import { Buffer } from 'buffer';
 // import Hash from 'ipfs-only-hash'
 // import { createHelia } from 'helia'
 // import { dagJson } from '@helia/dag-json'
@@ -193,32 +193,34 @@ export function handleError(error) {
     }
 }
 
-export async function imageUpload(image, owner) {
-    try {
-        const formData = new FormData();
-        const pinataMetadata = JSON.stringify({
-            name: `${owner}`,
-        });
-        const pinataOptions = JSON.stringify({
-            cidVersion: 1,
-        });
-        formData.append("file", image);
-        formData.append("pinataMetadata", pinataMetadata);
-        formData.append("pinataOptions", pinataOptions);
-        const res = await axios.post(
-            "https://api.pinata.cloud/pinning/pinFileToIPFS",
-            formData,
-            {
-                headers: {
-                    Authorization: `Bearer ${JWT}`,
-                },
-            }
-        );
+export async function imageUpload(imageEnc, owner) {
+    const data = JSON.stringify({
+        pinataContent: {
+            name: owner,
+            description: `Certificate of ${owner}`,
+            external_url: "https://pinata.cloud",
+            image: JSON.stringify(imageEnc),
 
-        return res.data.IpfsHash
+        },
+        pinataMetadata: {
+            name: `${owner}.json`
+        }
+    });
+
+    try {
+        console.log("JWT", JWT)
+        const res = await axios.post("https://api.pinata.cloud/pinning/pinJSONToIPFS", data, {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${JWT}`
+            }
+        });
+        console.log("RES", res.data)
+        return (res.data.IpfsHash);
     } catch (error) {
         console.log(error);
     }
+
 }
 
 export async function fetchImagePinata(imageHash) {

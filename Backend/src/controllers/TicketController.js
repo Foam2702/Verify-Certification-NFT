@@ -33,7 +33,6 @@ module.exports = {
         else {
             getAddress = await addressModel.getOneAddressPub(ticket.issuerAddress)
         }
-        console.log(ticket)
 
         const encTicket = {
             citizenId: ticket.citizenId ? JSON.stringify(await encDecData.encryptData(ticket.citizenId, encDecData.remove0x(getAddress[0].publickey))) : null,
@@ -54,7 +53,6 @@ module.exports = {
             id: ticket.id,
             status: ticket.status
         };
-        console.log(encTicket)
 
         const result = await ticketModel.insertTicket(encTicket);
         if (result === true) {

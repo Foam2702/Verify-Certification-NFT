@@ -98,6 +98,9 @@ const Ticket = ({ ticket }) => {
     useEffect(() => {
         const decryptAllFields = async () => {
             try {
+                console.log("POINT", ticket.point)
+                console.log("ISSUE", ticket.issue_date)
+                console.log("EXPIRY", ticket.expiry_date)
                 const name = await handleDecryptTicket(ticket.name, privateKey);
                 const gender = await handleDecryptTicket(ticket.gender, privateKey);
                 const email = await handleDecryptTicket(ticket.email, privateKey);
@@ -284,27 +287,18 @@ const Ticket = ({ ticket }) => {
     const handleDecryptTicket = async (prop, privateKey) => {
         try {
             const result = await decryptData(JSON.parse(prop), privateKey);
-            if (result === "") {
-                setError("Wrong private key"); // Set the error state
-                setLoading(true);
-                setLoading(false);
-                setAlertSeverity("error")
 
-                setMessageAlert("Wrong private key")
-                setShowAlert(true);
+            if (result === "") {
+
                 return extractEncryptedDataFromJson(prop.toString()); // Return the original prop value in case of error
             }
-            setCorrectPriv(true)
-            setLoading(true);
-            // await new Promise(resolve => setTimeout(resolve, 1000));
-            setLoading(false);
-            setAlertSeverity("success")
 
-            setMessageAlert("Correct private key")
-            setShowAlert(true);
             return result;
         } catch (error) {
+            console.log("ERRR1")
             if (error.message.includes("Cipher key could not be derived")) {
+                console.log("ERRR2")
+
                 setError("Wrong private key"); // Set the error state
                 setLoading(true);
                 // await new Promise(resolve => setTimeout(resolve, 1000));
@@ -314,6 +308,8 @@ const Ticket = ({ ticket }) => {
                 setMessageAlert("Wrong private key")
                 setShowAlert(true);
             } else {
+                console.log("ERRR3")
+
                 setError("Error decrypting data"); // Set a generic decryption error message
                 setLoading(true);
                 // await new Promise(resolve => setTimeout(resolve, 1000));
@@ -327,7 +323,6 @@ const Ticket = ({ ticket }) => {
 
         }
     };
-    console.log("ticketssss", ticket)
     return (
         <>
             {loading && (
@@ -356,17 +351,11 @@ const Ticket = ({ ticket }) => {
                                 )}
                             </>
                         )}
-                        {correctPriv ? (
-                            <></>
-                        ) : (
-                            <Box sx={{ display: "flex", justifyContent: "center" }}>
-                                <Button variant="outlined" sx={{ my: "20px", fontSize: "0.5em" }} onClick={handleClickOpen}>
-                                    Click to view
-                                </Button>
-                            </Box>
-                        )}
-
-
+                        <Box sx={{ display: "flex", justifyContent: "center" }}>
+                            <Button variant="outlined" sx={{ my: "20px", fontSize: "0.5em" }} onClick={handleClickOpen}>
+                                Click to view
+                            </Button>
+                        </Box>
                         <Dialog
                             open={open}
                             onClose={handleCloseDialog}

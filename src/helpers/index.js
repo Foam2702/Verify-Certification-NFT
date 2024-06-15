@@ -85,6 +85,12 @@ export async function encryptData(data, publicKeyHex) {
     };
 }
 export async function decryptData(encryptedObject, privateKeyHex) {
+    // Check if encryptedObject or its properties are null
+    if (!encryptedObject || !encryptedObject.iv || !encryptedObject.encryptedData) {
+        console.log('Encrypted object or its properties are null.');
+        return null; // or return an appropriate value indicating the input was null
+    }
+
     const { iv, encryptedData } = encryptedObject;
     const privateKey = ec.keyFromPrivate(privateKeyHex, 'hex');
     const publicKey = privateKey.getPublic();

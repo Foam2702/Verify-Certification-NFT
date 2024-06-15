@@ -21,8 +21,6 @@ export default function MultiActionAreaCard({ image }) {
             catch (err) {
                 console.log(err)
             }
-
-
         }
         fetchImage()
     }, [image])

@@ -57,7 +57,6 @@ const NotificationBell = ({ tickets }) => {
 
     return (
         <div>
-            <div>{filteredTickets.length}</div>
             <Tooltip title={notificationMessage}>
                 <IconButton
                     onClick={filteredTickets.length ? handleOpen : null}

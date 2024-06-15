@@ -327,6 +327,7 @@ const Ticket = ({ ticket }) => {
 
         }
     };
+    console.log("ticketssss", ticket)
     return (
         <>
             {loading && (

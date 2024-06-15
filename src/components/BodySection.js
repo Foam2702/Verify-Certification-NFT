@@ -167,7 +167,7 @@ const BodySection = () => {
         for (const field of fieldsToEncrypt) {
           formData.append(field, data[field]);
         }
-        formData.append("issuerAddress", null)
+        formData.append("issuerAddress", '')
         formData.append("cidCertificate", image_res)
         formData.append("id", id)
         formData.append("owner", address)

@@ -28,13 +28,17 @@ export default function VerificationForIssuer() {
                     if (result.data.message === "ticket doesn't exist") {
                         navigate("/");
                     } else {
-                        // Assuming issuer_address is either null (not a string) or a valid address
-                        const ticketOwner = result.data.ticket.filter(ticket => ticket.issuer_address === null);
-                        console.log("owner", ticketOwner);
-                        const ticketIssuer = result.data.ticket.filter(ticket => ticket.issuer_address !== null);
-                        console.log("issuer", ticketIssuer);
-                        // Adjust logic here based on whether you expect multiple tickets or just one
-                        setTicket([...ticketOwner, ...ticketIssuer]);
+                        result.data.ticket.forEach(item => {
+                            if (item.owner_address === address) {
+                                if (item.issuer_address === '') {
+                                    setTicket(item)
+                                }
+                            }
+                            else if (item.issuer_address === address) {
+                                setTicket(item)
+                            }
+
+                        })
                     }
                 } catch (err) {
                     console.error(err);

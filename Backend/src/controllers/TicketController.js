@@ -1,9 +1,11 @@
 const ticketModel = require("../models/TicketModel")
 const imageUpload = require("../service/uploadImage")
 const splitDate = require("../service/splitDate")
+const encDecData = require("../service/EncDec")
 const notificationModel = require("../models/NotificationModel")
 const notificationService = require("../service/notification")
 const organizationModel = require("../models/OrganizationModel")
+const addressModel = require("../models/AddressModel")
 const fs = require('fs')
 
 module.exports = {
@@ -17,32 +19,53 @@ module.exports = {
     },
     sendTicketFromStudent: async (req, res, next) => {
         const ticket = req.body;
-
-        const cidCertificate = "cidCertificate"
-        const certificateUrl = "certificateUrl"
         const status = "status"
-        let image = { ...ticket, ...req.file }
-        if (ticket.point == '') {
-            ticket.point = null
-        }
-        if (ticket.expiryDate == '') {
-            ticket.expiryDate = null
-        }
-        // else {
-        //     ticket.expiryDate = splitDate(req.body.expiryDate);
+        let getAddress = "";
 
-        // }
-        // ticket.dob = splitDate(req.body.dob);
-        // ticket.issueDate = splitDate(req.body.issueDate);
+        // Function to check and convert empty or 'null' values to null
+        const convertToNullIfEmptyOrNull = (value) => {
+            return (value === '' || value === 'null') ? null : value;
+        };
+
+        // Apply the conversion function to all relevant properties
+        ticket.point = convertToNullIfEmptyOrNull(ticket.point);
+        ticket.expiryDate = convertToNullIfEmptyOrNull(ticket.expiryDate);
+        ticket.issuerAddress = convertToNullIfEmptyOrNull(ticket.issuerAddress);
+        // Add similar lines for other properties if needed
 
         ticket[status] = "processing"
-
-        ticket[cidCertificate] = await imageUpload(image);
-        ticket[certificateUrl] = `https://coral-able-takin-320.mypinata.cloud/ipfs/${ticket[cidCertificate]}`
-
         // await notificationModel.insertNotification(ticket, false, "none")
         // await notificationService.newTicketNotification(ticket)
-        const result = await ticketModel.insertTicket(ticket);
+        // const result = await ticketModel.insertTicket(ticket);
+        if (ticket.issuerAddress === null) {
+            getAddress = await addressModel.getOneAddressPub(ticket.owner)
+        }
+        else {
+            getAddress = await addressModel.getOneAddressPub(ticket.issuerAddress)
+        }
+
+        const encTicket = {
+            citizenId: JSON.stringify(await encDecData.encryptData(ticket.citizenId, encDecData.remove0x(getAddress[0].publickey))),
+            name: JSON.stringify(await encDecData.encryptData(ticket.name, encDecData.remove0x(getAddress[0].publickey))),
+            region: JSON.stringify(await encDecData.encryptData(ticket.region, encDecData.remove0x(getAddress[0].publickey))),
+            dob: JSON.stringify(await encDecData.encryptData(ticket.dob, encDecData.remove0x(getAddress[0].publickey))),
+            gender: JSON.stringify(await encDecData.encryptData(ticket.gender, encDecData.remove0x(getAddress[0].publickey))),
+            email: JSON.stringify(await encDecData.encryptData(ticket.email, encDecData.remove0x(getAddress[0].publickey))),
+            workUnit: JSON.stringify(await encDecData.encryptData(ticket.workUnit, encDecData.remove0x(getAddress[0].publickey))),
+            point: JSON.stringify(await encDecData.encryptData(ticket.point, encDecData.remove0x(getAddress[0].publickey))),
+            issueDate: JSON.stringify(await encDecData.encryptData(ticket.issueDate, encDecData.remove0x(getAddress[0].publickey))),
+            expiryDate: JSON.stringify(await encDecData.encryptData(ticket.expiryDate, encDecData.remove0x(getAddress[0].publickey))),
+            certificateName: ticket.certificateName,
+            owner: ticket.owner,
+            licensingAuthority: ticket.licensingAuthority,
+            issuerAddress: ticket.issuerAddress,
+            cidCertificate: ticket.cidCertificate,
+            id: ticket.id,
+            status: ticket.status
+        }
+        console.log(encTicket)
+
+        const result = await ticketModel.insertTicket(encTicket);
         if (result === true) {
             res.json({
                 "ticket": ticket,
@@ -62,6 +85,7 @@ module.exports = {
     getOneTicket: async (req, res, next) => {
         const { id } = req.params
         const { address } = req.query
+        console.log(id, address)
         const ticket = await ticketModel.getOneTicket(id, address)
         if (ticket != undefined) {
             const certificateUrl = "certificateUrl"

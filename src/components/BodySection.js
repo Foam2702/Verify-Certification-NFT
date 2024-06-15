@@ -100,44 +100,44 @@ const BodySection = () => {
         formData.append("imageCertificate", file[i]);
       }
       ///////////test
-      const ownerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${address}`)
-      const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
-      const base64ImageString = await imageFileToBase64(formData.get("imageCertificate"));
+      // const ownerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${address}`)
+      // const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
+      // const base64ImageString = await imageFileToBase64(formData.get("imageCertificate"));
 
-      console.log("FILEEEEEEEE", base64ImageString)
-      const imageEncrypt = await encryptData(base64ImageString, remove0x(publicKeyOwner));
-      console.log("imageEncrypt", imageEncrypt)
-      const imageDecrypt = await decryptData(imageEncrypt, "5168f0d408a381e0194cc59f6c34eec439beb8622f74e8c71a4200eee0bef091");
-      console.log("imageDncrypt", imageDecrypt)
-      const originalImage = await base64ToImageFile(base64ImageString)
-      console.log("ORIGINAL", originalImage)
-      if (imageDecrypt === base64ImageString) {
-        console.log("IMAGE", true)
-      }
-      else {
-        console.log("IMAGE", false)
-      }
-      setLoading(false); // Stop loading regardless of the request outcome
+      // console.log("FILEEEEEEEE", base64ImageString)
+      // const imageEncrypt = await encryptData(base64ImageString, remove0x(publicKeyOwner));
+      // console.log("imageEncrypt", imageEncrypt)
+      // const imageDecrypt = await decryptData(imageEncrypt, "5168f0d408a381e0194cc59f6c34eec439beb8622f74e8c71a4200eee0bef091");
+      // console.log("imageDncrypt", imageDecrypt)
+      // const originalImage = await base64ToImageFile(base64ImageString)
+      // console.log("ORIGINAL", originalImage)
+      // if (imageDecrypt === base64ImageString) {
+      //   console.log("IMAGE", true)
+      // }
+      // else {
+      //   console.log("IMAGE", false)
+      // }
+      // setLoading(false); 
 
       ////////////
-      const image_res = await imageUpload(formData.get("imageCertificate"), address)
-      const fetchImage = await fetchImagePinata(image_res)
-      if (fetchImage) {
-        if (fetchImage.metadata.name !== address) {
-          setLoading(false); // Stop loading regardless of the request outcome
-          setAlertSeverity("warning");
-          setMessageAlert(`This certificate already belongs to someone else`);
-          setShowAlert(true);
-          return
-        }
-      }
-      else {
-        setLoading(false); // Stop loading regardless of the request outcome
-        setAlertSeverity("error");
-        setMessageAlert(`Something went wrong`);
-        setShowAlert(true);
-        return
-      }
+      // const image_res = await imageUpload(formData.get("imageCertificate"), address)
+      // const fetchImage = await fetchImagePinata(image_res)
+      // if (fetchImage) {
+      //   if (fetchImage.metadata.name !== address) {
+      //     setLoading(false); // Stop loading regardless of the request outcome
+      //     setAlertSeverity("warning");
+      //     setMessageAlert(`This certificate already belongs to someone else`);
+      //     setShowAlert(true);
+      //     return
+      //   }
+      // }
+      // else {
+      //   setLoading(false); // Stop loading regardless of the request outcome
+      //   setAlertSeverity("error");
+      //   setMessageAlert(`Something went wrong`);
+      //   setShowAlert(true);
+      //   return
+      // }
 
 
     } else {
@@ -148,7 +148,11 @@ const BodySection = () => {
     }
 
     const issuers = await checkIssuer(data.licensingAuthority);
-    const fieldsToEncrypt = ['citizenId', 'name', 'region', 'dob', 'gender', 'email', 'workUnit', 'point', 'issueDate', 'expiryDate'];
+    const fieldsToEncrypt = [
+      'citizenId', 'name', 'region', 'dob', 'gender', 'email',
+      'workUnit', 'point', 'issueDate', 'expiryDate',
+      "certificateName", "licensingAuthority"];
+    const image_res = await imageUpload(formData.get("imageCertificate"), address)
 
     if (issuers.length === 0) {
       setAlertSeverity("warning");
@@ -157,57 +161,32 @@ const BodySection = () => {
       return;
     }
     else {
-      const id = uuidv4();
       //ticket for owner
       try {
-        const ownerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${address}`)
-        const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
-
+        const id = uuidv4();
         for (const field of fieldsToEncrypt) {
-          const encryptedData = await encryptData(data[field], remove0x(publicKeyOwner));
-          formData.append(field, JSON.stringify(encryptedData));
+          formData.append(field, data[field]);
         }
-        // Append non-encrypted fields directly
-        formData.append("certificateName", data.certificateName)
-        formData.append("owner", address);
-        formData.append("licensingAuthority", data.licensingAuthority);
         formData.append("issuerAddress", null)
+        formData.append("cidCertificate", image_res)
         formData.append("id", id)
-
-        // const response = await axios.post("http://localhost:8080/tickets", formData, {
-        //   headers: {
-        //     "Content-Type": "multipart/form-data",
-        //   },
-        // });
-        // console.log(response.data.message);
-        // if (response.data.message === "ticket already exist") {
-        setLoading(false); // Stop loading regardless of the request outcome
-
-        //   setAlertSeverity("warning");
-        //   setMessageAlert("Ticket already exist");
-        //   setShowAlert(true);
-        //   return
-        // }
-        for (let pair of formData.entries()) {
-          console.log(pair[0] + ", " + pair[1]);
+        formData.append("owner", address)
+        const response = await axios.post("http://localhost:8080/tickets", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+        if (response.data.message === "ticket already exist") {
+          setLoading(false);
+          setAlertSeverity("warning");
+          setMessageAlert("Ticket already exist");
+          setShowAlert(true);
+          return
         }
-      } catch (err) {
-        console.log(err)
-      }
-      //ticket for issuers
-      for (const issuer of issuers) {
-        try {
-          // Stop loading regardless of the request outcome
+        for (const issuer of issuers) {
           const formData = new FormData();
-          if (file && file.length > 0) {
-            for (let i = 0; i < file.length; i++) {
-              formData.append("imageCertificate", file[i]);
-            }
-          } else {
-            console.log("No file selected");
-            return;
-          }
           const issuerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${issuer}`);
+
           if (issuerPublicKeysResponse.data.address.length === 0) {
             setLoading(false); // Stop loading regardless of the request outcome
             setAlertSeverity("warning");
@@ -215,40 +194,36 @@ const BodySection = () => {
             setShowAlert(true);
             return;
           }
-          const publicKeyIssuer = issuerPublicKeysResponse.data.address[0].publickey
 
           for (const field of fieldsToEncrypt) {
-            const encryptedData = await encryptData(data[field], remove0x(publicKeyIssuer));
-            formData.append(field, JSON.stringify(encryptedData));
+            formData.append(field, data[field]);
           }
-          // Append non-encrypted fields directly
-          formData.append("certificateName", data.certificateName)
-          formData.append("owner", address);
-          formData.append("licensingAuthority", data.licensingAuthority);
           formData.append("issuerAddress", issuerPublicKeysResponse.data.address[0].address)
+          formData.append("cidCertificate", image_res)
           formData.append("id", id)
+          formData.append("owner", address)
 
-          // const response = await axios.post("http://localhost:8080/tickets", formData, {
-          //   headers: {
-          //     "Content-Type": "multipart/form-data",
-          //   },
-          // });
-          // console.log(response.data.message);
-          // if (response.data.message === "ticket already exist") {
-          setLoading(false); // Stop loading regardless of the request outcome
-
-          //   setAlertSeverity("warning");
-          //   setMessageAlert("Ticket already exist");
-          //   setShowAlert(true);
-          //   return
-          // }
+          const response = await axios.post("http://localhost:8080/tickets", formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          });
+          console.log(response.data.message);
+          if (response.data.message === "ticket already exist") {
+            setLoading(false); // Stop loading regardless of the request outcome
+            setAlertSeverity("warning");
+            setMessageAlert("Ticket already exist");
+            setShowAlert(true);
+            return
+          }
           for (let pair of formData.entries()) {
             console.log(pair[0] + ", " + pair[1]);
           }
-        } catch (error) {
-          console.error(error);
         }
+      } catch (err) {
+        console.log(err)
       }
+
     }
     setLoading(false); // Stop loading regardless of the request outcome
     setAlertSeverity("success");

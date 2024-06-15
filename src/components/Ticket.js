@@ -55,13 +55,11 @@ const Ticket = ({ ticket }) => {
     const [decryptedExpiryDate, setDecryptedExpiryDate] = useState('');
     const web3 = new Web3(window.ethereum);
     const navigate = useNavigate();
-
     useEffect(() => {
         const checkIssuer = async () => {
             const { ethereum } = window;
             if (ethereum) {
                 const result = await contract.getVerifiersByOrganizationCode(ticket.licensing_authority);
-                console.log("RESULT", result)
                 setIssuer(result)
             }
         }
@@ -340,17 +338,33 @@ const Ticket = ({ ticket }) => {
             <main className="body-section1">
                 <form className="careers-section" encType="multipart/form-data" action="" >
                     <div>
+                        {issuer.includes(address) ? (
+                            <>
+                                <div className="body-header">
+                                    <h1 className="body-header-text2">Certificate Information</h1>
+                                </div>
 
-                        <div className="body-header">
-                            <h1 className="body-header-text2">Certificate Information</h1>
+                            </>
+                        ) : (
+                            <>
+                                <AlertTicket severity={ticket.status} />
+                                {ticket.status === 'approved' ? (
+                                    <Button variant="contained" onClick={addNFTToWallet}>Import NFT to MetaMask</Button>
+                                ) : (
+                                    <></>
+                                )}
+                            </>
+                        )}
+                        {correctPriv ? (
+                            <></>
+                        ) : (
+                            <Box sx={{ display: "flex", justifyContent: "center" }}>
+                                <Button variant="outlined" sx={{ my: "20px", fontSize: "0.5em" }} onClick={handleClickOpen}>
+                                    Click to view
+                                </Button>
+                            </Box>
+                        )}
 
-                        </div>
-                        {correctPriv ? <></> : <Box sx={{ display: "flex", justifyContent: "center" }}>
-                            <Button variant="outlined" sx={{ my: "20px", fontSize: "0.5em" }} onClick={handleClickOpen}>
-                                Click to view
-                            </Button>
-
-                        </Box>}
 
                         <Dialog
                             open={open}

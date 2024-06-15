@@ -1,27 +1,29 @@
-import { IconButton, Tooltip } from "@mui/material"
+import { IconButton, Tooltip } from "@mui/material";
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
-import BasicMenu from "./BasicMenu"
+import BasicMenu from "./BasicMenu";
 import { useState, useEffect } from 'react';
 import Badge from '@mui/material/Badge';
 import useSigner from "../state/signer";
 
 const NotificationBell = ({ tickets }) => {
-    const { signer, address, connectWallet, contract, provider, getPublicKey } = useSigner()
-    const [issuers, setIssuers] = useState([])
+    const { signer, address, contract } = useSigner();
+    const [issuers, setIssuers] = useState([]);
 
-    const [open, setOpen] = useState(false)
-    const [anchorEl, setanchorEl] = useState(null)
-    const [isIssuer, setIsIssuer] = useState(true)
+    const [open, setOpen] = useState(false);
+    const [anchorEl, setAnchorEl] = useState(null);
+    const [isIssuer, setIsIssuer] = useState(true);
+
     const handleOpen = (e) => {
-        setanchorEl(e.currentTarget)
-        setOpen(true)
-    }
+        setAnchorEl(e.currentTarget);
+        setOpen(true);
+    };
     const handleClose = () => {
-        setOpen(false)
-    }
-    const newNotifications = `You have ${tickets.length} new notifications!`
-    const noNotifications = 'No new notifications'
+        setOpen(false);
+    };
+
+    // First useEffect to fetch issuers
     useEffect(() => {
+        let isMounted = true; // Flag to check component mount status
         const fetchOrg = async () => {
             if (signer && contract) {
                 const orgs = await contract.getOrganizationCodes();
@@ -29,73 +31,50 @@ const NotificationBell = ({ tickets }) => {
                 for (const org of orgs) {
                     const issuers = await contract.getVerifiersByOrganizationCode(org);
                     issuers.forEach(issuer => {
-                        results.push({
-                            issuer
-                        });
+                        results.push({ issuer });
                     });
                 }
-
-                setIssuers(results)
+                if (isMounted) {
+                    setIssuers(results);
+                }
             }
-        }
+        };
         fetchOrg();
-        const checkIssuer = async () => {
-            if (issuers) {
-                const isAddressInIssuers = issuers.some(issuer => issuer === address);
-                if (!isAddressInIssuers) setIsIssuer(false)
-            }
-        }
+        return () => { isMounted = false; }; // Cleanup function to prevent state update on unmounted component
+    }, [signer, contract]);
+
+    // Second useEffect to check if the address is an issuer
+    useEffect(() => {
+        const checkIssuer = () => {
+            const isAddressInIssuers = issuers.some(issuerObj => issuerObj.issuer === address);
+            setIsIssuer(isAddressInIssuers);
+        };
         checkIssuer();
-    }, [])
-    const uniqueTickets = tickets.reduce((acc, current) => {
-        const x = acc.find(item => item.id === current.id);
-        if (!x) {
-            return acc.concat([current]);
-        } else {
-            return acc;
-        }
-    }, []);
+    }, [address, issuers, isIssuer]);
+
+    const filteredTickets = isIssuer ? tickets : tickets.filter(ticket => ticket.issuer_address === "null");
+    const notificationMessage = filteredTickets.length ? `You have ${filteredTickets.length} new notifications!` : 'No new notifications';
+
     return (
-        <>
-            <Tooltip title={tickets.length ? newNotifications : noNotifications} >
-                {tickets.length ? (
-                    <IconButton
-                        onClick={tickets.length ? handleOpen : null}
-                        anchorEl={anchorEl}>
-                        <Badge variant="dot" color="primary">
-                            <NotificationsActiveIcon color="action" fontSize="large" />
-                        </Badge>
-                    </IconButton>
-                ) : (
-                    <IconButton
-                        onClick={tickets.length ? handleOpen : null}
-                        anchorEl={anchorEl}>
-                        <Badge badgeContent={tickets.length} color="primary">
-                            <NotificationsActiveIcon color="action" fontSize="large" />
-                        </Badge>
-                    </IconButton>
-                )}
-
+        <div>
+            <div>{filteredTickets.length}</div>
+            <Tooltip title={notificationMessage}>
+                <IconButton
+                    onClick={filteredTickets.length ? handleOpen : null}
+                    anchorEl={anchorEl}>
+                    <Badge badgeContent={filteredTickets.length} color="primary">
+                        <NotificationsActiveIcon color="action" fontSize="large" />
+                    </Badge>
+                </IconButton>
             </Tooltip>
-            {!isIssuer && (
-                <BasicMenu
-                    open={open}
-                    anchorEl={anchorEl}
-                    handleClose={handleClose}
-                    menuItems={uniqueTickets}
-                />
-            )}
-            {isIssuer && (
-                <BasicMenu
-                    open={open}
-                    anchorEl={anchorEl}
-                    handleClose={handleClose}
-                    menuItems={tickets}
-                />
-            )}
+            <BasicMenu
+                open={open}
+                anchorEl={anchorEl}
+                handleClose={handleClose}
+                menuItems={filteredTickets}
+            />
+        </div>
+    );
+};
 
-        </>
-    )
-}
-
-export default NotificationBell
+export default NotificationBell;

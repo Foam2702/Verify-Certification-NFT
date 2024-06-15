@@ -24,26 +24,26 @@ export default function VerificationForIssuer() {
             if (address) {
                 try {
                     const result = await axios(`http://localhost:8080/tickets/ticket/${id}?address=${address}`);
-                    console.log(result)
-
+                    console.log("FOR ISSUER", result.data.ticket);
                     if (result.data.message === "ticket doesn't exist") {
-
-                        navigate("/")
+                        navigate("/");
+                    } else {
+                        // Assuming issuer_address is either null (not a string) or a valid address
+                        const ticketOwner = result.data.ticket.filter(ticket => ticket.issuer_address === null);
+                        console.log("owner", ticketOwner);
+                        const ticketIssuer = result.data.ticket.filter(ticket => ticket.issuer_address !== null);
+                        console.log("issuer", ticketIssuer);
+                        // Adjust logic here based on whether you expect multiple tickets or just one
+                        setTicket([...ticketOwner, ...ticketIssuer]);
                     }
-                    else {
-                        if (result.data.ticket.issuer_address === address || result.data.ticket.owner_address === address) {
-
-                            setTicket(result.data.ticket);
-                        }
-                    }
-
                 } catch (err) {
-                    console.log(err)
+                    console.error(err);
+                    // Handle error (e.g., show error message to user)
                 }
             }
-        }
+        };
         fetchTicketsById();
-    }, [id, address]); // Dependency array
+    }, [id, address, navigate]); // Added navigate to dependency array as it's used inside useEffect
     return (
 
         <div >

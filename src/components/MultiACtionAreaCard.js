@@ -14,8 +14,14 @@ export default function MultiActionAreaCard({ image }) {
     React.useEffect(() => {
         const fetchImage = async () => {
             try {
-                setCurrentImage(image)
-                console.log(image)
+                if (image != undefined) {
+                    setCurrentImage(image)
+                    console.log(image)
+                }
+                else {
+                    setCurrentImage(encrypt_image)
+                }
+
             }
             catch (err) {
                 console.log(err)

@@ -151,6 +151,9 @@ const Ticket = ({ ticket }) => {
     }
     const handleSubmit = async (event) => {
         event.preventDefault()
+        console.log(ticket)
+        setLoading(true);
+
         const metadata = await pinJSONToIPFS(ticket)
         const ipfsMetadata = `ipfs://${metadata}`
         const { ethereum } = window
@@ -163,14 +166,15 @@ const Ticket = ({ ticket }) => {
                 setAddressContract(result.to)
                 console.log(result)
                 const status = "approved"
-                const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}?status=${status}&transaction_hash=${result.hash}`)
+                const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}?status=${status}&transaction_hash=${result.hash}&issuer_address=${ticket.issuer_address}`)
 
                 console.log(response.data.message)
 
+
                 if (response.data.message === "updated successfully") {
+
                     ticket.transaction_hash = result.hash
-                    setLoading(true);
-                    await new Promise(resolve => setTimeout(resolve, 1000));
+
                     setLoading(false);
                     setAlertSeverity("success")
 
@@ -178,6 +182,8 @@ const Ticket = ({ ticket }) => {
                     setShowAlert(true);
                 }
                 else if (response.data.message === "update failed") {
+                    setLoading(false);
+
                     setUpdate(false)
                     setAlertSeverity("error")
 
@@ -275,7 +281,6 @@ const Ticket = ({ ticket }) => {
 
     }
     const handleDecryptTicket = async (prop, privateKey) => {
-        console.log("PROPPPPPPPPP")
         try {
             const result = await decryptData(JSON.parse(prop), privateKey);
             if (result === "") {
@@ -357,14 +362,14 @@ const Ticket = ({ ticket }) => {
                         ) : (
                             <>
                                 <AlertTicket severity={ticket.status} />
-                                {ticket.status === 'approved' ? (
-                                    <Button variant="contained" onClick={addNFTToWallet}>Import NFT to MetaMask</Button>
-                                ) : (
-                                    <></>
-                                )}
                             </>
                         )}
-                        <Box sx={{ display: "flex", justifyContent: "center" }}>
+                        <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
+                            {ticket.status === 'approved' ? (
+                                <Button variant="outlined" sx={{ my: "20px", fontSize: "0.5em" }} onClick={addNFTToWallet}>Import NFT to MetaMask</Button>
+                            ) : (
+                                <></>
+                            )}
                             <Button variant="outlined" sx={{ my: "20px", fontSize: "0.5em" }} onClick={handleClickOpen}>
                                 Click to view
                             </Button>

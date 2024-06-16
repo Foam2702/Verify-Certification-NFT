@@ -107,7 +107,7 @@ module.exports = {
     updateOneTicket: async (id, status, transaction_hash) => {
         transaction_hash = transaction_hash || null;
         try {
-            await sql`UPDATE ticket SET status=${status} , transaction_hash=${transaction_hash} WHERE id=${id}`;
+            await sql`UPDATE ticket SET status=${status} , transaction_hash=${transaction_hash} WHERE id=${id} and issuer_address=''`;
             return true;
         } catch (error) {
             console.error(error);
@@ -117,6 +117,15 @@ module.exports = {
     deleteOneTicket: async (id) => {
         try {
             await sql`DELETE FROM ticket WHERE id=${id}`;
+            return true;
+        } catch (error) {
+            console.error(error);
+            return false;
+        }
+    },
+    deleteTicketExceptUser: async (id) => {
+        try {
+            await sql`DELETE FROM ticket WHERE id=${id} and issuer_address!=''`;
             return true;
         } catch (error) {
             console.error(error);

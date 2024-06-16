@@ -120,41 +120,26 @@ module.exports = {
     },
     updateOneTicket: async (req, res) => {
         const { id } = req.params
-        const { status, transaction_hash } = req.query
-        const ticketFromDb = await ticketModel.getOneTicket(id)
-        if (ticketFromDb == undefined) {
+        const { status, transaction_hash, issuer_address } = req.query
+
+        const result = await ticketModel.updateOneTicket(id, status, transaction_hash)
+        if (result == true) {
+            await ticketModel.deleteTicketExceptUser(id)
             res.json({
-                "code": "404",
-                "success": false,
-                "message": "ticket doesn't exist"
+                "code": "200",
+                "success": true,
+                "message": "updated successfully"
             })
         }
         else {
-            if (ticketFromDb.status === status) {
-                res.json({
-                    "code": 404,
-                    "status": false,
-                    "message": `Already ${status}`
-                })
-            }
-            else {
-                const result = await ticketModel.updateOneTicket(id, status, transaction_hash)
-                if (result == true) {
-                    res.json({
-                        "code": "200",
-                        "success": true,
-                        "message": "updated successfully"
-                    })
-                }
-                else {
-                    res.json({
-                        "code": "404",
-                        "success": false,
-                        "message": "update failed"
-                    })
-                }
-            }
+            res.json({
+                "code": "404",
+                "success": false,
+                "message": "update failed"
+            })
         }
+
+
     },
     deleteOneTicket: async (req, res) => {
         const { id } = req.params

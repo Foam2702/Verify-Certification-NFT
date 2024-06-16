@@ -23,7 +23,6 @@ export default function MultiActionAreaCard({ image }) {
         }
         fetchImage()
     }, [image])
-    console.log("CURRENT", currentImage)
     return (
         <div>
 

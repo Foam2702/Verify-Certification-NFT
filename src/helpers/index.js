@@ -192,7 +192,7 @@ export async function imageUpload(imageEnc, owner, certificate) {
             name: owner,
             description: `${certificate}`,
             external_url: "https://pinata.cloud",
-            image: JSON.stringify(imageEnc),
+            image: imageEnc,
 
         },
         pinataMetadata: {

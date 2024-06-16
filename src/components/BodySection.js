@@ -113,6 +113,8 @@ const BodySection = () => {
       // console.log("imageDncrypt", imageDecrypt)
       // const originalImage = await base64ToImageFile(base64ImageString)
       // console.log("ORIGINAL", originalImage.get("image"))
+      // setLoading(false);
+
       // if (originalImage.get("image")) {
       //   const url = URL.createObjectURL(originalImage.get("image"));
       //   setImageUrl(url);
@@ -132,20 +134,14 @@ const BodySection = () => {
       try {
         const ownerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${address}`)
         if (ownerPublicKeysResponse.data.address.length === 0) {
-          setLoading(false); // Stop loading regardless of the request outcome
-          // setAlertSeverity("warning");
-          // setMessageAlert(`${data.licensingAuthority} is busy. Please comeback later`);
-          // setShowAlert(true);
+          setLoading(false);
+
           return;
         }
         const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
         const base64ImageString = await imageFileToBase64(formData.get("imageCertificate"));
-        // console.log("IMAGE", formData.get("imageCertificate"))
-        // console.log("base64", base64ImageString)
-
         const imageEncrypt = await encryptData(base64ImageString, remove0x(publicKeyOwner));
-        image_res = await imageUpload(imageEncrypt, address, formData.get("certificateName"))
-        console.log("HELLO", image_res)
+        image_res = await imageUpload(imageEncrypt, address, data["certificateName"])
         // const fetchImage = await fetchImagePinata(image_res)
         // if (fetchImage) {
         //   console.log(fetchImage.metadata.name.split('.')[0])
@@ -181,8 +177,8 @@ const BodySection = () => {
     const issuers = await checkIssuer(data.licensingAuthority);
     const fieldsToEncrypt = [
       'citizenId', 'name', 'region', 'dob', 'gender', 'email',
-      'workUnit', 'point', 'issueDate', 'expiryDate',
-      "certificateName", "licensingAuthority"];
+      'workUnit', 'point', 'issueDate', 'expiryDate', "certificateName",
+      "licensingAuthority"];
     // const image_res = await imageUpload(formData.get("imageCertificate"), address)
 
     if (issuers.length === 0) {
@@ -211,10 +207,9 @@ const BodySection = () => {
           setShowAlert(true);
           return
         }
-        for (const issuer of issuers) {
-          const formData = new FormData();
-          const issuerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${issuer}`);
 
+        for (const issuer of issuers) {
+          const issuerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${issuer}`);
           if (issuerPublicKeysResponse.data.address.length === 0) {
             setLoading(false); // Stop loading regardless of the request outcome
             setAlertSeverity("warning");
@@ -222,10 +217,18 @@ const BodySection = () => {
             setShowAlert(true);
             return;
           }
-
+          const formData = new FormData();
+          for (let i = 0; i < file.length; i++) {
+            formData.append("imageCertificate", file[i]);
+          }
+          const base64ImageString = await imageFileToBase64(formData.get("imageCertificate"));
+          const imageEncrypt = await encryptData(base64ImageString, remove0x(issuerPublicKeysResponse.data.address[0].publickey));
           for (const field of fieldsToEncrypt) {
             formData.append(field, data[field]);
           }
+
+          image_res = await imageUpload(imageEncrypt, address, data["certificateName"])
+
           formData.append("issuerAddress", issuerPublicKeysResponse.data.address[0].address)
           formData.append("cidCertificate", image_res)
           formData.append("id", id)
@@ -345,10 +348,7 @@ const BodySection = () => {
           <CircularProgress />
         </div>
       )}
-      <div>
-        HELLO
-        {imageUrl && <img src={imageUrl} alt="Uploaded" />}
-      </div>
+
       <section className="body-section1">
         <div className="body-header">
           <h1 className="body-header-text2">Fill in your certificate information</h1>
@@ -410,7 +410,7 @@ const BodySection = () => {
               <div className="home-town">
                 <h3 className="home-town-text">Region *</h3>
                 <select className="input-home-town" name="region">
-                  <option value="">Chọn tỉnh thành ...</option>
+                  <option value="">Select region ...</option>
                   {regions.map((region) => (
                     <option key={region._id} value={region.name}>
                       {region.name}
@@ -448,7 +448,7 @@ const BodySection = () => {
                 </select>
               </div>
               <div className="score">
-                <h3 className="score-text">Điểm</h3>
+                <h3 className="score-text">Point</h3>
                 <input
                   className="input-score"
                   name="point"

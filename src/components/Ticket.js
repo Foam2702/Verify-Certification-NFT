@@ -15,7 +15,6 @@ import { Box, Typography, useTheme } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';// import Header from "../../components/Header";
 import { Tooltip, IconButton } from '@mui/material';
 import CachedIcon from '@mui/icons-material/Cached';
-
 import { formatDate } from '../helpers/index'
 import { useNavigate } from "react-router-dom";
 import AlertTicket from "./AlertTicket"
@@ -23,9 +22,10 @@ import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import { pinJSONToIPFS, extractEncryptedDataFromJson, decryptData } from "../helpers/index"
+const JWT = process.env.REACT_APP_JWT; // Make sure to set this in your React app environment variables
+
 import "./BodySection.css";
 import "../pages/LisenceView"
-
 
 const Ticket = ({ ticket }) => {
     const { signer, address, connectWallet, contract, provider } = useSigner()
@@ -53,6 +53,7 @@ const Ticket = ({ ticket }) => {
     const [decryptedPoint, setDecryptedPoint] = useState('');
     const [decryptedIssueDate, setDecryptedIssueDate] = useState('');
     const [decryptedExpiryDate, setDecryptedExpiryDate] = useState('');
+    const [decryptedImage, setDecryptedImage] = useState(null)
     const web3 = new Web3(window.ethereum);
     const navigate = useNavigate();
     useEffect(() => {
@@ -67,17 +68,7 @@ const Ticket = ({ ticket }) => {
             checkIssuer().catch(error => console.error(error));
         }
     }, [ticket, address, signer]) // Add ticket as a dependency
-    // useEffect(() => {
-    //     let timer;
-    //     if (showAlert && countdown > 0) {
-    //         timer = setTimeout(() => {
-    //             setCountdown(countdown - 1);
-    //         }, 1000);
-    //     } else if (countdown === 0) {
-    //         setShowAlert(false);
-    //     }
-    //     return () => clearTimeout(timer);
-    // }, [showAlert, countdown]);
+
     useEffect(() => {
         const getAddContractAndTokenID = async () => {
             try {
@@ -98,9 +89,6 @@ const Ticket = ({ ticket }) => {
     useEffect(() => {
         const decryptAllFields = async () => {
             try {
-                console.log("POINT", ticket.point)
-                console.log("ISSUE", ticket.issue_date)
-                console.log("EXPIRY", ticket.expiry_date)
                 const name = await handleDecryptTicket(ticket.name, privateKey);
                 const gender = await handleDecryptTicket(ticket.gender, privateKey);
                 const email = await handleDecryptTicket(ticket.email, privateKey);
@@ -111,6 +99,7 @@ const Ticket = ({ ticket }) => {
                 const point = await handleDecryptTicket(ticket.point, privateKey);
                 const issueDate = await handleDecryptTicket(ticket.issue_date, privateKey);
                 const expiryDate = await handleDecryptTicket(ticket.expiry_date, privateKey);
+                const imageCertificate = await handleDecryptImage(ticket.certificate_cid, privateKey)
                 setDecryptedName(name);
                 setDecryptedGender(gender);
                 setDecryptedEmail(email);
@@ -121,6 +110,7 @@ const Ticket = ({ ticket }) => {
                 setDecryptedPoint(point);
                 setDecryptedIssueDate(issueDate);
                 setDecryptedExpiryDate(expiryDate);
+                setDecryptedImage(imageCertificate)
                 setError(null); // Clear any previous errors
             } catch (err) {
                 // setError("Wrong private key"); // No need to set error here since it's already set in handleDecryptTicket
@@ -164,7 +154,6 @@ const Ticket = ({ ticket }) => {
         const metadata = await pinJSONToIPFS(ticket)
         const ipfsMetadata = `ipfs://${metadata}`
         const { ethereum } = window
-        //uri: ipfs://QmXamdgcKZFhCAQnMjJ7UBCqDuHDKJDYgsZH4u5k9ikkRG
         if (ethereum) {
             try {
                 const result = await contract.mintSBTForAddress(
@@ -286,21 +275,19 @@ const Ticket = ({ ticket }) => {
 
     }
     const handleDecryptTicket = async (prop, privateKey) => {
+        console.log("PROPPPPPPPPP")
         try {
             const result = await decryptData(JSON.parse(prop), privateKey);
-
             if (result === "") {
                 setError("Wrong private key"); // Set the error state
                 setLoading(true);
                 // await new Promise(resolve => setTimeout(resolve, 1000));
                 setLoading(false);
                 setAlertSeverity("error")
-
                 setMessageAlert("Wrong private key")
                 setShowAlert(true);
                 return prop.toString(); // Return the original prop value in case of error
             }
-
             return result;
         } catch (error) {
             if (error.message.includes("Cipher key could not be derived")) {
@@ -328,6 +315,27 @@ const Ticket = ({ ticket }) => {
 
         }
     };
+    const handleDecryptImage = async (prop, privateKey) => {
+        console.log("PROPssss", prop)
+        try {
+            const res = await axios(
+                `https://coral-able-takin-320.mypinata.cloud/ipfs/${prop}`
+
+            );
+            const image = res.data.image
+
+            const decryptedData = await decryptData(image, privateKey);
+            // console.log(decryptedData)
+            // return decryptedData
+            const str = "abc"
+            console.log("IMGGGG", decryptedData)
+            return decryptedData
+        }
+        catch (err) {
+            console.log(err)
+        }
+
+    }
     return (
         <>
             {loading && (
@@ -508,8 +516,7 @@ const Ticket = ({ ticket }) => {
                             <h3 className="upload-file-text">Image of certificate</h3>
                             <div className="">
                                 <div className="input-box-background" />
-                                <MultiActionAreaCard image={ticket.certificate_cid} />
-
+                                <MultiActionAreaCard image={privateKey ? decryptedImage : ticket.certificate_cid} />
                             </div>
                         </div>
                     </div>

@@ -289,15 +289,20 @@ const Ticket = ({ ticket }) => {
             const result = await decryptData(JSON.parse(prop), privateKey);
 
             if (result === "") {
+                setError("Wrong private key"); // Set the error state
+                setLoading(true);
+                // await new Promise(resolve => setTimeout(resolve, 1000));
+                setLoading(false);
+                setAlertSeverity("error")
 
-                return extractEncryptedDataFromJson(prop.toString()); // Return the original prop value in case of error
+                setMessageAlert("Wrong private key")
+                setShowAlert(true);
+                return prop.toString(); // Return the original prop value in case of error
             }
 
             return result;
         } catch (error) {
-            console.log("ERRR1")
             if (error.message.includes("Cipher key could not be derived")) {
-                console.log("ERRR2")
 
                 setError("Wrong private key"); // Set the error state
                 setLoading(true);
@@ -308,7 +313,6 @@ const Ticket = ({ ticket }) => {
                 setMessageAlert("Wrong private key")
                 setShowAlert(true);
             } else {
-                console.log("ERRR3")
 
                 setError("Error decrypting data"); // Set a generic decryption error message
                 setLoading(true);
@@ -319,7 +323,7 @@ const Ticket = ({ ticket }) => {
                 setMessageAlert("Wrong private key")
                 setShowAlert(true);
             }
-            return extractEncryptedDataFromJson(prop.toString()); // Return the original prop value in case of error
+            return prop.toString(); // Return the original prop value in case of error
 
         }
     };
@@ -414,13 +418,13 @@ const Ticket = ({ ticket }) => {
                                 {(privateKey) ?
                                     <h3 className="input-name" name="name" type="text">{decryptedName}</h3>
                                     :
-                                    <h3 className="input-name" name="name" type="text">{extractEncryptedDataFromJson(ticket.name)}</h3>
+                                    <h3 className="input-name" name="name" type="text">{ticket.name}</h3>
                                 }
                             </div>
                             <div className="gender">
                                 <h3 className="gender1">Gender *</h3>
                                 <h3 className="input-gender" name="gender">
-                                    {privateKey ? decryptedGender : extractEncryptedDataFromJson(ticket.gender)}
+                                    {privateKey ? decryptedGender : ticket.gender}
                                 </h3>
                             </div>
                             <div className="email">
@@ -428,7 +432,7 @@ const Ticket = ({ ticket }) => {
                                 {privateKey ?
                                     <h3 className="input-email" name="email" type="email">{decryptedEmail}</h3>
                                     :
-                                    <h3 className="input-email" name="email" type="email">{extractEncryptedDataFromJson(ticket.email)}</h3>
+                                    <h3 className="input-email" name="email" type="email">{ticket.email}</h3>
 
                                 }
                             </div>
@@ -439,19 +443,19 @@ const Ticket = ({ ticket }) => {
                             <div className="cccd">
                                 <h3 className="cccd1">Citizen ID *</h3>
                                 <h3 className="input-cccd" name="citizenId" type="text">
-                                    {privateKey ? decryptedCitizenId : extractEncryptedDataFromJson(ticket.citizen_id)}
+                                    {privateKey ? decryptedCitizenId : ticket.citizen_id}
                                 </h3>
                             </div>
                             <div className="date-of-birth">
                                 <h3 className="date-of-birth1">Date of birth *</h3>
                                 <h3 className="input-date-of-birth" name="dob" type="text">
-                                    {privateKey ? decryptedDob : extractEncryptedDataFromJson(ticket.dob)}
+                                    {privateKey ? decryptedDob : ticket.dob}
                                 </h3>
                             </div>
                             <div className="home-town">
                                 <h3 className="home-town-text">Region *</h3>
                                 <h3 className="input-home-town" name="region">
-                                    {privateKey ? decryptedRegion : extractEncryptedDataFromJson(ticket.region)}
+                                    {privateKey ? decryptedRegion : ticket.region}
                                 </h3>
 
                             </div>
@@ -462,14 +466,14 @@ const Ticket = ({ ticket }) => {
                             <div className="working-unit">
                                 <h3 className="working-unit-text">Work Unit *</h3>
                                 <h3 className="input-working-unit" name="workUnit" type="text">
-                                    {privateKey ? decryptedWorkUnit : extractEncryptedDataFromJson(ticket.work_unit)}
+                                    {privateKey ? decryptedWorkUnit : ticket.work_unit}
                                 </h3>
                             </div>
 
                             <div className="score">
                                 <h3 className="score-text">Point</h3>
                                 <h3 className="input-score" name="point" type="text">
-                                    {privateKey ? decryptedPoint : extractEncryptedDataFromJson(ticket.point)}
+                                    {privateKey ? decryptedPoint : ticket.point}
                                 </h3>
                             </div>
                             <div className="name-of-vertification">
@@ -482,13 +486,13 @@ const Ticket = ({ ticket }) => {
                             <div className="date-vertification">
                                 <h3 className="date-vertification-text">Issue Date *</h3>
                                 <h3 className="input-date-vertification" name="issueDate" type="text">
-                                    {privateKey ? decryptedIssueDate : extractEncryptedDataFromJson(ticket.issue_date)}
+                                    {privateKey ? decryptedIssueDate : ticket.issue_date}
                                 </h3>
                             </div>
                             <div className="expired-date">
                                 <h3 className="expired-date-text">Expiry Date</h3>
                                 <h3 className="input-expired-date" name="expiryDate" type="text">
-                                    {privateKey ? decryptedExpiryDate : extractEncryptedDataFromJson(ticket.expiry_date)}
+                                    {privateKey ? decryptedExpiryDate : ticket.expiry_date}
                                 </h3>
                             </div>
                             <div className="vertification-unit">
@@ -503,7 +507,7 @@ const Ticket = ({ ticket }) => {
                             <h3 className="upload-file-text">Image of certificate</h3>
                             <div className="">
                                 <div className="input-box-background" />
-                                <MultiActionAreaCard image={ticket.certificateUrl} />
+                                <MultiActionAreaCard image={ticket.certificate_cid} />
 
                             </div>
                         </div>

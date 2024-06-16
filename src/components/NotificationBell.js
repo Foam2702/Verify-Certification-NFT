@@ -57,21 +57,25 @@ const NotificationBell = ({ tickets }) => {
 
     return (
         <div>
-            <Tooltip title={notificationMessage}>
-                <IconButton
-                    onClick={filteredTickets.length ? handleOpen : null}
-                    anchorEl={anchorEl}>
-                    <Badge badgeContent={filteredTickets.length} color="primary">
-                        <NotificationsActiveIcon color="action" fontSize="large" />
-                    </Badge>
-                </IconButton>
-            </Tooltip>
-            <BasicMenu
-                open={open}
-                anchorEl={anchorEl}
-                handleClose={handleClose}
-                menuItems={filteredTickets}
-            />
+            {address && (
+                <>
+                    <Tooltip title={notificationMessage}>
+                        <IconButton
+                            onClick={filteredTickets.length ? handleOpen : null}
+                            anchorEl={anchorEl}>
+                            <Badge badgeContent={filteredTickets.length} color="primary">
+                                <NotificationsActiveIcon color="action" fontSize="large" />
+                            </Badge>
+                        </IconButton>
+                    </Tooltip>
+                    <BasicMenu
+                        open={open}
+                        anchorEl={anchorEl}
+                        handleClose={handleClose}
+                        menuItems={filteredTickets}
+                    />
+                </>
+            )}
         </div>
     );
 };

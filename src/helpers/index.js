@@ -79,19 +79,12 @@ export async function encryptData(data, publicKeyHex) {
     // Encrypt the data using AES-256-CBC with the fixed IV
     const cipher = CryptoJS.AES.encrypt(data, CryptoJS.enc.Hex.parse(key), { iv: fixedIV, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
 
-    return {
-        iv: fixedIV.toString(CryptoJS.enc.Hex),
-        encryptedData: cipher.toString()
-    };
+    return cipher.toString()
 }
-export async function decryptData(encryptedObject, privateKeyHex) {
-    // Check if encryptedObject or its properties are null
-    if (!encryptedObject || !encryptedObject.iv || !encryptedObject.encryptedData) {
-        console.log('Encrypted object or its properties are null.');
-        return null; // or return an appropriate value indicating the input was null
-    }
+export async function decryptData(encryptedData, privateKeyHex) {
+    const fixedIV = CryptoJS.enc.Hex.parse('00000000000000000000000000000000');
+    const iv = fixedIV.toString(CryptoJS.enc.Hex)
 
-    const { iv, encryptedData } = encryptedObject;
     const privateKey = ec.keyFromPrivate(privateKeyHex, 'hex');
     const publicKey = privateKey.getPublic();
 
@@ -193,11 +186,11 @@ export function handleError(error) {
     }
 }
 
-export async function imageUpload(imageEnc, owner) {
+export async function imageUpload(imageEnc, owner, certificate) {
     const data = JSON.stringify({
         pinataContent: {
             name: owner,
-            description: `Certificate of ${owner}`,
+            description: `${certificate}`,
             external_url: "https://pinata.cloud",
             image: JSON.stringify(imageEnc),
 

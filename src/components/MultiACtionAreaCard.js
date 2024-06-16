@@ -8,7 +8,6 @@ export default function MultiActionAreaCard({ image }) {
     const encrypt_image = "/encrypted_image.jpg";
     // // Set currentImage to encrypt_image if image is undefined, otherwise use the provided image
     const [currentImage, setCurrentImage] = React.useState(null);
-
     const handleError = () => {
         setCurrentImage(encrypt_image);
     };

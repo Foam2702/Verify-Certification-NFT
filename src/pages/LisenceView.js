@@ -30,21 +30,6 @@ const LisenceView = () => {
 
     getNFTS().catch(error => console.error(error));;
   }, [address]); // Empty dependency array means this effect runs once on mount
-  const sendNFT = async () => {
-    console.log("ON CLICK")
-    try {
-      await contract.transfer(
-        "0xD7B862C9Ed21f292cF9daD0E12C0152C4CB04Ab6",
-        1
-      );
-    } catch (error) {
-      if (error.message.includes("reverted: Owner cannot transfer this token.")) {
-        console.log("CANT TRANSFER");
-      } else {
-        console.error(error);
-      }
-    }
-  }
   return (
     <div className="lisenceview">
       <section className="header-section-parent">

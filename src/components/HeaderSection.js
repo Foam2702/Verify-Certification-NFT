@@ -14,6 +14,7 @@ import AddressAvatar from "../components/AddressAvatar"
 import CircularProgress from '@mui/material/CircularProgress';
 import React, { useState, useEffect } from 'react';
 import NotificationBell from "./NotificationBell";
+import { Button } from "@mui/material";
 import axios from 'axios';
 import SOULBOUND from "../artifacts/contracts/SoulboundToken.sol/SoulboundToken.json"
 import "./BasicMenu.css"
@@ -202,7 +203,7 @@ const settings = [
                     </Menu>
                   </>
                 ) : (
-                  "LOG IN"
+                  <Button onClick={connectWallet}>LOG IN</Button>
                 )}
               </Box>
 

@@ -129,33 +129,46 @@ const BodySection = () => {
       // setLoading(false);
 
       ////////////
-      const ownerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${address}`)
-      const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
-      const base64ImageString = await imageFileToBase64(formData.get("imageCertificate"));
+      try {
+        const ownerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${address}`)
+        if (ownerPublicKeysResponse.data.address.length === 0) {
+          setLoading(false); // Stop loading regardless of the request outcome
+          // setAlertSeverity("warning");
+          // setMessageAlert(`${data.licensingAuthority} is busy. Please comeback later`);
+          // setShowAlert(true);
+          return;
+        }
+        const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
+        const base64ImageString = await imageFileToBase64(formData.get("imageCertificate"));
+        // console.log("IMAGE", formData.get("imageCertificate"))
+        // console.log("base64", base64ImageString)
 
+        const imageEncrypt = await encryptData(base64ImageString, remove0x(publicKeyOwner));
+        image_res = await imageUpload(imageEncrypt, address, formData.get("certificateName"))
+        console.log("HELLO", image_res)
+        // const fetchImage = await fetchImagePinata(image_res)
+        // if (fetchImage) {
+        //   console.log(fetchImage.metadata.name.split('.')[0])
+        //   console.log(address)
+        //   if (fetchImage.metadata.name.split('.')[0] !== address) {
+        //     setLoading(false); // Stop loading regardless of the request outcome
+        //     setAlertSeverity("warning");
+        //     setMessageAlert(`This certificate already belongs to someone else`);
+        //     setShowAlert(true);
+        //     return
+        //   }
+        // }
+        // else {
+        //   setLoading(false); // Stop loading regardless of the request outcome
+        //   setAlertSeverity("error");
+        //   setMessageAlert(`Something went wrong`);
+        //   setShowAlert(true);
+        //   return
+        // }
 
-      const imageEncrypt = await encryptData(base64ImageString, remove0x(publicKeyOwner));
-      image_res = await imageUpload(imageEncrypt, address, formData.get("certificateName"))
-      console.log("HELLO", image_res)
-      // const fetchImage = await fetchImagePinata(image_res)
-      // if (fetchImage) {
-      //   console.log(fetchImage.metadata.name.split('.')[0])
-      //   console.log(address)
-      //   if (fetchImage.metadata.name.split('.')[0] !== address) {
-      //     setLoading(false); // Stop loading regardless of the request outcome
-      //     setAlertSeverity("warning");
-      //     setMessageAlert(`This certificate already belongs to someone else`);
-      //     setShowAlert(true);
-      //     return
-      //   }
-      // }
-      // else {
-      //   setLoading(false); // Stop loading regardless of the request outcome
-      //   setAlertSeverity("error");
-      //   setMessageAlert(`Something went wrong`);
-      //   setShowAlert(true);
-      //   return
-      // }
+      } catch (err) {
+        console.log(err)
+      }
 
 
     } else {

@@ -23,19 +23,24 @@ export default function MultiActionAreaCard({ image }) {
         }
         fetchImage()
     }, [image])
+    console.log("CURRENT", currentImage)
     return (
-        <Card sx={{ width: 350 }}>
-            <Link href={image} target="_blank">
-                <CardActionArea>
-                    <CardMedia
-                        component="img"
-                        height="140"
-                        image={currentImage}
-                        alt="green iguana"
-                        onError={handleError}
-                    />
-                </CardActionArea>
-            </Link>
-        </Card>
+        <div>
+
+
+            <Card sx={{ width: 350 }}>
+                <Link href={image} target="_blank">
+                    <CardActionArea>
+                        <CardMedia
+                            component="img"
+                            height="140"
+                            image={currentImage}
+                            alt="green iguana"
+                            onError={handleError}
+                        />
+                    </CardActionArea>
+                </Link>
+            </Card>
+        </div>
     );
 }

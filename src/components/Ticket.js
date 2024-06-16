@@ -164,6 +164,7 @@ const Ticket = ({ ticket }) => {
         const metadata = await pinJSONToIPFS(ticket)
         const ipfsMetadata = `ipfs://${metadata}`
         const { ethereum } = window
+        //uri: ipfs://QmXamdgcKZFhCAQnMjJ7UBCqDuHDKJDYgsZH4u5k9ikkRG
         if (ethereum) {
             try {
                 const result = await contract.mintSBTForAddress(

@@ -14,13 +14,13 @@ async function encryptData(data, publicKeyHex) {
     // Encrypt the data using AES-256-CBC with the fixed IV
     const cipher = CryptoJS.AES.encrypt(data, CryptoJS.enc.Hex.parse(key), { iv: fixedIV, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
 
-    return {
-        iv: fixedIV.toString(CryptoJS.enc.Hex),
-        encryptedData: cipher.toString()
-    };
+    return cipher.toString()
+
 }
-async function decryptData(encryptedObject, privateKeyHex) {
-    const { iv, encryptedData } = encryptedObject;
+async function decryptData(encryptedData, privateKeyHex) {
+    const fixedIV = CryptoJS.enc.Hex.parse('00000000000000000000000000000000');
+    const iv = fixedIV.toString(CryptoJS.enc.Hex)
+
     const privateKey = ec.keyFromPrivate(privateKeyHex, 'hex');
     const publicKey = privateKey.getPublic();
 

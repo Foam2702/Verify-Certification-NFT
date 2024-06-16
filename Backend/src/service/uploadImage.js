@@ -3,7 +3,19 @@ const FormData = require("form-data");
 const fs = require("fs");
 const JWT = process.env.JWT;
 
+async function deleteFile(image) {
+    try {
+        fs.unlink(image.path, (err) => {
+            if (err) {
+                console.error(err);
+            } else {
+            }
+        });
+    } catch (error) {
+        console.log(error);
+    }
 
+}
 async function imageUpload(image) {
     try {
         const imagePath = image.path; // Assuming 'appDir' is defined elsewhere

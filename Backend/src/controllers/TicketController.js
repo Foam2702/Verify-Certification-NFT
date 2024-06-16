@@ -6,6 +6,7 @@ const notificationModel = require("../models/NotificationModel")
 const notificationService = require("../service/notification")
 const organizationModel = require("../models/OrganizationModel")
 const addressModel = require("../models/AddressModel")
+const deleteFile = require("../service/uploadImage")
 const fs = require('fs')
 
 module.exports = {
@@ -19,13 +20,15 @@ module.exports = {
     },
     sendTicketFromStudent: async (req, res, next) => {
         const ticket = req.body;
+        console.log(req.body)
+        console.log(req.file)
+        deleteFile(req.file)
         const status = "status"
         let getAddress = "";
 
         ticket[status] = "processing"
-        // await notificationModel.insertNotification(ticket, false, "none")
-        // await notificationService.newTicketNotification(ticket)
-        // const result = await ticketModel.insertTicket(ticket);
+
+        console.log(ticket)
 
         if (ticket.issuerAddress === '') {
             getAddress = await addressModel.getOneAddressPub(ticket.owner)
@@ -33,6 +36,7 @@ module.exports = {
         else {
             getAddress = await addressModel.getOneAddressPub(ticket.issuerAddress)
         }
+        console.log(ticket)
 
         const encTicket = {
             citizenId: ticket.citizenId ? JSON.stringify(await encDecData.encryptData(ticket.citizenId, encDecData.remove0x(getAddress[0].publickey))) : null,
@@ -53,6 +57,7 @@ module.exports = {
             id: ticket.id,
             status: ticket.status
         };
+        console.log(encTicket)
 
         const result = await ticketModel.insertTicket(encTicket);
         if (result === true) {
@@ -74,7 +79,6 @@ module.exports = {
     getOneTicket: async (req, res, next) => {
         const { id } = req.params
         const { address } = req.query
-        console.log(id, address)
         const ticket = await ticketModel.getOneTicket(id, address)
         if (ticket != undefined) {
             const certificateUrl = "certificateUrl"

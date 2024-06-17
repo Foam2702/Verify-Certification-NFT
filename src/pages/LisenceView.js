@@ -1,4 +1,7 @@
 import "./LisenceView.css";
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+import AlertTicket from "../components/AlertTicket"
 import HeaderSection from "../components/HeaderSection";
 import LisenceSection from '../components/LisenceSection';
 import Footer from "../components/Footer";
@@ -22,186 +25,94 @@ const LisenceView = () => {
   const { signer, address, connectWallet, contract } = useSigner()
   const [certificates, setCertificates] = useState([]);
   const [open, setOpen] = useState(false);
-  const [privateKey, setPrivateKey] = useState("")
-  const [decryptedName, setDecryptedName] = useState('');
-  const [decryptedImage, setDecryptedImage] = useState(null)
-  const [decryptedCertificates, setDecryptedCertificates] = useState([])
+  const [privateKey, setPrivateKey] = useState("");
+  const [decryptedCertificates, setDecryptedCertificates] = useState([]);
   const [showAlert, setShowAlert] = useState(false);
-  const [messageAlert, setMessageAlert] = useState("")
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [messageAlert, setMessageAlert] = useState("");
   const [alertSeverity, setAlertSeverity] = useState("");
-
-
+  const [loading, setLoading] = useState(false);
+  const [isPrivateKeyValid, setIsPrivateKeyValid] = useState(false);
 
   const options = { method: 'GET', headers: { accept: 'application/json' } };
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-  const handleCloseDialog = () => {
-    setOpen(false);
-  };
-  const handleSubmitPrivateKey = async (event) => {
+
+  const handleClickOpen = () => setOpen(true);
+  const handleCloseDialog = () => setOpen(false);
+  const handleClose = () => setShowAlert(false);
+
+  const handleSubmitPrivateKey = (event) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const formJson = Object.fromEntries(formData.entries());
-    const privatekey = formJson.privatekey;
-    setPrivateKey(privatekey)
+    setPrivateKey(formData.get('privatekey'));
   }
-  const handleDecryptTicket = async (prop, privateKey) => {
 
+  const handleDecryptTicket = async (prop, privateKey) => {
     try {
       const result = await decryptData(prop.replace(/"/g, ''), privateKey);
-      if (result === "") {
-        setError("Wrong private key");
-        setLoading(true);
-        // await new Promise(resolve => setTimeout(resolve, 1000));
-        setLoading(false);
-        setAlertSeverity("error")
-        setMessageAlert("Wrong private key")
-        setShowAlert(true);
-        return prop.toString(); // Return the original prop value in case of error
-      }
+      if (!result) throw new Error("Wrong private key");
       return result;
     } catch (error) {
-      if (error.message.includes("Cipher key could not be derived")) {
-
-        setError("Wrong private key");
-        setLoading(true);
-        // await new Promise(resolve => setTimeout(resolve, 1000));
-        setLoading(false);
-        setAlertSeverity("error")
-
-        setMessageAlert("Wrong private key")
-        setShowAlert(true);
-      } else {
-
-        setError("Error decrypting data"); // Set a generic decryption error message
-        setLoading(true);
-        // await new Promise(resolve => setTimeout(resolve, 1000));
-        setLoading(false);
-        setAlertSeverity("error")
-
-        setMessageAlert("Wrong private key")
-        setShowAlert(true);
-      }
-      return prop.toString(); // Return the original prop value in case of error
-
+      handleDecryptionError(error);
+      return prop.toString();
     }
   };
-  const handleDecryptImage = async (prop, privateKey) => {
+
+  const handleDecryptImage = async (cid, privateKey) => {
     try {
-      console.log("HELLO1")
-      const res = await axios(
-        `https://coral-able-takin-320.mypinata.cloud/ipfs/${prop}`
-
-      );
-      console.log("HELLO2")
-      const image = res.data.image
-      console.log("HELLO3", image)
-      const decryptedData = await decryptData(image, privateKey);
-      console.log("HELLO4")
-      console.log("ENCRYPTED IMAGE", decryptedData)
-      if (decryptedData === "") {
-        console.log("HELLO5")
-        setError("Wrong private key"); // Set the error state
-        setLoading(true);
-        // await new Promise(resolve => setTimeout(resolve, 1000));
-        setLoading(false);
-        setAlertSeverity("error")
-        setMessageAlert("Wrong private key")
-        setShowAlert(true);
-        return image; // Return the original prop value in case of error
-      }
-
-      return decryptedData
+      const { data } = await axios(`https://coral-able-takin-320.mypinata.cloud/ipfs/${cid}`);
+      const decryptedData = await decryptData(data.image, privateKey);
+      if (!decryptedData) throw new Error("Wrong private key");
+      return decryptedData;
+    } catch (error) {
+      handleDecryptionError(error);
+      return null;
     }
-    catch (err) {
-      // console.log("HELLO6")
-      // console.log("ERR", err)
-      // if (error.message.includes("Cipher key could not be derived")) {
+  };
 
-      //   setError("Wrong private key"); // Set the error state
-      //   setLoading(true);
-      //   // await new Promise(resolve => setTimeout(resolve, 1000));
-      //   setLoading(false);
-      //   setAlertSeverity("error")
+  const handleDecryptionError = (error) => {
+    const errorMessage = error.message.includes("Cipher key could not be derived")
+      ? "Wrong private key"
+      : "Error decrypting data";
+    setAlertSeverity("error");
+    setMessageAlert(errorMessage);
+    setShowAlert(true);
+    setIsPrivateKeyValid(false);
+  };
 
-      //   setMessageAlert("Wrong private key")
-      //   setShowAlert(true);
-      //   console.log("HELLO 6.1")
-      // } else {
-
-      //   setError("Error decrypting data"); // Set a generic decryption error message
-      //   setLoading(true);
-      //   // await new Promise(resolve => setTimeout(resolve, 1000));
-      //   setLoading(false);
-      //   setAlertSeverity("error")
-
-      //   setMessageAlert("Wrong private key")
-      //   setShowAlert(true);
-      //   console.log("HELLO 6.2")
-
-      // }
-      console.log("HELLO7")
-      console.log("IMGGG", image)
-      return image; // Return the original prop value in case of error
-
-    }
-
-  }
   useEffect(() => {
-    const getNFTS = async () => {
+    const getNFTs = async () => {
       if (address) {
         try {
-          const result = await axios(`https://testnets-api.opensea.io/api/v2/chain/sepolia/account/${address}/nfts`, options)
-          setCertificates(result.data.nfts)
+          const { data } = await axios(`https://testnets-api.opensea.io/api/v2/chain/sepolia/account/${address}/nfts`, options);
+          setCertificates(data.nfts);
+        } catch (err) {
+          console.error(err);
         }
-        catch (err) {
-          console.log(err)
-        }
-
       }
-    }
+    };
+    getNFTs();
+  }, [address]);
 
-    getNFTS().catch(error => console.error(error));;
-  }, [address]); // Empty dependency array means this effect runs once on mount
   useEffect(() => {
     const decryptAllFields = async () => {
-
       try {
+        const newDecryptedCertificates = [];
         for (const certificate of certificates) {
-
           const name = await handleDecryptTicket(certificate.name, privateKey);
-          console.log("NAME AFTER DECRYPT", name)
-
-          const imageCertificate = await handleDecryptImage(extractCID(certificate.image_url), privateKey);
-          console.log("IMGE AFTER DECRYPT", imageCertificate)
-          const newCertificate = {
-            identifier: certificate.identifier,
-            name: name,
-            description: certificate.description,
-            image_url: imageCertificate
-          }
-          setDecryptedCertificates(decryptedCertificates => {
-            // Check if the identifier already exists in decryptedCertificates
-            const exists = decryptedCertificates.some(decCert => decCert.identifier === newCertificate.identifier);
-            if (!exists) {
-              // If it doesn't exist, add the newCertificate
-              return [...decryptedCertificates, newCertificate];
-            }
-            // If it exists, return the current state without adding the newCertificate
-            return decryptedCertificates;
+          const image = await handleDecryptImage(extractCID(certificate.image_url), privateKey);
+          newDecryptedCertificates.push({
+            ...certificate,
+            name,
+            image_url: image
           });
         }
-      } catch (err) {
-        // Error handling already set in handleDecryptTicket
+        setDecryptedCertificates(newDecryptedCertificates);
+        setIsPrivateKeyValid(true);
+      } catch (error) {
+        setIsPrivateKeyValid(false);
       }
     };
 
-    if (privateKey && certificates.length > 0) {
-      decryptAllFields();
-    }
+    if (privateKey && certificates.length > 0) decryptAllFields();
   }, [privateKey, certificates]);
 
   return (
@@ -215,7 +126,6 @@ const LisenceView = () => {
           <div>No Certificate Yet</div>
         ) : (
           <>
-            {/* <Button variant="contained" onClick={sendNFT}>Import NFT to MetaMask </Button> */}
             <div className="body-header-wrapper">
               <div className="body-header">
                 <h1 className="body-header-text2">Certificates</h1>
@@ -230,14 +140,12 @@ const LisenceView = () => {
               PaperProps={{
                 component: 'form',
                 onSubmit: handleSubmitPrivateKey
-
               }}
-
-              maxWidth="md" // Adjust this value as needed (sm, md, lg, xl)
+              maxWidth="md"
               sx={{
-                '& .MuiDialogContent-root': { fontSize: '1.25rem' }, // Adjust font size for dialog content
-                '& .MuiTextField-root': { fontSize: '1.25rem' }, // Adjust font size for text fields
-                '& .MuiButton-root': { fontSize: '1.25rem' }, // Adjust font size for buttons
+                '& .MuiDialogContent-root': { fontSize: '1.25rem' },
+                '& .MuiTextField-root': { fontSize: '1.25rem' },
+                '& .MuiButton-root': { fontSize: '1.25rem' },
               }}
             >
               <DialogTitle sx={{ fontSize: '1.5rem' }}>Private Key</DialogTitle>
@@ -249,60 +157,53 @@ const LisenceView = () => {
                   autoFocus
                   required
                   margin="normal"
-
                   name="privatekey"
                   label="Private Key"
                   type="privatekey"
                   fullWidth
                   variant="outlined"
                   sx={{
-                    '& .MuiInputBase-input': {
-                      fontSize: '1.25rem', // Increase font size
-                    },
-                    '& .MuiInputLabel-root': {
-                      fontSize: '1.25rem', // Increase label font size
-                    },
-
+                    '& .MuiInputBase-input': { fontSize: '1.25rem' },
+                    '& .MuiInputLabel-root': { fontSize: '1.25rem' },
                   }}
                 />
-
               </DialogContent>
               <DialogActions>
                 <Button onClick={handleCloseDialog} type="submit">Decrypt</Button>
-
                 <Button onClick={handleCloseDialog}>Cancel</Button>
               </DialogActions>
             </Dialog>
-            <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap' }}>
-
-              {(privateKey ? decryptedCertificates : certificates).map((certificate, index) => {
-                // You can now remove the conditional check for privateKey for individual fields
-                // since we're already deciding which array to map over based on privateKey.
-                console.log("HELLLO CERTII", certificate)
-                return (
-                  <div key={index} className="upload-wrapper">
-                    <div className="upload">
-                      <h3 className="lisence-name">Address: <span style={{ fontWeight: 'bold' }}>{address}</span></h3>
-                      <h3 className="lisence-name">Owner: <span style={{ fontWeight: 'bold' }}>{certificate.name}</span></h3>
-                      <h3 className="lisence-name">Certificate Name: <span style={{ fontWeight: 'bold' }}>{certificate.description}</span></h3>
-                      <MultiActionAreaCard image={certificate.image_url} />
-                      <Link className="link-to-transactions" href={certificate.opensea_url} underline="hover" target="_blank">
-                        Opensea
-                        <ArrowOutwardIcon />
-                      </Link>
-                    </div>
+            <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', flexDirection: "column" }}>
+              {(isPrivateKeyValid ? decryptedCertificates : certificates).map((certificate, index) => (
+                <div key={index} className="upload-wrapper" style={{ marginBottom: "50px" }}>
+                  <div className="upload">
+                    <h3 className="lisence-name">Address: <span style={{ fontWeight: 'bold' }}>{address}</span></h3>
+                    <h3 className="lisence-name">Owner: <span style={{ fontWeight: 'bold' }}>{certificate.name}</span></h3>
+                    <h3 className="lisence-name">Certificate Name: <span style={{ fontWeight: 'bold' }}>{certificate.description}</span></h3>
+                    <MultiActionAreaCard image={certificate.image_url} />
+                    <Link className="link-to-transactions" href={certificate.opensea_url} underline="hover" target="_blank">
+                      Opensea
+                      <ArrowOutwardIcon />
+                    </Link>
                   </div>
-                );
-              })}
+                </div>
+              ))}
+              <Snackbar open={showAlert} autoHideDuration={3000} onClose={handleClose}>
+                <Alert
+                  onClose={handleClose}
+                  severity={alertSeverity}
+                  variant="filled"
+                  sx={{ width: '100%' }}
+                >
+                  {messageAlert}
+                </Alert>
+              </Snackbar>
             </div>
           </>
         )}
       </section>
-      <Footer
-        shapeLeft="/shape-left@2x.png"
-        socialIcontwitter="/socialicontwitter@2x.png"
-      />
-    </div >
+      <Footer shapeLeft="/shape-left@2x.png" socialIcontwitter="/socialicontwitter@2x.png" />
+    </div>
   );
 };
 

@@ -16,7 +16,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
-import { pinJSONToIPFS, extractEncryptedDataFromJson, decryptData } from "../helpers/index"
+import { extractCID, pinJSONToIPFS, extractEncryptedDataFromJson, decryptData } from "../helpers/index"
 
 const LisenceView = () => {
   const { signer, address, connectWallet, contract } = useSigner()
@@ -25,6 +25,14 @@ const LisenceView = () => {
   const [privateKey, setPrivateKey] = useState("")
   const [decryptedName, setDecryptedName] = useState('');
   const [decryptedImage, setDecryptedImage] = useState(null)
+  const [decryptedCertificates, setDecryptedCertificates] = useState([])
+  const [showAlert, setShowAlert] = useState(false);
+  const [messageAlert, setMessageAlert] = useState("")
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [alertSeverity, setAlertSeverity] = useState("");
+
+
 
   const options = { method: 'GET', headers: { accept: 'application/json' } };
   const handleClickOpen = () => {
@@ -43,12 +51,9 @@ const LisenceView = () => {
   const handleDecryptTicket = async (prop, privateKey) => {
 
     try {
-      console.log("NAMEEE", prop.replace(/"/g, ''))
-      console.log(privateKey)
-      const result = await decryptData(prop.replace(/"/g, ''), "a32dfd5e139b47f608c39a31ab0b528f0d09bedd3197d563aa5f956bc386e328");
-      console.log("RESSS", result)
+      const result = await decryptData(prop.replace(/"/g, ''), privateKey);
       if (result === "") {
-        setError("Wrong private key"); // Set the error state
+        setError("Wrong private key");
         setLoading(true);
         // await new Promise(resolve => setTimeout(resolve, 1000));
         setLoading(false);
@@ -61,7 +66,7 @@ const LisenceView = () => {
     } catch (error) {
       if (error.message.includes("Cipher key could not be derived")) {
 
-        setError("Wrong private key"); // Set the error state
+        setError("Wrong private key");
         setLoading(true);
         // await new Promise(resolve => setTimeout(resolve, 1000));
         setLoading(false);
@@ -86,18 +91,62 @@ const LisenceView = () => {
   };
   const handleDecryptImage = async (prop, privateKey) => {
     try {
+      console.log("HELLO1")
       const res = await axios(
         `https://coral-able-takin-320.mypinata.cloud/ipfs/${prop}`
 
       );
+      console.log("HELLO2")
       const image = res.data.image
-
+      console.log("HELLO3", image)
       const decryptedData = await decryptData(image, privateKey);
+      console.log("HELLO4")
+      console.log("ENCRYPTED IMAGE", decryptedData)
+      if (decryptedData === "") {
+        console.log("HELLO5")
+        setError("Wrong private key"); // Set the error state
+        setLoading(true);
+        // await new Promise(resolve => setTimeout(resolve, 1000));
+        setLoading(false);
+        setAlertSeverity("error")
+        setMessageAlert("Wrong private key")
+        setShowAlert(true);
+        return image; // Return the original prop value in case of error
+      }
 
       return decryptedData
     }
     catch (err) {
-      console.log(err)
+      // console.log("HELLO6")
+      // console.log("ERR", err)
+      // if (error.message.includes("Cipher key could not be derived")) {
+
+      //   setError("Wrong private key"); // Set the error state
+      //   setLoading(true);
+      //   // await new Promise(resolve => setTimeout(resolve, 1000));
+      //   setLoading(false);
+      //   setAlertSeverity("error")
+
+      //   setMessageAlert("Wrong private key")
+      //   setShowAlert(true);
+      //   console.log("HELLO 6.1")
+      // } else {
+
+      //   setError("Error decrypting data"); // Set a generic decryption error message
+      //   setLoading(true);
+      //   // await new Promise(resolve => setTimeout(resolve, 1000));
+      //   setLoading(false);
+      //   setAlertSeverity("error")
+
+      //   setMessageAlert("Wrong private key")
+      //   setShowAlert(true);
+      //   console.log("HELLO 6.2")
+
+      // }
+      console.log("HELLO7")
+      console.log("IMGGG", image)
+      return image; // Return the original prop value in case of error
+
     }
 
   }
@@ -118,21 +167,32 @@ const LisenceView = () => {
     getNFTS().catch(error => console.error(error));;
   }, [address]); // Empty dependency array means this effect runs once on mount
   useEffect(() => {
-    console.log("HELLO")
     const decryptAllFields = async () => {
-      console.log("HELL1")
 
       try {
         for (const certificate of certificates) {
-          console.log("HELL2")
-          console.log(certificate.name)
-          console.log(certificate.image_url)
+
           const name = await handleDecryptTicket(certificate.name, privateKey);
-          // const imageCertificate = await handleDecryptImage(certificate.certificate_cid, privateKey);
-          console.log("NAMEEEE", name)
-          // console.log(certificate.image_url)
-          setDecryptedName(name);
-          // setDecryptedImage(imageCertificate);
+          console.log("NAME AFTER DECRYPT", name)
+
+          const imageCertificate = await handleDecryptImage(extractCID(certificate.image_url), privateKey);
+          console.log("IMGE AFTER DECRYPT", imageCertificate)
+          const newCertificate = {
+            identifier: certificate.identifier,
+            name: name,
+            description: certificate.description,
+            image_url: imageCertificate
+          }
+          setDecryptedCertificates(decryptedCertificates => {
+            // Check if the identifier already exists in decryptedCertificates
+            const exists = decryptedCertificates.some(decCert => decCert.identifier === newCertificate.identifier);
+            if (!exists) {
+              // If it doesn't exist, add the newCertificate
+              return [...decryptedCertificates, newCertificate];
+            }
+            // If it exists, return the current state without adding the newCertificate
+            return decryptedCertificates;
+          });
         }
       } catch (err) {
         // Error handling already set in handleDecryptTicket
@@ -214,15 +274,18 @@ const LisenceView = () => {
               </DialogActions>
             </Dialog>
             <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap' }}>
-              {certificates.length > 0 && certificates.map((certificate, index) => {
-                // const newImageUrl = replaceBaseUrl(certificate.image_url, "https://coral-able-takin-320.mypinata.cloud");
+
+              {(privateKey ? decryptedCertificates : certificates).map((certificate, index) => {
+                // You can now remove the conditional check for privateKey for individual fields
+                // since we're already deciding which array to map over based on privateKey.
+                console.log("HELLLO CERTII", certificate)
                 return (
                   <div key={index} className="upload-wrapper">
                     <div className="upload">
-                      <h3 className="lisence-name">Adress: <span style={{ fontWeight: 'bold' }}>{address}</span></h3>
-                      <h3 className="lisence-name">Owner: <span style={{ fontWeight: 'bold' }}>{privateKey ? decryptedName : certificate.name}</span></h3>
+                      <h3 className="lisence-name">Address: <span style={{ fontWeight: 'bold' }}>{address}</span></h3>
+                      <h3 className="lisence-name">Owner: <span style={{ fontWeight: 'bold' }}>{certificate.name}</span></h3>
                       <h3 className="lisence-name">Certificate Name: <span style={{ fontWeight: 'bold' }}>{certificate.description}</span></h3>
-                      <MultiActionAreaCard image={privateKey ? decryptedImage : certificate.image_url} />
+                      <MultiActionAreaCard image={certificate.image_url} />
                       <Link className="link-to-transactions" href={certificate.opensea_url} underline="hover" target="_blank">
                         Opensea
                         <ArrowOutwardIcon />

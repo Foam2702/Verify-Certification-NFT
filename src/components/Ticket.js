@@ -54,6 +54,7 @@ const Ticket = ({ ticket }) => {
     const [decryptedIssueDate, setDecryptedIssueDate] = useState('');
     const [decryptedExpiryDate, setDecryptedExpiryDate] = useState('');
     const [decryptedImage, setDecryptedImage] = useState(null)
+    const [userTicket, setUserTicket] = useState(null)
     const web3 = new Web3(window.ethereum);
     const navigate = useNavigate();
     useEffect(() => {
@@ -151,14 +152,17 @@ const Ticket = ({ ticket }) => {
     }
     const handleSubmit = async (event) => {
         event.preventDefault()
-        console.log(ticket)
         setLoading(true);
+        try {
+            const userTicket = await axios(`http://localhost:8080/tickets/ticket/${ticket.id}?address=`)
+            console.log("OLD TICKET", ticket)
+            ticket = userTicket.data.ticket[0];
+            console.log("NEW TICKET", ticket)
+            const metadata = await pinJSONToIPFS(ticket)
+            const ipfsMetadata = `ipfs://${metadata}`
+            const { ethereum } = window
+            if (ethereum) {
 
-        const metadata = await pinJSONToIPFS(ticket)
-        const ipfsMetadata = `ipfs://${metadata}`
-        const { ethereum } = window
-        if (ethereum) {
-            try {
                 const result = await contract.mintSBTForAddress(
                     ticket.owner_address,
                     ipfsMetadata
@@ -166,35 +170,27 @@ const Ticket = ({ ticket }) => {
                 setAddressContract(result.to)
                 console.log(result)
                 const status = "approved"
-                const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}?status=${status}&transaction_hash=${result.hash}&issuer_address=${ticket.issuer_address}`)
-
+                const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}?status=${status}&transaction_hash=${result.hash}&issuer_address=`)
                 console.log(response.data.message)
-
-
                 if (response.data.message === "updated successfully") {
-
                     ticket.transaction_hash = result.hash
-
                     setLoading(false);
                     setAlertSeverity("success")
-
                     setMessageAlert("Mint Successfully")
                     setShowAlert(true);
                 }
                 else if (response.data.message === "update failed") {
                     setLoading(false);
-
                     setUpdate(false)
                     setAlertSeverity("error")
-
                     setMessageAlert("Mint Fail")
                     setShowAlert(true);
                 }
             }
-            catch (err) {
-                console.log(err)
-            }
+        } catch (err) {
+            console.log(err)
         }
+
     };
     const handleClose = async (event, reason) => {
         if (reason === 'clickaway') {

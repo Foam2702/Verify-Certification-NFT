@@ -247,6 +247,11 @@ export async function addFileToIPFS(file) {
 
     // console.log(await d.get(retrievedObject.link))
 }
+export function extractCID(url) {
+    const cidPattern = /\/ipfs\/([a-zA-Z0-9]+)$/;
+    const match = url.match(cidPattern);
+    return match ? match[1] : null;
+}
 
 
 

@@ -156,7 +156,7 @@
   color: var(--color-gray);
   text-align: left;
   display: inline-block;
-  min-width: 64px;
+  width: 228px;
 }
 
 .input-email {
@@ -175,7 +175,7 @@
   font-weight: 500;
   font-size: var(--font-size-base);
   color: var(--color-darkgray);
-  min-width: 500px;
+  max-width: 100%;
   color: black;
 
   font-size: 1.5rem
@@ -209,7 +209,9 @@
   padding: var(--padding-lg) var(--padding-6xl);
   box-sizing: border-box;
   gap: var(--gap-lgi);
-  min-width: 700px;
+  /* min-width: 700px; */
+  min-width: 292px;
+  max-width: 100%;
 }
 
 .careers-section-inner,
@@ -242,7 +244,7 @@
   color: var(--color-gray);
   text-align: left;
   display: inline-block;
-  min-width: 116px;
+  width: 228px;
 }
 
 .input-cccd {
@@ -261,7 +263,7 @@
   font-weight: 500;
   font-size: var(--font-size-base);
   color: var(--color-darkgray);
-  min-width: 400px;
+  max-width: 100%;
   color: rgb(0, 0, 0);
 
   font-size: 1.5rem
@@ -289,7 +291,7 @@
   padding: var(--padding-smi) var(--padding-5xl);
   box-sizing: border-box;
   gap: var(--gap-lgi);
-  min-width: 500px;
+  min-width: 292px;
   max-width: 100%;
 }
 
@@ -323,7 +325,7 @@
   font-weight: 500;
   font-size: var(--font-size-base);
   color: var(--color-darkgray);
-  min-width: 400px;
+  max-width: 100%;
   color: rgb(0, 0, 0);
 
   font-size: 1.5rem
@@ -351,9 +353,8 @@
   padding: var(--padding-smi) var(--padding-5xl);
   box-sizing: border-box;
   gap: var(--gap-lgi);
-  min-width: 500px;
+  min-width: 292px;
   max-width: 100%;
-
 }
 
 .home-town-text {
@@ -418,6 +419,7 @@
   box-sizing: border-box;
   gap: var(--gap-lgi);
   min-width: 292px;
+  max-width: 100%;
 }
 
 .careers-section-child,
@@ -468,7 +470,7 @@
   font-weight: 500;
   font-size: var(--font-size-base);
   color: var(--color-darkgray);
-  min-width: 400px;
+  max-width: 100%;
   color: rgb(0, 0, 0);
 
   font-size: 1.5rem
@@ -496,6 +498,7 @@
   padding: var(--padding-smi) var(--padding-5xl);
   box-sizing: border-box;
   gap: var(--gap-lgi);
+  min-width: 292px;
   max-width: 100%;
 }
 
@@ -528,7 +531,6 @@
   font-weight: 500;
   font-size: var(--font-size-base);
   color: var(--color-darkgray);
-  min-width: 400px;
   max-width: 100%;
   color: rgb(0, 0, 0);
 
@@ -557,6 +559,7 @@
   padding: var(--padding-lg) var(--padding-7xl);
   box-sizing: border-box;
   gap: var(--gap-lgi);
+  min-width: 292px;
   max-width: 100%;
 }
 
@@ -592,7 +595,7 @@
   font-weight: 500;
   font-size: var(--font-size-base);
   color: var(--color-darkgray);
-  min-width: 400px;
+  max-width: 100%;
   color: rgb(0, 0, 0);
 
   font-size: 1.5rem
@@ -620,6 +623,7 @@
   padding: var(--padding-lg) var(--padding-6xl);
   box-sizing: border-box;
   gap: var(--gap-lgi);
+  min-width: 292px;
   max-width: 100%;
 }
 
@@ -680,6 +684,7 @@
   padding: var(--padding-lg) var(--padding-6xl);
   box-sizing: border-box;
   gap: var(--gap-lgi);
+  min-width: 292px;
   max-width: 100%;
 }
 
@@ -740,6 +745,7 @@
   padding: var(--padding-lg) var(--padding-6xl);
   box-sizing: border-box;
   gap: var(--gap-lgi);
+  min-width: 292px;
   max-width: 100%;
 }
 
@@ -776,6 +782,7 @@
   color: var(--color-darkgray);
   max-width: 100%;
   color: rgb(0, 0, 0);
+  height: 44px;
 
   font-size: 1.5rem
 }
@@ -802,6 +809,7 @@
   padding: var(--padding-lg) var(--padding-7xl);
   box-sizing: border-box;
   gap: var(--gap-mini);
+  min-width: 292px;
   max-width: 100%;
 }
 

@@ -2,10 +2,7 @@ import axios from 'axios';
 import { ec as EC } from 'elliptic';
 import CryptoJS from 'crypto-js';
 import { Buffer } from 'buffer';
-// import Hash from 'ipfs-only-hash'
-// import { createHelia } from 'helia'
-// import { dagJson } from '@helia/dag-json'
-// { hello: 'world' }
+
 const ec = new EC('secp256k1');
 const JWT = process.env.REACT_APP_JWT; // Make sure to set this in your React app environment variables
 export const minifyAddress = (address) => {

@@ -81,7 +81,7 @@ const LisenceView = () => {
       const { data } = await axios(`https://coral-able-takin-320.mypinata.cloud/ipfs/${cid}`);
       const decryptedData = await decryptData(data.image, privateKey);
       if (!decryptedData) throw new Error("Wrong private key");
-      return minifyAddress(decryptedData);
+      return decryptedData;
     } catch (error) {
       handleDecryptionError(error);
       return null;

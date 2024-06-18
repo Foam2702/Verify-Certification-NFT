@@ -6,7 +6,7 @@
   letter-spacing: -0.03em;
   line-height: 72px;
   font-weight: 600;
-  font-family: inherit;
+  font-family: var(--font-roboto);
 }
 
 .title-22 {
@@ -75,7 +75,7 @@
   text-align: left;
   font-size: var(--font-size-45xl);
   color: var(--color-darkslategray-200);
-  font-family: var(--font-poppins);
+  font-family: var(--font-roboto);
 }
 
 @media screen and (max-width: 1200px) {

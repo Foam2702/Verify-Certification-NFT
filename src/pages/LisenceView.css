@@ -15,7 +15,7 @@
   letter-spacing: -0.03em;
   line-height: 56px;
   font-weight: 600;
-  font-family: inherit;
+  font-family: var(--font-roboto);
   display: inline-block;
   flex-shrink: 0;
   max-width: 100%;
@@ -43,21 +43,54 @@
 }
 
 .lisence-name {
-  margin: 0;
+  margin: 40px;
   font-size: inherit;
   letter-spacing: -0.03em;
   line-height: 30px;
-  font-weight: 500;
-  font-family: inherit;
+  /* font-weight: bold; */
+  font-family: var(--font-roboto);
+  width: 1000px;
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  font-weight: bold;
 }
 
-.link-to-transactions,
-.lisence-infor,
-.lisence-name {
+
+
+.lisence-name-title {
+  margin-bottom: 40px;
+  margin-left: 40px;
+  margin-right: 40px;
+  font-size: 70px;
+  letter-spacing: -0.03em;
+  line-height: 30px;
+  font-family: var(--font-roboto);
+  width: 1000px;
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  font-weight: bold;
+  color: rgb(206, 88, 88);
+}
+
+.info_certi {
+  display: flex;
+  flex-direction: column;
+}
+
+.img_certi {
+  display: flex;
+  flex-direction: column;
+}
+
+.link-to-transactions {
   width: 696px;
   position: relative;
   display: inline-block;
   max-width: 100%;
+  line-height: 106.5%;
+  color: var(--color-darkorange-100);
 }
 
 .lisence-infor {
@@ -66,37 +99,34 @@
   letter-spacing: -0.03em;
   line-height: 30px;
   font-weight: 400;
-  font-family: inherit;
+  font-family: var(--font-roboto);
 }
 
-.link-to-transactions {
-  font-size: var(--font-size-lg);
-  line-height: 106.5%;
-  color: var(--color-darkorange-100);
-}
 
-.upload {
+
+.upload-lisence {
   flex: 1;
   border-radius: var(--br-xl);
   background-color: var(--color-lightblue);
-  flex-direction: column;
+  flex-direction: row;
   padding: var(--padding-13xl) var(--padding-xl) 46px 35px;
   box-sizing: border-box;
   gap: var(--gap-lgi);
   max-width: 100%;
+  display: flex;
+  align-items: center;
 }
 
 .header-section-parent,
 .lisenceview,
-.upload,
-.upload-wrapper {
+.upload-wrapper-lisence {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.upload-wrapper {
-  width: 872px;
+.upload-wrapper-lisence {
+  width: 2000px;
   flex-direction: row;
   padding: 0 53px;
   box-sizing: border-box;
@@ -117,7 +147,7 @@
   text-align: left;
   font-size: var(--font-size-29xl);
   color: var(--color-gray);
-  font-family: var(--font-poppins);
+  font-family: var(--font-roboto);
 }
 
 .lisenceview {
@@ -131,7 +161,7 @@
 }
 
 @media screen and (max-width: 1200px) {
-  .upload-wrapper {
+  .upload-wrapper-lisence {
     padding-left: var(--padding-7xl);
     padding-right: var(--padding-7xl);
     box-sizing: border-box;

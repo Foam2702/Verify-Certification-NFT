@@ -19,7 +19,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
-import { extractCID, pinJSONToIPFS, extractEncryptedDataFromJson, decryptData } from "../helpers/index"
+import { formatDateV2, minifyAddress, extractCID, pinJSONToIPFS, extractEncryptedDataFromJson, decryptData } from "../helpers/index"
 
 const LisenceView = () => {
   const { signer, address, connectWallet, contract } = useSigner()
@@ -46,6 +46,7 @@ const LisenceView = () => {
   }
 
   const handleDecryptTicket = async (prop, privateKey) => {
+    console.log("PROPS", prop)
     try {
       const result = await decryptData(prop.replace(/"/g, ''), privateKey);
       if (!result) throw new Error("Wrong private key");
@@ -57,6 +58,8 @@ const LisenceView = () => {
   };
 
   const handleDecryptImage = async (cid, privateKey) => {
+    console.log("PROPS", cid)
+
     try {
       const { data } = await axios(`https://coral-able-takin-320.mypinata.cloud/ipfs/${cid}`);
       const decryptedData = await decryptData(data.image, privateKey);
@@ -84,6 +87,8 @@ const LisenceView = () => {
         try {
           const { data } = await axios(`https://testnets-api.opensea.io/api/v2/chain/sepolia/account/${address}/nfts`, options);
           setCertificates(data.nfts);
+
+
         } catch (err) {
           console.error(err);
         }
@@ -96,25 +101,34 @@ const LisenceView = () => {
     const decryptAllFields = async () => {
       try {
         const newDecryptedCertificates = [];
+        console.log("CER", certificates)
+        setLoading(true)
         for (const certificate of certificates) {
           const name = await handleDecryptTicket(certificate.name, privateKey);
           const image = await handleDecryptImage(extractCID(certificate.image_url), privateKey);
+
           newDecryptedCertificates.push({
             ...certificate,
             name,
-            image_url: image
+            image_url: image,
+            date: formatDateV2(certificate.updated_at),
           });
         }
+        console.log(newDecryptedCertificates)
         setDecryptedCertificates(newDecryptedCertificates);
         setIsPrivateKeyValid(true);
+        setLoading(false)
+
       } catch (error) {
         setIsPrivateKeyValid(false);
+        setLoading(false)
+
       }
     };
 
     if (privateKey && certificates.length > 0) decryptAllFields();
   }, [privateKey, certificates]);
-
+  console.log(decryptedCertificates)
   return (
     <div className="lisenceview">
       <section className="header-section-parent">
@@ -175,16 +189,21 @@ const LisenceView = () => {
             </Dialog>
             <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', flexDirection: "column" }}>
               {(isPrivateKeyValid ? decryptedCertificates : certificates).map((certificate, index) => (
-                <div key={index} className="upload-wrapper" style={{ marginBottom: "50px" }}>
-                  <div className="upload">
-                    <h3 className="lisence-name">Address: <span style={{ fontWeight: 'bold' }}>{address}</span></h3>
-                    <h3 className="lisence-name">Owner: <span style={{ fontWeight: 'bold' }}>{certificate.name}</span></h3>
-                    <h3 className="lisence-name">Certificate Name: <span style={{ fontWeight: 'bold' }}>{certificate.description}</span></h3>
-                    <MultiActionAreaCard image={certificate.image_url} />
-                    <Link className="link-to-transactions" href={certificate.opensea_url} underline="hover" target="_blank">
-                      Opensea
-                      <ArrowOutwardIcon />
-                    </Link>
+                <div key={index} className="upload-wrapper-lisence" style={{ marginBottom: "50px" }}>
+                  <div className="upload-lisence">
+                    <div className="info_certi">
+                      <div className="lisence-name-title" >{certificate.description} </div>
+                      <div className="lisence-name">Completed by {certificate.name} </div>
+                      <div className="lisence-name">{certificate.date}</div>
+
+                    </div>
+                    <div className="img_certi">
+                      <MultiActionAreaCard image={certificate.image_url} size={650} />
+                      <Link className="link-to-transactions" href={certificate.opensea_url} underline="hover" target="_blank">
+                        Opensea
+                        <ArrowOutwardIcon />
+                      </Link>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -201,9 +220,9 @@ const LisenceView = () => {
             </div>
           </>
         )}
-      </section>
+      </section >
       <Footer shapeLeft="/shape-left@2x.png" socialIcontwitter="/socialicontwitter@2x.png" />
-    </div>
+    </div >
   );
 };
 

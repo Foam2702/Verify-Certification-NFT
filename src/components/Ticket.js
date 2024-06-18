@@ -21,7 +21,7 @@ import AlertTicket from "./AlertTicket"
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
-import { pinJSONToIPFS, extractEncryptedDataFromJson, decryptData } from "../helpers/index"
+import { pinJSONToIPFS, deletePinIPFS, extractEncryptedDataFromJson, decryptData } from "../helpers/index"
 const JWT = process.env.REACT_APP_JWT; // Make sure to set this in your React app environment variables
 
 import "./BodySection.css";
@@ -76,9 +76,7 @@ const Ticket = ({ ticket }) => {
                 const data = await web3.eth.getTransactionReceipt(ticket.transaction_hash);
                 let transaction = data;
                 let logs = data.logs;
-                console.log('logs:', logs);
                 const tokenIdValue = web3.utils.hexToNumber(logs[0].topics[3]);
-                console.log('tokenIdValue:', tokenIdValue);
                 setTokenID(tokenIdValue.toString());
                 setAddressContract(logs[0].address)
             } catch (err) {
@@ -90,6 +88,7 @@ const Ticket = ({ ticket }) => {
     useEffect(() => {
         const decryptAllFields = async () => {
             try {
+                setLoading(true)
                 const name = await handleDecryptTicket(ticket.name, privateKey);
                 const gender = await handleDecryptTicket(ticket.gender, privateKey);
                 const email = await handleDecryptTicket(ticket.email, privateKey);
@@ -113,7 +112,11 @@ const Ticket = ({ ticket }) => {
                 setDecryptedExpiryDate(expiryDate);
                 setDecryptedImage(imageCertificate)
                 setError(null); // Clear any previous errors
+                setLoading(false)
+
             } catch (err) {
+                setLoading(false)
+
                 // setError("Wrong private key"); // No need to set error here since it's already set in handleDecryptTicket
             }
         };
@@ -129,7 +132,6 @@ const Ticket = ({ ticket }) => {
         try {
             const status = "reject"
             const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}?status=${status}`)
-            console.log(response.data.message)
             if (response.data.message === "updated successfully") {
                 setUpdate(true)
                 setAlertSeverity("success")
@@ -155,29 +157,38 @@ const Ticket = ({ ticket }) => {
         setLoading(true);
         try {
             const userTicket = await axios(`http://localhost:8080/tickets/ticket/${ticket.id}?address=`)
-            console.log("OLD TICKET", ticket)
             ticket = userTicket.data.ticket[0];
-            console.log("NEW TICKET", ticket)
+            ticket.status = "approved"
+            console.log("TICKETSSSS", ticket)
             const metadata = await pinJSONToIPFS(ticket)
+            console.log("METADATA", metadata)
             const ipfsMetadata = `ipfs://${metadata}`
             const { ethereum } = window
             if (ethereum) {
-
                 const result = await contract.mintSBTForAddress(
                     ticket.owner_address,
                     ipfsMetadata
                 );
                 setAddressContract(result.to)
-                console.log(result)
+                for (let address of issuer) {
+                    const issuer_org = await axios(`http://localhost:8080/tickets/ticket/${ticket.id}?address=${address}`);
+                    if (issuer_org.data.ticket[0].certificate_cid) {
+
+                        await deletePinIPFS(issuer_org.data.ticket[0].certificate_cid)
+                    }
+                }
                 const status = "approved"
                 const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}?status=${status}&transaction_hash=${result.hash}&issuer_address=`)
-                console.log(response.data.message)
                 if (response.data.message === "updated successfully") {
                     ticket.transaction_hash = result.hash
                     setLoading(false);
                     setAlertSeverity("success")
                     setMessageAlert("Mint Successfully")
                     setShowAlert(true);
+                    await new Promise(resolve => setTimeout(resolve, 5000));
+
+                    navigate("/")
+
                 }
                 else if (response.data.message === "update failed") {
                     setLoading(false);
@@ -188,8 +199,17 @@ const Ticket = ({ ticket }) => {
                 }
             }
         } catch (err) {
-            console.log(err)
+            setLoading(false);
+            setAlertSeverity("error");
+            // Check if the error code indicates the user rejected the transaction
+            if (err.code === "ACTION_REJECTED") {
+                setMessageAlert("Rejected transaction");
+            } else {
+                setMessageAlert("Failed to add new issuer");
+            }
+            setShowAlert(true);
         }
+
 
     };
     const handleClose = async (event, reason) => {
@@ -232,8 +252,7 @@ const Ticket = ({ ticket }) => {
         return day + '/' + month + '/' + year;
     }
     async function addNFTToWallet() {
-        console.log("ADD", addressContract)
-        console.log("TOKEN", tokenID)
+
         if (addressContract && tokenID) {
             try {
                 const wasAdded = await ethereum.request({
@@ -248,7 +267,6 @@ const Ticket = ({ ticket }) => {
                 });
                 if (wasAdded) {
                     const result = await axios.delete(`http://localhost:8080/tickets/ticket/${ticket.id}`)
-                    console.log(result)
                     if (result.data.code == "200") {
                         setLoading(true);
                         await new Promise(resolve => setTimeout(resolve, 1000));
@@ -277,47 +295,53 @@ const Ticket = ({ ticket }) => {
 
     }
     const handleDecryptTicket = async (prop, privateKey) => {
-        try {
-            const result = await decryptData(JSON.parse(prop), privateKey);
-            if (result === "") {
-                setError("Wrong private key"); // Set the error state
-                setLoading(true);
-                // await new Promise(resolve => setTimeout(resolve, 1000));
-                setLoading(false);
-                setAlertSeverity("error")
-                setMessageAlert("Wrong private key")
-                setShowAlert(true);
+        if (prop != null && prop != '' && prop != undefined) {
+            try {
+                const result = await decryptData(JSON.parse(prop), privateKey);
+                if (result === "") {
+                    setError("Wrong private key"); // Set the error state
+                    setLoading(true);
+                    // await new Promise(resolve => setTimeout(resolve, 1000));
+                    setLoading(false);
+                    setAlertSeverity("error")
+                    setMessageAlert("Wrong private key")
+                    setShowAlert(true);
+                    return prop.toString(); // Return the original prop value in case of error
+                }
+                return result;
+            } catch (error) {
+                if (error.message.includes("Cipher key could not be derived")) {
+
+                    setError("Wrong private key"); // Set the error state
+                    setLoading(true);
+                    // await new Promise(resolve => setTimeout(resolve, 1000));
+                    setLoading(false);
+                    setAlertSeverity("error")
+
+                    setMessageAlert("Wrong private key")
+                    setShowAlert(true);
+                } else {
+
+                    setError("Error decrypting data"); // Set a generic decryption error message
+                    setLoading(true);
+                    // await new Promise(resolve => setTimeout(resolve, 1000));
+                    setLoading(false);
+                    setAlertSeverity("error")
+
+                    setMessageAlert("Wrong private key")
+                    setShowAlert(true);
+                }
                 return prop.toString(); // Return the original prop value in case of error
+
             }
-            return result;
-        } catch (error) {
-            if (error.message.includes("Cipher key could not be derived")) {
-
-                setError("Wrong private key"); // Set the error state
-                setLoading(true);
-                // await new Promise(resolve => setTimeout(resolve, 1000));
-                setLoading(false);
-                setAlertSeverity("error")
-
-                setMessageAlert("Wrong private key")
-                setShowAlert(true);
-            } else {
-
-                setError("Error decrypting data"); // Set a generic decryption error message
-                setLoading(true);
-                // await new Promise(resolve => setTimeout(resolve, 1000));
-                setLoading(false);
-                setAlertSeverity("error")
-
-                setMessageAlert("Wrong private key")
-                setShowAlert(true);
-            }
-            return prop.toString(); // Return the original prop value in case of error
 
         }
+        else {
+            return " "; // Return the original prop value in case of error
+        }
+
     };
     const handleDecryptImage = async (prop, privateKey) => {
-        console.log("PROPssss", prop)
         try {
             const res = await axios(
                 `https://coral-able-takin-320.mypinata.cloud/ipfs/${prop}`
@@ -326,10 +350,8 @@ const Ticket = ({ ticket }) => {
             const image = res.data.image
 
             const decryptedData = await decryptData(image, privateKey);
-            // console.log(decryptedData)
-            // return decryptedData
-            const str = "abc"
-            console.log("IMGGGG", decryptedData)
+
+
             return decryptedData
         }
         catch (err) {
@@ -517,7 +539,7 @@ const Ticket = ({ ticket }) => {
                             <h3 className="upload-file-text">Image of certificate</h3>
                             <div className="">
                                 <div className="input-box-background" />
-                                <MultiActionAreaCard image={privateKey ? decryptedImage : ticket.certificate_cid} />
+                                <MultiActionAreaCard image={privateKey ? decryptedImage : ticket.certificate_cid} size={350} />
                             </div>
                         </div>
                     </div>

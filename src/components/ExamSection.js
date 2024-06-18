@@ -21,7 +21,7 @@ const ExamSection = ({ course }) => {
                         alt=""
                         src="/person-image@2x.png"
                     /> */}
-                        <MultiActionAreaCard image={course[0].image} />
+                        <MultiActionAreaCard image={course[0].image} size={350} />
 
                     </div>
                 </div>

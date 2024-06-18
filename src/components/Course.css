@@ -33,7 +33,7 @@
   font-size: 25px;
   letter-spacing: -0.03em;
   line-height: 36px;
-  font-family: inherit;
+  font-family: var(--font-roboto);
   font-weight: bold;
   z-index: 1;
 }
@@ -118,7 +118,7 @@
   text-align: left;
   font-size: var(--font-size-5xl);
   color: var(--color-gray);
-  font-family: var(--font-poppins);
+  font-family: var(--font-roboto);
 }
 
 .org {

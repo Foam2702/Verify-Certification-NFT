@@ -22,7 +22,21 @@ export function formatDate(dateString) {
 
     return `${day}/${month}/${year}`;
 }
+export const deletePinIPFS = async (cid) => {
+    try {
+        const res = await axios.delete(`https://api.pinata.cloud/pinning/unpin/${cid}`, {
+            headers: {
+                Authorization: `Bearer ${JWT}`
+            }
+        });
+        console.log("DELETE", res);
+    } catch (error) {
+        console.error(error);
+    }
+
+}
 export const pinJSONToIPFS = async (ticket) => {
+
     const data = JSON.stringify({
         pinataContent: {
             name: `${ticket.name}`,
@@ -49,14 +63,12 @@ export const pinJSONToIPFS = async (ticket) => {
     });
 
     try {
-        console.log("JWT", JWT)
         const res = await axios.post("https://api.pinata.cloud/pinning/pinJSONToIPFS", data, {
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${JWT}`
             }
         });
-        console.log("RES", res.data)
         return (res.data.IpfsHash);
     } catch (error) {
         console.log(error);
@@ -252,7 +264,24 @@ export function extractCID(url) {
     const match = url.match(cidPattern);
     return match ? match[1] : null;
 }
+export function formatDateV2(dateString) {
+    // Create a new Date object from the input string
+    const date = new Date(dateString);
 
+    // Define an array of month names
+    const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+
+    // Get the month name, day, and year from the Date object
+    const month = monthNames[date.getMonth()];
+    const day = date.getDate();
+    const year = date.getFullYear();
+
+    // Return the formatted date string without the comma
+    return `${month} ${day} ${year}`;
+}
 
 
 

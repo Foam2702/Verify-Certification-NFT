@@ -15,7 +15,7 @@
   font-size: var(--font-size-5xl);
   letter-spacing: -0.03em;
   line-height: 106.5%;
-  font-family: inherit;
+  font-family: var(--font-roboto);
   display: inline-block;
   text-align: center;
 }
@@ -95,7 +95,7 @@
   font-size: var(--font-size-5xl);
   letter-spacing: -0.03em;
   line-height: 106.5%;
-  font-family: inherit;
+  font-family: var(--font-roboto);
   display: inline-block;
   text-align: center;
 
@@ -179,7 +179,7 @@
   font-size: var(--font-size-5xl);
   letter-spacing: -0.03em;
   line-height: 106.5%;
-  font-family: inherit;
+  font-family: var(--font-roboto);
   display: inline-block;
 }
 
@@ -268,7 +268,7 @@
   text-align: left;
   font-size: var(--font-size-base);
   color: var(--color-gray);
-  font-family: var(--font-poppins);
+  font-family: var(--font-roboto);
 }
 
 @media screen and (max-width: 1575px) {

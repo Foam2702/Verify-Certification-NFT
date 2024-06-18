@@ -4,7 +4,7 @@ import CardMedia from '@mui/material/CardMedia';
 import { CardActionArea } from '@mui/material';
 import Link from '@mui/material/Link';
 import axios from 'axios';
-export default function MultiActionAreaCard({ image }) {
+export default function MultiActionAreaCard({ image, size }) {
     const encrypt_image = "/encrypted_image.jpg";
     // // Set currentImage to encrypt_image if image is undefined, otherwise use the provided image
     const [currentImage, setCurrentImage] = React.useState(null);
@@ -31,9 +31,7 @@ export default function MultiActionAreaCard({ image }) {
     }, [image])
     return (
         <div>
-
-
-            <Card sx={{ width: 350 }}>
+            <Card sx={{ width: size }}>
                 <Link href={image} target="_blank">
                     <CardActionArea>
                         <CardMedia

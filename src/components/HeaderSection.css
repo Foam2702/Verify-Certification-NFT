@@ -177,7 +177,7 @@
   font-size: var(--font-size-lg);
   line-height: 30px;
   font-weight: 600;
-  font-family: var(--font-poppins);
+  font-family: var(--font-roboto);
   color: var(--color-dimgray-100);
   max-width: 100%;
   display: inline-block;
@@ -245,7 +245,7 @@
   min-height: 639px;
   font-size: var(--font-size-61xl);
   color: var(--color-darkslategray-200);
-  font-family: var(--font-alegreya-sans-sc);
+  font-family: var(--font-roboto);
 }
 
 .header-section1 {
@@ -254,7 +254,7 @@
   debug_commit: 1de1738;
   font-size: var(--font-size-5xl);
   color: var(--color-gray);
-  font-family: var(--font-poppins);
+  font-family: var(--font-roboto);
 }
 
 .small-image {

@@ -9,9 +9,13 @@ import { Buffer } from 'buffer';
 const ec = new EC('secp256k1');
 const JWT = process.env.REACT_APP_JWT; // Make sure to set this in your React app environment variables
 export const minifyAddress = (address) => {
-    const start = address.substring(0, 5);
-    const end = address.substring(address.length - 4);
-    return `${start}...${end}`;
+    if (address != null && address != '' && address != undefined) {
+        const start = address.substring(0, 5);
+        const end = address.substring(address.length - 4);
+        return `${start}...${end}`;
+    }
+    return ""
+
 };
 
 export function formatDate(dateString) {
@@ -54,6 +58,7 @@ export const pinJSONToIPFS = async (ticket) => {
                 { "trait_type": "issue_date", "value": `${ticket.issue_date}` },
                 { "trait_type": "region", "value": `${ticket.region}` },
                 { "trait_type": "status", "value": `${ticket.status}` },
+                { "trait_type": "point", "value": `${ticket.point}` }
 
             ]
         },

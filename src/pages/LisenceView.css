@@ -49,11 +49,11 @@
   line-height: 30px;
   /* font-weight: bold; */
   font-family: var(--font-roboto);
-  width: 1000px;
+  width: 500px;
   position: relative;
   display: inline-block;
   max-width: 100%;
-  font-weight: bold;
+  /* font-weight: bold; */
 }
 
 
@@ -68,10 +68,11 @@
   font-family: var(--font-roboto);
   width: 1000px;
   position: relative;
-  display: inline-block;
+  display: flex;
   max-width: 100%;
   font-weight: bold;
   color: rgb(206, 88, 88);
+  justify-content: center;
 }
 
 .info_certi {
@@ -108,7 +109,7 @@
   flex: 1;
   border-radius: var(--br-xl);
   background-color: var(--color-lightblue);
-  flex-direction: row;
+  flex-direction: column;
   padding: var(--padding-13xl) var(--padding-xl) 46px 35px;
   box-sizing: border-box;
   gap: var(--gap-lgi);

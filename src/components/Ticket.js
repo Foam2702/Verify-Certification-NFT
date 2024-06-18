@@ -21,7 +21,7 @@ import AlertTicket from "./AlertTicket"
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
-import { pinJSONToIPFS, deletePinIPFS, extractEncryptedDataFromJson, decryptData } from "../helpers/index"
+import { pinJSONToIPFS, deletePinIPFS, extractEncryptedDataFromJson, decryptData, minifyAddress } from "../helpers/index"
 const JWT = process.env.REACT_APP_JWT; // Make sure to set this in your React app environment variables
 
 import "./BodySection.css";
@@ -306,7 +306,7 @@ const Ticket = ({ ticket }) => {
                     setAlertSeverity("error")
                     setMessageAlert("Wrong private key")
                     setShowAlert(true);
-                    return prop.toString(); // Return the original prop value in case of error
+                    return minifyAddress(prop.toString()); // Return the original prop value in case of error
                 }
                 return result;
             } catch (error) {
@@ -331,7 +331,7 @@ const Ticket = ({ ticket }) => {
                     setMessageAlert("Wrong private key")
                     setShowAlert(true);
                 }
-                return prop.toString(); // Return the original prop value in case of error
+                return minifyAddress(prop.toString()); // Return the original prop value in case of error
 
             }
 
@@ -450,13 +450,13 @@ const Ticket = ({ ticket }) => {
                                 {(privateKey) ?
                                     <h3 className="input-name" name="name" type="text">{decryptedName}</h3>
                                     :
-                                    <h3 className="input-name" name="name" type="text">{ticket.name}</h3>
+                                    <h3 className="input-name" name="name" type="text">{minifyAddress(ticket.name)}</h3>
                                 }
                             </div>
                             <div className="gender">
                                 <h3 className="gender1">Gender *</h3>
                                 <h3 className="input-gender" name="gender">
-                                    {privateKey ? decryptedGender : ticket.gender}
+                                    {privateKey ? decryptedGender : minifyAddress(ticket.gender)}
                                 </h3>
                             </div>
                             <div className="email">
@@ -464,7 +464,7 @@ const Ticket = ({ ticket }) => {
                                 {privateKey ?
                                     <h3 className="input-email" name="email" type="email">{decryptedEmail}</h3>
                                     :
-                                    <h3 className="input-email" name="email" type="email">{ticket.email}</h3>
+                                    <h3 className="input-email" name="email" type="email">{minifyAddress(ticket.email)}</h3>
 
                                 }
                             </div>
@@ -475,19 +475,19 @@ const Ticket = ({ ticket }) => {
                             <div className="cccd">
                                 <h3 className="cccd1">Citizen ID *</h3>
                                 <h3 className="input-cccd" name="citizenId" type="text">
-                                    {privateKey ? decryptedCitizenId : ticket.citizen_id}
+                                    {privateKey ? decryptedCitizenId : minifyAddress(ticket.citizen_id)}
                                 </h3>
                             </div>
                             <div className="date-of-birth">
                                 <h3 className="date-of-birth1">Date of birth *</h3>
                                 <h3 className="input-date-of-birth" name="dob" type="text">
-                                    {privateKey ? decryptedDob : ticket.dob}
+                                    {privateKey ? decryptedDob : minifyAddress(ticket.dob)}
                                 </h3>
                             </div>
                             <div className="home-town">
                                 <h3 className="home-town-text">Region *</h3>
                                 <h3 className="input-home-town" name="region">
-                                    {privateKey ? decryptedRegion : ticket.region}
+                                    {privateKey ? decryptedRegion : minifyAddress(ticket.region)}
                                 </h3>
 
                             </div>
@@ -498,14 +498,14 @@ const Ticket = ({ ticket }) => {
                             <div className="working-unit">
                                 <h3 className="working-unit-text">Work Unit *</h3>
                                 <h3 className="input-working-unit" name="workUnit" type="text">
-                                    {privateKey ? decryptedWorkUnit : ticket.work_unit}
+                                    {privateKey ? decryptedWorkUnit : minifyAddress(ticket.work_unit)}
                                 </h3>
                             </div>
 
                             <div className="score">
                                 <h3 className="score-text">Point</h3>
                                 <h3 className="input-score" name="point" type="text">
-                                    {privateKey ? decryptedPoint : ticket.point}
+                                    {privateKey ? decryptedPoint : minifyAddress(ticket.point)}
                                 </h3>
                             </div>
                             <div className="name-of-vertification">
@@ -518,13 +518,13 @@ const Ticket = ({ ticket }) => {
                             <div className="date-vertification">
                                 <h3 className="date-vertification-text">Issue Date *</h3>
                                 <h3 className="input-date-vertification" name="issueDate" type="text">
-                                    {privateKey ? decryptedIssueDate : ticket.issue_date}
+                                    {privateKey ? decryptedIssueDate : minifyAddress(ticket.issue_date)}
                                 </h3>
                             </div>
                             <div className="expired-date">
                                 <h3 className="expired-date-text">Expiry Date</h3>
                                 <h3 className="input-expired-date" name="expiryDate" type="text">
-                                    {privateKey ? decryptedExpiryDate : ticket.expiry_date}
+                                    {privateKey ? decryptedExpiryDate : minifyAddress(ticket.expiry_date)}
                                 </h3>
                             </div>
                             <div className="vertification-unit">

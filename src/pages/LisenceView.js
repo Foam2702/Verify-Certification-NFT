@@ -19,6 +19,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
+import VerifiedIcon from '@mui/icons-material/Verified';
 import { formatDateV2, minifyAddress, extractCID, pinJSONToIPFS, extractEncryptedDataFromJson, decryptData } from "../helpers/index"
 
 const LisenceView = () => {
@@ -32,8 +33,20 @@ const LisenceView = () => {
   const [alertSeverity, setAlertSeverity] = useState("");
   const [loading, setLoading] = useState(false);
   const [isPrivateKeyValid, setIsPrivateKeyValid] = useState(false);
-
+  const [expandedCertificateIndex, setExpandedCertificateIndex] = useState(null); // Track which certificate is expanded
   const options = { method: 'GET', headers: { accept: 'application/json' } };
+  const attributeLabels = {
+    citizen_id: "Citizen ID",
+    owner_address: "Owner Address",
+    dob: "Date of Birth",
+    licensing_authority: "Licensing Authority",
+    gender: "Gender",
+    email: "Email",
+    work_unit: "Work Unit",
+    issue_date: "Issue Date",
+    region: "Region",
+    status: "Status",
+  };
 
   const handleClickOpen = () => setOpen(true);
   const handleCloseDialog = () => setOpen(false);
@@ -46,25 +59,29 @@ const LisenceView = () => {
   }
 
   const handleDecryptTicket = async (prop, privateKey) => {
-    console.log("PROPS", prop)
-    try {
-      const result = await decryptData(prop.replace(/"/g, ''), privateKey);
-      if (!result) throw new Error("Wrong private key");
-      return result;
-    } catch (error) {
-      handleDecryptionError(error);
-      return prop.toString();
+    console.log("PROP", prop)
+    if (prop != null && prop != '' && prop != undefined) {
+      try {
+        const result = await decryptData(prop.replace(/"/g, ''), privateKey);
+        if (!result) throw new Error("Wrong private key");
+        return result;
+      } catch (error) {
+        handleDecryptionError(error);
+        return minifyAddress(prop.toString());
+      }
+    }
+    else {
+      return " "; // Return the original prop value in case of error
     }
   };
 
   const handleDecryptImage = async (cid, privateKey) => {
-    console.log("PROPS", cid)
 
     try {
       const { data } = await axios(`https://coral-able-takin-320.mypinata.cloud/ipfs/${cid}`);
       const decryptedData = await decryptData(data.image, privateKey);
       if (!decryptedData) throw new Error("Wrong private key");
-      return decryptedData;
+      return minifyAddress(decryptedData);
     } catch (error) {
       handleDecryptionError(error);
       return null;
@@ -80,6 +97,9 @@ const LisenceView = () => {
     setShowAlert(true);
     setIsPrivateKeyValid(false);
   };
+  const handleExpandClick = (index) => {
+    setExpandedCertificateIndex(expandedCertificateIndex === index ? null : index);
+  };
 
   useEffect(() => {
     const getNFTs = async () => {
@@ -87,8 +107,6 @@ const LisenceView = () => {
         try {
           const { data } = await axios(`https://testnets-api.opensea.io/api/v2/chain/sepolia/account/${address}/nfts`, options);
           setCertificates(data.nfts);
-
-
         } catch (err) {
           console.error(err);
         }
@@ -101,17 +119,23 @@ const LisenceView = () => {
     const decryptAllFields = async () => {
       try {
         const newDecryptedCertificates = [];
-        console.log("CER", certificates)
         setLoading(true)
         for (const certificate of certificates) {
           const name = await handleDecryptTicket(certificate.name, privateKey);
           const image = await handleDecryptImage(extractCID(certificate.image_url), privateKey);
-
+          const attributes = await axios(`https://coral-able-takin-320.mypinata.cloud/ipfs/${extractCID(certificate.metadata_url)}`)
+          const decryptedAttributes = await Promise.all(attributes.data.attributes.map(async (attribute) => {
+            if (attribute.value.startsWith('"') && attribute.value.endsWith('"')) {
+              attribute.value = await handleDecryptTicket(attribute.value, privateKey);
+            }
+            return attribute;
+          }));
           newDecryptedCertificates.push({
             ...certificate,
             name,
             image_url: image,
             date: formatDateV2(certificate.updated_at),
+            attributes: decryptedAttributes,
           });
         }
         console.log(newDecryptedCertificates)
@@ -192,17 +216,53 @@ const LisenceView = () => {
                 <div key={index} className="upload-wrapper-lisence" style={{ marginBottom: "50px" }}>
                   <div className="upload-lisence">
                     <div className="info_certi">
-                      <div className="lisence-name-title" >{certificate.description} </div>
-                      <div className="lisence-name">Completed by {certificate.name} </div>
-                      <div className="lisence-name">{certificate.date}</div>
+                      <div className="lisence-name-title" >{certificate.description}< VerifiedIcon sx={{ color: "green", fontSize: 50 }} /> </div>
+
+                      {isPrivateKeyValid && (
+                        <>
+                          <div className="lisence-name" style={{ fontWeight: "bold" }}>
+                            Completed by {certificate.name}
+                          </div>
+                          <div className="lisence-name" style={{ fontWeight: "bold" }}>
+                            {certificate.date}
+                          </div>
+                          {expandedCertificateIndex === index && (
+                            <div className="lisence-attributes">
+                              {certificate.attributes && certificate.attributes.map((attribute, attrIndex) => (
+                                <div key={attrIndex} className="lisence-name">
+                                  <strong>
+                                    {attribute.trait_type === "owner_address"
+                                      ? "Owner Address"
+                                      : attributeLabels[attribute.trait_type] || attribute.trait_type}:
+                                  </strong>
+                                  {attribute.trait_type === "owner_address"
+                                    ? minifyAddress(attribute.value)
+                                    : attribute.value}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          <Button
+                            onClick={() => handleExpandClick(index)}
+                            sx={{
+
+                              fontSize: '1.5rem',
+                            }}
+                          >
+                            {expandedCertificateIndex === index ? "Show Less" : "Show More"}
+                          </Button>
+                        </>
+                      )}
+
+
 
                     </div>
                     <div className="img_certi">
                       <MultiActionAreaCard image={certificate.image_url} size={650} />
-                      <Link className="link-to-transactions" href={certificate.opensea_url} underline="hover" target="_blank">
+                      {/* <Link className="link-to-transactions" href={certificate.opensea_url} underline="hover" target="_blank">
                         Opensea
                         <ArrowOutwardIcon />
-                      </Link>
+                      </Link> */}
                     </div>
                   </div>
                 </div>

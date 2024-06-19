@@ -43,7 +43,7 @@ export const pinJSONToIPFS = async (ticket) => {
             name: `${ticket.name}`,
             description: `${ticket.certificate_name}`,
             external_url: "https://pinata.cloud",
-            image: `ipfs://${ticket.certificate_cid}`,
+            image_url: `ipfs://${ticket.certificate_cid}`,
             attributes: [
                 { "trait_type": "citizen_id", "value": `${ticket.citizen_id}` },
                 { "trait_type": "owner_address", "value": `${ticket.owner_address}` },
@@ -60,7 +60,7 @@ export const pinJSONToIPFS = async (ticket) => {
             ]
         },
         pinataMetadata: {
-            name: "metadata.json"
+            name: `metadata.json`
         }
     });
 
@@ -206,8 +206,8 @@ export async function imageUpload(imageEnc, hashImg, owner, certificate) {
             name: owner,
             description: `${certificate}`,
             external_url: "https://pinata.cloud",
-            hash: hashImg,
             image: imageEnc,
+            hash: hashImg,
 
 
         },
@@ -255,6 +255,14 @@ export function extractCID(url) {
     const cidPattern = /\/ipfs\/([a-zA-Z0-9]+)$/;
     const match = url.match(cidPattern);
     return match ? match[1] : null;
+}
+export function extractPinataCID(url) {
+    const regex = /^ipfs:\/\/([a-zA-Z0-9]+)$/;
+    const match = url.match(regex);
+    if (match) {
+        return match[1];
+    }
+    return null;
 }
 export function formatDateV2(dateString) {
     // Create a new Date object from the input string

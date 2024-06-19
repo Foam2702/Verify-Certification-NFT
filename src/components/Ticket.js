@@ -160,6 +160,8 @@ const Ticket = ({ ticket }) => {
             ticket = userTicket.data.ticket[0];
             ticket.status = "approved"
             const metadata = await pinJSONToIPFS(ticket)
+            console.log("metadata", metadata)
+
             const ipfsMetadata = `ipfs://${metadata}`
             const { ethereum } = window
             if (ethereum) {

@@ -122,7 +122,6 @@ const BodySection = () => {
         }
         const imageEncrypt = await encryptData(base64ImageString, remove0x(publicKeyOwner));
         image_res = await imageUpload(imageEncrypt, hashImg, address, data["certificateName"])
-        setLoading(false)
       } catch (err) {
         console.log(err)
       }

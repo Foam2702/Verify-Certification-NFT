@@ -20,7 +20,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 import VerifiedIcon from '@mui/icons-material/Verified';
-import { formatDateV2, minifyAddress, extractCID, pinJSONToIPFS, extractEncryptedDataFromJson, decryptData } from "../helpers/index"
+import { formatDateV2, minifyAddress, extractPinataCID, extractCID, pinJSONToIPFS, extractEncryptedDataFromJson, decryptData } from "../helpers/index"
 
 const LisenceView = () => {
   const { signer, address, connectWallet, contract } = useSigner()
@@ -59,7 +59,6 @@ const LisenceView = () => {
   }
 
   const handleDecryptTicket = async (prop, privateKey) => {
-    console.log("PROP", prop)
     if (prop != null && prop != '' && prop != undefined) {
       try {
         const result = await decryptData(prop.replace(/"/g, ''), privateKey);
@@ -121,10 +120,11 @@ const LisenceView = () => {
         const newDecryptedCertificates = [];
         setLoading(true)
         for (const certificate of certificates) {
-          const name = await handleDecryptTicket(certificate.name, privateKey);
-          const image = await handleDecryptImage(extractCID(certificate.image_url), privateKey);
-          const attributes = await axios(`https://coral-able-takin-320.mypinata.cloud/ipfs/${extractCID(certificate.metadata_url)}`)
-          const decryptedAttributes = await Promise.all(attributes.data.attributes.map(async (attribute) => {
+          const nfts = await axios(`https://coral-able-takin-320.mypinata.cloud/ipfs/${extractCID(certificate.metadata_url)}`)
+
+          const name = await handleDecryptTicket(nfts.data.name, privateKey);
+          const image = await handleDecryptImage(extractPinataCID(nfts.data.image_url), privateKey);
+          const decryptedAttributes = await Promise.all(nfts.data.attributes.map(async (attribute) => {
             if (attribute.value.startsWith('"') && attribute.value.endsWith('"')) {
               attribute.value = await handleDecryptTicket(attribute.value, privateKey);
             }
@@ -152,7 +152,7 @@ const LisenceView = () => {
 
     if (privateKey && certificates.length > 0) decryptAllFields();
   }, [privateKey, certificates]);
-  console.log(decryptedCertificates)
+  console.log(certificates)
   return (
     <div className="lisenceview">
       <section className="header-section-parent">

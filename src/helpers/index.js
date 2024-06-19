@@ -200,13 +200,15 @@ export function handleError(error) {
     }
 }
 
-export async function imageUpload(imageEnc, owner, certificate) {
+export async function imageUpload(imageEnc, hashImg, owner, certificate) {
     const data = JSON.stringify({
         pinataContent: {
             name: owner,
             description: `${certificate}`,
             external_url: "https://pinata.cloud",
+            hash: hashImg,
             image: imageEnc,
+
 
         },
         pinataMetadata: {
@@ -248,19 +250,7 @@ export async function fetchImagePinata(imageHash) {
     }
 
 }
-export async function addFileToIPFS(file) {
-    // const helia = await createHelia()
-    // const d = dagJson(helia)
 
-    // const object2 = { link: file }
-    // const myImmutableAddress2 = await d.add(object2)
-
-    // const retrievedObject = await d.get(myImmutableAddress2)
-    // console.log(retrievedObject)
-    // // { link: CID(baguqeerasor...) }
-
-    // console.log(await d.get(retrievedObject.link))
-}
 export function extractCID(url) {
     const cidPattern = /\/ipfs\/([a-zA-Z0-9]+)$/;
     const match = url.match(cidPattern);
@@ -283,6 +273,54 @@ export function formatDateV2(dateString) {
 
     // Return the formatted date string without the comma
     return `${month} ${day} ${year}`;
+}
+export function hashImage(imageBase64) {
+    const imageWordArray = CryptoJS.enc.Base64.parse(imageBase64);
+
+    // Hash the WordArray using SHA-256
+    const hash = CryptoJS.SHA256(imageWordArray);
+
+    // Convert the hash to a hexadecimal string
+    const hexDigest = hash.toString(CryptoJS.enc.Hex);
+
+    console.log('SHA-256 hash of the image:', hexDigest);
+    return (hexDigest)
+
+}
+export async function isExistsInPinata(hashImg) {
+
+    console.log("IMG HASH", hashImg)
+    try {
+        const allCIDs = await axios(
+            "https://api.pinata.cloud/data/pinList?status=pinned",
+            {
+                headers: {
+                    Authorization: `Bearer ${JWT}`,
+                },
+            }
+        );
+        console.log("HELLO1")
+
+        for (let cid of allCIDs.data.rows) {
+            console.log(cid.ipfs_pin_hash)
+
+            const imgHash = await axios(
+                `https://coral-able-takin-320.mypinata.cloud/ipfs/${cid.ipfs_pin_hash}`
+
+            );
+            console.log(imgHash)
+            if (imgHash.data.hash == hashImg) {
+                return true;
+            }
+        }
+        console.log("HELLO3")
+
+        return false
+    }
+    catch (err) {
+        console.log(err)
+        return err
+    }
 }
 
 

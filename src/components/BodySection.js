@@ -5,7 +5,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import { useNavigate } from "react-router-dom";
-import { encryptData, decryptData, remove0x, imageUpload, fetchImagePinata, addFileToIPFS, imageFileToBase64, base64ToImageFile } from "../helpers";
+import { hashImage, isExistsInPinata, encryptData, decryptData, remove0x, imageUpload, fetchImagePinata, addFileToIPFS, imageFileToBase64, base64ToImageFile } from "../helpers";
 import { v4 as uuidv4 } from 'uuid'
 
 import "./BodySection.css";
@@ -84,7 +84,7 @@ const BodySection = () => {
         {}
       );
     let image_res = ''
-
+    let hashImg = ''
     insertPubToDB();
     const formData = new FormData();
     //Email
@@ -101,36 +101,6 @@ const BodySection = () => {
       for (let i = 0; i < file.length; i++) {
         formData.append("imageCertificate", file[i]);
       }
-      ///////////test
-      // const ownerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${address}`)
-      // const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
-      // const base64ImageString = await imageFileToBase64(formData.get("imageCertificate"));
-
-      // console.log("FILEEEEEEEE", base64ImageString)
-      // const imageEncrypt = await encryptData(base64ImageString, remove0x(publicKeyOwner));
-      // console.log("imageEncrypt", imageEncrypt)
-      // const imageDecrypt = await decryptData(imageEncrypt, "5168f0d408a381e0194cc59f6c34eec439beb8622f74e8c71a4200eee0bef091");
-      // console.log("imageDncrypt", imageDecrypt)
-      // const originalImage = await base64ToImageFile(base64ImageString)
-      // console.log("ORIGINAL", originalImage.get("image"))
-      // setLoading(false);
-
-      // if (originalImage.get("image")) {
-      //   const url = URL.createObjectURL(originalImage.get("image"));
-      //   setImageUrl(url);
-
-      //   // Clean up the URL object after the component unmounts to avoid memory leaks
-      //   return () => URL.revokeObjectURL(url);
-      // }
-      // if (imageDecrypt === base64ImageString) {
-      //   console.log("IMAGE", true)
-      // }
-      // else {
-      //   console.log("IMAGE", false)
-      // }
-      // setLoading(false);
-
-      ////////////
       try {
         const ownerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${address}`)
         if (ownerPublicKeysResponse.data.address.length === 0) {
@@ -140,33 +110,22 @@ const BodySection = () => {
         }
         const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
         const base64ImageString = await imageFileToBase64(formData.get("imageCertificate"));
+        hashImg = hashImage(base64ImageString)
+        const exists = await isExistsInPinata(hashImg)
+        console.log(exists)
+        if (exists) {
+          setLoading(false);
+          setAlertSeverity("warning");
+          setMessageAlert(`This certificate already belongs to someone else`);
+          setShowAlert(true);
+          return
+        }
         const imageEncrypt = await encryptData(base64ImageString, remove0x(publicKeyOwner));
-        image_res = await imageUpload(imageEncrypt, address, data["certificateName"])
-        // const fetchImage = await fetchImagePinata(image_res)
-        // if (fetchImage) {
-        //   console.log(fetchImage.metadata.name.split('.')[0])
-        //   console.log(address)
-        //   if (fetchImage.metadata.name.split('.')[0] !== address) {
-        //     setLoading(false); // Stop loading regardless of the request outcome
-        //     setAlertSeverity("warning");
-        //     setMessageAlert(`This certificate already belongs to someone else`);
-        //     setShowAlert(true);
-        //     return
-        //   }
-        // }
-        // else {
-        //   setLoading(false); // Stop loading regardless of the request outcome
-        //   setAlertSeverity("error");
-        //   setMessageAlert(`Something went wrong`);
-        //   setShowAlert(true);
-        //   return
-        // }
-
+        image_res = await imageUpload(imageEncrypt, hashImg, address, data["certificateName"])
+        setLoading(false)
       } catch (err) {
         console.log(err)
       }
-
-
     } else {
       console.log("No file selected");
       setLoading(false); // Stop loading regardless of the request outcome
@@ -179,7 +138,6 @@ const BodySection = () => {
       'citizenId', 'name', 'region', 'dob', 'gender', 'email',
       'workUnit', 'point', 'issueDate', 'expiryDate', "certificateName",
       "licensingAuthority"];
-    // const image_res = await imageUpload(formData.get("imageCertificate"), address)
 
     if (issuers.length === 0) {
       setAlertSeverity("warning");
@@ -227,7 +185,7 @@ const BodySection = () => {
             formData.append(field, data[field]);
           }
 
-          image_res = await imageUpload(imageEncrypt, address, data["certificateName"])
+          image_res = await imageUpload(imageEncrypt, hashImg, address, data["certificateName"])
 
           formData.append("issuerAddress", issuerPublicKeysResponse.data.address[0].address)
           formData.append("cidCertificate", image_res)

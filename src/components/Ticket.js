@@ -159,9 +159,7 @@ const Ticket = ({ ticket }) => {
             const userTicket = await axios(`http://localhost:8080/tickets/ticket/${ticket.id}?address=`)
             ticket = userTicket.data.ticket[0];
             ticket.status = "approved"
-            console.log("TICKETSSSS", ticket)
             const metadata = await pinJSONToIPFS(ticket)
-            console.log("METADATA", metadata)
             const ipfsMetadata = `ipfs://${metadata}`
             const { ethereum } = window
             if (ethereum) {
@@ -348,16 +346,12 @@ const Ticket = ({ ticket }) => {
 
             );
             const image = res.data.image
-
             const decryptedData = await decryptData(image, privateKey);
-
-
             return decryptedData
         }
         catch (err) {
             console.log(err)
         }
-
     }
     return (
         <>

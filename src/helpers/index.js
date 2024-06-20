@@ -40,22 +40,25 @@ export const pinJSONToIPFS = async (ticket) => {
 
     const data = JSON.stringify({
         pinataContent: {
-            name: `${ticket.name}`,
+            name: `${ticket.owner_address}`,
             description: `${ticket.certificate_name}`,
             external_url: "https://pinata.cloud",
-            image_url: `ipfs://${ticket.certificate_cid}`,
+            image: `ipfs://${ticket.certificate_cid}`,
             attributes: [
+                { "trait_type": "name", "value": `${ticket.name}` },
                 { "trait_type": "citizen_id", "value": `${ticket.citizen_id}` },
-                { "trait_type": "owner_address", "value": `${ticket.owner_address}` },
-                { "trait_type": "dob", "value": `${ticket.dob}` },
-                { "trait_type": "licensing_authority", "value": `${ticket.licensing_authority}` },
-                { "trait_type": "gender", "value": `${ticket.gender}` },
                 { "trait_type": "email", "value": `${ticket.email}` },
-                { "trait_type": "work_unit", "value": `${ticket.work_unit}` },
-                { "trait_type": "issue_date", "value": `${ticket.issue_date}` },
+                { "trait_type": "dob", "value": `${ticket.dob}` },
+                { "trait_type": "gender", "value": `${ticket.gender}` },
                 { "trait_type": "region", "value": `${ticket.region}` },
+                { "trait_type": "work_unit", "value": `${ticket.work_unit}` },
+                { "trait_type": "point", "value": `${ticket.point ? ticket.point : ''}` },
+                { "trait_type": "licensing_authority", "value": `${ticket.licensing_authority}` },
+                { "trait_type": "issue_date", "value": `${ticket.issue_date}` },
+                { "trait_type": "expiry_date", "value": `${ticket.expiry_date ? ticket.expiry_date : ''}` },
                 { "trait_type": "status", "value": `${ticket.status}` },
-                { "trait_type": "point", "value": `${ticket.point}` }
+
+
 
             ]
         },

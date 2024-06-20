@@ -7,8 +7,10 @@ import Alert from '@mui/material/Alert';
 import { useNavigate } from "react-router-dom";
 import { hashImage, isExistsInPinata, encryptData, decryptData, remove0x, imageUpload, fetchImagePinata, addFileToIPFS, imageFileToBase64, base64ToImageFile } from "../helpers";
 import { v4 as uuidv4 } from 'uuid'
+import MultiActionAreaCard from "./MultiACtionAreaCard";
 
 import "./BodySection.css";
+import { Margin } from "@mui/icons-material";
 
 const BodySection = () => {
   {
@@ -32,9 +34,26 @@ const BodySection = () => {
   {
     /* Handle function */
   }
-  const onfileChange = (event) => {
+  // const onfileChange = async (event) => {
+  //   let arrayFile = []
+  //   for (let i = 0; i < event.target.files.length; i++) {
+  //     arrayFile.append("imageCertificate", event.target.files[i]);
+  //   }
+  //   const base64ImageString = await imageFileToBase64(arrayFile);
+  //   setImageUrl(base64ImageString)
+  //   setFile(event.target.files);
+  // };
+  const onfileChange = async (event) => {
     setFile(event.target.files);
-    console.log("FILE", file);
+    if (event.target.files.length > 0) {
+      const file = event.target.files[0];
+      try {
+        const base64ImageString = await imageFileToBase64(file);
+        setImageUrl(base64ImageString);
+      } catch (error) {
+        console.error('Error converting file to base64', error);
+      }
+    }
   };
   const checkIssuer = async (licensing_authority) => {
     const { ethereum } = window;
@@ -377,71 +396,69 @@ const BodySection = () => {
               </div>
             </div>
           </div>
-          <div className="careers-section-inner1">
-            <div className="working-unit-parent">
-              <div className="working-unit">
-                <h3 className="working-unit-text">Work unit *</h3>
-                <input
-                  className="input-working-unit"
-                  name="workUnit"
-                  placeholder="Type here..."
-                  type="text"
-                />
-              </div>
-              <div className="name-of-vertification">
-                <h3 className="name-of-vertification1">Certificate name *</h3>
-                <select
-                  className="input-name-of-vertification"
-                  option={courses}
-                  name="certificateName"
-                  onChange={handleCourseChange}
-                >
-                  <option value="">Select Certificate ...</option>
-                  {courses.map((course, index) => (
-                    <option key={index} value={course.certificate}>
-                      {course.certificate}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="score">
-                <h3 className="score-text">Point</h3>
-                <input
-                  className="input-score"
-                  name="point"
-                  placeholder="Type here..."
-                  type="text"
-                />
-              </div>
+          <div className="working-unit-parent">
+            <div className="working-unit">
+              <h3 className="working-unit-text">Work unit *</h3>
+              <input
+                className="input-working-unit"
+                name="workUnit"
+                placeholder="Type here..."
+                type="text"
+              />
+            </div>
+            <div className="name-of-vertification">
+              <h3 className="name-of-vertification1">Certificate name *</h3>
+              <select
+                className="input-name-of-vertification"
+                option={courses}
+                name="certificateName"
+                onChange={handleCourseChange}
+              >
+                <option value="">Select Certificate ...</option>
+                {courses.map((course, index) => (
+                  <option key={index} value={course.certificate}>
+                    {course.certificate}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="score">
+              <h3 className="score-text">Point</h3>
+              <input
+                className="input-score"
+                name="point"
+                placeholder="Type here..."
+                type="text"
+              />
+            </div>
 
-              <div className="date-vertification">
-                <h3 className="date-vertification-text">Issue Date *</h3>
-                <input
-                  className="input-date-vertification"
-                  name="issueDate"
-                  placeholder="Choose..."
-                  type="date"
-                />
-              </div>
-              <div className="expired-date">
-                <h3 className="expired-date-text">Expiry Date </h3>
-                <input
-                  className="input-expired-date"
-                  name="expiryDate"
-                  placeholder="Choose..."
-                  type="date"
-                />
-              </div>
-              <div className="vertification-unit">
-                <h3 className="vertification-unit-text">Licensing Authority *</h3>
-                <input
-                  className="input-vertification-unit"
-                  name="licensingAuthority"
-                  type="text"
-                  disabled
-                  value={organization}
-                />
-              </div>
+            <div className="date-vertification">
+              <h3 className="date-vertification-text">Issue Date *</h3>
+              <input
+                className="input-date-vertification"
+                name="issueDate"
+                placeholder="Choose..."
+                type="date"
+              />
+            </div>
+            <div className="expired-date">
+              <h3 className="expired-date-text">Expiry Date </h3>
+              <input
+                className="input-expired-date"
+                name="expiryDate"
+                placeholder="Choose..."
+                type="date"
+              />
+            </div>
+            <div className="vertification-unit">
+              <h3 className="vertification-unit-text">Licensing Authority *</h3>
+              <input
+                className="input-vertification-unit"
+                name="licensingAuthority"
+                type="text"
+                disabled
+                value={organization}
+              />
             </div>
           </div>
           <div className="upload-wrapper">
@@ -449,6 +466,7 @@ const BodySection = () => {
               <h3 className="upload-file-text">Image of certificate *</h3>
               <div className="input-upload-file">
                 <div className="input-box-background" />
+                {/* <div classname="input-image"> */}
                 <input
                   className="example-here"
                   name="imageCertificate"
@@ -457,6 +475,12 @@ const BodySection = () => {
                   multiple
                   onChange={onfileChange}
                 />
+                <MultiActionAreaCard image={imageUrl} size={500} sx={{ Margin: 10 }} />
+
+                {/* </div> */}
+
+
+
               </div>
             </div>
           </div>

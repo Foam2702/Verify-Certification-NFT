@@ -24,8 +24,7 @@ export default function VerificationForIssuer() {
             if (address) {
                 try {
                     const result = await axios(`http://localhost:8080/tickets/ticket/${id}?address=${address}`);
-                    console.log("FOR ISSUER", result.data.ticket);
-                    if (result.data.message === "ticket doesn't exist") {
+                    if (result.data.message === "ticket doesn't exist" || result.data.ticket.length == 0) {
                         navigate("/");
                     } else {
                         result.data.ticket.forEach(item => {
@@ -42,12 +41,11 @@ export default function VerificationForIssuer() {
                     }
                 } catch (err) {
                     console.error(err);
-                    // Handle error (e.g., show error message to user)
                 }
             }
         };
         fetchTicketsById();
-    }, [id, address, navigate]); // Added navigate to dependency array as it's used inside useEffect
+    }, [id, address, navigate]);
     return (
 
         <div >

@@ -129,16 +129,34 @@ const Ticket = ({ ticket }) => {
 
     const handleReject = async (e) => {
         e.preventDefault()
+        setLoading(true)
         try {
             const status = "reject"
-            const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}?status=${status}`)
+            const owner = await axios(`http://localhost:8080/tickets/ticket/${ticket.id}?address=`)
+            await deletePinIPFS(owner.data.ticket[0].certificate_cid)
+
+            for (let address of issuer) {
+                const issuer_org = await axios(`http://localhost:8080/tickets/ticket/${ticket.id}?address=${address}`);
+                if (issuer_org.data.ticket[0].certificate_cid) {
+
+                    await deletePinIPFS(issuer_org.data.ticket[0].certificate_cid)
+                }
+            }
+            const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}?status=${status}&transaction_hash=`)
+
             if (response.data.message === "updated successfully") {
+                setLoading(false)
+
                 setUpdate(true)
                 setAlertSeverity("success")
                 setMessageAlert("Rejected Successfully")
                 setShowAlert(true);
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                navigate("/")
             }
             else if (response.data.message === "update failed") {
+                setLoading(false)
+
                 setUpdate(false)
                 setAlertSeverity("error")
 
@@ -149,6 +167,10 @@ const Ticket = ({ ticket }) => {
         }
         catch (err) {
             console.log(err)
+        }
+        finally {
+            setLoading(false)
+
         }
 
     }
@@ -185,9 +207,9 @@ const Ticket = ({ ticket }) => {
                     setAlertSeverity("success")
                     setMessageAlert("Mint Successfully")
                     setShowAlert(true);
-                    await new Promise(resolve => setTimeout(resolve, 5000));
-
+                    await new Promise(resolve => setTimeout(resolve, 3000));
                     navigate("/")
+
 
                 }
                 else if (response.data.message === "update failed") {
@@ -208,6 +230,8 @@ const Ticket = ({ ticket }) => {
                 setMessageAlert("Failed to add new issuer");
             }
             setShowAlert(true);
+            window.location.reload();
+
         }
 
 
@@ -252,7 +276,7 @@ const Ticket = ({ ticket }) => {
         return day + '/' + month + '/' + year;
     }
     async function addNFTToWallet() {
-
+        setLoading(true)
         if (addressContract && tokenID) {
             try {
                 const wasAdded = await ethereum.request({
@@ -266,25 +290,16 @@ const Ticket = ({ ticket }) => {
                     },
                 });
                 if (wasAdded) {
-                    const result = await axios.delete(`http://localhost:8080/tickets/ticket/${ticket.id}`)
-                    if (result.data.code == "200") {
-                        setLoading(true);
-                        await new Promise(resolve => setTimeout(resolve, 1000));
-                        setLoading(false);
-                        setAlertSeverity("success")
-
-                        setMessageAlert("Added to Wallet")
-                        setShowAlert(true);
-                    }
-                    else if (result.data.code == "404") {
-                        setUpdate(false)
-                        setAlertSeverity("error")
-
-                        setMessageAlert("Add to Wallet failed")
-                        setShowAlert(true);
-                    }
-                } else {
-                    console.log('Your loss!');
+                    setLoading(false);
+                    setAlertSeverity("success")
+                    setMessageAlert("Added to Wallet")
+                    setShowAlert(true);
+                }
+                else {
+                    setUpdate(false)
+                    setAlertSeverity("error")
+                    setMessageAlert("Add to Wallet failed")
+                    setShowAlert(true);
                 }
             } catch (error) {
                 console.log('Oops! Something went wrong:', error);
@@ -292,6 +307,8 @@ const Ticket = ({ ticket }) => {
         } else {
             console.log('addressContract or tokenID is not defined');
         }
+        setLoading(false)
+
 
     }
     const handleDecryptTicket = async (prop, privateKey) => {
@@ -397,11 +414,11 @@ const Ticket = ({ ticket }) => {
 
                             }}
 
-                            maxWidth="md" // Adjust this value as needed (sm, md, lg, xl)
+                            maxWidth="md"
                             sx={{
-                                '& .MuiDialogContent-root': { fontSize: '1.25rem' }, // Adjust font size for dialog content
-                                '& .MuiTextField-root': { fontSize: '1.25rem' }, // Adjust font size for text fields
-                                '& .MuiButton-root': { fontSize: '1.25rem' }, // Adjust font size for buttons
+                                '& .MuiDialogContent-root': { fontSize: '1.25rem' },
+                                '& .MuiTextField-root': { fontSize: '1.25rem' },
+                                '& .MuiButton-root': { fontSize: '1.25rem' },
                             }}
                         >
                             <DialogTitle sx={{ fontSize: '1.5rem' }}>Private Key</DialogTitle>
@@ -535,7 +552,7 @@ const Ticket = ({ ticket }) => {
                             <h3 className="upload-file-text">Image of certificate</h3>
                             <div className="">
                                 <div className="input-box-background" />
-                                <MultiActionAreaCard image={privateKey ? decryptedImage : ticket.certificate_cid} size={350} />
+                                <MultiActionAreaCard image={privateKey ? decryptedImage : ticket.certificate_cid} size={500} />
                             </div>
                         </div>
                     </div>

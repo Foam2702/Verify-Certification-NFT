@@ -66,18 +66,33 @@
   letter-spacing: -0.03em;
   line-height: 30px;
   font-family: var(--font-roboto);
-  width: 1000px;
+  width: 100%;
   position: relative;
   display: flex;
-  max-width: 100%;
+  max-width: 1839%;
   font-weight: bold;
   color: rgb(206, 88, 88);
   justify-content: center;
+  height: auto;
 }
 
 .info_certi {
   display: flex;
   flex-direction: column;
+}
+
+.lisence-owner {
+  margin: 40px;
+  font-size: inherit;
+  letter-spacing: -0.03em;
+  line-height: 30px;
+  /* font-weight: bold; */
+  font-family: var(--font-roboto);
+  width: 100%;
+  position: relative;
+  display: inline-block;
+  max-width: 1839px;
+  /* font-weight: bold; */
 }
 
 .img_certi {

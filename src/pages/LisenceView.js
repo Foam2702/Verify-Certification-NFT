@@ -20,6 +20,8 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 import VerifiedIcon from '@mui/icons-material/Verified';
+import CircularProgress from '@mui/material/CircularProgress';
+
 import { formatDateV2, minifyAddress, extractPinataCID, extractCID, pinJSONToIPFS, extractEncryptedDataFromJson, decryptData } from "../helpers/index"
 
 const LisenceView = () => {
@@ -46,6 +48,9 @@ const LisenceView = () => {
     issue_date: "Issue Date",
     region: "Region",
     status: "Status",
+    expire_date: "Expiry Date",
+    name: "Name",
+    point: "Point"
   };
 
   const handleClickOpen = () => setOpen(true);
@@ -56,6 +61,8 @@ const LisenceView = () => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     setPrivateKey(formData.get('privatekey'));
+    setLoading(true); // Set loading to true when the user submits the private key
+
   }
 
   const handleDecryptTicket = async (prop, privateKey) => {
@@ -116,14 +123,16 @@ const LisenceView = () => {
 
   useEffect(() => {
     const decryptAllFields = async () => {
+
       try {
         const newDecryptedCertificates = [];
-        setLoading(true)
+
         for (const certificate of certificates) {
           const nfts = await axios(`https://coral-able-takin-320.mypinata.cloud/ipfs/${extractCID(certificate.metadata_url)}`)
-
-          const name = await handleDecryptTicket(nfts.data.name, privateKey);
-          const image = await handleDecryptImage(extractPinataCID(nfts.data.image_url), privateKey);
+          const name = nfts.data.name
+          const opensea_url = certificate.opensea_url
+          console.log("OPENSEA", opensea_url)
+          const image = await handleDecryptImage(extractPinataCID(nfts.data.image), privateKey);
           const decryptedAttributes = await Promise.all(nfts.data.attributes.map(async (attribute) => {
             if (attribute.value.startsWith('"') && attribute.value.endsWith('"')) {
               attribute.value = await handleDecryptTicket(attribute.value, privateKey);
@@ -134,19 +143,22 @@ const LisenceView = () => {
             ...certificate,
             name,
             image_url: image,
+            opensea_url,
             date: formatDateV2(certificate.updated_at),
             attributes: decryptedAttributes,
           });
         }
-        console.log(newDecryptedCertificates)
+        console.log("NEW", newDecryptedCertificates)
         setDecryptedCertificates(newDecryptedCertificates);
         setIsPrivateKeyValid(true);
-        setLoading(false)
+
 
       } catch (error) {
         setIsPrivateKeyValid(false);
-        setLoading(false)
 
+      }
+      finally {
+        setLoading(false); // Set loading to false after decryption process
       }
     };
 
@@ -154,135 +166,136 @@ const LisenceView = () => {
   }, [privateKey, certificates]);
   console.log(certificates)
   return (
-    <div className="lisenceview">
-      <section className="header-section-parent">
-        <div className="header-section">
-          <HeaderSection />
+    <div>
+      {loading && (
+        <div className="loading-overlay">
+          <CircularProgress />
         </div>
-        <LisenceSection />
-        {certificates.length === 0 ? (
-          <div>No Certificate Yet</div>
-        ) : (
-          <>
-            <div className="body-header-wrapper">
-              <div className="body-header">
-                <h1 className="body-header-text2">Certificates</h1>
+      )}
+
+      <div className="lisenceview">
+        <section className="header-section-parent">
+          <div className="header-section">
+            <HeaderSection />
+          </div>
+          <LisenceSection />
+          {certificates.length === 0 ? (
+            <div>No Certificate Yet</div>
+          ) : (
+            <>
+              <div className="body-header-wrapper">
+                <div className="body-header">
+                  <h1 className="body-header-text2">List of Certificates</h1>
+                </div>
               </div>
-            </div>
-            <Button variant="outlined" sx={{ my: "20px", fontSize: "0.5em" }} onClick={handleClickOpen}>
-              Click to view
-            </Button>
-            <Dialog
-              open={open}
-              onClose={handleCloseDialog}
-              PaperProps={{
-                component: 'form',
-                onSubmit: handleSubmitPrivateKey
-              }}
-              maxWidth="md"
-              sx={{
-                '& .MuiDialogContent-root': { fontSize: '1.25rem' },
-                '& .MuiTextField-root': { fontSize: '1.25rem' },
-                '& .MuiButton-root': { fontSize: '1.25rem' },
-              }}
-            >
-              <DialogTitle sx={{ fontSize: '1.5rem' }}>Private Key</DialogTitle>
-              <DialogContent>
-                <DialogContentText sx={{ fontSize: '1.5rem' }}>
-                  Please enter private key from your MetaMask
-                </DialogContentText>
-                <TextField
-                  autoFocus
-                  required
-                  margin="normal"
-                  name="privatekey"
-                  label="Private Key"
-                  type="privatekey"
-                  fullWidth
-                  variant="outlined"
-                  sx={{
-                    '& .MuiInputBase-input': { fontSize: '1.25rem' },
-                    '& .MuiInputLabel-root': { fontSize: '1.25rem' },
-                  }}
-                />
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={handleCloseDialog} type="submit">Decrypt</Button>
-                <Button onClick={handleCloseDialog}>Cancel</Button>
-              </DialogActions>
-            </Dialog>
-            <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', flexDirection: "column" }}>
-              {(isPrivateKeyValid ? decryptedCertificates : certificates).map((certificate, index) => (
-                <div key={index} className="upload-wrapper-lisence" style={{ marginBottom: "50px" }}>
-                  <div className="upload-lisence">
-                    <div className="info_certi">
-                      <div className="lisence-name-title" >{certificate.description}< VerifiedIcon sx={{ color: "green", fontSize: 50 }} /> </div>
+              <Button variant="outlined" sx={{ my: "20px", fontSize: "0.5em" }} onClick={handleClickOpen}>
+                Click to view
+              </Button>
+              <Dialog
+                open={open}
+                onClose={handleCloseDialog}
+                PaperProps={{
+                  component: 'form',
+                  onSubmit: handleSubmitPrivateKey
+                }}
+                maxWidth="md"
+                sx={{
+                  '& .MuiDialogContent-root': { fontSize: '1.25rem' },
+                  '& .MuiTextField-root': { fontSize: '1.25rem' },
+                  '& .MuiButton-root': { fontSize: '1.25rem' },
+                }}
+              >
+                <DialogTitle sx={{ fontSize: '1.5rem' }}>Private Key</DialogTitle>
+                <DialogContent>
+                  <DialogContentText sx={{ fontSize: '1.5rem' }}>
+                    Please enter private key from your MetaMask
+                  </DialogContentText>
+                  <TextField
+                    autoFocus
+                    required
+                    margin="normal"
+                    name="privatekey"
+                    label="Private Key"
+                    type="privatekey"
+                    fullWidth
+                    variant="outlined"
+                    sx={{
+                      '& .MuiInputBase-input': { fontSize: '1.25rem' },
+                      '& .MuiInputLabel-root': { fontSize: '1.25rem' },
+                    }}
+                  />
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={handleCloseDialog} type="submit">Decrypt</Button>
+                  <Button onClick={handleCloseDialog}>Cancel</Button>
+                </DialogActions>
+              </Dialog>
+              <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', flexDirection: "column" }}>
+                {(isPrivateKeyValid ? decryptedCertificates : certificates).map((certificate, index) => (
+                  <div key={index} className="upload-wrapper-lisence" style={{ marginBottom: "50px" }}>
+                    <div className="upload-lisence">
+                      <div className="info_certi">
+                        <div className="lisence-name-title" >{certificate.description}< VerifiedIcon sx={{ color: "green", fontSize: 50 }} /> </div>
 
-                      {isPrivateKeyValid && (
-                        <>
-                          <div className="lisence-name" style={{ fontWeight: "bold" }}>
-                            Completed by {certificate.name}
-                          </div>
-                          <div className="lisence-name" style={{ fontWeight: "bold" }}>
-                            {certificate.date}
-                          </div>
-                          {expandedCertificateIndex === index && (
-                            <div className="lisence-attributes">
-                              {certificate.attributes && certificate.attributes.map((attribute, attrIndex) => (
-                                <div key={attrIndex} className="lisence-name">
-                                  <strong>
-                                    {attribute.trait_type === "owner_address"
-                                      ? "Owner Address"
-                                      : attributeLabels[attribute.trait_type] || attribute.trait_type}:
-                                  </strong>
-                                  {attribute.trait_type === "owner_address"
-                                    ? minifyAddress(attribute.value)
-                                    : attribute.value}
-                                </div>
-                              ))}
+                        {isPrivateKeyValid && (
+                          <>
+                            <div className="lisence-owner" style={{ fontWeight: "bold" }}>
+                              Completed by {certificate.name}
                             </div>
-                          )}
-                          <Button
-                            onClick={() => handleExpandClick(index)}
-                            sx={{
+                            <div className="lisence-name" style={{ fontWeight: "bold" }}>
+                              {certificate.date}
+                            </div>
+                            {expandedCertificateIndex === index && (
+                              <div className="lisence-attributes">
+                                {certificate.attributes && certificate.attributes.map((attribute, attrIndex) => (
+                                  <div key={attrIndex} className="lisence-name">
+                                    <strong>
+                                      {attributeLabels[attribute.trait_type] || attribute.trait_type}:
+                                    </strong>
+                                    {attribute.value !== null ? attribute.value : ''}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                            <Button
+                              onClick={() => handleExpandClick(index)}
+                              sx={{
 
-                              fontSize: '1.5rem',
-                            }}
-                          >
-                            {expandedCertificateIndex === index ? "Show Less" : "Show More"}
-                          </Button>
-                        </>
-                      )}
-
-
-
-                    </div>
-                    <div className="img_certi">
-                      <MultiActionAreaCard image={certificate.image_url} size={650} />
-                      {/* <Link className="link-to-transactions" href={certificate.opensea_url} underline="hover" target="_blank">
-                        Opensea
-                        <ArrowOutwardIcon />
-                      </Link> */}
+                                fontSize: '1.5rem',
+                              }}
+                            >
+                              {expandedCertificateIndex === index ? "Show Less" : "Show More"}
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                      <div className="img_certi">
+                        <MultiActionAreaCard image={certificate.image_url} size={650} />
+                        <Link className="link-to-transactions" href={certificate.opensea_url} underline="hover" target="_blank">
+                          Opensea
+                          <ArrowOutwardIcon />
+                        </Link>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-              <Snackbar open={showAlert} autoHideDuration={3000} onClose={handleClose}>
-                <Alert
-                  onClose={handleClose}
-                  severity={alertSeverity}
-                  variant="filled"
-                  sx={{ width: '100%' }}
-                >
-                  {messageAlert}
-                </Alert>
-              </Snackbar>
-            </div>
-          </>
-        )}
-      </section >
-      <Footer shapeLeft="/shape-left@2x.png" socialIcontwitter="/socialicontwitter@2x.png" />
-    </div >
+                ))}
+                <Snackbar open={showAlert} autoHideDuration={3000} onClose={handleClose}>
+                  <Alert
+                    onClose={handleClose}
+                    severity={alertSeverity}
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                  >
+                    {messageAlert}
+                  </Alert>
+                </Snackbar>
+              </div>
+            </>
+          )}
+        </section >
+        <Footer shapeLeft="/shape-left@2x.png" socialIcontwitter="/socialicontwitter@2x.png" />
+      </div >
+    </div>
   );
 };
 

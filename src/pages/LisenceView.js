@@ -46,6 +46,7 @@ const LisenceView = () => {
     email: "Email",
     work_unit: "Work Unit",
     issue_date: "Issue Date",
+    expiry_date: "Expiry Date",
     region: "Region",
     status: "Status",
     expire_date: "Expiry Date",

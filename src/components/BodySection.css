@@ -950,7 +950,7 @@
   cursor: pointer;
   border: 0;
   padding: var(--padding-mid) var(--padding-26xl);
-  background-color: var(--color-darkorange-100);
+  background-color: rgb(53, 169, 53);
   border-radius: var(--br-12xl);
   display: flex;
   flex-direction: row;
@@ -959,7 +959,7 @@
 }
 
 .submit-button:hover {
-  background-color: var(--color-chocolate);
+  background-color: rgb(101, 218, 101);
 }
 
 .reject-button {
@@ -975,7 +975,7 @@
 }
 
 .reject-button:hover {
-  background-color: var(--color-chocolate);
+  background-color: rgb(209, 76, 76);
 }
 
 .cancel {
@@ -989,6 +989,32 @@
   text-align: left;
   display: inline-block;
   min-width: 65px;
+}
+
+.check {
+  position: relative;
+  font-size: var(--font-size-lg);
+  line-height: 106.5%;
+  text-transform: capitalize;
+  font-weight: 600;
+  font-family: var(--font-roboto);
+  color: var(--studio-darkmode-allwhite-ffffff);
+  text-align: left;
+  display: inline-block;
+  min-width: 65px;
+}
+
+.check-button {
+  cursor: pointer;
+  border: 0;
+  padding: var(--padding-mid) var(--padding-26xl-5);
+  background-color: var(--color-darkorange-100);
+  border-radius: var(--br-12xl);
+  justify-content: flex-start;
+}
+
+.check-button:hover {
+  background-color: orange;
 }
 
 .reject {
@@ -1005,7 +1031,8 @@
 }
 
 .body-button,
-.cancel-button {
+.cancel-button,
+.check-button {
   display: flex;
   flex-direction: row;
   align-items: flex-start;

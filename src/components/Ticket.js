@@ -21,7 +21,8 @@ import AlertTicket from "./AlertTicket"
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
-import { pinJSONToIPFS, deletePinIPFS, extractEncryptedDataFromJson, decryptData, minifyAddress } from "../helpers/index"
+import { hashImage, pinJSONToIPFS, deletePinIPFS, extractEncryptedDataFromJson, decryptData, minifyAddress, imageFileToBase64 } from "../helpers/index"
+
 const JWT = process.env.REACT_APP_JWT; // Make sure to set this in your React app environment variables
 
 import "./BodySection.css";
@@ -29,6 +30,8 @@ import "../pages/LisenceView"
 
 const Ticket = ({ ticket }) => {
     const { signer, address, connectWallet, contract, provider } = useSigner()
+    const [file, setFile] = useState(null);
+
     const [issuer, setIssuer] = useState([])
     const [showAlert, setShowAlert] = useState(false);
     const [messageAlert, setMessageAlert] = useState("")
@@ -55,6 +58,8 @@ const Ticket = ({ ticket }) => {
     const [decryptedExpiryDate, setDecryptedExpiryDate] = useState('');
     const [decryptedImage, setDecryptedImage] = useState(null)
     const [userTicket, setUserTicket] = useState(null)
+    const [imageUrl, setImageUrl] = useState('');
+    const [imageMatch, setImageMatch] = useState(false)
     const web3 = new Web3(window.ethereum);
     const navigate = useNavigate();
     useEffect(() => {
@@ -69,7 +74,6 @@ const Ticket = ({ ticket }) => {
             checkIssuer().catch(error => console.error(error));
         }
     }, [ticket, address, signer]) // Add ticket as a dependency
-
     useEffect(() => {
         const getAddContractAndTokenID = async () => {
             try {
@@ -113,10 +117,8 @@ const Ticket = ({ ticket }) => {
                 setDecryptedImage(imageCertificate)
                 setError(null); // Clear any previous errors
                 setLoading(false)
-
             } catch (err) {
                 setLoading(false)
-
                 // setError("Wrong private key"); // No need to set error here since it's already set in handleDecryptTicket
             }
         };
@@ -125,8 +127,6 @@ const Ticket = ({ ticket }) => {
             decryptAllFields();
         }
     }, [ticket, privateKey]);
-
-
     const handleReject = async (e) => {
         e.preventDefault()
         setLoading(true)
@@ -134,7 +134,6 @@ const Ticket = ({ ticket }) => {
             const status = "reject"
             const owner = await axios(`http://localhost:8080/tickets/ticket/${ticket.id}?address=`)
             await deletePinIPFS(owner.data.ticket[0].certificate_cid)
-
             for (let address of issuer) {
                 const issuer_org = await axios(`http://localhost:8080/tickets/ticket/${ticket.id}?address=${address}`);
                 if (issuer_org.data.ticket[0].certificate_cid) {
@@ -146,7 +145,6 @@ const Ticket = ({ ticket }) => {
 
             if (response.data.message === "updated successfully") {
                 setLoading(false)
-
                 setUpdate(true)
                 setAlertSeverity("success")
                 setMessageAlert("Rejected Successfully")
@@ -157,9 +155,8 @@ const Ticket = ({ ticket }) => {
             else if (response.data.message === "update failed") {
                 setLoading(false)
 
-                setUpdate(false)
+                setpdate(false)
                 setAlertSeverity("error")
-
                 setMessageAlert("Already Rejected")
                 setShowAlert(true);
             }
@@ -170,9 +167,7 @@ const Ticket = ({ ticket }) => {
         }
         finally {
             setLoading(false)
-
         }
-
     }
     const handleSubmit = async (event) => {
         event.preventDefault()
@@ -181,6 +176,7 @@ const Ticket = ({ ticket }) => {
             const userTicket = await axios(`http://localhost:8080/tickets/ticket/${ticket.id}?address=`)
             ticket = userTicket.data.ticket[0];
             ticket.status = "approved"
+            console.log(ticket)
             const metadata = await pinJSONToIPFS(ticket)
             console.log("metadata", metadata)
 
@@ -233,8 +229,6 @@ const Ticket = ({ ticket }) => {
             window.location.reload();
 
         }
-
-
     };
     const handleClose = async (event, reason) => {
         if (reason === 'clickaway') {
@@ -242,24 +236,18 @@ const Ticket = ({ ticket }) => {
         }
         setShowAlert(false);
         await new Promise(resolve => setTimeout(resolve, 1000));
-
-
     };
     const handleCancle = async () => {
         setLoading(true);
-        // await new Promise(resolve => setTimeout(resolve, 1000));
         setLoading(false);
         navigate("/")
-
     }
     const handleClickOpen = () => {
         setOpen(true);
     };
-
     const handleCloseDialog = () => {
         setOpen(false);
     };
-
     const handleSubmitPrivateKey = async (event) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
@@ -308,8 +296,6 @@ const Ticket = ({ ticket }) => {
             console.log('addressContract or tokenID is not defined');
         }
         setLoading(false)
-
-
     }
     const handleDecryptTicket = async (prop, privateKey) => {
         if (prop != null && prop != '' && prop != undefined) {
@@ -318,7 +304,6 @@ const Ticket = ({ ticket }) => {
                 if (result === "") {
                     setError("Wrong private key"); // Set the error state
                     setLoading(true);
-                    // await new Promise(resolve => setTimeout(resolve, 1000));
                     setLoading(false);
                     setAlertSeverity("error")
                     setMessageAlert("Wrong private key")
@@ -328,35 +313,28 @@ const Ticket = ({ ticket }) => {
                 return result;
             } catch (error) {
                 if (error.message.includes("Cipher key could not be derived")) {
-
                     setError("Wrong private key"); // Set the error state
                     setLoading(true);
-                    // await new Promise(resolve => setTimeout(resolve, 1000));
                     setLoading(false);
                     setAlertSeverity("error")
-
                     setMessageAlert("Wrong private key")
                     setShowAlert(true);
                 } else {
 
-                    setError("Error decrypting data"); // Set a generic decryption error message
+                    setError("Error decrypting data");
                     setLoading(true);
-                    // await new Promise(resolve => setTimeout(resolve, 1000));
                     setLoading(false);
                     setAlertSeverity("error")
 
                     setMessageAlert("Wrong private key")
                     setShowAlert(true);
                 }
-                return minifyAddress(prop.toString()); // Return the original prop value in case of error
-
+                return minifyAddress(prop.toString());
             }
-
         }
         else {
-            return " "; // Return the original prop value in case of error
+            return " ";
         }
-
     };
     const handleDecryptImage = async (prop, privateKey) => {
         try {
@@ -372,6 +350,62 @@ const Ticket = ({ ticket }) => {
             console.log(err)
         }
     }
+    const onfileChange = async (event) => {
+        setImageMatch(false)
+        setFile(event.target.files);
+        if (event.target.files.length > 0) {
+            const file = event.target.files[0];
+            try {
+                const base64ImageString = await imageFileToBase64(file);
+                setImageUrl(base64ImageString);
+            } catch (error) {
+                console.error('Error converting file to base64', error);
+            }
+        }
+    };
+    const handleCheckImage = async (event) => {
+        event.preventDefault();
+        if (decryptedImage == null) {
+            setLoading(true);
+            setAlertSeverity("warning")
+            setMessageAlert("Decrypt image to check")
+            setShowAlert(true);
+            setLoading(false);
+            return;
+        }
+        if (imageUrl) {
+            const hashStudentImg = hashImage(decryptedImage)
+            const hashIssuerImg = hashImage(imageUrl)
+            if (hashIssuerImg == hashStudentImg) {
+                setLoading(true);
+                setAlertSeverity("success")
+                setMessageAlert("The two images match")
+                setShowAlert(true);
+                setLoading(false);
+                setImageMatch(true)
+            }
+            else {
+                setLoading(true);
+                setAlertSeverity("error")
+                setMessageAlert("The two images do not match")
+                setShowAlert(true);
+                setLoading(false);
+                setImageMatch(false)
+
+            }
+
+        }
+        else {
+            setLoading(true);
+            setAlertSeverity("warning")
+            setMessageAlert("Upload your file")
+            setShowAlert(true);
+            setLoading(false);
+            return;
+        }
+
+
+    }
     return (
         <>
             {loading && (
@@ -379,7 +413,6 @@ const Ticket = ({ ticket }) => {
                     <CircularProgress />
                 </div>
             )}
-
             <main className="body-section1">
                 <form className="careers-section" encType="multipart/form-data" action="" >
                     <div>
@@ -547,21 +580,65 @@ const Ticket = ({ ticket }) => {
                         </div>
 
                     </div>
-                    <div className="upload-wrapper">
-                        <div className="upload">
-                            <h3 className="upload-file-text">Image of certificate</h3>
-                            <div className="">
-                                <div className="input-box-background" />
-                                <MultiActionAreaCard image={privateKey ? decryptedImage : ticket.certificate_cid} size={500} />
+
+                    {issuer.includes(address) ?
+                        <div className="image-hash-container">
+                            <div className="upload-wrapper">
+                                <div className="upload">
+                                    <h3 className="upload-file-text">Image of Student</h3>
+                                    <div className="">
+                                        <div className="input-box-background" />
+
+                                        <MultiActionAreaCard image={privateKey ? decryptedImage : ticket.certificate_cid} size={500} />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="upload-wrapper">
+                                <div className="upload">
+                                    <h3 className="upload-file-text">Image of Issuer</h3>
+
+                                    <div className="input-box-background" />
+                                    <input
+                                        className="example-here"
+                                        name="imageCertificate"
+                                        type="file"
+                                        accept=".jpg"
+                                        multiple
+                                        onChange={onfileChange}
+                                    />
+                                    <MultiActionAreaCard image={imageUrl} size={500} sx={{ Margin: 10 }} />
+
+                                </div>
                             </div>
                         </div>
-                    </div>
+                        :
+                        <div className="upload-wrapper">
+                            <div className="upload">
+                                <h3 className="upload-file-text">Image of certificate</h3>
+                                <div className="">
+                                    <div className="input-box-background" />
+                                    <div className="image-container">
+                                        <MultiActionAreaCard image={privateKey ? decryptedImage : ticket.certificate_cid} size={500} />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
                     {issuer.includes(address) ?
                         <>
                             <div className="body-button1">
-                                <button className="submit-button" onClick={handleSubmit}>
-                                    <div className="submit">Mint</div>
+                                <button className="check-button" onClick={handleCheckImage}>
+                                    <div className="check" >Check</div>
                                 </button>
+                                {imageMatch ?
+                                    <button className="submit-button" onClick={handleSubmit}>
+                                        <div className="submit">Mint</div>
+                                    </button>
+                                    :
+                                    <></>
+                                }
+
                                 <button className="reject-button" onClick={handleReject}>
                                     <div className="reject">Reject</div>
                                 </button>

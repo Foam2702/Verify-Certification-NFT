@@ -3,6 +3,7 @@
     justify-content: space-between;
     padding: 0 var(--padding-745xl);
     gap: var(--gap-xl);
+    margin: 10px;
 }
 
 .header-section {
@@ -135,6 +136,11 @@
     gap: 1052.6px;
     line-height: normal;
     letter-spacing: normal;
+}
+
+.image-hash-container {
+    display: flex;
+
 }
 
 @media screen and (max-width: 1200px) {

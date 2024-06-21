@@ -478,9 +478,6 @@ const BodySection = () => {
                 <MultiActionAreaCard image={imageUrl} size={500} sx={{ Margin: 10 }} />
 
                 {/* </div> */}
-
-
-
               </div>
             </div>
           </div>

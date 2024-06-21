@@ -143,31 +143,24 @@ module.exports = {
     },
     deleteOneTicket: async (req, res) => {
         const { id } = req.params
-        const ticket = await ticketModel.getOneTicket(id)
-        if (ticket == undefined) {
+
+
+        const result = await ticketModel.deleteOneTicket(id)
+        if (result == true) {
             res.json({
-                "code": "404",
-                "success": false,
-                "message": "ticket doesn't exist"
+                "code": "200",
+                "success": true,
+                "message": "deleted successfully"
             })
         }
         else {
-            const result = await ticketModel.deleteOneTicket(id)
-            if (result == true) {
-                res.json({
-                    "code": "200",
-                    "success": true,
-                    "message": "deleted successfully"
-                })
-            }
-            else {
-                res.json({
-                    "code": "404",
-                    "success": false,
-                    "message": "delete failed"
-                })
-            }
+            res.json({
+                "code": "404",
+                "success": false,
+                "message": "delete failed"
+            })
         }
+
     }
 
 

@@ -70,7 +70,7 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                                                     EXAM for {course[0].name}
                                                 </Typography>
                                                 <Typography variant="subtitle1">
-                                                    <p>You must score <span style={{ fontWeight: "bold" }}>&gt;=70%</span> to complete the {course[0].name}</p>
+                                                    <p>You must score <span style={{ fontWeight: "bold", color: "red" }}>&gt;=70%</span> to complete the {course[0].name}</p>
                                                 </Typography>
                                             </div>
                                         </Paper>

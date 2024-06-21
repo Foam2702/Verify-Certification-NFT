@@ -214,6 +214,16 @@
   max-width: 100%;
 }
 
+.header-container-exam {
+  align-items: center;
+  /* padding: var(--padding-21xl) var(--padding-xl) var(--padding-119xl); */
+  box-sizing: border-box;
+  min-height: 639px;
+  font-size: var(--font-size-61xl);
+  color: var(--color-darkslategray-200);
+  font-family: var(--font-roboto);
+}
+
 .person-image {
   width: 746px;
   justify-content: center;
@@ -228,6 +238,7 @@
 }
 
 .header-container,
+.header-container-exam,
 .header-section1 {
   align-self: stretch;
   display: flex;

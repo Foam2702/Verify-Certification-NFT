@@ -5,7 +5,7 @@ const ExamSection = ({ course }) => {
     return (
         <>
 
-            <header className="header-container">
+            <header className="header-container-exam">
                 <div className="header-content">
                     <div className="titles">
                         <div className="title-1">{course[0].name}</div>
@@ -21,7 +21,7 @@ const ExamSection = ({ course }) => {
                         alt=""
                         src="/person-image@2x.png"
                     /> */}
-                        <MultiActionAreaCard image={course[0].image} size={350} />
+                        <MultiActionAreaCard image={course[0].image} size={450} />
 
                     </div>
                 </div>

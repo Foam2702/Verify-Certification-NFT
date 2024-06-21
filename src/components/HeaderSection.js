@@ -21,6 +21,7 @@ import "./BasicMenu.css"
 import "./HeaderSection.css";
 const { ethers } = require("ethers");
 const settings = [
+  { name: 'Profile', route: '/profile' },
   { name: 'My Certificates', route: '/lisenceview' },
   { name: 'Certificate Examined', route: '/courseinfornew' },
   { name: 'Issuer Management', route: '/admin' },

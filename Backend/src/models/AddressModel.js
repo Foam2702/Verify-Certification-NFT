@@ -36,5 +36,22 @@ module.exports = {
             DELETE FROM address WHERE id=${id}
         `;
         return result;
+    },
+    updateInfo: async (address, user) => {
+        try {
+            await sql`
+            UPDATE address 
+            SET name=${user.name},citizen_id=${user.citizenId},
+                gender=${user.gender},email=${user.email},
+                work_unit=${user.workUnit},region=${user.region},dob=${user.dob}
+            WHERE address=${address}
+            `;
+            return true;
+        }
+        catch (err) {
+            return err
+        }
+
+
     }
 }

@@ -20,8 +20,7 @@ module.exports = {
     },
     sendTicketFromStudent: async (req, res, next) => {
         const ticket = req.body;
-        console.log(req.body)
-        console.log(req.file)
+
         deleteFile(req.file)
         const status = "status"
         let getAddress = "";

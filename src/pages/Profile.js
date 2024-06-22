@@ -24,6 +24,7 @@ export const Profile = () => {
     const [alertSeverity, setAlertSeverity] = useState("");
     const [user, setUser] = useState(null)
     const [error, setError] = useState(null);
+    const [isPrivateKeyValid, setIsPrivateKeyValid] = useState(false);
 
     const [open, setOpen] = useState(false);
     const [privateKey, setPrivateKey] = useState("")
@@ -130,21 +131,23 @@ export const Profile = () => {
             try {
                 const result = await decryptData(JSON.parse(prop), privateKey);
                 if (result === "") {
-                    console.log("HELLO")
+                    console.log("IM HERE")
                     setError("Wrong private key"); // Set the error state
                     setLoading(true);
                     setLoading(false);
                     setAlertSeverity("error")
                     setMessageAlert("Wrong private key")
                     setShowAlert(true);
+                    setIsPrivateKeyValid(false);
+
                     return minifyAddress(prop.toString()); // Return the original prop value in case of error
                 }
-                console.log("HELLO1")
+                setIsPrivateKeyValid(true);
 
                 return result;
             } catch (error) {
                 if (error.message.includes("Cipher key could not be derived")) {
-                    console.log("HELLO2")
+                    console.log("IM HERE2")
 
                     setError("Wrong private key"); // Set the error state
                     setLoading(true);
@@ -152,8 +155,11 @@ export const Profile = () => {
                     setAlertSeverity("error")
                     setMessageAlert("Wrong private key")
                     setShowAlert(true);
+                    setIsPrivateKeyValid(false);
+
                 } else {
-                    console.log("HELLO3")
+                    console.log("IM HERE3")
+
                     console.log(error)
                     setError("Error decrypting data");
                     setLoading(true);
@@ -162,6 +168,8 @@ export const Profile = () => {
 
                     setMessageAlert("Wrong private key")
                     setShowAlert(true);
+                    setIsPrivateKeyValid(false);
+
                 }
                 console.log(minifyAddress(prop.toString()))
                 return minifyAddress(prop.toString());
@@ -223,12 +231,17 @@ export const Profile = () => {
                 setDecryptedDob(dob);
                 setDecryptedRegion(region);
                 setDecryptedWorkUnit(workUnit);
-
-
                 setError(null); // Clear any previous errors
                 setLoading(false)
+                console.log("IM HERE4")
+
+
             } catch (err) {
+                console.log("IM HERE5")
+
                 setLoading(false)
+                setIsPrivateKeyValid(false);
+
             }
         };
 
@@ -327,17 +340,24 @@ export const Profile = () => {
                                             )
                                             : ''
                                     }
+                                    readOnly={!isPrivateKeyValid} // Make the input read-only when isPrivateKeyValid is false
+                                    disabled={!isPrivateKeyValid} // Disable the input when isPrivateKeyValid is false
+
                                 />
                             </div>
                             <div className="gender">
                                 <h3 className="gender1">Gender *</h3>
-                                <select className="input-gender"
+                                <select
+                                    className="input-gender"
                                     name="gender"
-                                    defaultValue={(user && user.gender) ? (privateKey ? decryptedGender : minifyAddress(user.gender)) : ''}>
+                                    defaultValue={(user && user.gender) ? (privateKey ? decryptedGender : minifyAddress(user.gender)) : ''}
+                                    disabled={!isPrivateKeyValid} // Disable the select when isPrivateKeyValid is false
+                                >
                                     <option value="male">Male</option>
                                     <option value="female">Female</option>
                                 </select>
                             </div>
+
                             <div className="email">
                                 <h3 className="email1">Email *</h3>
                                 <input
@@ -345,6 +365,9 @@ export const Profile = () => {
                                     name="email"
                                     placeholder="abc@abc.com"
                                     type="email"
+                                    readOnly={!isPrivateKeyValid} // Make the input read-only when isPrivateKeyValid is false
+                                    disabled={!isPrivateKeyValid} // Disable the input when isPrivateKeyValid is false
+
                                     defaultValue={(user && user.email) ? (privateKey ? decryptedEmail : minifyAddress(user.email)) : ''}
                                 />
                             </div>
@@ -359,6 +382,8 @@ export const Profile = () => {
                                     name="citizenId"
                                     placeholder="Type here..."
                                     type="text"
+                                    readOnly={!isPrivateKeyValid} // Make the input read-only when isPrivateKeyValid is false
+                                    disabled={!isPrivateKeyValid}
                                     defaultValue={(user && user.citizen_id) ? (privateKey ? decryptedCitizenId : minifyAddress(user.citizen_id)) : ''}
                                 />
                             </div>
@@ -368,20 +393,33 @@ export const Profile = () => {
                                     className="input-date-of-birth"
                                     name="dob"
                                     placeholder="Choose..."
-                                    type={(user && user.dob) ? "text" : "date"}
+                                    type="date"
+                                    readOnly={!isPrivateKeyValid} // Make the input read-only when isPrivateKeyValid is false
+                                    disabled={!isPrivateKeyValid}
                                     defaultValue={(user && user.dob) ? (privateKey ? decryptedDob : minifyAddress(user.dob)) : ''}
                                 />
                             </div>
+
+
+
                             <div className="home-town">
                                 <h3 className="home-town-text">Region *</h3>
-                                {/* {user && user.region ? (
-                                    <input
+                                {user && user.region ? (
+                                    <select
                                         className="input-home-town"
                                         name="region"
-                                        type="text"
-                                        // defaultValue={privateKey ? decryptedRegion : minifyAddress(user.region)}
-                                        defaultValue={(privateKey ? decryptedRegion : minifyAddress(user.region))}
-                                    />
+                                        defaultValue={privateKey ? decryptedRegion : ''}
+                                        disabled={!isPrivateKeyValid} // Disable the select when isPrivateKeyValid is false
+                                    >
+                                        <option value={privateKey ? decryptedRegion : minifyAddress(user.region)}>
+                                            {privateKey ? decryptedRegion : minifyAddress(user.region)}
+                                        </option>
+                                        {regions.map((region) => (
+                                            <option key={region._id} value={region.name}>
+                                                {region.name}
+                                            </option>
+                                        ))}
+                                    </select>
                                 ) : (
                                     <select className="input-home-town" name="region">
                                         <option value="">Select region ...</option>
@@ -391,15 +429,9 @@ export const Profile = () => {
                                             </option>
                                         ))}
                                     </select>
-                                )} */}
-                                <input
-                                    className="input-home-town"
-                                    name="region"
-                                    type="text"
-                                    // defaultValue={privateKey ? decryptedRegion : minifyAddress(user.region)}
-                                    defaultValue={(user && user.region) ? (privateKey ? decryptedRegion : minifyAddress(user.region)) : ''}
-                                />
+                                )}
                             </div>
+
 
                         </div>
                     </div>
@@ -411,18 +443,23 @@ export const Profile = () => {
                                 name="workUnit"
                                 placeholder="Type here..."
                                 type="text"
+                                readOnly={!isPrivateKeyValid} // Make the input read-only when isPrivateKeyValid is false
+                                disabled={!isPrivateKeyValid}
                                 defaultValue={(user && user.work_unit) ? (privateKey ? decryptedWorkUnit : minifyAddress(user.work_unit)) : ''}
                             />
                         </div>
                     </div>
-                    <div className="body-button">
-                        <button className="submit-button" type="submit">
-                            <div className="submit">Update</div>
-                        </button>
-                        <button className="cancel-button" type="button" onClick={onCancelBtnClick}>
-                            <div className="cancel">Cancel</div>
-                        </button>
-                    </div>
+                    {isPrivateKeyValid &&
+                        <div className="body-button">
+                            <button className="submit-button" type="submit">
+                                <div className="submit">Update</div>
+                            </button>
+                            <button className="cancel-button" type="button" onClick={onCancelBtnClick}>
+                                <div className="cancel">Cancel</div>
+                            </button>
+                        </div>
+                    }
+
                 </form>
                 <Snackbar open={showAlert} autoHideDuration={10000} onClose={handleClose}>
                     <Alert

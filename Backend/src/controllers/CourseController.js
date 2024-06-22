@@ -49,17 +49,27 @@ module.exports = {
     },
     submitExam: async (req, res) => {
         const { id } = req.params;
-        const { answers } = req.body;
-        const correctAns = courseModel.getCorrectAns()
-        // const result = await courseModel.submitExam(id, answers);
-        // res.json({
-        //     status: "success",
-        //     code: 200,
-        //     result
-        // })
+        const { address } = req.query;
+        const answers = req.body; // Assuming this is an object where keys are question IDs and values are the selected options
+
+        const correctAns = await courseModel.getExamForCourse(id); // Assuming this returns an array of questions with a correct_option field
+
+        let score = 0;
+        console.log(answers[0].response)
+        correctAns.forEach(question => {
+            if (answers[question.id - 1] && (answers[question.id - 1].response === question.correct_option)) {
+                score++;
+            }
+        });
+
+
+        const resultPercentage = (score / correctAns.length) * 100;
+
+        // You can then decide what to do with the result, for example, save it, send it back in the response, etc.
         res.json({
-            exam: answers,
-            id: id
-        })
+            status: "success",
+            code: 200,
+            message: `Exam submitted successfully. Score: ${resultPercentage}%`
+        });
     }
 }

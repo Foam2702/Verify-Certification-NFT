@@ -47,9 +47,7 @@ export const Profile = () => {
     };
     const handleUpdateInfo = async (event) => {
         event.preventDefault();
-
         const form = document.querySelector("form");
-
         setLoading(true); // Start loading before sending the request
         // Get the form data
         const data = Array.from(form.elements)
@@ -88,7 +86,6 @@ export const Profile = () => {
             workUnit: data.workUnit
 
         });
-        console.log(response)
         if (response.data.message == "Updated successfully") {
             setMessageAlert("Updated successfully");
             setAlertSeverity("success");
@@ -126,12 +123,10 @@ export const Profile = () => {
         setPrivateKey(privatekey)
     }
     const handleDecryptInfo = async (prop, privateKey) => {
-        console.log(prop)
         if (prop != null && prop != '' && prop != undefined) {
             try {
                 const result = await decryptData(JSON.parse(prop), privateKey);
                 if (result === "") {
-                    console.log("IM HERE")
                     setError("Wrong private key"); // Set the error state
                     setLoading(true);
                     setLoading(false);
@@ -142,12 +137,11 @@ export const Profile = () => {
 
                     return minifyAddress(prop.toString()); // Return the original prop value in case of error
                 }
+                console.log("handleDecryptInfo")
                 setIsPrivateKeyValid(true);
-
                 return result;
             } catch (error) {
                 if (error.message.includes("Cipher key could not be derived")) {
-                    console.log("IM HERE2")
 
                     setError("Wrong private key"); // Set the error state
                     setLoading(true);
@@ -158,20 +152,16 @@ export const Profile = () => {
                     setIsPrivateKeyValid(false);
 
                 } else {
-                    console.log("IM HERE3")
 
-                    console.log(error)
                     setError("Error decrypting data");
                     setLoading(true);
                     setLoading(false);
                     setAlertSeverity("error")
-
                     setMessageAlert("Wrong private key")
                     setShowAlert(true);
                     setIsPrivateKeyValid(false);
 
                 }
-                console.log(minifyAddress(prop.toString()))
                 return minifyAddress(prop.toString());
             }
         }
@@ -179,13 +169,13 @@ export const Profile = () => {
             return " ";
         }
     };
+
     useEffect(() => {
         const fetchDataRegions = async () => {
             try {
                 const result = await axios("http://localhost:8080/tickets");
                 if (Array.isArray(result.data.cities)) {
                     setRegions(result.data.cities);
-                    console.log({ regions });
                 } else {
                     throw new Error("Unexpected data format");
                 }
@@ -203,7 +193,6 @@ export const Profile = () => {
             try {
                 const response = await axios.get(`http://localhost:8080/addresses/${address}`);
                 const data = response.data.address[0];
-                console.log(data)
                 setUser(data)
 
             } catch (err) {
@@ -214,6 +203,7 @@ export const Profile = () => {
     }, [address, signer])
     useEffect(() => {
         const decryptAllFields = async () => {
+
             try {
                 setLoading(true)
                 const name = await handleDecryptInfo(user.name, privateKey);
@@ -223,7 +213,7 @@ export const Profile = () => {
                 const dob = await handleDecryptInfo(user.dob, privateKey);
                 const region = await handleDecryptInfo(user.region, privateKey);
                 const workUnit = await handleDecryptInfo(user.work_unit, privateKey);
-                console.log("REGION", region)
+
                 setDecryptedName(name);
                 setDecryptedGender(gender);
                 setDecryptedEmail(email);
@@ -233,22 +223,16 @@ export const Profile = () => {
                 setDecryptedWorkUnit(workUnit);
                 setError(null); // Clear any previous errors
                 setLoading(false)
-                console.log("IM HERE4")
-
-
             } catch (err) {
-                console.log("IM HERE5")
-
                 setLoading(false)
                 setIsPrivateKeyValid(false);
-
             }
         };
-
         if (user && privateKey) {
             decryptAllFields();
         }
-    }, [user, privateKey]);
+    }, [user && privateKey]);
+
     return (
         <div>
             <HeaderSection />
@@ -265,178 +249,247 @@ export const Profile = () => {
                 </div>
 
                 {user && user.name && user.gender && user.email && user.dob && user.citizen_id && user.region && user.work_unit ?
-                    <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
-                        <Button variant="outlined" sx={{ my: "20px", fontSize: "0.5em" }} onClick={handleClickOpen}>
-                            Click to view
-                        </Button>
-                    </Box>
-                    : <></>}
-                <Dialog
-                    open={open}
-                    onClose={handleCloseDialog}
-                    PaperProps={{
-                        component: 'form',
-                        onSubmit: handleSubmitPrivateKey
-
-                    }}
-
-                    maxWidth="md"
-                    sx={{
-                        '& .MuiDialogContent-root': { fontSize: '1.25rem' },
-                        '& .MuiTextField-root': { fontSize: '1.25rem' },
-                        '& .MuiButton-root': { fontSize: '1.25rem' },
-                    }}
-                >
-                    <DialogTitle sx={{ fontSize: '1.5rem' }}>Private Key</DialogTitle>
-                    <DialogContent>
-                        <DialogContentText sx={{ fontSize: '1.5rem' }}>
-                            Please enter private key from your MetaMask
-                        </DialogContentText>
-                        <TextField
-                            autoFocus
-                            required
-                            margin="normal"
-
-                            name="privatekey"
-                            label="Private Key"
-                            type="privatekey"
-                            fullWidth
-                            variant="outlined"
-                            sx={{
-                                '& .MuiInputBase-input': {
-                                    fontSize: '1.25rem', // Increase font size
-                                },
-                                '& .MuiInputLabel-root': {
-                                    fontSize: '1.25rem', // Increase label font size
-                                },
+                    <div>
+                        <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
+                            <Button variant="outlined" sx={{ my: "20px", fontSize: "0.5em" }} onClick={handleClickOpen}>
+                                Click to view
+                            </Button>
+                        </Box>
+                        <Dialog
+                            open={open}
+                            onClose={handleCloseDialog}
+                            PaperProps={{
+                                component: 'form',
+                                onSubmit: handleSubmitPrivateKey
 
                             }}
-                        />
 
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={handleCloseDialog} type="submit">Decrypt</Button>
+                            maxWidth="md"
+                            sx={{
+                                '& .MuiDialogContent-root': { fontSize: '1.25rem' },
+                                '& .MuiTextField-root': { fontSize: '1.25rem' },
+                                '& .MuiButton-root': { fontSize: '1.25rem' },
+                            }}
+                        >
+                            <DialogTitle sx={{ fontSize: '1.5rem' }}>Private Key</DialogTitle>
+                            <DialogContent>
+                                <DialogContentText sx={{ fontSize: '1.5rem' }}>
+                                    Please enter private key from your MetaMask
+                                </DialogContentText>
+                                <TextField
+                                    autoFocus
+                                    required
+                                    margin="normal"
 
-                        <Button onClick={handleCloseDialog}>Cancel</Button>
-                    </DialogActions>
-                </Dialog>
-                <form className="careers-section" encType="multipart/form-data" onSubmit={handleUpdateInfo}>
-                    <div className="careers-section-inner">
-                        <div className="name-parent">
-                            <div className="name">
-                                <h3 className="name1">Name *</h3>
-                                <input
-                                    className="input-name"
-                                    name="name"
-                                    placeholder="Type here..."
-                                    type="text"
-                                    defaultValue={
-                                        (user && user.name) ?
+                                    name="privatekey"
+                                    label="Private Key"
+                                    type="privatekey"
+                                    fullWidth
+                                    variant="outlined"
+                                    sx={{
+                                        '& .MuiInputBase-input': {
+                                            fontSize: '1.25rem', // Increase font size
+                                        },
+                                        '& .MuiInputLabel-root': {
+                                            fontSize: '1.25rem', // Increase label font size
+                                        },
 
-                                            (privateKey ?
-                                                decryptedName
-                                                :
-                                                minifyAddress(user.name)
-                                            )
-                                            : ''
-                                    }
-                                    readOnly={!isPrivateKeyValid} // Make the input read-only when isPrivateKeyValid is false
-                                    disabled={!isPrivateKeyValid} // Disable the input when isPrivateKeyValid is false
-
+                                    }}
                                 />
-                            </div>
-                            <div className="gender">
-                                <h3 className="gender1">Gender *</h3>
-                                {user && user.gender ? (
-                                    <select
-                                        className="input-gender"
-                                        name="gender"
-                                        defaultValue={privateKey ? decryptedGender : ''}
-                                        disabled={!isPrivateKeyValid} // Disable the select when isPrivateKeyValid is false
-                                    >
-                                        <option value={privateKey ? decryptedGender : minifyAddress(user.gender)}>
-                                            {privateKey ? decryptedGender : minifyAddress(user.gender)}
-                                        </option>
-                                        {/* <option value="Male">Male</option>
-                                        <option value="Female">Female</option> */}
-                                        {decryptedGender === 'Male' && (
-                                            <option value="Female">Female</option>
+
+                            </DialogContent>
+                            <DialogActions>
+                                <Button onClick={handleCloseDialog} type="submit">Decrypt</Button>
+
+                                <Button onClick={handleCloseDialog}>Cancel</Button>
+                            </DialogActions>
+                        </Dialog>
+                        <form className="careers-section" encType="multipart/form-data" onSubmit={handleUpdateInfo}>
+                            <div className="careers-section-inner">
+                                <div className="name-parent">
+                                    <div className="name">
+                                        <h3 className="name1">Name *</h3>
+                                        {isPrivateKeyValid ? (
+                                            <input
+                                                className="input-name"
+                                                name="name"
+                                                type="text"
+                                                value={decryptedName}
+                                                onChange={(e) => setDecryptedName(e.target.value)}
+                                            />
+                                        ) : (
+                                            <div className="input-name">{minifyAddress(user.name)}</div>
                                         )}
-                                        {decryptedGender === 'Female' && (
+                                    </div>
+                                    <div className="gender">
+                                        <h3 className="gender1">Gender *</h3>
+                                        <select
+                                            className="input-gender"
+                                            name="gender"
+                                            value={isPrivateKeyValid ? decryptedGender : minifyAddress(user.gender)}
+                                            disabled={!isPrivateKeyValid}
+                                            onChange={(e) => setDecryptedGender(e.target.value)}
+                                        >
                                             <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
+                                        </select>
+                                    </div>
+                                    <div className="email">
+                                        <h3 className="email1">Email *</h3>
+                                        {isPrivateKeyValid ? (
+                                            <input
+                                                className="input-email"
+                                                name="email"
+                                                placeholder="abc@abc.com"
+                                                type="email"
+                                                value={decryptedEmail}
+                                                onChange={(e) => setDecryptedEmail(e.target.value)}
+                                            />
+                                        ) : (
+                                            <div className="input-email">{minifyAddress(user.email)}</div>
                                         )}
-                                    </select>
-                                ) : (
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="careers-section-child">
+                                <div className="cccd-parent">
+                                    <div className="cccd">
+                                        <h3 className="cccd1">Citizen ID *</h3>
+                                        {isPrivateKeyValid ? (
+                                            <input
+                                                className="input-cccd"
+                                                name="citizenId"
+                                                placeholder="Type here..."
+                                                type="text"
+                                                value={decryptedCitizenId}
+                                                onChange={(e) => setDecryptedCitizenId(e.target.value)}
+                                            />
+                                        ) : (
+                                            <div className="input-cccd">{minifyAddress(user.citizen_id)}</div>
+                                        )}
+                                    </div>
+                                    <div className="date-of-birth">
+                                        <h3 className="date-of-birth1">Date of birth *</h3>
+                                        {isPrivateKeyValid ? (
+                                            <input
+                                                className="input-date-of-birth"
+                                                name="dob"
+                                                placeholder="Choose..."
+                                                type="date"
+                                                value={decryptedDob}
+                                                onChange={(e) => setDecryptedDob(e.target.value)}
+                                            />
+                                        ) : (
+                                            <div className="input-date-of-birth">{minifyAddress(user.dob)}</div>
+                                        )}
+                                    </div>
+                                    <div className="home-town">
+                                        <h3 className="home-town-text">Region *</h3>
+                                        <select
+                                            className="input-home-town"
+                                            name="region"
+                                            value={isPrivateKeyValid ? decryptedRegion : minifyAddress(user.region)}
+                                            disabled={!isPrivateKeyValid}
+                                            onChange={(e) => setDecryptedRegion(e.target.value)}
+                                        >
+                                            {regions.map((region) => (
+                                                <option key={region._id} value={region.name}>
+                                                    {region.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="working-unit-parent">
+                                <div className="working-unit">
+                                    <h3 className="working-unit-text">Work unit *</h3>
+                                    {isPrivateKeyValid ? (
+                                        <input
+                                            className="input-working-unit"
+                                            name="workUnit"
+                                            placeholder="Type here..."
+                                            type="text"
+                                            value={decryptedWorkUnit}
+                                            onChange={(e) => setDecryptedWorkUnit(e.target.value)}
+                                        />
+                                    ) : (
+                                        <div className="input-working-unit">{minifyAddress(user.work_unit)}</div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {isPrivateKeyValid &&
+                                <div className="body-button">
+                                    <button className="submit-button" type="submit">
+                                        <div className="submit">Update</div>
+                                    </button>
+                                    <button className="cancel-button" type="button" onClick={onCancelBtnClick}>
+                                        <div className="cancel">Cancel</div>
+                                    </button>
+                                </div>
+                            }
+
+                        </form>
+                    </div>
+                    :
+                    <form className="careers-section" encType="multipart/form-data" onSubmit={handleUpdateInfo}>
+                        <div className="careers-section-inner">
+                            <div className="name-parent">
+                                <div className="name">
+                                    <h3 className="name1">Name *</h3>
+                                    <input
+                                        className="input-name"
+                                        name="name"
+                                        placeholder="Type here..."
+                                        type="text"
+
+                                    />
+                                </div>
+                                <div className="gender">
+                                    <h3 className="gender1">Gender *</h3>
+
                                     <select className="input-gender" name="gender">
                                         <option value="">Select gender ...</option>
                                         <option value="Male">Male</option>
                                         <option value="Female">Female</option>
                                     </select>
-                                )}
-                            </div>
-                            <div className="email">
-                                <h3 className="email1">Email *</h3>
-                                <input
-                                    className="input-email"
-                                    name="email"
-                                    placeholder="abc@abc.com"
-                                    type="email"
-                                    readOnly={!isPrivateKeyValid} // Make the input read-only when isPrivateKeyValid is false
-                                    disabled={!isPrivateKeyValid} // Disable the input when isPrivateKeyValid is false
 
-                                    defaultValue={(user && user.email) ? (privateKey ? decryptedEmail : minifyAddress(user.email)) : ''}
-                                />
+                                </div>
+                                <div className="email">
+                                    <h3 className="email1">Email *</h3>
+                                    <input
+                                        className="input-email"
+                                        name="email"
+                                        placeholder="abc@abc.com"
+                                        type="email"
+                                    />
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div className="careers-section-child">
-                        <div className="cccd-parent">
-                            <div className="cccd">
-                                <h3 className="cccd1">Citizen ID *</h3>
-                                <input
-                                    className="input-cccd"
-                                    name="citizenId"
-                                    placeholder="Type here..."
-                                    type="text"
-                                    readOnly={!isPrivateKeyValid} // Make the input read-only when isPrivateKeyValid is false
-                                    disabled={!isPrivateKeyValid}
-                                    defaultValue={(user && user.citizen_id) ? (privateKey ? decryptedCitizenId : minifyAddress(user.citizen_id)) : ''}
-                                />
-                            </div>
-                            <div className="date-of-birth">
-                                <h3 className="date-of-birth1">Date of birth *</h3>
-                                <input
-                                    className="input-date-of-birth"
-                                    name="dob"
-                                    placeholder="Choose..."
-                                    type="date"
-                                    readOnly={!isPrivateKeyValid} // Make the input read-only when isPrivateKeyValid is false
-                                    disabled={!isPrivateKeyValid}
-                                    defaultValue={(user && user.dob) ? (privateKey ? decryptedDob : minifyAddress(user.dob)) : ''}
-                                />
-                            </div>
+                        <div className="careers-section-child">
+                            <div className="cccd-parent">
+                                <div className="cccd">
+                                    <h3 className="cccd1">Citizen ID *</h3>
+                                    <input
+                                        className="input-cccd"
+                                        name="citizenId"
+                                        placeholder="Type here..."
+                                        type="text"
+                                    />
+                                </div>
+                                <div className="date-of-birth">
+                                    <h3 className="date-of-birth1">Date of birth *</h3>
+                                    <input
+                                        className="input-date-of-birth"
+                                        name="dob"
+                                        placeholder="Choose..."
+                                        type="date"
+                                    />
+                                </div>
+                                <div className="home-town">
+                                    <h3 className="home-town-text">Region *</h3>
 
-
-
-                            <div className="home-town">
-                                <h3 className="home-town-text">Region *</h3>
-                                {user && user.region ? (
-                                    <select
-                                        className="input-home-town"
-                                        name="region"
-                                        defaultValue={privateKey ? decryptedRegion : ''}
-                                        disabled={!isPrivateKeyValid} // Disable the select when isPrivateKeyValid is false
-                                    >
-                                        <option value={privateKey ? decryptedRegion : minifyAddress(user.region)}>
-                                            {privateKey ? decryptedRegion : minifyAddress(user.region)}
-                                        </option>
-                                        {regions.map((region) => (
-                                            <option key={region._id} value={region.name}>
-                                                {region.name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                ) : (
                                     <select className="input-home-town" name="region">
                                         <option value="">Select region ...</option>
                                         {regions.map((region) => (
@@ -445,27 +498,20 @@ export const Profile = () => {
                                             </option>
                                         ))}
                                     </select>
-                                )}
+                                </div>
                             </div>
-
-
                         </div>
-                    </div>
-                    <div className="working-unit-parent">
-                        <div className="working-unit">
-                            <h3 className="working-unit-text">Work unit *</h3>
-                            <input
-                                className="input-working-unit"
-                                name="workUnit"
-                                placeholder="Type here..."
-                                type="text"
-                                readOnly={!isPrivateKeyValid} // Make the input read-only when isPrivateKeyValid is false
-                                disabled={!isPrivateKeyValid}
-                                defaultValue={(user && user.work_unit) ? (privateKey ? decryptedWorkUnit : minifyAddress(user.work_unit)) : ''}
-                            />
+                        <div className="working-unit-parent">
+                            <div className="working-unit">
+                                <h3 className="working-unit-text">Work unit *</h3>
+                                <input
+                                    className="input-working-unit"
+                                    name="workUnit"
+                                    placeholder="Type here..."
+                                    type="text"
+                                />
+                            </div>
                         </div>
-                    </div>
-                    {isPrivateKeyValid &&
                         <div className="body-button">
                             <button className="submit-button" type="submit">
                                 <div className="submit">Update</div>
@@ -474,9 +520,10 @@ export const Profile = () => {
                                 <div className="cancel">Cancel</div>
                             </button>
                         </div>
-                    }
 
-                </form>
+
+                    </form>
+                }
                 <Snackbar open={showAlert} autoHideDuration={10000} onClose={handleClose}>
                     <Alert
                         onClose={handleClose}
@@ -487,8 +534,8 @@ export const Profile = () => {
                         {messageAlert}
                     </Alert>
                 </Snackbar>
-            </section>
+            </section >
 
-        </div>
+        </div >
     );
 }

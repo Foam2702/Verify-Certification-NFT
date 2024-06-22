@@ -31,10 +31,10 @@ export default function RowRadioButtonsGroup({ course, exam }) {
         setValues(newValues);
     };
     const submitResponse = async () => {
-        // console.log(values)
-        // console.log(course[0].id)
-        // const result = await axios(`http://localhost:8080/courses/course/${course[0].id}/exam`)
-        // console.log(result.data)
+        console.log(values)
+        console.log(course[0].id)
+        const result = await axios(`http://localhost:8080/courses/course/${course[0].id}/exam`)
+        console.log(result.data)
         setIsSubmitted(true)
     }
 

@@ -3,6 +3,7 @@ import BodyCourses from "../components/BodyCourses";
 import Footer from "../components/Footer";
 import HeaderSection from "../components/HeaderSection";
 import CourseSection from "../components/CourseSection"
+
 import "./CourseTransferNew.css";
 
 const CourseTransferNew = () => {

@@ -231,7 +231,7 @@ export const Profile = () => {
         if (user && privateKey) {
             decryptAllFields();
         }
-    }, [user && privateKey]);
+    }, [user, privateKey]);
 
     return (
         <div>

@@ -24,7 +24,8 @@ router
     .get(courseController.getAllCourses)
 router
     .route("/course/:id")
-    .get(courseController.getOneCourse);
+    .get(courseController.getOneCourse)
+    .post(courseController.enrollCourse)
 router
     .route("/course/:id/exam")
     .get(courseController.getExamForCourse)

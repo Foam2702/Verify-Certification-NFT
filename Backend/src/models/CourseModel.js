@@ -35,6 +35,17 @@ module.exports = {
         `
         return result;
 
+    },
+    enrollCourse: async (id, address) => {
+        try {
+            await sql`
+            INSERT INTO exam (address, course) VALUES (${address}, ${id})`
+            return true;
+
+        } catch (err) {
+            return false
+        }
+
     }
 
 }

@@ -347,17 +347,33 @@ export const Profile = () => {
                             </div>
                             <div className="gender">
                                 <h3 className="gender1">Gender *</h3>
-                                <select
-                                    className="input-gender"
-                                    name="gender"
-                                    defaultValue={(user && user.gender) ? (privateKey ? decryptedGender : minifyAddress(user.gender)) : ''}
-                                    disabled={!isPrivateKeyValid} // Disable the select when isPrivateKeyValid is false
-                                >
-                                    <option value="male">Male</option>
-                                    <option value="female">Female</option>
-                                </select>
+                                {user && user.gender ? (
+                                    <select
+                                        className="input-gender"
+                                        name="gender"
+                                        defaultValue={privateKey ? decryptedGender : ''}
+                                        disabled={!isPrivateKeyValid} // Disable the select when isPrivateKeyValid is false
+                                    >
+                                        <option value={privateKey ? decryptedGender : minifyAddress(user.gender)}>
+                                            {privateKey ? decryptedGender : minifyAddress(user.gender)}
+                                        </option>
+                                        {/* <option value="Male">Male</option>
+                                        <option value="Female">Female</option> */}
+                                        {decryptedGender === 'Male' && (
+                                            <option value="Female">Female</option>
+                                        )}
+                                        {decryptedGender === 'Female' && (
+                                            <option value="Male">Male</option>
+                                        )}
+                                    </select>
+                                ) : (
+                                    <select className="input-gender" name="gender">
+                                        <option value="">Select gender ...</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                    </select>
+                                )}
                             </div>
-
                             <div className="email">
                                 <h3 className="email1">Email *</h3>
                                 <input

@@ -67,10 +67,10 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                 }
             );
             const org = await axios(`http://localhost:8080/courses/course/${course[0].id}`);
-            const slug = org.data.course[0].slug;
+            const orgName = org.data.course[0].licensing_authority;
             const image = org.data.course[0].image
             // const imageBse64 = imageFileToBase64(image.data)
-            console.log(image)
+            console.log(org.data.course)
             if (result.data.score >= 70) {
                 setOpenCheck(false);
                 setPassed(true);
@@ -78,48 +78,54 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                     `Congratulations! You passed the exam. You will receive notification from ${org.data.course[0].licensing_authority} soon. Please pay attention to the notification bell`
                 );
                 setOpen(true);
-                const canvas = canvasRef.current;
-                if (!canvas) {
-                    setMessageAlert('Canvas not available.');
-                    return;
-                }
+                // const canvas = canvasRef.current;
+                // if (!canvas) {
+                //     setMessageAlert('Canvas not available.');
+                //     return;
+                // }
 
-                const ctx = canvas.getContext('2d');
-                if (!ctx) {
-                    setMessageAlert('Failed to get canvas context.');
-                    return;
-                }
+                // const ctx = canvas.getContext('2d');
+                // if (!ctx) {
+                //     setMessageAlert('Failed to get canvas context.');
+                //     return;
+                // }
 
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                // ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                // Draw the certificate template
-                ctx.fillStyle = '#FFF'; // Background color
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                // // Draw the background image
+                // const backgroundImg = new Image();
+                // backgroundImg.crossOrigin = 'Anonymous'; // Ensure crossOrigin is set if loading from a different origin
+                // backgroundImg.onload = () => {
+                //     // Draw the background image
+                //     ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
 
-                ctx.fillStyle = '#000'; // Text color
-                ctx.font = 'bold 48px Arial';
-                ctx.textAlign = 'center'; // Center align text horizontally
-                ctx.fillText('Certificate of Achievement', canvas.width / 2, 100);
-                const logoImg = new Image();
-                logoImg.crossOrigin = 'Anonymous'; // Ensure crossOrigin is set
-                logoImg.onload = () => {
-                    // Draw the image onto the canvas
-                    ctx.drawImage(logoImg, canvas.width / 2 - 100, 350, 200, 200); // Adjust position and size as needed
+                //     // Draw the certificate content
+                //     ctx.fillStyle = '#000'; // Text color
+                //     ctx.textAlign = 'center'; // Center align text horizontally
+                //     ctx.font = '24px Arial';
+                //     ctx.fillText(`Awarded to ${address}`, canvas.width / 2, 650);
 
-                    // Generate base64 image
-                    const base64Image = canvas.toDataURL('image/png');
-                    console.log(base64Image);
+                //     ctx.font = 'italic 18px Arial';
+                //     ctx.fillText(`For completing ${course[0].name}`, canvas.width / 2, 670);
 
-                    // Now you can send base64Image to your backend or perform further actions
-                };
-                logoImg.src = `/${slug}.png`; // Set the image source
-                ctx.font = '24px Arial';
-                ctx.fillText(`Awarded to ${address}`, canvas.width / 2, 200);
+                //     ctx.fillText(`Date: ${new Date().toLocaleDateString()}`, canvas.width / 2, 730);
 
-                ctx.font = 'italic 18px Arial';
-                ctx.fillText(`For completing ${course[0].name}`, canvas.width / 2, 250);
+                //     // Draw the logo image (if needed)
+                //     const logoImg = new Image();
+                //     logoImg.crossOrigin = 'Anonymous'; // Ensure crossOrigin is set if loading from a different origin
+                //     logoImg.onload = () => {
+                //         // Draw the logo image onto the canvas
+                //         ctx.drawImage(logoImg, canvas.width / 2 - 100, 430, 200, 200); // Adjust position and size as needed
 
-                ctx.fillText(`Date: ${new Date().toLocaleDateString()}`, canvas.width / 2, 300);
+                //         // Generate base64 image
+                //         const base64Image = canvas.toDataURL('image/png');
+                //         console.log(base64Image);
+
+                //         // Now you can send base64Image to your backend or perform further actions
+                //     };
+                //     logoImg.src = `/${slug}.png`; // Set the image source for the logo
+                // };
+                // backgroundImg.src = '/certificate-background.png'; // Set the image source for the background
 
 
             } else {
@@ -128,7 +134,54 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                 setMessageAlert("You failed the exam. Good luck next time.");
                 setOpen(true);
             }
+            const canvas = canvasRef.current;
+            if (!canvas) {
+                setMessageAlert('Canvas not available.');
+                return;
+            }
 
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+                setMessageAlert('Failed to get canvas context.');
+                return;
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw the background image
+            const backgroundImg = new Image();
+            backgroundImg.crossOrigin = 'Anonymous'; // Ensure crossOrigin is set if loading from a different origin
+            backgroundImg.onload = () => {
+                // Draw the background image
+                ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
+
+                // Draw the certificate content
+                ctx.fillStyle = '#000'; // Text color
+                ctx.textAlign = 'center'; // Center align text horizontally
+                ctx.font = '24px Arial';
+                ctx.fillText(`Awarded to ${address}`, canvas.width / 2, 570);
+
+                ctx.font = 'italic 18px Arial';
+                ctx.fillText(`For completing ${course[0].name}`, canvas.width / 2, 630);
+
+                ctx.fillText(`Date: ${new Date().toLocaleDateString()}`, canvas.width / 2, 700);
+
+                // Draw the logo image (if needed)
+                const logoImg = new Image();
+                logoImg.crossOrigin = 'Anonymous'; // Ensure crossOrigin is set if loading from a different origin
+                logoImg.onload = () => {
+                    // Draw the logo image onto the canvas
+                    ctx.drawImage(logoImg, canvas.width / 2 - 50, 430, 100, 100); // Adjust position and size as needed
+
+                    // Generate base64 image
+                    const base64Image = canvas.toDataURL('image/png');
+                    console.log(base64Image);
+
+                    // Now you can send base64Image to your backend or perform further actions
+                };
+                logoImg.src = `/${orgName}.png`; // Set the image source for the logo
+            };
+            backgroundImg.src = '/certificate-background.png'; // Set the image source for the background
 
             // Load the logo image
 
@@ -156,18 +209,17 @@ export default function RowRadioButtonsGroup({ course, exam }) {
         ctx.fillStyle = '#FFF'; // Background color
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        ctx.font = 'bold 48px Arial';
         ctx.fillStyle = '#000'; // Text color
         ctx.textAlign = 'center'; // Center align text horizontally
-        ctx.fillText('Certificate of Achievement', canvas.width / 2, 100);
+
 
         ctx.font = '24px Arial';
-        ctx.fillText(`Awarded to ${address}`, canvas.width / 2, 200);
+        ctx.fillText(`Awarded to ${address}`, canvas.width / 2, 650);
 
         ctx.font = 'italic 18px Arial';
-        ctx.fillText(`For completing ${course[0].name}`, canvas.width / 2, 250);
+        ctx.fillText(`For completing ${course[0].name}`, canvas.width / 2, 670);
 
-        ctx.fillText(`Date: ${new Date().toLocaleDateString()}`, canvas.width / 2, 300);
+        ctx.fillText(`Date: ${new Date().toLocaleDateString()}`, canvas.width / 2, 730);
 
     }, []);
 

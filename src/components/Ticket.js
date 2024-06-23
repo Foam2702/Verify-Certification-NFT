@@ -176,9 +176,7 @@ const Ticket = ({ ticket }) => {
             const userTicket = await axios(`http://localhost:8080/tickets/ticket/${ticket.id}?address=`)
             ticket = userTicket.data.ticket[0];
             ticket.status = "approved"
-            console.log(ticket)
             const metadata = await pinJSONToIPFS(ticket)
-            console.log("metadata", metadata)
 
             const ipfsMetadata = `ipfs://${metadata}`
             const { ethereum } = window
@@ -220,11 +218,9 @@ const Ticket = ({ ticket }) => {
             setLoading(false);
             setAlertSeverity("error");
             // Check if the error code indicates the user rejected the transaction
-            if (err.code === "ACTION_REJECTED") {
-                setMessageAlert("Rejected transaction");
-            } else {
-                setMessageAlert("Failed to add new issuer");
-            }
+
+            setMessageAlert("Rejected transaction");
+
             setShowAlert(true);
             window.location.reload();
 
@@ -650,6 +646,7 @@ const Ticket = ({ ticket }) => {
                         :
                         <></>
                     }
+
                     <Snackbar open={showAlert} autoHideDuration={3000} onClose={handleClose}>
                         <Alert
                             onClose={handleClose}

@@ -22,7 +22,6 @@ const BodyCourses = ({ className = "" }) => {
     const [selectedCourse, setSelectedCourse] = useState(null);
     const [alertSeverity, setAlertSeverity] = useState("");
     const [showAlert, setShowAlert] = useState(false);
-
     const [messageAlert, setMessageAlert] = useState("")
 
     const navigate = useNavigate();
@@ -45,27 +44,36 @@ const BodyCourses = ({ className = "" }) => {
 
     const handleAgree = async () => {
         setLoading(true); // Start loading
-        const result = await axios.post(`http://localhost:8080/courses/course/${selectedCourse.id}?address=${address}`)
-        console.log(result.data)
-        if (result.data.code == 200) {
-            setTimeout(() => {
-                if (!address) {
-                    navigate("/");
-                } else {
-                    navigate(`/courses/course/${selectedCourse.id}/exam`);
-                }
-                setLoading(false);
-            }, 1000);
-            handleClose();
-        }
-        else {
-            setLoading(false);
-            setAlertSeverity("warning")
-            setMessageAlert("You have already take this exam")
-            setShowAlert(true);
+        //const result = await axios.post(`http://localhost:8080/courses/course/${selectedCourse.id}?address=${address}`)
 
-            handleClose();
-        }
+        setTimeout(() => {
+            if (!address) {
+                navigate("/");
+            } else {
+                navigate(`/courses/course/${selectedCourse.id}/exam`);
+            }
+            setLoading(false);
+        }, 1000);
+        handleClose();
+        // if (result.data.code == 200) {
+        //     setTimeout(() => {
+        //         if (!address) {
+        //             navigate("/");
+        //         } else {
+        //             navigate(`/courses/course/${selectedCourse.id}/exam`);
+        //         }
+        //         setLoading(false);
+        //     }, 1000);
+        //     handleClose();
+        // }
+        // else {
+        //     setLoading(false);
+        //     setAlertSeverity("warning")
+        //     setMessageAlert("You have already take this exam")
+        //     setShowAlert(true);
+
+        //     handleClose();
+        // }
 
 
     };

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
@@ -11,6 +11,7 @@ import "./BasicMenu.css"
 
 export default function BasicMenu({ anchorEl, handleClose, open, menuItems }) {
     const [loading, setLoading] = useState(false);
+    const [isExam, setIsExam] = useState(false)
     const { address } = useSigner();
 
     const navigate = useNavigate();
@@ -21,6 +22,7 @@ export default function BasicMenu({ anchorEl, handleClose, open, menuItems }) {
         navigate(`/tickets/ticket/${newItem.id}`);
         handleClose();
     };
+
     return (
 
         <Menu
@@ -69,7 +71,7 @@ export default function BasicMenu({ anchorEl, handleClose, open, menuItems }) {
                                                         <span style={{ "margin": "5px", "fontWeight": "bold" }}>
                                                             <AddressAvatar address={item.licensing_authority} />
                                                         </span>
-                                                        <span className="red-text">đã từ chối xác thực chứng chỉ</span>
+                                                        <span className="red-text">refused to validate</span>
                                                         <span style={{ "margin": "5px", "fontWeight": "bold" }}>
                                                             {item.certificate_name}
                                                         </span>
@@ -80,7 +82,7 @@ export default function BasicMenu({ anchorEl, handleClose, open, menuItems }) {
                                                         <span style={{ "margin": "5px", "fontWeight": "bold" }}>
                                                             <AddressAvatar address={item.licensing_authority} />
                                                         </span>
-                                                        <span className="green-text">đã mint soulbound cho chứng chỉ</span>
+                                                        <span className="green-text">has mint soulbound for</span>
                                                         <span style={{ "margin": "5px", "fontWeight": "bold" }}>
                                                             {item.certificate_name}
                                                         </span>
@@ -106,7 +108,7 @@ export default function BasicMenu({ anchorEl, handleClose, open, menuItems }) {
                                                     <span style={{ fontWeight: "bold" }}>
                                                         <AddressAvatar address={item.owner_address} />
                                                     </span>
-                                                    <span className="yellow-text">yêu cầu xác thực chứng chỉ</span>
+                                                    <span className="yellow-text">requires certificate authentication</span>
                                                     <span style={{ "margin": "5px", "fontWeight": "bold" }}>
                                                         {item.certificate_name}
                                                     </span>

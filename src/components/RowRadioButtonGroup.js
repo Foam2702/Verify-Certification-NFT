@@ -180,19 +180,6 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                 setMessage("You failed the exam. Good luck next time.");
                 setOpen(true);
             }
-
-
-            // Load the logo image
-
-            // Send Base64 string to backend
-            // axios.post('/api/save-certificate', { base64Image })
-            //     .then(response => {
-            //         setMessageAlert('Certificate saved successfully!');
-            //     })
-            //     .catch(error => {
-            //         console.error('Error saving certificate:', error);
-            //         setMessageAlert('Error saving certificate.');
-            //     });
         } catch (err) {
             console.log(err);
         }
@@ -313,12 +300,9 @@ export default function RowRadioButtonsGroup({ course, exam }) {
             setMessageAlert(`Submitted successfully. Please wait for confirmation from the ${course[0].licensing_authority}`);
             setShowAlert(true);
             navigate("/")
-
-
         } catch (err) {
             console.log(err)
         }
-
     }
 
     return (

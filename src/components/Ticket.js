@@ -31,7 +31,6 @@ import "../pages/LisenceView"
 const Ticket = ({ ticket }) => {
     const { signer, address, connectWallet, contract, provider } = useSigner()
     const [file, setFile] = useState(null);
-
     const [issuer, setIssuer] = useState([])
     const [showAlert, setShowAlert] = useState(false);
     const [messageAlert, setMessageAlert] = useState("")
@@ -60,6 +59,7 @@ const Ticket = ({ ticket }) => {
     const [userTicket, setUserTicket] = useState(null)
     const [imageUrl, setImageUrl] = useState('');
     const [imageMatch, setImageMatch] = useState(false)
+    const [isExam, setIsExam] = useState(false)
     const web3 = new Web3(window.ethereum);
     const navigate = useNavigate();
     useEffect(() => {
@@ -127,6 +127,29 @@ const Ticket = ({ ticket }) => {
             decryptAllFields();
         }
     }, [ticket, privateKey]);
+    useEffect(() => {
+        const fetchCourses = async () => {
+            try {
+                const response = await axios('http://localhost:8080/courses');
+                const courses = response.data.courses; // Assuming the API response structure
+                if (ticket.certificate_name) {
+                    const match = courses.some(course => {
+
+                        if (course.name === ticket.certificate_name) {
+                            console.log(course.name)
+                            console.log(ticket.certificate_name)
+                        }
+                        return course.name === ticket.certificate_name
+                    });
+                    setIsExam(match)
+                    setImageMatch(match);
+                }
+            } catch (error) {
+                console.error('Failed to fetch courses:', error);
+            }
+        };
+        fetchCourses();
+    }, [ticket, setImageMatch]);
     const handleReject = async (e) => {
         e.preventDefault()
         setLoading(true)
@@ -137,7 +160,6 @@ const Ticket = ({ ticket }) => {
             for (let address of issuer) {
                 const issuer_org = await axios(`http://localhost:8080/tickets/ticket/${ticket.id}?address=${address}`);
                 if (issuer_org.data.ticket[0].certificate_cid) {
-
                     await deletePinIPFS(issuer_org.data.ticket[0].certificate_cid)
                 }
             }
@@ -177,7 +199,6 @@ const Ticket = ({ ticket }) => {
             ticket = userTicket.data.ticket[0];
             ticket.status = "approved"
             const metadata = await pinJSONToIPFS(ticket)
-
             const ipfsMetadata = `ipfs://${metadata}`
             const { ethereum } = window
             if (ethereum) {
@@ -203,8 +224,6 @@ const Ticket = ({ ticket }) => {
                     setShowAlert(true);
                     await new Promise(resolve => setTimeout(resolve, 3000));
                     navigate("/")
-
-
                 }
                 else if (response.data.message === "update failed") {
                     setLoading(false);
@@ -217,10 +236,7 @@ const Ticket = ({ ticket }) => {
         } catch (err) {
             setLoading(false);
             setAlertSeverity("error");
-            // Check if the error code indicates the user rejected the transaction
-
             setMessageAlert("Rejected transaction");
-
             setShowAlert(true);
             window.location.reload();
 
@@ -411,6 +427,7 @@ const Ticket = ({ ticket }) => {
             )}
             <main className="body-section1">
                 <form className="careers-section" encType="multipart/form-data" action="" >
+
                     <div>
                         {issuer.includes(address) ? (
                             <>
@@ -424,6 +441,7 @@ const Ticket = ({ ticket }) => {
                                 <AlertTicket severity={ticket.status} />
                             </>
                         )}
+
                         <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
                             {ticket.status === 'approved' ? (
                                 <Button variant="outlined" sx={{ my: "20px", fontSize: "0.5em" }} onClick={addNFTToWallet}>Import NFT to MetaMask</Button>
@@ -484,7 +502,10 @@ const Ticket = ({ ticket }) => {
                             </DialogActions>
                         </Dialog>
                     </div>
-
+                    {isExam &&
+                        <Alert variant="outlined" severity="success" sx={{ fontSize: "2rem" }}>
+                            Certificate of passing exam at VSCourses
+                        </Alert>}
                     <div className="careers-section-inner">
                         <div className="name-parent">
                             <div className="name">
@@ -589,7 +610,7 @@ const Ticket = ({ ticket }) => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="upload-wrapper">
+                            {!imageMatch && <div className="upload-wrapper">
                                 <div className="upload">
                                     <h3 className="upload-file-text">Image of Issuer</h3>
 
@@ -605,9 +626,11 @@ const Ticket = ({ ticket }) => {
                                     <MultiActionAreaCard image={imageUrl} size={500} sx={{ Margin: 10 }} />
 
                                 </div>
-                            </div>
+                            </div>}
+
                         </div>
                         :
+
                         <div className="upload-wrapper">
                             <div className="upload">
                                 <h3 className="upload-file-text">Image of certificate</h3>

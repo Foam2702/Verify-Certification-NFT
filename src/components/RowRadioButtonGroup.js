@@ -18,30 +18,70 @@ import {
     DialogActions,
     DialogContent,
     DialogContentText,
-    DialogTitle
+    DialogTitle,
+    TextField,
+    Snackbar,
+    Alert
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
 import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDissatisfied';
 import useSigner from "../state/signer";
-import { imageFileToBase64 } from '../helpers/index'
-
+import { v4 as uuidv4 } from 'uuid'
+import { imageUpload, decryptData, encryptData, imageFileToBase64, remove0x, hashImage, isExistsInPinata } from '../helpers/index'
 export default function RowRadioButtonsGroup({ course, exam }) {
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [responseData, setResponseData] = useState([]);
     const [values, setValues] = useState(Array(exam.length).fill(''));
-    const { address, connectWallet } = useSigner();
+    const { address, connectWallet, contract } = useSigner();
     const [loading, setLoading] = useState(false);
     const [open, setOpen] = useState(false);
     const [openCheck, setOpenCheck] = useState(false);
     const [messageAlert, setMessageAlert] = useState("");
     const [passed, setPassed] = useState(false);
+    const [privateKey, setPrivateKey] = useState("")
+    const [image, setImage] = useState("")
+    const [point, setPoint] = useState(0)
+    const [error, setError] = useState(null);
+    const [alertSeverity, setAlertSeverity] = useState("");
+    const [showAlert, setShowAlert] = useState(false);
+    const [organization, setOrganization] = useState('')
     const canvasRef = useRef(null);
     const navigate = useNavigate();
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+
+        // Initial canvas setup
+        ctx.fillStyle = '#FFF'; // Background color
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = '#000'; // Text color
+        ctx.textAlign = 'center'; // Center align text horizontally
+
+
+        ctx.font = '24px Arial';
+        ctx.fillText(`Awarded to ${address}`, canvas.width / 2, 650);
+
+        ctx.font = 'italic 18px Arial';
+        ctx.fillText(`For completing ${course[0].name}`, canvas.width / 2, 670);
+
+        ctx.fillText(`Date: ${new Date().toLocaleDateString()}`, canvas.width / 2, 730);
+
+    }, []);
 
     const handleClose = () => {
         setOpen(false);
     };
+    const handleCloseAlert = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        // setLoading(true);
+        setShowAlert(false);
+    }
     const handleCloseCheck = () => {
         setOpenCheck(false);
     };
@@ -68,65 +108,66 @@ export default function RowRadioButtonsGroup({ course, exam }) {
             );
             const org = await axios(`http://localhost:8080/courses/course/${course[0].id}`);
             const orgName = org.data.course[0].licensing_authority;
-            const image = org.data.course[0].image
-            // const imageBse64 = imageFileToBase64(image.data)
-            console.log(org.data.course)
+            setOrganization(orgName)
+            console.log(orgName);
             if (result.data.score >= 70) {
                 setOpenCheck(false);
                 setPassed(true);
                 setMessageAlert(
-                    `Congratulations! You passed the exam. You will receive notification from ${org.data.course[0].licensing_authority} soon. Please pay attention to the notification bell`
+                    `Congratulations! You passed the exam. Please enter your private key so we can send a certificate validation request to ${org.data.course[0].licensing_authority}`
                 );
                 setOpen(true);
-                // const canvas = canvasRef.current;
-                // if (!canvas) {
-                //     setMessageAlert('Canvas not available.');
-                //     return;
-                // }
+                setPoint(result.data.score)
+                const canvas = canvasRef.current;
+                if (!canvas) {
+                    setMessageAlert('Canvas not available.');
+                    return;
+                }
 
-                // const ctx = canvas.getContext('2d');
-                // if (!ctx) {
-                //     setMessageAlert('Failed to get canvas context.');
-                //     return;
-                // }
+                const ctx = canvas.getContext('2d');
+                if (!ctx) {
+                    setMessageAlert('Failed to get canvas context.');
+                    return;
+                }
 
-                // ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                // // Draw the background image
-                // const backgroundImg = new Image();
-                // backgroundImg.crossOrigin = 'Anonymous'; // Ensure crossOrigin is set if loading from a different origin
-                // backgroundImg.onload = () => {
-                //     // Draw the background image
-                //     ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
+                // Draw the background image
+                const backgroundImg = new Image();
+                backgroundImg.crossOrigin = 'Anonymous'; // Ensure crossOrigin is set if loading from a different origin
+                backgroundImg.onload = () => {
+                    // Draw the background image
+                    ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
 
-                //     // Draw the certificate content
-                //     ctx.fillStyle = '#000'; // Text color
-                //     ctx.textAlign = 'center'; // Center align text horizontally
-                //     ctx.font = '24px Arial';
-                //     ctx.fillText(`Awarded to ${address}`, canvas.width / 2, 650);
+                    // Draw the certificate content
+                    ctx.fillStyle = '#000'; // Text color
+                    ctx.textAlign = 'center'; // Center align text horizontally
+                    ctx.font = '24px Arial';
+                    ctx.fillText(`Awarded to ${address}`, canvas.width / 2, 570);
 
-                //     ctx.font = 'italic 18px Arial';
-                //     ctx.fillText(`For completing ${course[0].name}`, canvas.width / 2, 670);
+                    ctx.font = 'italic 18px Arial';
+                    ctx.fillText(`For completing ${course[0].name}`, canvas.width / 2, 630);
 
-                //     ctx.fillText(`Date: ${new Date().toLocaleDateString()}`, canvas.width / 2, 730);
+                    ctx.fillText(`Date: ${new Date().toLocaleDateString()}`, canvas.width / 2, 700);
 
-                //     // Draw the logo image (if needed)
-                //     const logoImg = new Image();
-                //     logoImg.crossOrigin = 'Anonymous'; // Ensure crossOrigin is set if loading from a different origin
-                //     logoImg.onload = () => {
-                //         // Draw the logo image onto the canvas
-                //         ctx.drawImage(logoImg, canvas.width / 2 - 100, 430, 200, 200); // Adjust position and size as needed
+                    // Draw the logo image (if needed)
+                    const logoImg = new Image();
+                    logoImg.crossOrigin = 'Anonymous'; // Ensure crossOrigin is set if loading from a different origin
+                    logoImg.onload = () => {
+                        // Draw the logo image onto the canvas
+                        ctx.drawImage(logoImg, canvas.width / 2 - 50, 430, 100, 100); // Adjust position and size as needed
 
-                //         // Generate base64 image
-                //         const base64Image = canvas.toDataURL('image/png');
-                //         console.log(base64Image);
+                        // Generate base64 image
+                        const base64Image = canvas.toDataURL('image/png');
+                        setImage(base64Image)
 
-                //         // Now you can send base64Image to your backend or perform further actions
-                //     };
-                //     logoImg.src = `/${slug}.png`; // Set the image source for the logo
-                // };
-                // backgroundImg.src = '/certificate-background.png'; // Set the image source for the background
+                        // console.log(base64Image);
 
+                        // Now you can send base64Image to your backend or perform further actions
+                    };
+                    logoImg.src = `/${orgName}.png`; // Set the image source for the logo
+                };
+                backgroundImg.src = '/certificate-background.png'; // Set the image source for the background 
 
             } else {
                 setOpenCheck(false);
@@ -134,54 +175,7 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                 setMessageAlert("You failed the exam. Good luck next time.");
                 setOpen(true);
             }
-            const canvas = canvasRef.current;
-            if (!canvas) {
-                setMessageAlert('Canvas not available.');
-                return;
-            }
 
-            const ctx = canvas.getContext('2d');
-            if (!ctx) {
-                setMessageAlert('Failed to get canvas context.');
-                return;
-            }
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Draw the background image
-            const backgroundImg = new Image();
-            backgroundImg.crossOrigin = 'Anonymous'; // Ensure crossOrigin is set if loading from a different origin
-            backgroundImg.onload = () => {
-                // Draw the background image
-                ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
-
-                // Draw the certificate content
-                ctx.fillStyle = '#000'; // Text color
-                ctx.textAlign = 'center'; // Center align text horizontally
-                ctx.font = '24px Arial';
-                ctx.fillText(`Awarded to ${address}`, canvas.width / 2, 570);
-
-                ctx.font = 'italic 18px Arial';
-                ctx.fillText(`For completing ${course[0].name}`, canvas.width / 2, 630);
-
-                ctx.fillText(`Date: ${new Date().toLocaleDateString()}`, canvas.width / 2, 700);
-
-                // Draw the logo image (if needed)
-                const logoImg = new Image();
-                logoImg.crossOrigin = 'Anonymous'; // Ensure crossOrigin is set if loading from a different origin
-                logoImg.onload = () => {
-                    // Draw the logo image onto the canvas
-                    ctx.drawImage(logoImg, canvas.width / 2 - 50, 430, 100, 100); // Adjust position and size as needed
-
-                    // Generate base64 image
-                    const base64Image = canvas.toDataURL('image/png');
-                    console.log(base64Image);
-
-                    // Now you can send base64Image to your backend or perform further actions
-                };
-                logoImg.src = `/${orgName}.png`; // Set the image source for the logo
-            };
-            backgroundImg.src = '/certificate-background.png'; // Set the image source for the background
 
             // Load the logo image
 
@@ -198,37 +192,144 @@ export default function RowRadioButtonsGroup({ course, exam }) {
             console.log(err);
         }
     };
+    const handleSubmitPrivateKey = async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        setPrivateKey(formData.get('privatekey'))
+        sendToIssuer();
+    }
+    const handleDecryptTicket = async (prop, privateKey) => {
+        if (prop != null && prop != '' && prop != undefined) {
+            try {
+                const result = await decryptData(JSON.parse(prop), privateKey);
+                if (result === "") {
 
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
+                    setError("Wrong private key"); // Set the error state
+                    setLoading(true);
+                    setLoading(false);
+                    setAlertSeverity("error")
+                    setMessageAlert("Wrong private key")
+                    setShowAlert(true);
+                    return prop.toString(); // Return the original prop value in case of error
+                }
+                return result;
+            } catch (error) {
+                if (error.message.includes("Cipher key could not be derived")) {
+                    setError("Wrong private key"); // Set the error state
+                    setLoading(true);
+                    setLoading(false);
+                    setAlertSeverity("error")
+                    setMessageAlert("Wrong private key")
+                    setShowAlert(true);
+                } else {
+                    setError("Error decrypting data");
+                    setLoading(true);
+                    setLoading(false);
+                    setAlertSeverity("error")
+                    setMessageAlert("Wrong private key")
+                    setShowAlert(true);
+                }
+                return prop.toString();
+            }
+        }
+        else {
+            return " ";
+        }
+    };
+    const checkIssuer = async (licensing_authority) => {
+        const { ethereum } = window;
+        if (ethereum) {
+            const result = await contract.getVerifiersByOrganizationCode(licensing_authority);
+            return result
+        }
+    }
 
-        const ctx = canvas.getContext('2d');
+    const sendToIssuer = async () => {
+        try {
+            setLoading(true)
+            let image_res = ''
+            let hashImg = ''
+            const user = await axios(`http://localhost:8080/addresses/${address}`)
+            const id = uuidv4();
+            const decryptedUser = {
+                name: await handleDecryptTicket(user.data.address[0].name, privateKey),
+                email: await handleDecryptTicket(user.data.address[0].email, privateKey),
+                citizenId: await handleDecryptTicket(user.data.address[0].citizen_id, privateKey),
+                gender: await handleDecryptTicket(user.data.address[0].gender, privateKey),
+                dob: await handleDecryptTicket(user.data.address[0].dob, privateKey),
+                workUnit: await handleDecryptTicket(user.data.address[0].work_unit, privateKey),
+                region: await handleDecryptTicket(user.data.address[0].region, privateKey),
+                point: point,
+                issueDate: new Date().toLocaleDateString(),
+                certificateName: course[0].name,
+                licensingAuthority: course[0].licensing_authority
 
-        // Initial canvas setup
-        ctx.fillStyle = '#FFF'; // Background color
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+            const fieldsToEncrypt = [
+                'citizenId', 'name', 'region', 'dob', 'gender', 'email',
+                'workUnit', 'point', 'issueDate', "certificateName",
+                "licensingAuthority"];
+            const publicKeyOwner = user.data.address[0].publickey
+            hashImg = hashImage(image)
+            const imageEncrypt = await encryptData(image, remove0x(publicKeyOwner));
+            image_res = await imageUpload(imageEncrypt, hashImg, address, decryptedUser["certificateName"])
+            const issuers = await checkIssuer(course[0].licensing_authority);
+            const formData = new FormData();
+            for (const field of fieldsToEncrypt) {
+                formData.append(field, decryptedUser[field]);
+            }
+            formData.append("issuerAddress", '')
+            formData.append("cidCertificate", image_res)
+            formData.append("id", id)
+            formData.append("owner", address)
 
-        ctx.fillStyle = '#000'; // Text color
-        ctx.textAlign = 'center'; // Center align text horizontally
+            await axios.post("http://localhost:8080/tickets", formData);
+            for (const issuer of issuers) {
+                const issuerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${issuer}`);
+                const formData = new FormData();
 
+                const imageEncrypt = await encryptData(image, remove0x(issuerPublicKeysResponse.data.address[0].publickey));
+                for (const field of fieldsToEncrypt) {
+                    formData.append(field, decryptedUser[field]);
+                }
 
-        ctx.font = '24px Arial';
-        ctx.fillText(`Awarded to ${address}`, canvas.width / 2, 650);
+                image_res = await imageUpload(imageEncrypt, hashImg, address, decryptedUser["certificateName"])
 
-        ctx.font = 'italic 18px Arial';
-        ctx.fillText(`For completing ${course[0].name}`, canvas.width / 2, 670);
+                formData.append("issuerAddress", issuerPublicKeysResponse.data.address[0].address)
+                formData.append("cidCertificate", image_res)
+                formData.append("id", id)
+                formData.append("owner", address)
 
-        ctx.fillText(`Date: ${new Date().toLocaleDateString()}`, canvas.width / 2, 730);
+                await axios.post("http://localhost:8080/tickets", formData);
 
-    }, []);
+                for (let pair of formData.entries()) {
+                    console.log(pair[0] + ", " + pair[1]);
+                }
+            }
+            setLoading(false); // Stop loading regardless of the request outcome
+            setAlertSeverity("success");
+            setMessageAlert(`Submitted successfully. Please wait for confirmation from the ${course[0].licensing_authority}`);
+            setShowAlert(true);
+        } catch (err) {
+            console.log(err)
+        }
 
+    }
 
     return (
         <>
+            {loading && (
+                <div className="loading-overlay">
+                    <CircularProgress />
+                </div>
+            )}
             <Dialog
                 open={open}
                 onClose={handleClose}
+                PaperProps={{
+                    component: 'form',
+                    onSubmit: handleSubmitPrivateKey
+                }}
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
                 sx={{
@@ -242,16 +343,38 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description" sx={{ fontSize: '1.5rem' }}>
+                        {messageAlert}
                         {passed ? (
-                            <SentimentSatisfiedAltIcon sx={{ color: 'green', width: 100, height: 100 }} />
+                            <div>
+                                <SentimentSatisfiedAltIcon sx={{ color: 'green', width: 100, height: 100 }} />
+                                {/* <DialogContentText sx={{ fontSize: '1.5rem' }}>
+                                    Please enter private key from your MetaMask
+                                </DialogContentText> */}
+                                <TextField
+                                    autoFocus
+                                    required
+                                    margin="normal"
+                                    name="privatekey"
+                                    label="Private Key"
+                                    type="privatekey"
+                                    fullWidth
+                                    variant="outlined"
+                                    sx={{
+                                        '& .MuiInputBase-input': { fontSize: '1.25rem' },
+                                        '& .MuiInputLabel-root': { fontSize: '1.25rem' },
+                                    }}
+                                />
+                            </div>
                         ) : (
                             <SentimentVeryDissatisfiedIcon sx={{ color: 'red', width: 100, height: 100 }} />
                         )}
-                        {messageAlert}
+
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleClose}>OK</Button>
+                    <Button onClick={handleClose} type="submit">OK</Button>
+                    <Button onClick={handleClose}>Cancel</Button>
+
                 </DialogActions>
             </Dialog>
             <Dialog
@@ -366,12 +489,10 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                             <Grid>
                                 <br />
                                 <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
-                                    <Button variant="contained" color="primary" onClick={() => setOpenCheck(true)}>
+                                    <Button variant="contained" color="primary" sx={{ fontSize: '1rem' }} onClick={() => setOpenCheck(true)}>
                                         Submit
                                     </Button>
-                                    <Button variant="contained" color="error" onClick={() => navigate('/coursetransfernew')}>
-                                        Cancel
-                                    </Button>
+
                                 </div>
                                 <br />
                                 <br />
@@ -380,6 +501,19 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                     </Grid>
                 </Grid>
             </div>
+            <Snackbar open={showAlert} autoHideDuration={5000} onClose={handleCloseAlert}>
+                <Alert
+                    onClose={handleCloseAlert}
+                    severity={alertSeverity}
+                    variant="filled"
+                    sx={{
+                        width: '100%',
+                        fontSize: '1.25rem', // Increase font size
+                    }}
+                >
+                    {messageAlert}
+                </Alert>
+            </Snackbar>
             <canvas ref={canvasRef} width="1000" height="800" style={{ display: 'none' }} />
         </>
     );

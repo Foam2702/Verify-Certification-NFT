@@ -30,7 +30,6 @@ export const deletePinIPFS = async (cid) => {
                 Authorization: `Bearer ${JWT}`
             }
         });
-        console.log("DELETE", res);
     } catch (error) {
         console.error(error);
     }
@@ -178,7 +177,6 @@ export function extractEncryptedDataFromJson(jsonString) {
 export async function fetchData(url) {
     try {
         const response = await axios.get(url);
-        console.log(response);
         return response; // Process the response data as needed
     } catch (error) {
         handleError(error);
@@ -220,14 +218,12 @@ export async function imageUpload(imageEnc, hashImg, owner, certificate) {
     });
 
     try {
-        console.log("JWT", JWT)
         const res = await axios.post("https://api.pinata.cloud/pinning/pinJSONToIPFS", data, {
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${JWT}`
             }
         });
-        console.log("RES", res.data)
         return (res.data.IpfsHash);
     } catch (error) {
         console.log(error);
@@ -294,13 +290,11 @@ export function hashImage(imageBase64) {
     // Convert the hash to a hexadecimal string
     const hexDigest = hash.toString(CryptoJS.enc.Hex);
 
-    console.log('SHA-256 hash of the image:', hexDigest);
     return (hexDigest)
 
 }
 export async function isExistsInPinata(hashImg) {
 
-    console.log("IMG HASH", hashImg)
     try {
         const allCIDs = await axios(
             "https://api.pinata.cloud/data/pinList?status=pinned",
@@ -310,21 +304,17 @@ export async function isExistsInPinata(hashImg) {
                 },
             }
         );
-        console.log("HELLO1")
 
         for (let cid of allCIDs.data.rows) {
-            console.log(cid.ipfs_pin_hash)
 
             const imgHash = await axios(
                 `https://coral-able-takin-320.mypinata.cloud/ipfs/${cid.ipfs_pin_hash}`
 
             );
-            console.log(imgHash)
             if (imgHash.data.hash == hashImg) {
                 return true;
             }
         }
-        console.log("HELLO3")
 
         return false
     }

@@ -149,7 +149,7 @@ const LisenceView = () => {
             attributes: decryptedAttributes,
           });
         }
-        console.log("NEW", newDecryptedCertificates)
+
         setDecryptedCertificates(newDecryptedCertificates);
         setIsPrivateKeyValid(true);
 
@@ -165,7 +165,7 @@ const LisenceView = () => {
 
     if (privateKey && certificates.length > 0) decryptAllFields();
   }, [privateKey, certificates]);
-  console.log(certificates)
+
   return (
     <div>
       {loading && (

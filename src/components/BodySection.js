@@ -86,8 +86,6 @@ const BodySection = () => {
       catch (err) {
         console.log(err)
       }
-
-
     }
   };
   const handleSubmit = async (event) => {

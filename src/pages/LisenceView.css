@@ -62,14 +62,14 @@
   margin-bottom: 40px;
   margin-left: 40px;
   margin-right: 40px;
-  font-size: 70px;
+  font-size: 40px;
   letter-spacing: -0.03em;
-  line-height: 30px;
+  /* line-height: 30px; */
   font-family: var(--font-roboto);
   width: 100%;
   position: relative;
   display: flex;
-  max-width: 1839%;
+  max-width: 1839px;
   font-weight: bold;
   color: rgb(206, 88, 88);
   justify-content: center;

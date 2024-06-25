@@ -38,6 +38,7 @@ export default function RowRadioButtonsGroup({ course, exam }) {
     const [open, setOpen] = useState(false);
     const [openCheck, setOpenCheck] = useState(false);
     const [messageAlert, setMessageAlert] = useState("");
+    const [message, setMessage] = useState("")
     const [passed, setPassed] = useState(false);
     const [privateKey, setPrivateKey] = useState("")
     const [image, setImage] = useState("")
@@ -71,7 +72,11 @@ export default function RowRadioButtonsGroup({ course, exam }) {
         ctx.fillText(`Date: ${new Date().toLocaleDateString()}`, canvas.width / 2, 730);
 
     }, []);
-
+    useEffect(() => {
+        if (privateKey) {
+            sendToIssuer();
+        }
+    }, [privateKey]);
     const handleClose = () => {
         setOpen(false);
     };
@@ -113,7 +118,7 @@ export default function RowRadioButtonsGroup({ course, exam }) {
             if (result.data.score >= 70) {
                 setOpenCheck(false);
                 setPassed(true);
-                setMessageAlert(
+                setMessage(
                     `Congratulations! You passed the exam. Please enter your private key so we can send a certificate validation request to ${org.data.course[0].licensing_authority}`
                 );
                 setOpen(true);
@@ -172,7 +177,7 @@ export default function RowRadioButtonsGroup({ course, exam }) {
             } else {
                 setOpenCheck(false);
                 setPassed(false);
-                setMessageAlert("You failed the exam. Good luck next time.");
+                setMessage("You failed the exam. Good luck next time.");
                 setOpen(true);
             }
 
@@ -196,45 +201,35 @@ export default function RowRadioButtonsGroup({ course, exam }) {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
         setPrivateKey(formData.get('privatekey'))
-        sendToIssuer();
     }
     const handleDecryptTicket = async (prop, privateKey) => {
-        if (prop != null && prop != '' && prop != undefined) {
-            try {
-                const result = await decryptData(JSON.parse(prop), privateKey);
-                if (result === "") {
+        if (!prop) {
+            return null;
+        }
 
-                    setError("Wrong private key"); // Set the error state
-                    setLoading(true);
-                    setLoading(false);
-                    setAlertSeverity("error")
-                    setMessageAlert("Wrong private key")
-                    setShowAlert(true);
-                    return prop.toString(); // Return the original prop value in case of error
-                }
-                return result;
-            } catch (error) {
-                if (error.message.includes("Cipher key could not be derived")) {
-                    setError("Wrong private key"); // Set the error state
-                    setLoading(true);
-                    setLoading(false);
-                    setAlertSeverity("error")
-                    setMessageAlert("Wrong private key")
-                    setShowAlert(true);
-                } else {
-                    setError("Error decrypting data");
-                    setLoading(true);
-                    setLoading(false);
-                    setAlertSeverity("error")
-                    setMessageAlert("Wrong private key")
-                    setShowAlert(true);
-                }
-                return prop.toString();
+        try {
+            const result = await decryptData(JSON.parse(prop), privateKey);
+            if (!result) {
+                handleDecryptionError("Wrong private key");
+                return null;
             }
+            return result;
+        } catch (error) {
+            if (error.message.includes("Cipher key could not be derived")) {
+                handleDecryptionError("Wrong private key");
+            } else {
+                handleDecryptionError("Error decrypting data");
+            }
+            return null;
         }
-        else {
-            return " ";
-        }
+    };
+    const handleDecryptionError = (message) => {
+        setError(message);
+        setAlertSeverity("error");
+        setMessageAlert(message);
+        setShowAlert(true);
+        setLoading(true);
+        setLoading(false);
     };
     const checkIssuer = async (licensing_authority) => {
         const { ethereum } = window;
@@ -264,6 +259,13 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                 certificateName: course[0].name,
                 licensingAuthority: course[0].licensing_authority
 
+            }
+            // Kiểm tra nếu bất kỳ giá trị giải mã nào là null
+            for (const key in decryptedUser) {
+                if (decryptedUser[key] === null) {
+                    setLoading(false);
+                    return; // Thoát khỏi hàm sendToIssuer nếu giải mã thất bại
+                }
             }
             const fieldsToEncrypt = [
                 'citizenId', 'name', 'region', 'dob', 'gender', 'email',
@@ -310,6 +312,9 @@ export default function RowRadioButtonsGroup({ course, exam }) {
             setAlertSeverity("success");
             setMessageAlert(`Submitted successfully. Please wait for confirmation from the ${course[0].licensing_authority}`);
             setShowAlert(true);
+            navigate("/")
+
+
         } catch (err) {
             console.log(err)
         }
@@ -343,7 +348,7 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description" sx={{ fontSize: '1.5rem' }}>
-                        {messageAlert}
+                        {message}
                         {passed ? (
                             <div>
                                 <SentimentSatisfiedAltIcon sx={{ color: 'green', width: 100, height: 100 }} />
@@ -410,11 +415,11 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                             color="inherit"
                             aria-label="menu"
                         >
-                            <MenuIcon />
+                            {/* <MenuIcon /> */}
                         </IconButton>
-                        <Typography variant="h6" style={{}}>
+                        {/* <Typography variant="h6" style={{}}>
                             Exam for {course[0].name}
-                        </Typography>
+                        </Typography> */}
                     </Toolbar>
                 </AppBar>
                 <br />
@@ -462,10 +467,10 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                                                         paddingBottom: '15px',
                                                     }}
                                                 >
-                                                    <Typography variant="subtitle1" style={{ marginLeft: '10px' }}>
+                                                    <Typography variant="subtitle1" style={{ marginLeft: '10px', fontSize: '1.5rem' }}>
                                                         {i + 1}. {ques.question_text}
                                                     </Typography>
-                                                    <div>
+                                                    <div >
                                                         <RadioGroup
                                                             aria-label="quiz"
                                                             name="quiz"

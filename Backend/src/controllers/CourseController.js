@@ -55,7 +55,6 @@ module.exports = {
         const correctAns = await courseModel.getExamForCourse(id); // Assuming this returns an array of questions with a correct_option field
 
         let score = 0;
-        console.log(answers[0].response)
         correctAns.forEach(question => {
             if (answers[question.id - 1] && (answers[question.id - 1].response === question.correct_option)) {
                 score++;
@@ -69,7 +68,8 @@ module.exports = {
         res.json({
             status: "success",
             code: 200,
-            message: `Exam submitted successfully. Score: ${resultPercentage}%`
+            message: "Exam submitted successfully",
+            score: resultPercentage
         });
     }
 }

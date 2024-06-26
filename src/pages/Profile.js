@@ -45,59 +45,111 @@ export const Profile = () => {
 
         navigate("/")
     };
+    const insertPubToDB = async () => {
+        if (address) {
+            try {
+                const checkPublicKeyExisted = await axios.get(`http://localhost:8080/addresses/${address}`);
+                if (checkPublicKeyExisted.data.address.length === 0) {
+                    const publicKey = await getPublicKey(); // Await the result of getPublicKey
+                    if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
+                        console.log('Error retrieving public key:', publicKey);
+                        setAlertSeverity("warning");
+                        setMessageAlert("You must sign to update");
+                        setShowAlert(true);
+                        return false;
+                    }
+                    await axios.post(`http://localhost:8080/addresses/${address}`, {
+                        address: address, // Include the address in the body
+                        publicKey: publicKey // Include the public key in the body
+                    });
+                    return true
+
+                }
+                return true
+            }
+            catch (err) {
+                console.log(err)
+                return false
+            }
+        }
+    };
     const handleUpdateInfo = async (event) => {
         event.preventDefault();
-        const form = document.querySelector("form");
-        setLoading(true); // Start loading before sending the request
-        // Get the form data
-        const data = Array.from(form.elements)
-            .filter((input) => input.name)
-            .reduce(
-                (obj, input) => Object.assign(obj, { [input.name]: input.value }),
-                {}
-            );
-        const formData = new FormData();
-        //Email
-        let emailPattern = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        if (!emailPattern.test(data.email)) {
-            console.log("Invalid email address.");
-            document.querySelector("[name='email']").classList.add('invalid-input');
-            return;
-        } else {
-            console.log("Valid email");
-        }
-        const fields = [
-            'citizenId', 'name', 'region', 'dob', 'gender', 'email',
-            'workUnit'
-        ];
-        for (const field of fields) {
-            formData.append(field, data[field]);
-        }
-        for (let pair of formData.entries()) {
-            console.log(pair[0] + ", " + pair[1]);
-        }
-        const response = await axios.patch(`http://localhost:8080/addresses/profile/${address}`, {
-            citizenId: data.citizenId,
-            name: data.name,
-            region: data.region,
-            dob: data.dob,
-            gender: data.gender,
-            email: data.email,
-            workUnit: data.workUnit
+        const check = await insertPubToDB()
+        if (check) {
+            const form = document.querySelector("form");
+            setLoading(true); // Start loading before sending the request
+            // Get the form data
+            const data = Array.from(form.elements)
+                .filter((input) => input.name)
+                .reduce(
+                    (obj, input) => Object.assign(obj, { [input.name]: input.value }),
+                    {}
+                );
+            const fields = [
+                'citizenId', 'name', 'region', 'dob', 'gender', 'email',
+                'workUnit'
+            ];
+            console.log("IN CHECK")
+            for (const field of fields) {
+                console.log("HELLO1")
+                if (!data[field]) {
+                    console.log("HELLO2")
+                    setMessageAlert(`Please fill out the ${field} field.`);
+                    setAlertSeverity("warning");
+                    setShowAlert(true);
+                    setLoading(false);
+                    return;
+                }
+            }
 
-        });
-        if (response.data.message == "Updated successfully") {
-            setMessageAlert("Updated successfully");
-            setAlertSeverity("success");
-            setShowAlert(true);
-            setLoading(false)
-            return
+            const formData = new FormData();
+            //Email
+            let emailPattern = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            if (!emailPattern.test(data.email)) {
+                console.log("Invalid email address.");
+                document.querySelector("[name='email']").classList.add('invalid-input');
+                return;
+            } else {
+                console.log("Valid email");
+            }
+
+
+            for (const field of fields) {
+                formData.append(field, data[field]);
+            }
+            for (let pair of formData.entries()) {
+                console.log(pair[0] + ", " + pair[1]);
+            }
+            const response = await axios.patch(`http://localhost:8080/addresses/profile/${address}`, {
+                citizenId: data.citizenId,
+                name: data.name,
+                region: data.region,
+                dob: data.dob,
+                gender: data.gender,
+                email: data.email,
+                workUnit: data.workUnit
+
+            });
+            if (response.data.message == "Updated successfully") {
+                setMessageAlert("Updated successfully");
+                setAlertSeverity("success");
+                setShowAlert(true);
+                setLoading(false)
+                window.location.reload();
+                return
+            }
+            else {
+                setMessageAlert("Updated fail");
+                setAlertSeverity("error");
+                setShowAlert(true);
+                setLoading(false)
+                return
+            }
         }
         else {
-            setMessageAlert("Updated fail");
-            setAlertSeverity("error");
-            setShowAlert(true);
             setLoading(false)
+
             return
         }
 
@@ -106,11 +158,7 @@ export const Profile = () => {
         if (reason === 'clickaway') {
             return;
         }
-        // setLoading(true);
         setShowAlert(false);
-        // await new Promise(resolve => setTimeout(resolve, 1000));
-        // setLoading(false);
-
     };
     const handleCloseDialog = () => {
         setOpen(false);
@@ -203,7 +251,6 @@ export const Profile = () => {
     }, [address, signer])
     useEffect(() => {
         const decryptAllFields = async () => {
-
             try {
                 setLoading(true)
                 const name = await handleDecryptInfo(user.name, privateKey);

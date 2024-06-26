@@ -23,12 +23,71 @@ const BodyCourses = ({ className = "" }) => {
     const [alertSeverity, setAlertSeverity] = useState("");
     const [showAlert, setShowAlert] = useState(false);
     const [messageAlert, setMessageAlert] = useState("")
-
     const navigate = useNavigate();
+    useEffect(() => {
+        const fetchCourses = async () => {
+            try {
+                const result = await axios.get(`http://localhost:8080/courses`);
+                if (Array.isArray(result.data.courses)) {
+                    setCourses(result.data.courses);
+                    console.log(result.data.courses);
+                }
+            } catch (err) {
+                console.log(err);
+            }
+        };
+        fetchCourses().catch((error) => console.error(error));
+    }, []);
+    const checkInfoExist = async () => {
+        if (address) {
+            try {
+                const checkPublicKeyExisted = await axios.get(`http://localhost:8080/addresses/${address}`);
+                if (checkPublicKeyExisted.data.address.length === 0) {
+                    const publicKey = await getPublicKey(); // Await the result of getPublicKey
+                    if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
+                        console.log('Error retrieving public key:', publicKey);
+                        setAlertSeverity("warning");
+                        setMessageAlert("You must sign to submit");
+                        setShowAlert(true);
+                        return false;
+                    }
+                    await axios.post(`http://localhost:8080/addresses/${address}`, {
+                        address: address, // Include the address in the body
+                        publicKey: publicKey // Include the public key in the body
+                    });
+                    return true
+                } else if (checkPublicKeyExisted.data.address) {
+                    // Check if any of the specified fields are null
+                    const userInfo = checkPublicKeyExisted.data.address[0];
+                    if (!userInfo.name || !userInfo.gender || !userInfo.email || !userInfo.region || !userInfo.work_unit || !userInfo.dob || !userInfo.citizen_id) {
+                        return false
+                    }
+                    return true
 
-    const handleClickOpen = (course) => {
-        setSelectedCourse(course);
-        setOpen(true);
+                }
+            } catch (err) {
+                console.log(err);
+            }
+        }
+    };
+    const handleClickOpen = async (course) => {
+        const check = await checkInfoExist()
+        if (check) {
+            setSelectedCourse(course);
+            setOpen(true);
+        }
+        else {
+            setLoading(true)
+            setTimeout(() => {
+
+                navigate("/profile")
+
+                setLoading(false);
+            }, 1000);
+
+
+        }
+
     };
 
     const handleClose = () => {
@@ -78,20 +137,6 @@ const BodyCourses = ({ className = "" }) => {
 
     };
 
-    useEffect(() => {
-        const fetchCourses = async () => {
-            try {
-                const result = await axios.get(`http://localhost:8080/courses`);
-                if (Array.isArray(result.data.courses)) {
-                    setCourses(result.data.courses);
-                    console.log(result.data.courses);
-                }
-            } catch (err) {
-                console.log(err);
-            }
-        };
-        fetchCourses().catch((error) => console.error(error));
-    }, []); // Add page as a dependency
 
     return (
         <>

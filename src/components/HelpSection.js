@@ -1,15 +1,17 @@
 import "./HelpSection.css";
 import { useNavigate } from "react-router-dom";
 import * as React from 'react';
-import { useState } from "react";
-
+import { useEffect, useState } from "react";
+import axios from 'axios'
 import CircularProgress from '@mui/material/CircularProgress';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 import useSigner from "../state/signer";
 const HelpSection = () => {
   const [loading, setLoading] = useState(false)
-  const [open, setOpen] = useState(false);
-  const { address, connectWallet } = useSigner()
+  const { signer, address, connectWallet } = useSigner()
   const navigate = useNavigate();
+
   const handleVerification = async () => {
     setLoading(true); // Start loading
     setTimeout(() => {
@@ -32,6 +34,7 @@ const HelpSection = () => {
       setLoading(false);
     }, 1000);
   }
+
   return (
     <>
       {loading && (
@@ -94,6 +97,7 @@ const HelpSection = () => {
             </div>
           </button>
         </div>
+
       </div>
     </>
   );

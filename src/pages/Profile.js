@@ -92,9 +92,7 @@ export const Profile = () => {
             ];
             console.log("IN CHECK")
             for (const field of fields) {
-                console.log("HELLO1")
                 if (!data[field]) {
-                    console.log("HELLO2")
                     setMessageAlert(`Please fill out the ${field} field.`);
                     setAlertSeverity("warning");
                     setShowAlert(true);
@@ -107,20 +105,19 @@ export const Profile = () => {
             //Email
             let emailPattern = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
             if (!emailPattern.test(data.email)) {
-                console.log("Invalid email address.");
+                setMessageAlert(`Invalid Mail`);
+                setAlertSeverity("warning");
+                setShowAlert(true);
+                setLoading(false);
                 document.querySelector("[name='email']").classList.add('invalid-input');
                 return;
             } else {
                 console.log("Valid email");
             }
-
-
             for (const field of fields) {
                 formData.append(field, data[field]);
             }
-            for (let pair of formData.entries()) {
-                console.log(pair[0] + ", " + pair[1]);
-            }
+
             const response = await axios.patch(`http://localhost:8080/addresses/profile/${address}`, {
                 citizenId: data.citizenId,
                 name: data.name,

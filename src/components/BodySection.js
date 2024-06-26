@@ -127,7 +127,7 @@ const BodySection = () => {
         );
       const fields = [
         'name', 'gender', 'email', 'citizenId', 'dob', 'region',
-        'workUnit'
+        'workUnit', 'certificateName', 'issueDate'
       ];
       for (const field of fields) {
         if (!data[field]) {
@@ -142,9 +142,15 @@ const BodySection = () => {
       let hashImg = ''
       const formData = new FormData();
       //Email
-      let emailPattern = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+
+      const emailPattern = /^[a-zA-Z0-9._%+-]+@(gmail\.com|student\.hcmus\.edu\.vn)$/;
+
       if (!emailPattern.test(data.email)) {
-        console.log("Invalid email address.");
+        setMessageAlert(`Invalid Mail`);
+        setAlertSeverity("warning");
+        setShowAlert(true);
+        setLoading(false);
         document.querySelector("[name='email']").classList.add('invalid-input');
         return;
       } else {
@@ -180,7 +186,9 @@ const BodySection = () => {
           console.log(err)
         }
       } else {
-        console.log("No file selected");
+        setMessageAlert(`Please select image`);
+        setAlertSeverity("warning");
+        setShowAlert(true);
         setLoading(false); // Stop loading regardless of the request outcome
 
         return;

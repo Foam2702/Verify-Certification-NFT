@@ -21,6 +21,7 @@ import { AnimatePresence } from "framer-motion";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import { Profile } from "./pages/Profile";
+import UploadExam from "./pages/UploadExam";
 function App() {
   const action = useNavigationType();
   const location = useLocation();
@@ -98,7 +99,7 @@ function App() {
 
         <Routes>
           <Route path="/profile" element={<Profile />} />
-
+          <Route path="/uploadexam" element={<UploadExam />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/coursetransfernew" element={<CourseTransferNew />} />
           <Route path="/courseinfornew" element={<CourseInforNew />} />

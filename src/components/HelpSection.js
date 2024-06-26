@@ -34,7 +34,17 @@ const HelpSection = () => {
       setLoading(false);
     }, 1000);
   }
-
+  const handleUploadExam = async () => {
+    setLoading(true); // Start loading
+    setTimeout(() => {
+      if (!address) {
+        navigate("/");
+      } else {
+        navigate("/uploadexam");
+      }
+      setLoading(false);
+    }, 1000);
+  }
   return (
     <>
       {loading && (
@@ -63,7 +73,7 @@ const HelpSection = () => {
               </button>
             </div>
           </div>
-          <div className="link-to-upload-to-course">
+          <button className="link-to-upload-to-course" onClick={handleUploadExam}>
             <img
               className="upload-to-upload-image"
               loading="lazy"
@@ -74,12 +84,12 @@ const HelpSection = () => {
             <div className="describe-text1">{`Allow organizations and individuals to easily post certificate exams.`}</div>
 
             <div className="learn-more-group">
-              <div className="learn-more1">Learn More</div>
+              <button className="learn-more1" onClick={handleUploadExam}>Learn More</button>
               <div className="icon-container">
                 <img className="icon1" alt="" src="/icon-1@2x.png" />
               </div>
             </div>
-          </div>
+          </button>
           <button className="link-to-buy-course" onClick={handleBuyCourses}>
             <img
               className="buy-course-image"

@@ -101,7 +101,7 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                 ...examItem,
                 response: values[index],
             }));
-
+            console.log("COMBINE", combinedData)
             const result = await axios.post(
                 `http://localhost:8080/courses/course/${course[0].id}/exam?address=${address}`,
                 combinedData,
@@ -304,7 +304,6 @@ export default function RowRadioButtonsGroup({ course, exam }) {
             console.log(err)
         }
     }
-
     return (
         <>
             {loading && (
@@ -454,19 +453,23 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                                                     <Typography variant="subtitle1" style={{ marginLeft: '10px', fontSize: '1.5rem' }}>
                                                         {i + 1}. {ques.question_text}
                                                     </Typography>
-                                                    <div >
+                                                    <div>
                                                         <RadioGroup
                                                             aria-label="quiz"
-                                                            name="quiz"
+                                                            name={`quiz-${i}`}
                                                             value={values[i]}
-                                                            onChange={(e) => {
-                                                                handleRadioChange(e.target.value, i);
-                                                            }}
+                                                            onChange={(e) => handleRadioChange(e.target.value, i)}
                                                         >
-                                                            <FormControlLabel value={ques.option_a} control={<Radio />} label={ques.option_a} />
-                                                            <FormControlLabel value={ques.option_b} control={<Radio />} label={ques.option_b} />
-                                                            <FormControlLabel value={ques.option_c} control={<Radio />} label={ques.option_c} />
-                                                            <FormControlLabel value={ques.option_d} control={<Radio />} label={ques.option_d} />
+                                                            {Object.keys(ques)
+                                                                .filter(key => key.startsWith('option_') && ques[key])
+                                                                .map((key, index) => (
+                                                                    <FormControlLabel
+                                                                        key={index}
+                                                                        value={ques[key]}
+                                                                        control={<Radio />}
+                                                                        label={ques[key]}
+                                                                    />
+                                                                ))}
                                                         </RadioGroup>
                                                     </div>
                                                 </div>
@@ -475,6 +478,8 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                                     </div>
                                 ))}
                             </Grid>
+
+
                             <Grid>
                                 <br />
                                 <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>

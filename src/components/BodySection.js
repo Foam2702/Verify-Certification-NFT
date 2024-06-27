@@ -13,9 +13,6 @@ import "./BodySection.css";
 import { Margin } from "@mui/icons-material";
 
 const BodySection = () => {
-  {
-    /* Set state */
-  }
   const [errors, setErrors] = useState({});
   const [regions, setRegions] = useState([]);
   const [courses, setCourses] = useState([]);

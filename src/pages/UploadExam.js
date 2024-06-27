@@ -7,6 +7,8 @@ import { Paper, Typography, Button } from '@mui/material';
 import CircularProgress from "@mui/material/CircularProgress";
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import React from 'react'
+import { useNavigate } from "react-router-dom";
+
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { Accordion, AccordionSummary, AccordionDetails, TextField, IconButton, Radio, FormControlLabel, Divider, AccordionActions } from '@mui/material'
@@ -37,6 +39,9 @@ const UploadExam = () => {
     const handleShortNameChange = (e) => setShortName(e.target.value);
     const handleDescriptionChange = (e) => setDescription(e.target.value);
     const [imageUrl, setImageUrl] = React.useState("");
+    const navigate = useNavigate();
+    const adminAddress = process.env.REACT_APP_ADMIN;
+
     React.useEffect(() => {
         const checkIssuer = async () => {
             if (address) {
@@ -44,19 +49,20 @@ const UploadExam = () => {
                     const { ethereum } = window;
                     if (ethereum) {
                         const result = await contract.getOrganizationCode(address);
-                        console.log(result)
-                        setOrg(result)
+                        if (result.length == 0 || address == adminAddress) {
+                            navigate("/");
+                        } else {
+                            setOrg(result);
+                        }
                     }
                 } catch (err) {
-                    console.log(err)
+                    console.log(err);
                 }
             }
+        };
+        checkIssuer();
+    }, [address, signer]);
 
-
-        }
-        checkIssuer()
-
-    }, [address, signer])
     const onfileChange = async (event) => {
         setFile(event.target.files);
         if (event.target.files.length > 0) {
@@ -400,6 +406,11 @@ const UploadExam = () => {
     }
     return (
         <div>
+            {loading && (
+                <div className="loading-overlay">
+                    <CircularProgress />
+                </div>
+            )}
             <HeaderSection />
             <div style={{ marginTop: '15px', marginBottom: '7px', paddingBottom: "30px" }}>
                 <Grid

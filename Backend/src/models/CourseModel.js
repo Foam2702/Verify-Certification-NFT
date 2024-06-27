@@ -17,11 +17,20 @@ module.exports = {
         `
         return result;
     },
-    insertCourses: async (courses) => {
+    insertCourse: async (course) => {
         const maxIdResult = await sql`
             SELECT MAX(id) FROM course;
         `;
         const maxId = maxIdResult[0].max || 0;
+        const newId = maxId + 1;
+        try {
+            const result = await sql`
+            INSERT INTO course (id,slug,name, description, image, licensing_authority) VALUES (${newId},${course.slug},${course.name}, ${course.description}, ${course.image}, ${course.licensing_authority})`
+            return newId;
+        } catch (err) {
+            return err;
+        }
+
     },
     getTop3Courses: async () => {
         const result = await sql`
@@ -46,6 +55,7 @@ module.exports = {
             return false
         }
 
-    }
+    },
+
 
 }

@@ -71,5 +71,7 @@ module.exports = {
             message: "Exam submitted successfully",
             score: resultPercentage
         });
-    }
+    },
+
+
 }

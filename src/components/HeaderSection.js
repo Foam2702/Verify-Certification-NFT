@@ -139,7 +139,6 @@ const settings = [
   }, [address, signer])
 
   const filteredSettings = address === process.env.REACT_APP_ADMIN ? settings : settings.filter(setting => setting.name !== 'Issuer Management');
-  console.log(tickets)
   return (
     <section className="header-section1">
       <div className="top-header">

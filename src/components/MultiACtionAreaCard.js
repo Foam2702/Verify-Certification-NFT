@@ -16,7 +16,6 @@ export default function MultiActionAreaCard({ image, size }) {
             try {
                 if (image) { // This checks for undefined, null, and empty string
                     setCurrentImage(image);
-                    console.log(image);
                 } else {
                     setCurrentImage(encrypt_image);
                 }

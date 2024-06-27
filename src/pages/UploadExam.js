@@ -1,4 +1,6 @@
 import HeaderSection from "../components/HeaderSection";
+import Snackbar from '@mui/material/Snackbar';
+import axios from 'axios'
 import Footer from "../components/Footer";
 import { Grid } from '@mui/material';
 import { Paper, Typography, Button } from '@mui/material';
@@ -13,25 +15,65 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import FilterNoneIcon from '@mui/icons-material/FilterNone';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import SaveIcon from '@mui/icons-material/Save';
+import MultiActionAreaCard from "../components/MultiACtionAreaCard";
+import { imageFileToBase64 } from "../helpers";
+import Alert from '@mui/material/Alert';
+import useSigner from "../state/signer";
+
 import "./UploadExam.css"
 const UploadExam = () => {
+    const { signer, address, connectWallet, contract, provider, getPublicKey } = useSigner();
+    const [org, setOrg] = React.useState("")
+    const [loading, setLoading] = React.useState(false)
+    const [showAlert, setShowAlert] = React.useState(false);
+    const [alertSeverity, setAlertSeverity] = React.useState("");
+    const [messageAlert, setMessageAlert] = React.useState("")
     const [questions, setQuestions] = React.useState([]);
-    const [openUploadImagePop, setOpenUploadImagePop] = React.useState(false);
-    const [imageContextData, setImageContextData] = React.useState({ question: null, option: null });
-    const [formData, setFormData] = React.useState({});
-    const [loadingFormData, setLoadingFormData] = React.useState(true);
-    // React.useEffect(() => {
-    //     if (props.formData.questions !== undefined) {
-    //         //console.log(props.formData.questions.length);
-    //         if (props.formData.questions.length === 0) {
-    //             setQuestions([{ questionText: "Question", options: [{ optionText: "Option 1" }], open: false }]);
-    //         } else {
-    //             setQuestions(props.formData.questions)
-    //         }
-    //         setLoadingFormData(false)
-    //     }
-    //     setFormData(props.formData)
-    // }, [props.formData])
+    const [certificateName, setCertificateName] = React.useState("");
+    const [shortName, setShortName] = React.useState("");
+    const [description, setDescription] = React.useState("");
+    const [file, setFile] = React.useState(null)
+    const handleCertificateNameChange = (e) => setCertificateName(e.target.value);
+    const handleShortNameChange = (e) => setShortName(e.target.value);
+    const handleDescriptionChange = (e) => setDescription(e.target.value);
+    const [imageUrl, setImageUrl] = React.useState("");
+    React.useEffect(() => {
+        const checkIssuer = async () => {
+            if (address) {
+                try {
+                    const { ethereum } = window;
+                    if (ethereum) {
+                        const result = await contract.getOrganizationCode(address);
+                        console.log(result)
+                        setOrg(result)
+                    }
+                } catch (err) {
+                    console.log(err)
+                }
+            }
+
+
+        }
+        checkIssuer()
+
+    }, [address, signer])
+    const onfileChange = async (event) => {
+        setFile(event.target.files);
+        if (event.target.files.length > 0) {
+            const file = event.target.files[0];
+            try {
+                const base64ImageString = await imageFileToBase64(file);
+                setImageUrl(base64ImageString);
+            } catch (error) {
+                console.error('Error converting file to base64', error);
+            }
+        }
+    };
+    const handleKeyPress = (e) => {
+        if (e.key === ' ') {
+            e.preventDefault();
+        }
+    };
     function addOption(i) {
         var optionsOfQuestion = [...questions];
         if (optionsOfQuestion[i].options.length < 5) {
@@ -87,7 +129,12 @@ const UploadExam = () => {
         //newMembersEmail[i]= email;
         setQuestions(optionsOfQuestion);
     }
-
+    const reorder = (list, startIndex, endIndex) => {
+        const result = Array.from(list);
+        const [removed] = result.splice(startIndex, 1);
+        result.splice(endIndex, 0, removed);
+        return result;
+    };
     function onDragEnd(result) {
         if (!result.destination) {
             return;
@@ -135,8 +182,67 @@ const UploadExam = () => {
         }
         setQuestions(qs)
     }
-    function saveQuestions() {
+    const handleClose = async (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setShowAlert(false);
+    };
 
+    async function saveQuestions() {
+        const dataToSave = {
+            certificateName,
+            shortName,
+            description,
+            questions,
+            imageUrl,
+            org
+        };
+        const fields = [
+            'certificateName',
+            'shortName',
+            'description',
+            'questions',
+            'imageUrl'
+        ];
+        for (const field of fields) {
+            if (!dataToSave[field]) {
+                setMessageAlert(`Please fill out the ${field} field.`);
+                setAlertSeverity("warning");
+                setShowAlert(true);
+                setLoading(false);
+                return;
+            }
+        }
+        if (!dataToSave.questions || dataToSave.questions.length === 0) {
+            setMessageAlert('Please add at least one question.');
+            setAlertSeverity("warning");
+            setShowAlert(true);
+            setLoading(false);
+            return;
+        }
+        try {
+            const result = await axios.post("http://localhost:8080/exam/postexam", dataToSave)
+            if (result.data.message == "Insert Exam successfully") {
+                setMessageAlert("Exam created successfully");
+                setAlertSeverity("success");
+                setShowAlert(true);
+                setLoading(false);
+            }
+            else {
+                setMessageAlert("Error creating exam");
+                setAlertSeverity("error");
+                setShowAlert(true);
+                setLoading(false);
+            }
+        }
+        catch (err) {
+            setMessageAlert("Error creating exam");
+            setAlertSeverity("error");
+            setShowAlert(true);
+            setLoading(false);
+            console.log(err)
+        }
     }
     function questionsUI() {
         return questions.map((ques, i) => (
@@ -199,7 +305,7 @@ const UploadExam = () => {
                                                 <Typography style={{ marginTop: '20px' }}>{i + 1}.</Typography>
                                                 <TextField
                                                     fullWidth={true}
-                                                    placeholder="Question Text"
+                                                    placeholder="Question"
                                                     style={{ marginBottom: '18px' }}
                                                     rows={2}
                                                     rowsMax={20}
@@ -220,14 +326,11 @@ const UploadExam = () => {
                                                             <Radio disabled />
                                                             <TextField
                                                                 fullWidth={true}
-                                                                placeholder="Option text"
+                                                                placeholder="Option"
                                                                 style={{ marginTop: '5px' }}
                                                                 value={ques.options[j].optionText}
                                                                 onChange={(e) => { handleOptionValue(e.target.value, i, j) }}
                                                             />
-
-
-
                                                             <IconButton aria-label="delete" onClick={() => { removeOption(i, j) }}>
                                                                 <CloseIcon />
                                                             </IconButton>
@@ -239,7 +342,7 @@ const UploadExam = () => {
                                             </div>
 
 
-                                            {ques.options.length < 5 ? (
+                                            {ques.options.length < 4 ? (
                                                 <div>
                                                     <FormControlLabel disabled control={<Radio />} label={
                                                         <Button size="small" onClick={() => { addOption(i) }} style={{ textTransform: 'none', marginLeft: "-5px" }}>
@@ -252,7 +355,18 @@ const UploadExam = () => {
                                             <br></br>
                                             <br></br>
 
-                                            <Typography variant="body2" style={{ color: 'grey' }}>You can add maximum 5 options. If you want to add more then change in settings. Multiple choice single option is availible</Typography>
+                                            <Typography variant="body2" style={{ color: 'grey' }}>You can add maximum 4 options. If you want to add more then change in settings. Multiple choice single option is availible</Typography>
+                                            <TextField
+                                                fullWidth={true}
+                                                placeholder="Correct Answer"
+                                                style={{ marginTop: '20px' }}
+                                                value={ques.correctAnswer || ''}
+                                                onChange={(e) => {
+                                                    let newQuestions = [...questions];
+                                                    newQuestions[i].correctAnswer = e.target.value;
+                                                    setQuestions(newQuestions);
+                                                }}
+                                            />
                                         </div>
                                     </AccordionDetails>
 
@@ -311,19 +425,20 @@ const UploadExam = () => {
                                 </div>
                             </div>
                         </Grid>
-                        <h1 className="post-exam">Certificate Information</h1>
+                        <h1 className="post-exam">Exam Information</h1>
 
-                        <Grid style={{ paddingTop: '10px', }}>
+                        <Grid style={{ paddingTop: '10px' }}>
                             <div >
                                 <TextField
                                     id="outlined-multiline-flexible"
-                                    label="Name of Certificate"
+                                    label="Name of Exam"
                                     multiline
                                     maxRows={10}
                                     fullWidth
                                     placeholder="Ex: Python Web BootCamp 2024"
-                                    sx={{ margin: '20px' }}
-
+                                    sx={{ marginTop: '20px' }}
+                                    value={certificateName}
+                                    onChange={handleCertificateNameChange}
                                 />
                                 <TextField
                                     id="outlined-textarea"
@@ -331,7 +446,10 @@ const UploadExam = () => {
                                     multiline
                                     fullWidth
                                     placeholder="Ex: PythonWebBootCamp"
-                                    sx={{ margin: '20px' }}
+                                    sx={{ marginTop: '20px' }}
+                                    value={shortName}
+                                    onChange={handleShortNameChange}
+                                    onKeyPress={handleKeyPress}
 
                                 />
                                 <TextField
@@ -341,10 +459,28 @@ const UploadExam = () => {
                                     rows={4}
                                     fullWidth
                                     placeholder="Ex: Learn Python like a Professional! Start from the basics and go all the way to creating your own applications and games!"
-                                    sx={{ margin: '20px' }}
-
+                                    sx={{ marginTop: '20px' }}
+                                    value={description}
+                                    onChange={handleDescriptionChange}
                                 />
+
+                                <div className="input-upload-file" style={{ border: '1px solid', width: '30%', marginTop: '20px' }}>
+                                    <div className="input-box-background" />
+                                    {/* <div classname="input-image"> */}
+                                    <input
+                                        className="example-here"
+                                        name="imageCertificate"
+                                        type="file"
+                                        accept=".jpg"
+                                        multiple
+                                        onChange={onfileChange}
+                                    />
+                                    <MultiActionAreaCard image={imageUrl} size={350} sx={{ Margin: 10 }} />
+
+                                    {/* </div> */}
+                                </div>
                             </div>
+
                             <h1 className="question-exam">Question</h1>
 
                             <div>
@@ -377,7 +513,7 @@ const UploadExam = () => {
                                         onClick={saveQuestions}
                                         style={{ margin: '15px' }}
                                         endIcon={<SaveIcon />}
-                                    >Save </Button>
+                                    >Create Exam </Button>
 
                                 </div>
                             </div>
@@ -388,6 +524,19 @@ const UploadExam = () => {
                 shapeLeft="/shape-left@2x.png"
                 socialIcontwitter="/socialicontwitter@2x.png"
             />
+            <Snackbar open={showAlert} autoHideDuration={10000} onClose={handleClose}>
+                <Alert
+                    onClose={handleClose}
+                    severity={alertSeverity}
+                    variant="filled"
+                    sx={{
+                        width: '100%',
+                        fontSize: '1.25rem', // Increase font size
+                    }}
+                >
+                    {messageAlert}
+                </Alert>
+            </Snackbar>
         </div>
     )
 }

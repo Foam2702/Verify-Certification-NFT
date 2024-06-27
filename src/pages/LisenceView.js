@@ -112,7 +112,9 @@ const LisenceView = () => {
     const getNFTs = async () => {
       if (address) {
         try {
+
           const { data } = await axios(`https://testnets-api.opensea.io/api/v2/chain/sepolia/account/${address}/nfts`, options);
+
           setCertificates(data.nfts);
         } catch (err) {
           console.error(err);

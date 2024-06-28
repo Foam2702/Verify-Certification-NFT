@@ -31,26 +31,16 @@ module.exports = {
     updateInfo: async (req, res) => {
         const { address } = req.params;
         const user = req.body;
+        user.citizenId = JSON.stringify(user.citizenId)
+        user.email = JSON.stringify(user.email)
+        user.name = JSON.stringify(user.name)
+        user.region = JSON.stringify(user.region)
+        user.workUnit = JSON.stringify(user.workUnit)
+        user.dob = JSON.stringify(user.dob)
+        user.gender = JSON.stringify(user.gender)
         console.log(user)
-        const exist = await addressModel.getOneAddressPub(address);
-        if (exist.length == 0) {
-            res.json({
-                code: 404,
-                status: "fail",
-                message: "Must sign to get public key first"
-            })
-        }
-        const encUser = {
-            citizenId: user.citizenId ? JSON.stringify(await encDecData.encryptData(user.citizenId, encDecData.remove0x(exist[0].publickey))) : null,
-            name: user.name ? JSON.stringify(await encDecData.encryptData(user.name, encDecData.remove0x(exist[0].publickey))) : null,
-            region: user.region ? JSON.stringify(await encDecData.encryptData(user.region, encDecData.remove0x(exist[0].publickey))) : null,
-            dob: user.dob ? JSON.stringify(await encDecData.encryptData(user.dob, encDecData.remove0x(exist[0].publickey))) : null,
-            gender: user.gender ? JSON.stringify(await encDecData.encryptData(user.gender, encDecData.remove0x(exist[0].publickey))) : null,
-            email: user.email ? JSON.stringify(await encDecData.encryptData(user.email, encDecData.remove0x(exist[0].publickey))) : null,
-            workUnit: user.workUnit ? JSON.stringify(await encDecData.encryptData(user.workUnit, encDecData.remove0x(exist[0].publickey))) : null,
-        };
         // console.log(encUser)
-        const result = await addressModel.updateInfo(address, encUser)
+        const result = await addressModel.updateInfo(address, user)
         if (result) {
             res.json({
                 code: 200,

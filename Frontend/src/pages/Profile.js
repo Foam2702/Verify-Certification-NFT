@@ -14,7 +14,7 @@ import { Box, Typography, useTheme } from "@mui/material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import useSigner from "../state/signer";
-import { hashImage, pinJSONToIPFS, deletePinIPFS, extractEncryptedDataFromJson, decryptData, minifyAddress, imageFileToBase64 } from "../helpers/index"
+import { hashImage, encryptData, pinJSONToIPFS, deletePinIPFS, extractEncryptedDataFromJson, decryptData, minifyAddress, imageFileToBase64, remove0x } from "../helpers/index"
 
 export const Profile = () => {
     const [loading, setLoading] = useState(false);
@@ -90,7 +90,6 @@ export const Profile = () => {
                 'citizenId', 'name', 'region', 'dob', 'gender', 'email',
                 'workUnit'
             ];
-            console.log("IN CHECK")
             for (const field of fields) {
                 if (!data[field]) {
                     setMessageAlert(`Please fill out the ${field} field.`);
@@ -117,15 +116,18 @@ export const Profile = () => {
             for (const field of fields) {
                 formData.append(field, data[field]);
             }
+            const ownerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${address}`)
+
+            const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
 
             const response = await axios.patch(`http://localhost:8080/addresses/profile/${address}`, {
-                citizenId: data.citizenId,
-                name: data.name,
-                region: data.region,
-                dob: data.dob,
-                gender: data.gender,
-                email: data.email,
-                workUnit: data.workUnit
+                citizenId: await encryptData(data.citizenId, remove0x(publicKeyOwner)),
+                name: await encryptData(data.name, remove0x(publicKeyOwner)),
+                region: await encryptData(data.region, remove0x(publicKeyOwner)),
+                dob: await encryptData(data.dob, remove0x(publicKeyOwner)),
+                gender: await encryptData(data.gender, remove0x(publicKeyOwner)),
+                email: await encryptData(data.email, remove0x(publicKeyOwner)),
+                workUnit: await encryptData(data.workUnit, remove0x(publicKeyOwner))
 
             });
             if (response.data.message == "Updated successfully") {
@@ -146,10 +148,8 @@ export const Profile = () => {
         }
         else {
             setLoading(false)
-
             return
         }
-
     }
     const handleClose = async (event, reason) => {
         if (reason === 'clickaway') {

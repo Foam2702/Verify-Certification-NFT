@@ -36,7 +36,6 @@ function App() {
   }, [action, pathname]);
   useEffect(() => {
     if (address === null) {
-      console.log("HAHA IM HRE")
       navigate("/");
     }
   }, [address, navigate]);

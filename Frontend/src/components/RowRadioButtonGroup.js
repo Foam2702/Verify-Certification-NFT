@@ -28,7 +28,7 @@ import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt
 import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDissatisfied';
 import useSigner from "../state/signer";
 import { v4 as uuidv4 } from 'uuid'
-import { imageUpload, decryptData, encryptData, imageFileToBase64, remove0x, hashImage, isExistsInPinata } from '../helpers/index'
+import { hashImage, isExistsInPinata, encryptData, decryptData, remove0x, imageUpload, fetchImagePinata, addFileToIPFS, imageFileToBase64, base64ToImageFile } from "../helpers";
 export default function RowRadioButtonsGroup({ course, exam }) {
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [responseData, setResponseData] = useState([]);
@@ -241,10 +241,11 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                 dob: await handleDecryptTicket(user.data.address[0].dob, privateKey),
                 workUnit: await handleDecryptTicket(user.data.address[0].work_unit, privateKey),
                 region: await handleDecryptTicket(user.data.address[0].region, privateKey),
-                point: point,
+                point: point.toString(),
                 issueDate: new Date().toLocaleDateString(),
                 certificateName: course[0].name,
                 licensingAuthority: course[0].licensing_authority
+
 
             }
             // Kiểm tra nếu bất kỳ giá trị giải mã nào là null
@@ -256,39 +257,46 @@ export default function RowRadioButtonsGroup({ course, exam }) {
             }
             const fieldsToEncrypt = [
                 'citizenId', 'name', 'region', 'dob', 'gender', 'email',
-                'workUnit', 'point', 'issueDate', "certificateName",
-                "licensingAuthority"];
+                'workUnit', 'point', 'issueDate'];
             const publicKeyOwner = user.data.address[0].publickey
             hashImg = hashImage(image)
             const imageEncrypt = await encryptData(image, remove0x(publicKeyOwner));
             image_res = await imageUpload(imageEncrypt, hashImg, address, decryptedUser["certificateName"])
             const issuers = await checkIssuer(course[0].licensing_authority);
             const formData = new FormData();
+
             for (const field of fieldsToEncrypt) {
-                formData.append(field, decryptedUser[field]);
+                const encryptedData = decryptedUser[field] ? await encryptData(decryptedUser[field], remove0x(publicKeyOwner)) : null;
+                formData.append(field, JSON.stringify(encryptedData));
             }
+            formData.append("expiryDate", null)
             formData.append("issuerAddress", '')
             formData.append("cidCertificate", image_res)
             formData.append("id", id)
             formData.append("owner", address)
-
+            formData.append("certificateName", decryptedUser["certificateName"])
+            formData.append("licensingAuthority", decryptedUser["licensingAuthority"]);
             await axios.post("http://localhost:8080/tickets", formData);
             for (const issuer of issuers) {
                 const issuerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${issuer}`);
                 const formData = new FormData();
+                const publicKeyIssuer = issuerPublicKeysResponse.data.address[0].publickey
 
                 const imageEncrypt = await encryptData(image, remove0x(issuerPublicKeysResponse.data.address[0].publickey));
                 for (const field of fieldsToEncrypt) {
-                    formData.append(field, decryptedUser[field]);
+                    const encryptedData = decryptedUser[field] ? await encryptData(decryptedUser[field], remove0x(publicKeyIssuer)) : null;
+                    formData.append(field, JSON.stringify(encryptedData));
                 }
 
                 image_res = await imageUpload(imageEncrypt, hashImg, address, decryptedUser["certificateName"])
+                formData.append("expiryDate", null)
 
                 formData.append("issuerAddress", issuerPublicKeysResponse.data.address[0].address)
                 formData.append("cidCertificate", image_res)
                 formData.append("id", id)
                 formData.append("owner", address)
-
+                formData.append("certificateName", decryptedUser["certificateName"])
+                formData.append("licensingAuthority", decryptedUser["licensingAuthority"]);
                 await axios.post("http://localhost:8080/tickets", formData);
 
                 for (let pair of formData.entries()) {

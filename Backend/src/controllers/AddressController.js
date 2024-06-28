@@ -22,11 +22,22 @@ module.exports = {
             (publicKey && publicKey.code === 4001 && publicKey.message === 'User rejected the request.')) {
             return;
         }
-        await addressModel.insertAddressPub(address, publicKey);
-        res.json({
-            code: 200,
-            status: "success",
-        });
+        const result = await addressModel.insertAddressPub(address, publicKey);
+        if (result) {
+            res.json({
+                code: 200,
+                status: "success",
+                message: "Sign successfully"
+            });
+        }
+        else {
+            res.json({
+                code: 404,
+                status: "fail",
+                message: result
+            });
+        }
+
     },
     updateInfo: async (req, res) => {
         const { address } = req.params;
@@ -38,8 +49,6 @@ module.exports = {
         user.workUnit = JSON.stringify(user.workUnit)
         user.dob = JSON.stringify(user.dob)
         user.gender = JSON.stringify(user.gender)
-        console.log(user)
-        // console.log(encUser)
         const result = await addressModel.updateInfo(address, user)
         if (result) {
             res.json({

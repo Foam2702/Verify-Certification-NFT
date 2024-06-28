@@ -20,7 +20,8 @@ module.exports = {
     },
     sendTicketFromStudent: async (req, res, next) => {
         const ticket = req.body;
-        deleteFile(req.file)
+        if (req.file)
+            deleteFile(req.file)
         const status = "status"
         ticket[status] = "processing"
         console.log(ticket)
@@ -31,6 +32,7 @@ module.exports = {
             ticket.expiryDate = null;
 
         }
+        console.log("IMHERER")
         const result = await ticketModel.insertTicket(ticket);
         if (result === true) {
             res.json({

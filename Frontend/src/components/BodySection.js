@@ -184,6 +184,8 @@ const BodySection = () => {
           }
           else {
             const id = uuidv4();
+
+
             for (const field of fieldsToEncrypt) {
               const encryptedData = data[field] ? await encryptData(data[field], remove0x(publicKeyOwner)) : null;
 

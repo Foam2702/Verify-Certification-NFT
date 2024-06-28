@@ -3,17 +3,22 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from 'react-router-dom';
 import ExamSection from "../components/ExamSection";
+import useSigner from "../state/signer";
+import CircularProgress from '@mui/material/CircularProgress';
+import { useNavigate } from "react-router-dom";
 
 const Exam = () => {
     const [exams, setExams] = useState([])
     const [course, setCourse] = useState(null)
     const { id } = useParams();
+    const { address, connectWallet, contract } = useSigner();
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchExam = async () => {
             try {
                 const result = await axios(`http://localhost:8080/courses/course/${id}/exam`)
-                console.log(result.data.exams)
                 setExams(result.data.exams)
 
             }
@@ -26,7 +31,6 @@ const Exam = () => {
         const fetchCourse = async () => {
             try {
                 const result = await axios(`http://localhost:8080/courses/course/${id}`)
-                console.log(result.data.course)
                 setCourse(result.data.course)
             }
             catch (err) {
@@ -35,12 +39,30 @@ const Exam = () => {
 
         }
         fetchCourse()
+        const check = async () => {
+            setLoading(true); // Start loading
+            const result = await axios(`http://localhost:8080/courses/course/${id}?address=${address}`)
+            if (result.data.code == 200) {
+                setTimeout(() => {
+                    if (!address)
+                        navigate("/");
+                    setLoading(false);
+                }, 1000);
+            }
+            else {
+                navigate("/");
+            }
+        }
+        check()
     }, [id])
-    console.log("EXAM", course)
 
     return (
         <>
-
+            {loading && (
+                <div className="loading-overlay">
+                    <CircularProgress />
+                </div>
+            )}
             {course && exams &&
                 <>
                     {/* <HeaderExam /> */}

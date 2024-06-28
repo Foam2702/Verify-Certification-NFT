@@ -104,16 +104,6 @@ const BodyCourses = ({ className = "" }) => {
     const handleAgree = async () => {
         setLoading(true); // Start loading
         const result = await axios.post(`http://localhost:8080/courses/course/${selectedCourse.id}?address=${address}`)
-
-        // setTimeout(() => {
-        //     if (!address) {
-        //         navigate("/");
-        //     } else {
-        //         navigate(`/courses/course/${selectedCourse.id}/exam`);
-        //     }
-        //     setLoading(false);
-        // }, 1000);
-        // handleClose();
         if (result.data.code == 200) {
             setTimeout(() => {
                 if (!address) {
@@ -130,11 +120,8 @@ const BodyCourses = ({ className = "" }) => {
             setAlertSeverity("warning")
             setMessageAlert("You have already take this exam")
             setShowAlert(true);
-
             handleClose();
         }
-
-
     };
 
 

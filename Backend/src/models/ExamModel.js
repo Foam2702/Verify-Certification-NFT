@@ -33,7 +33,7 @@ module.exports = {
             }
             return true;
         } catch (error) {
-            return err
+            return error
         }
     }
 };

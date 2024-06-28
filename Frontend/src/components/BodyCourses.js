@@ -104,6 +104,7 @@ const BodyCourses = ({ className = "" }) => {
     const handleAgree = async () => {
         setLoading(true); // Start loading
         const result = await axios.post(`http://localhost:8080/courses/course/${selectedCourse.id}?address=${address}`)
+        console.log("RESS", result)
         if (result.data.code == 200) {
             setTimeout(() => {
                 if (!address) {

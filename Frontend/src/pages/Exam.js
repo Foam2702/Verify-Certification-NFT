@@ -41,8 +41,9 @@ const Exam = () => {
         fetchCourse()
         const check = async () => {
             setLoading(true); // Start loading
-            const result = await axios(`http://localhost:8080/courses/course/${id}?address=${address}`)
-            if (result.data.code == 200) {
+            const result = await axios(`http://localhost:8080/exam/${id}?address=${address}`)
+            console.log("RESSS", result)
+            if (result.data.data[0].status == "examining") {
                 setTimeout(() => {
                     if (!address)
                         navigate("/");
@@ -50,6 +51,7 @@ const Exam = () => {
                 }, 1000);
             }
             else {
+
                 navigate("/");
             }
         }

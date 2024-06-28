@@ -32,7 +32,6 @@ module.exports = {
             ticket.expiryDate = null;
 
         }
-        console.log("IMHERER")
         const result = await ticketModel.insertTicket(ticket);
         if (result === true) {
             res.json({

@@ -1,6 +1,16 @@
 const sql = require("../config/db");
 
 module.exports = {
+    getExam: async (id, address) => {
+        try {
+            const result = await sql`SELECT * FROM exam where address=${address} and course=${id}`
+            return result
+        } catch (err) {
+            return err
+        }
+
+
+    },
     insertQuestions: async (data) => {
         try {
             const { course, questions } = data;
@@ -32,6 +42,14 @@ module.exports = {
                 count++;
             }
             return true;
+        } catch (error) {
+            return error
+        }
+    },
+    updateExam: async (id, address, status) => {
+        try {
+            await sql`UPDATE exam SET status=${status} WHERE address=${address} AND course=${id}`
+            return true
         } catch (error) {
             return error
         }

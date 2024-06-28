@@ -123,6 +123,7 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                 );
                 setOpen(true);
                 setPoint(result.data.score)
+                await axios.patch(`http://localhost:8080/exam/${course[0].id}?address=${address}&status=passed`)
                 const canvas = canvasRef.current;
                 if (!canvas) {
                     setMessageAlert('Canvas not available.');
@@ -175,10 +176,14 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                 backgroundImg.src = '/certificate-background.png'; // Set the image source for the background 
 
             } else {
+                await axios.patch(`http://localhost:8080/exam/${course[0].id}?address=${address}&status=failed`)
+
                 setOpenCheck(false);
                 setPassed(false);
                 setMessage("You failed the exam. Good luck next time.");
                 setOpen(true);
+                setTimeout(() => navigate("/"), 3000)
+
             }
         } catch (err) {
             console.log(err);
@@ -343,9 +348,7 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                         {passed ? (
                             <div>
                                 <SentimentSatisfiedAltIcon sx={{ color: 'green', width: 100, height: 100 }} />
-                                {/* <DialogContentText sx={{ fontSize: '1.5rem' }}>
-                                    Please enter private key from your MetaMask
-                                </DialogContentText> */}
+
                                 <TextField
                                     autoFocus
                                     required
@@ -367,6 +370,7 @@ export default function RowRadioButtonsGroup({ course, exam }) {
 
                     </DialogContentText>
                 </DialogContent>
+
                 <DialogActions>
                     <Button onClick={handleClose} type="submit">OK</Button>
                     <Button onClick={handleClose}>Cancel</Button>

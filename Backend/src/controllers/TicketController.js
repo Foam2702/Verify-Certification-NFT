@@ -20,45 +20,18 @@ module.exports = {
     },
     sendTicketFromStudent: async (req, res, next) => {
         const ticket = req.body;
-
         deleteFile(req.file)
         const status = "status"
-        let getAddress = "";
-
         ticket[status] = "processing"
-
         console.log(ticket)
-
-        if (ticket.issuerAddress === '') {
-            getAddress = await addressModel.getOneAddressPub(ticket.owner)
+        if (ticket.point == 'null') {
+            ticket.point = null;
         }
-        else {
-            getAddress = await addressModel.getOneAddressPub(ticket.issuerAddress)
+        if (ticket.expiryDate == 'null') {
+            ticket.expiryDate = null;
+
         }
-        console.log(ticket)
-
-        const encTicket = {
-            citizenId: ticket.citizenId ? JSON.stringify(await encDecData.encryptData(ticket.citizenId, encDecData.remove0x(getAddress[0].publickey))) : null,
-            name: ticket.name ? JSON.stringify(await encDecData.encryptData(ticket.name, encDecData.remove0x(getAddress[0].publickey))) : null,
-            region: ticket.region ? JSON.stringify(await encDecData.encryptData(ticket.region, encDecData.remove0x(getAddress[0].publickey))) : null,
-            dob: ticket.dob ? JSON.stringify(await encDecData.encryptData(ticket.dob, encDecData.remove0x(getAddress[0].publickey))) : null,
-            gender: ticket.gender ? JSON.stringify(await encDecData.encryptData(ticket.gender, encDecData.remove0x(getAddress[0].publickey))) : null,
-            email: ticket.email ? JSON.stringify(await encDecData.encryptData(ticket.email, encDecData.remove0x(getAddress[0].publickey))) : null,
-            workUnit: ticket.workUnit ? JSON.stringify(await encDecData.encryptData(ticket.workUnit, encDecData.remove0x(getAddress[0].publickey))) : null,
-            point: ticket.point ? JSON.stringify(await encDecData.encryptData(ticket.point, encDecData.remove0x(getAddress[0].publickey))) : null,
-            issueDate: ticket.issueDate ? JSON.stringify(await encDecData.encryptData(ticket.issueDate, encDecData.remove0x(getAddress[0].publickey))) : null,
-            expiryDate: ticket.expiryDate ? JSON.stringify(await encDecData.encryptData(ticket.expiryDate, encDecData.remove0x(getAddress[0].publickey))) : null,
-            certificateName: ticket.certificateName,
-            owner: ticket.owner,
-            licensingAuthority: ticket.licensingAuthority,
-            issuerAddress: ticket.issuerAddress,
-            cidCertificate: ticket.cidCertificate,
-            id: ticket.id,
-            status: ticket.status
-        };
-        console.log(encTicket)
-
-        const result = await ticketModel.insertTicket(encTicket);
+        const result = await ticketModel.insertTicket(ticket);
         if (result === true) {
             res.json({
                 "ticket": ticket,
@@ -74,6 +47,7 @@ module.exports = {
                 "success": false,
             })
         }
+
     },
     getOneTicket: async (req, res, next) => {
         const { id } = req.params

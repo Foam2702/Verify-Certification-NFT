@@ -30,6 +30,8 @@ router
     .route("/course/:id/exam")
     .get(courseController.getExamForCourse)
     .post(courseController.submitExam)
+router.route("/top10")
+    .get(courseController.getTop10Courses)
 
 
 module.exports = router;

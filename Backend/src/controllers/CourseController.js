@@ -19,6 +19,14 @@ module.exports = {
         })
 
     },
+    getTop10Courses: async (req, res) => {
+        const courses = await courseModel.getTop10Courses();
+        res.json({
+            status: 200,
+            courses
+        })
+    },
+
     getExamForCourse: async (req, res) => {
         const { id } = req.params;
         const exams = await courseModel.getExamForCourse(id);

@@ -32,11 +32,14 @@ module.exports = {
         }
 
     },
-    getTop3Courses: async () => {
-        const result = await sql`
-            SELECT * FROM course LIMIT 3
-        `
-        return result;
+    getTop10Courses: async () => {
+        try {
+            const courses = await sql`SELECT * FROM course C,organization O where C.licensing_authority=O.org LIMIT 10`;
+            return courses;
+        }
+        catch (err) {
+            return err;
+        }
     },
     getExamForCourse: async (id) => {
         const result = await sql`

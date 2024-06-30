@@ -372,8 +372,8 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                 </DialogContent>
 
                 <DialogActions>
-                    <Button onClick={handleClose} type="submit">OK</Button>
-                    <Button onClick={handleClose}>Cancel</Button>
+                    <Button type="submit">OK</Button>
+
 
                 </DialogActions>
             </Dialog>

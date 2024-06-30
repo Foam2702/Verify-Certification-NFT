@@ -73,5 +73,23 @@ module.exports = {
             code: 200,
             message: 'Update status successfully'
         })
+    },
+    deleteExam: async (req, res) => {
+        const { id } = req.params
+        const { address } = req.query
+        const result = await examModel.deleteExam(id, address)
+        if (result) {
+            res.json({
+                code: 200,
+                message: 'Delete  user successfully'
+            })
+        }
+        else {
+            res.json({
+                code: 400,
+                message: 'Delete  user failed'
+            })
+        }
+
     }
 }

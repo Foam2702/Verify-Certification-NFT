@@ -48,6 +48,11 @@ contract SoulboundToken is ERC721, ERC721URIStorage, ERC721Pausable, Ownable {
     function tokenURI(uint256 tokenId) public view virtual override(ERC721, ERC721URIStorage) returns (string memory) {
         return super.tokenURI(tokenId);
     }
+    // Modifier để kiểm tra xem người gọi hàm có phải là verifier hay không
+    modifier onlyVerifier() {
+        require(verifierList[msg.sender].isVerifier, "Caller is not a verifier");
+        _;
+    }
 
     // Hàm thêm một địa chỉ vào danh sách các địa chỉ được phép xác thực
     function addVerifier(address verifier, string memory organizationCode) public {
@@ -181,11 +186,11 @@ contract SoulboundToken is ERC721, ERC721URIStorage, ERC721Pausable, Ownable {
         });
     }
 
-    // Hàm tạo một SBT mới cho một địa chỉ.
+    // Hàm tạo một SBT mới cho một địa chỉ chỉ cho phép người xác thực thực thi
     function mintSBTForAddress(
         address recipient,
         string memory myTokenURI
-    ) public {
+    ) public onlyVerifier {
 
         _nSBTs.increment(); // Tăng ID SBT
         uint256 newSBTId = _nSBTs.current(); // Lấy ID của SBT mới
@@ -226,7 +231,7 @@ contract SoulboundToken is ERC721, ERC721URIStorage, ERC721Pausable, Ownable {
         return result;
     }
 
-    // Hàm ngăn chặn chuyển giao soulbound token)
+    // Hàm ngăn chặn chuyển giao soulbound token
     function _update(address to, uint256 tokenId, address auth)
         internal
         override(ERC721, ERC721Pausable)

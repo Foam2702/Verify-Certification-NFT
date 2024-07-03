@@ -196,6 +196,7 @@ const UploadExam = () => {
     };
 
     async function saveQuestions() {
+        setLoading(true)
         const dataToSave = {
             certificateName,
             shortName,
@@ -204,6 +205,7 @@ const UploadExam = () => {
             imageUrl,
             org
         };
+        console.log(questions)
         const fields = [
             'certificateName',
             'shortName',
@@ -227,6 +229,32 @@ const UploadExam = () => {
             setLoading(false);
             return;
         }
+        const checkCorrectAns = dataToSave.questions.some(ques => ques.correctAnswer == undefined || ques.correctAnswer == '' || ques.correctAnswer == null)
+        if (checkCorrectAns) {
+            setMessageAlert("Must input correct answer");
+            setAlertSeverity("warning");
+            setShowAlert(true);
+            setLoading(false);
+            return
+        }
+        const checkQuestion = dataToSave.questions.some(ques => ques.questionText == undefined || ques.questionText == '' || ques.questionText == null)
+        if (checkQuestion) {
+            setMessageAlert("Must input question");
+            setAlertSeverity("warning");
+            setShowAlert(true);
+            setLoading(false);
+            return
+        }
+        const hasEmptyOptionText = dataToSave.questions.some(ques =>
+            ques.options.some(option => option.optionText == '' || option.optionText == undefined || option.optionText == null)
+        );
+        if (hasEmptyOptionText) {
+            setMessageAlert("Must input options");
+            setAlertSeverity("warning");
+            setShowAlert(true);
+            setLoading(false);
+            return
+        }
         try {
             const result = await axios.post("http://localhost:8080/exam/postexam", dataToSave)
             if (result.data.message == "Insert Exam successfully") {
@@ -234,6 +262,7 @@ const UploadExam = () => {
                 setAlertSeverity("success");
                 setShowAlert(true);
                 setLoading(false);
+                navigate("/")
             }
             else {
                 setMessageAlert("Error creating exam");
@@ -249,6 +278,7 @@ const UploadExam = () => {
             setLoading(false);
             console.log(err)
         }
+
     }
     function questionsUI() {
         return questions.map((ques, i) => (

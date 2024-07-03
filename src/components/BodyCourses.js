@@ -30,7 +30,6 @@ const BodyCourses = ({ className = "" }) => {
                 const result = await axios.get(`http://localhost:8080/courses`);
                 if (Array.isArray(result.data.courses)) {
                     setCourses(result.data.courses);
-                    console.log(result.data.courses);
                 }
             } catch (err) {
                 console.log(err);
@@ -102,38 +101,52 @@ const BodyCourses = ({ className = "" }) => {
     };
 
     const handleAgree = async () => {
-        setLoading(true); // Start loading
-        const result = await axios.post(`http://localhost:8080/courses/course/${selectedCourse.id}?address=${address}`)
-
-        // setTimeout(() => {
-        //     if (!address) {
-        //         navigate("/");
-        //     } else {
-        //         navigate(`/courses/course/${selectedCourse.id}/exam`);
-        //     }
-        //     setLoading(false);
-        // }, 1000);
-        // handleClose();
-        if (result.data.code == 200) {
-            setTimeout(() => {
-                if (!address) {
-                    navigate("/");
-                } else {
-                    navigate(`/courses/course/${selectedCourse.id}/exam`);
+        try {
+            setLoading(true); // Start loading
+            const result = await axios.post(`http://localhost:8080/courses/course/${selectedCourse.id}?address=${address}`)
+            if (result.data.code == 200) {
+                setTimeout(() => {
+                    if (!address) {
+                        navigate("/");
+                    } else {
+                        navigate(`/courses/course/${selectedCourse.id}/exam`);
+                    }
+                    setLoading(false);
+                }, 1000);
+                handleClose();
+            }
+            else {
+                const result = await axios(`http://localhost:8080/exam/${selectedCourse.id}?address=${address}`)
+                if (result.data.data[0].status == "examining") {
+                    setTimeout(() => {
+                        if (!address)
+                            navigate("/");
+                        else {
+                            navigate(`/courses/course/${selectedCourse.id}/exam`);
+                        }
+                        setLoading(false);
+                    }, 1000);
                 }
-                setLoading(false);
-            }, 1000);
-            handleClose();
-        }
-        else {
-            setLoading(false);
-            setAlertSeverity("warning")
-            setMessageAlert("You have already take this exam")
-            setShowAlert(true);
+                else if (result.data.data[0].status == "passed") {
+                    setLoading(false);
+                    setAlertSeverity("warning")
+                    setMessageAlert("You have already take this exam")
+                    setShowAlert(true);
+                    handleClose();
+                }
+                else if (result.data.data[0].status == "failed") {
+                    setLoading(false);
+                    setAlertSeverity("warning")
+                    setMessageAlert("You have failed this exam")
+                    setShowAlert(true);
+                    handleClose();
+                }
 
-            handleClose();
-        }
 
+            }
+        } catch (err) {
+            console.log(err)
+        }
 
     };
 

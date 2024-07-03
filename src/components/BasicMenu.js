@@ -60,7 +60,7 @@ export default function BasicMenu({ anchorEl, handleClose, open, menuItems }) {
                                                         <span style={{ "margin": "5px", "fontWeight": "bold" }}>
                                                             <AddressAvatar address={item.licensing_authority} />
                                                         </span>
-                                                        <span className="yellow-text">đang xét duyệt chứng chỉ</span>
+                                                        <span className="yellow-text">is reviewing</span>
                                                         <span style={{ "margin": "5px", "fontWeight": "bold" }}>
                                                             {item.certificate_name}
                                                         </span>

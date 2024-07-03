@@ -66,6 +66,7 @@ const Ticket = ({ ticket }) => {
         const checkIssuer = async () => {
             const { ethereum } = window;
             if (ethereum) {
+                console.log("TICKET", ticket)
                 const result = await contract.getVerifiersByOrganizationCode(ticket.licensing_authority);
                 setIssuer(result)
             }
@@ -313,7 +314,9 @@ const Ticket = ({ ticket }) => {
         if (prop != null && prop != '' && prop != undefined) {
             try {
                 const result = await decryptData(JSON.parse(prop), privateKey);
+                console.log(JSON.parse(prop), result)
                 if (result === "") {
+
                     setError("Wrong private key"); // Set the error state
                     setLoading(true);
                     setLoading(false);
@@ -325,6 +328,7 @@ const Ticket = ({ ticket }) => {
                 return result;
             } catch (error) {
                 if (error.message.includes("Cipher key could not be derived")) {
+
                     setError("Wrong private key"); // Set the error state
                     setLoading(true);
                     setLoading(false);

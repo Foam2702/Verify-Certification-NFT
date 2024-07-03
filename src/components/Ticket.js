@@ -131,7 +131,7 @@ const Ticket = ({ ticket }) => {
     useEffect(() => {
         const fetchCourses = async () => {
             try {
-                const response = await axios('http://localhost:8080/courses');
+                const response = await axios('https://verify-certification-nft-production.up.railway.app/courses');
                 const courses = response.data.courses; // Assuming the API response structure
                 if (ticket.certificate_name) {
                     const match = courses.some(course => {
@@ -156,15 +156,15 @@ const Ticket = ({ ticket }) => {
         setLoading(true)
         try {
             const status = "reject"
-            const owner = await axios(`http://localhost:8080/tickets/ticket/${ticket.id}?address=`)
+            const owner = await axios(`https://verify-certification-nft-production.up.railway.app/tickets/ticket/${ticket.id}?address=`)
             await deletePinIPFS(owner.data.ticket[0].certificate_cid)
             for (let address of issuer) {
-                const issuer_org = await axios(`http://localhost:8080/tickets/ticket/${ticket.id}?address=${address}`);
+                const issuer_org = await axios(`https://verify-certification-nft-production.up.railway.app/tickets/ticket/${ticket.id}?address=${address}`);
                 if (issuer_org.data.ticket[0].certificate_cid) {
                     await deletePinIPFS(issuer_org.data.ticket[0].certificate_cid)
                 }
             }
-            const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}?status=${status}&transaction_hash=`)
+            const response = await axios.patch(`https://verify-certification-nft-production.up.railway.app/tickets/ticket/${ticket.id}?status=${status}&transaction_hash=`)
 
             if (response.data.message === "updated successfully") {
                 setLoading(false)
@@ -196,7 +196,7 @@ const Ticket = ({ ticket }) => {
         event.preventDefault()
         setLoading(true);
         try {
-            const userTicket = await axios(`http://localhost:8080/tickets/ticket/${ticket.id}?address=`)
+            const userTicket = await axios(`https://verify-certification-nft-production.up.railway.app/tickets/ticket/${ticket.id}?address=`)
             ticket = userTicket.data.ticket[0];
             ticket.status = "approved"
             const metadata = await pinJSONToIPFS(ticket)
@@ -209,14 +209,14 @@ const Ticket = ({ ticket }) => {
                 );
                 setAddressContract(result.to)
                 for (let address of issuer) {
-                    const issuer_org = await axios(`http://localhost:8080/tickets/ticket/${ticket.id}?address=${address}`);
+                    const issuer_org = await axios(`https://verify-certification-nft-production.up.railway.app/tickets/ticket/${ticket.id}?address=${address}`);
                     if (issuer_org.data.ticket[0].certificate_cid) {
 
                         await deletePinIPFS(issuer_org.data.ticket[0].certificate_cid)
                     }
                 }
                 const status = "approved"
-                const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}?status=${status}&transaction_hash=${result.hash}&issuer_address=`)
+                const response = await axios.patch(`https://verify-certification-nft-production.up.railway.app/tickets/ticket/${ticket.id}?status=${status}&transaction_hash=${result.hash}&issuer_address=`)
                 if (response.data.message === "updated successfully") {
                     ticket.transaction_hash = result.hash
                     setLoading(false);

@@ -27,7 +27,7 @@ const BodyCourses = ({ className = "" }) => {
     useEffect(() => {
         const fetchCourses = async () => {
             try {
-                const result = await axios.get(`http://localhost:8080/courses`);
+                const result = await axios.get(`https://verify-certification-nft-production.up.railway.app/courses`);
                 if (Array.isArray(result.data.courses)) {
                     setCourses(result.data.courses);
                 }
@@ -40,7 +40,7 @@ const BodyCourses = ({ className = "" }) => {
     const checkInfoExist = async () => {
         if (address) {
             try {
-                const checkPublicKeyExisted = await axios.get(`http://localhost:8080/addresses/${address}`);
+                const checkPublicKeyExisted = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`);
                 if (checkPublicKeyExisted.data.address.length === 0) {
                     const publicKey = await getPublicKey(); // Await the result of getPublicKey
                     if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
@@ -50,7 +50,7 @@ const BodyCourses = ({ className = "" }) => {
                         setShowAlert(true);
                         return false;
                     }
-                    await axios.post(`http://localhost:8080/addresses/${address}`, {
+                    await axios.post(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`, {
                         address: address, // Include the address in the body
                         publicKey: publicKey // Include the public key in the body
                     });
@@ -103,7 +103,7 @@ const BodyCourses = ({ className = "" }) => {
     const handleAgree = async () => {
         try {
             setLoading(true); // Start loading
-            const result = await axios.post(`http://localhost:8080/courses/course/${selectedCourse.id}?address=${address}`)
+            const result = await axios.post(`https://verify-certification-nft-production.up.railway.app/courses/course/${selectedCourse.id}?address=${address}`)
             if (result.data.code == 200) {
                 setTimeout(() => {
                     if (!address) {
@@ -116,7 +116,7 @@ const BodyCourses = ({ className = "" }) => {
                 handleClose();
             }
             else {
-                const result = await axios(`http://localhost:8080/exam/${selectedCourse.id}?address=${address}`)
+                const result = await axios(`https://verify-certification-nft-production.up.railway.app/exam/${selectedCourse.id}?address=${address}`)
                 if (result.data.data[0].status == "examining") {
                     setTimeout(() => {
                         if (!address)

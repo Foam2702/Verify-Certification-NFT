@@ -650,7 +650,41 @@ const Ticket = ({ ticket }) => {
 
                     {issuer.includes(address) ?
                         <>
-                            <div className="body-button1">
+                            {isExam ?
+                                <div className="body-button1">
+                                    {imageMatch ?
+                                        <button className="submit-button" onClick={handleSubmit}>
+                                            <div className="submit">Mint</div>
+                                        </button>
+                                        :
+                                        <></>
+                                    }
+                                    <button className="cancel-button" onClick={handleCancle}>
+                                        <div className="cancel">Cancel</div>
+                                    </button>
+                                </div>
+                                :
+                                <div className="body-button1">
+                                    <button className="check-button" onClick={handleCheckImage}>
+                                        <div className="check" >Check</div>
+                                    </button>
+                                    {imageMatch ?
+                                        <button className="submit-button" onClick={handleSubmit}>
+                                            <div className="submit">Mint</div>
+                                        </button>
+                                        :
+                                        <></>
+                                    }
+
+                                    <button className="reject-button" onClick={handleReject}>
+                                        <div className="reject">Reject</div>
+                                    </button>
+                                    <button className="cancel-button" onClick={handleCancle}>
+                                        <div className="cancel">Cancel</div>
+                                    </button>
+                                </div>
+                            }
+                            {/* <div className="body-button1">
                                 <button className="check-button" onClick={handleCheckImage}>
                                     <div className="check" >Check</div>
                                 </button>
@@ -668,7 +702,7 @@ const Ticket = ({ ticket }) => {
                                 <button className="cancel-button" onClick={handleCancle}>
                                     <div className="cancel">Cancel</div>
                                 </button>
-                            </div>
+                            </div> */}
                         </>
                         :
                         <></>

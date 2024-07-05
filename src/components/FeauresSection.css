@@ -110,7 +110,6 @@
 
 @media screen and (max-width: 1575px) {
   .list-courses {
-    flex-wrap: wrap;
     justify-content: center;
     animation: slide 70s linear infinite;
   }

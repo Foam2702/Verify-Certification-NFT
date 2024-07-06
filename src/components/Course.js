@@ -29,15 +29,7 @@ const Course = ({ className = "", course1Image, courseHeader, courseDescription,
           <p className="lorem-ipsum-dolor3">
             {courseDescription}
           </p>
-          {/* <div className="learn-more-parent3">
-            <div className="learn-more6">Learn More</div>
-            <div className="icon-wrapper1">
-              <img className="icon3" alt="" src="/icon-3@2x.png" />
-            </div>
-            <div className="icon-wrapper4">
-              <img className="icon6" loading="lazy" alt="" src="/icon1.svg" />
-            </div>
-          </div> */}
+
         </div>
       </div>
     </div>

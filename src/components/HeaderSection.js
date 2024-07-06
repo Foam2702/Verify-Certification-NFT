@@ -21,7 +21,6 @@ const { ethers } = require("ethers");
 const settings = [
   { name: 'Profile', route: '/profile' },
   { name: 'My Certificates', route: '/lisenceview' },
-  { name: 'Certificate Examined', route: '/courseinfornew' },
   { name: 'Issuer Management', route: '/admin' },
 ];
 
@@ -38,6 +37,7 @@ const HeaderSection = () => {
   const [alertSeverity, setAlertSeverity] = useState("");
   const [org, setOrg] = useState('');
   const [isIssuer, setIsIssuer] = useState(false);
+  const [admin, setAdmin] = useState('')
   const navigate = useNavigate();
 
   const handleOpenNavMenu = (event) => {
@@ -170,6 +170,14 @@ const HeaderSection = () => {
 
     isAddressInIssuers();
   }, [address, issuers, contract]);
+  useEffect(() => {
+    const checkAdmin = () => {
+      if (address && address == process.env.REACT_APP_ADMIN) {
+        setAdmin('ADMIN')
+      }
+    }
+    checkAdmin()
+  }, [signer, address, contract])
 
   const filteredSettings = address === process.env.REACT_APP_ADMIN
     ? settings
@@ -205,9 +213,14 @@ const HeaderSection = () => {
                             <AddressAvatar address={org} />
                           </div>
                         ) : (
-                          <div>
-                            <AddressAvatar address={address} />
-                          </div>
+                          admin ?
+                            <div>
+                              <AddressAvatar address={admin} />
+                            </div> :
+
+                            <div>
+                              <AddressAvatar address={address} />
+                            </div>
                         )}
                       </IconButton>
                     </Tooltip>

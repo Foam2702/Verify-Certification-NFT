@@ -26,6 +26,7 @@ const BodyCourses = ({ className = "" }) => {
     const navigate = useNavigate();
     useEffect(() => {
         const fetchCourses = async () => {
+            setLoading(true)
             try {
                 const result = await axios.get(`https://verify-certification-nft-production.up.railway.app/courses`);
                 if (Array.isArray(result.data.courses)) {
@@ -34,6 +35,7 @@ const BodyCourses = ({ className = "" }) => {
             } catch (err) {
                 console.log(err);
             }
+            setLoading(false)
         };
         fetchCourses().catch((error) => console.error(error));
     }, []);

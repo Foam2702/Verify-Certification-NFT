@@ -3,8 +3,13 @@ import axios from "axios";
 import { useEffect, useState } from 'react';
 import Course from "./Course";
 import { Link } from "@mui/material";
+import { useNavigate } from 'react-router-dom';
+import CircularProgress from '@mui/material/CircularProgress';
+
 const FeauresSection = () => {
   const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(false)
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -20,6 +25,11 @@ const FeauresSection = () => {
     };
     fetchCourses();
   }, []);
+  const handleCourseClick = () => {
+
+    navigate("/coursetransfernew")
+
+  }
 
   // Duplicate courses to create an infinite loop effect
   const duplicatedCourses = [...courses, ...courses];
@@ -27,6 +37,11 @@ const FeauresSection = () => {
   return (
     //feaures-section
     <div className="feaures-section">
+      {loading && (
+        <div className="loading-overlay">
+          <CircularProgress />
+        </div>
+      )}
       <div className="body-header-2">
         <div>Most Popular Certificates</div>
         {/* <Link sx={{
@@ -37,14 +52,15 @@ const FeauresSection = () => {
       <div className="list-courses">
         {duplicatedCourses.map((course, index) => (
           <div className="course" key={`${course.id}-${index}`}>
-            <div className="course-background">
+            <button className="course-background" onClick={handleCourseClick}>
+
               <Course
                 course1Image={course.image}
                 courseHeader={course.name}
                 courseOrg={course.licensing_authority}
                 courseOrgImg={course.image_licensing_authority}
               />
-            </div>
+            </button>
           </div>
         ))}
       </div>

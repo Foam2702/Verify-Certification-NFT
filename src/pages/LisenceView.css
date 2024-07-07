@@ -176,6 +176,17 @@
   letter-spacing: normal;
 }
 
+.private-key-image {
+  width: 200px;
+  height: auto;
+  margin: 10px;
+
+}
+
+.private-key-image-container {
+  display: flex
+}
+
 @media screen and (max-width: 1200px) {
   .upload-wrapper-lisence {
     padding-left: var(--padding-7xl);

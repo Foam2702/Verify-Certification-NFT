@@ -323,6 +323,13 @@ export const Profile = () => {
                                 <DialogContentText sx={{ fontSize: '1.5rem' }}>
                                     Please enter private key from your MetaMask
                                 </DialogContentText>
+                                <div className="private-key-image-container">
+                                    <img loading="lazy" className="private-key-image" src="/MetaMask_find_account_details_extension-6df8f1e43a432c53fdaa0353753b1ca8.gif" alt="MetaMask find account details extension"></img>
+                                    <img loading="lazy" className="private-key-image" src="/MetaMask_find_export_account_private_key_extension_1-e67f48ba55b839654514e39e186400fb.gif" alt="MetaMask find account details extension"></img>
+
+                                    <img loading="lazy" className="private-key-image" src="/MetaMask_find_export_account_private_key_extension_2-6c913141ad005ec35a3248944b1a25dd.gif" alt="MetaMask find account details extension"></img>
+
+                                </div>
                                 <TextField
                                     autoFocus
                                     required

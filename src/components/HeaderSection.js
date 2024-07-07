@@ -79,7 +79,6 @@ const HeaderSection = () => {
   const handleLogin = () => {
     const checkMetaMask = () => {
       if (typeof window.ethereum !== 'undefined') {
-        setIsMetaMaskInstalled(true);
         connectWallet();
       } else {
         window.open('https://metamask.io/download/', '_blank');

@@ -72,6 +72,9 @@ export const Profile = () => {
                 return false
             }
         }
+        else if (!address) {
+            await connectWallet()
+        }
     };
     const handleUpdateInfo = async (event) => {
         event.preventDefault();

@@ -6,6 +6,7 @@ import {
   useLocation,
 
 } from "react-router-dom";
+import React from "react"
 import LoginNew from "./pages/LoginNew";
 import VertificationNew from "./pages/VertificationNew";
 import VerificationForIssuer from "./pages/VerificationForIssuer";
@@ -22,11 +23,13 @@ import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import { Profile } from "./pages/Profile";
 import UploadExam from "./pages/UploadExam";
+import MetaMaskRequired from "./components/MetaMaskRequired";
 function App() {
   const action = useNavigationType();
   const location = useLocation();
   const pathname = location.pathname;
   const { loading, address } = useSigner();
+
   const navigate = useNavigate();
 
   useEffect(() => {

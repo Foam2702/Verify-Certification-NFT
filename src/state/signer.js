@@ -18,21 +18,22 @@ export const SignerProvider = ({ children }) => {
     const [provider, setProvider] = useState(null);
 
     useEffect(() => {
-        const web3modal = new Web3Modal();
-        if (web3modal.cachedProvider) {
-
-            connectWallet();
-        }
-
-        window.ethereum.on("accountsChanged", (accounts) => {
-            if (accounts.length === 0) {
-                setAddress(null);
-            } else {
+        if (typeof window.ethereum !== 'undefined') {
+            const web3modal = new Web3Modal();
+            if (web3modal.cachedProvider) {
                 connectWallet();
-
             }
-        });
 
+            window.ethereum.on("accountsChanged", (accounts) => {
+                if (accounts.length === 0) {
+                    setAddress(null);
+                } else {
+                    connectWallet();
+                }
+            });
+        } else {
+            console.error("MetaMask is not installed");
+        }
     }, []);
 
     const connectWallet = async () => {
@@ -64,6 +65,7 @@ export const SignerProvider = ({ children }) => {
                 });
             }
         } catch (e) {
+
             console.log(e);
         }
         setLoading(false);
@@ -83,6 +85,7 @@ export const SignerProvider = ({ children }) => {
             const publicKey = ethers.utils.recoverPublicKey(ethers.utils.hashMessage(message), signature);
             return publicKey;
         } catch (err) {
+            console.log(err)
             return (err)
         }
     }

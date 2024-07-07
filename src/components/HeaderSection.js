@@ -38,6 +38,7 @@ const HeaderSection = () => {
   const [org, setOrg] = useState('');
   const [isIssuer, setIsIssuer] = useState(false);
   const [admin, setAdmin] = useState('')
+
   const navigate = useNavigate();
 
   const handleOpenNavMenu = (event) => {
@@ -75,6 +76,25 @@ const HeaderSection = () => {
     }
     setShowAlert(false);
   };
+  const handleLogin = () => {
+    const checkMetaMask = () => {
+      if (typeof window.ethereum !== 'undefined') {
+        setIsMetaMaskInstalled(true);
+        connectWallet();
+      } else {
+        window.open('https://metamask.io/download/', '_blank');
+      }
+    };
+
+    // Check MetaMask installation after the window has fully loaded
+    if (document.readyState === 'complete') {
+      checkMetaMask();
+    } else {
+      window.addEventListener('load', checkMetaMask);
+      return () => window.removeEventListener('load', checkMetaMask);
+    }
+  };
+
 
   useEffect(() => {
     const fetchTickets = async () => {
@@ -89,6 +109,7 @@ const HeaderSection = () => {
           throw new Error('Unexpected data format');
         }
       } catch (err) {
+        console.log("FETCH TICKET")
         console.log(err);
       }
     };
@@ -108,6 +129,7 @@ const HeaderSection = () => {
               setShowAlert(true);
               return;
             }
+
             await axios.post(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`, {
               address,
               publicKey,
@@ -117,6 +139,7 @@ const HeaderSection = () => {
             setShowAlert(true);
           }
         } catch (err) {
+          console.log("INSERT PUB")
           console.log(err);
         }
       }
@@ -139,6 +162,7 @@ const HeaderSection = () => {
           setIssuers(results);
         }
       } catch (err) {
+        console.log("FETCH ORG")
         console.log(err);
       }
     };
@@ -163,6 +187,7 @@ const HeaderSection = () => {
           }
         }
       } catch (err) {
+        console.log("IS ISSUER")
         console.log(err);
       }
       setIsIssuer(false);
@@ -172,12 +197,19 @@ const HeaderSection = () => {
   }, [address, issuers, contract]);
   useEffect(() => {
     const checkAdmin = () => {
-      if (address && address == process.env.REACT_APP_ADMIN) {
-        setAdmin('ADMIN')
+      try {
+        if (address && address == process.env.REACT_APP_ADMIN) {
+
+          setAdmin('ADMIN')
+        }
       }
+      catch (err) {
+        console.log(err)
+      }
+
     }
     checkAdmin()
-  }, [signer, address, contract])
+  }, [signer, address])
 
   const filteredSettings = address === process.env.REACT_APP_ADMIN
     ? settings
@@ -244,7 +276,7 @@ const HeaderSection = () => {
                     </Menu>
                   </>
                 ) : (
-                  <Button onClick={connectWallet}>LOG IN</Button>
+                  <Button onClick={handleLogin}>LOG IN</Button>
                 )}
               </Box>
               {loadingPage && (

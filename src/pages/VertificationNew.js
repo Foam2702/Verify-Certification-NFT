@@ -23,8 +23,6 @@ const VertificationNew = () => {
             if (result.length !== 0 || address == adminAddress) {
               navigate("/");
             }
-
-
           }
         } catch (err) {
           console.log(err);

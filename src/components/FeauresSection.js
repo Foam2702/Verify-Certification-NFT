@@ -5,10 +5,12 @@ import Course from "./Course";
 import { Link } from "@mui/material";
 import { useNavigate } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
+import useSigner from "../state/signer";
 
 const FeauresSection = () => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(false)
+  const { signer, address, connectWallet } = useSigner()
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,9 +28,15 @@ const FeauresSection = () => {
     fetchCourses();
   }, []);
   const handleCourseClick = () => {
-
-    navigate("/coursetransfernew")
-
+    setLoading(true); // Start loading
+    setTimeout(() => {
+      if (!address) {
+        navigate("/");
+      } else {
+        navigate("/coursetransfernew");
+      }
+      setLoading(false);
+    }, 1000);
   }
 
   // Duplicate courses to create an infinite loop effect

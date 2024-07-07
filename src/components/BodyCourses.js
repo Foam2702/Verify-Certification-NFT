@@ -32,10 +32,13 @@ const BodyCourses = ({ className = "" }) => {
                 if (Array.isArray(result.data.courses)) {
                     setCourses(result.data.courses);
                 }
+
             } catch (err) {
                 console.log(err);
+
             }
             setLoading(false)
+
         };
         fetchCourses().catch((error) => console.error(error));
     }, []);
@@ -44,7 +47,9 @@ const BodyCourses = ({ className = "" }) => {
             try {
                 const checkPublicKeyExisted = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`);
                 if (checkPublicKeyExisted.data.address.length === 0) {
+                    console.log("BEFORE")
                     const publicKey = await getPublicKey(); // Await the result of getPublicKey
+                    console.log("AFTER")
                     if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
                         console.log('Error retrieving public key:', publicKey);
                         setAlertSeverity("warning");

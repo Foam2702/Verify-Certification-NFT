@@ -21,8 +21,9 @@ import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import CircularProgress from '@mui/material/CircularProgress';
-
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { formatDateV2, minifyAddress, extractPinataCID, extractCID, pinJSONToIPFS, extractEncryptedDataFromJson, decryptData } from "../helpers/index"
+import { Remove } from "@mui/icons-material";
 
 const LisenceView = () => {
   const { signer, address, connectWallet, contract } = useSigner()
@@ -188,11 +189,12 @@ const LisenceView = () => {
             <>
               <div className="body-header-wrapper">
                 <div className="body-header">
-                  <h1 className="body-header-text2">List of Certificates</h1>
+                  {/* <h1 className="body-header-text2">List of Certificates</h1> */}
                 </div>
               </div>
-              <Button variant="outlined" sx={{ my: "20px", fontSize: "0.5em" }} onClick={handleClickOpen}>
-                Click to view
+              <Button variant="contained" sx={{ fontSize: "0.5em" }} onClick={handleClickOpen}>
+                <div sx={{ mx: "5px" }}>View</div>
+                <RemoveRedEyeIcon sx={{ mx: "5px" }}></RemoveRedEyeIcon>
               </Button>
               <Dialog
                 open={open}

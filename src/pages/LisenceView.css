@@ -121,10 +121,10 @@
 
 
 .upload-lisence {
-  flex: 1;
+  /* flex: 1; */
   border-radius: var(--br-xl);
   background-color: var(--color-lightblue);
-  flex-direction: column;
+  flex-direction: row;
   padding: var(--padding-13xl) var(--padding-xl) 46px 35px;
   box-sizing: border-box;
   gap: var(--gap-lgi);

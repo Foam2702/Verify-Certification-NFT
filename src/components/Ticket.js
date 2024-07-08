@@ -21,6 +21,8 @@ import AlertTicket from "./AlertTicket"
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
+import WalletIcon from '@mui/icons-material/Wallet';
 import { hashImage, pinJSONToIPFS, deletePinIPFS, extractEncryptedDataFromJson, decryptData, minifyAddress, imageFileToBase64 } from "../helpers/index"
 
 const JWT = process.env.REACT_APP_JWT; // Make sure to set this in your React app environment variables
@@ -445,15 +447,23 @@ const Ticket = ({ ticket }) => {
                                 <AlertTicket severity={ticket.status} />
                             </>
                         )}
-
+                        {isExam &&
+                            <Alert variant="outlined" severity="info" sx={{ fontSize: "1.5rem", my: "20px" }}>
+                                Certificate of passing exam at VSCourses
+                            </Alert>}
                         <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
                             {ticket.status === 'approved' ? (
-                                <Button variant="outlined" sx={{ my: "20px", fontSize: "0.5em" }} onClick={addNFTToWallet}>Import NFT to MetaMask</Button>
+                                <Button variant="contained" sx={{ my: "20px", mx: "30px", fontSize: "1.5rem" }} onClick={addNFTToWallet}>
+                                    <div sx={{ mx: "5px" }}>MetaMask</div>
+
+                                    < WalletIcon sx={{ mx: "5px" }} />
+                                </Button>
                             ) : (
                                 <></>
                             )}
-                            <Button variant="outlined" sx={{ my: "20px", fontSize: "0.5em" }} onClick={handleClickOpen}>
-                                Click to view
+                            <Button variant="contained" sx={{ my: "20px", mx: "30px", fontSize: "0.5em" }} onClick={handleClickOpen}>
+                                <div sx={{ mx: "5px" }}>View</div>
+                                <RemoveRedEyeIcon sx={{ mx: "5px" }}></RemoveRedEyeIcon>
                             </Button>
                         </Box>
                         <Dialog
@@ -513,10 +523,7 @@ const Ticket = ({ ticket }) => {
                             </DialogActions>
                         </Dialog>
                     </div>
-                    {isExam &&
-                        <Alert variant="outlined" severity="success" sx={{ fontSize: "2rem" }}>
-                            Certificate of passing exam at VSCourses
-                        </Alert>}
+
                     <div className="careers-section-inner">
                         <div className="name-parent">
                             <div className="name">

@@ -284,7 +284,7 @@ const LisenceView = () => {
                         )}
                       </div>
                       <div className="img_certi">
-                        <MultiActionAreaCard image={certificate.image_url} size={650} />
+                        <MultiActionAreaCard image={certificate.image_url} size={500} />
                         <Link className="link-to-transactions" href={certificate.opensea_url} underline="hover" target="_blank">
                           Opensea
                           <ArrowOutwardIcon />

@@ -90,12 +90,8 @@ const BodyCourses = ({ className = "" }) => {
 
                 setLoading(false);
             }, 1000);
-
-
         }
-
     };
-
     const handleClose = () => {
         setOpen(false);
     };
@@ -106,7 +102,6 @@ const BodyCourses = ({ className = "" }) => {
         setShowAlert(false);
         await new Promise(resolve => setTimeout(resolve, 1000));
     };
-
     const handleAgree = async () => {
         try {
             setLoading(true); // Start loading
@@ -148,16 +143,12 @@ const BodyCourses = ({ className = "" }) => {
                     setShowAlert(true);
                     handleClose();
                 }
-
-
             }
         } catch (err) {
             console.log(err)
         }
 
     };
-
-
     return (
         <>
             {loading && (

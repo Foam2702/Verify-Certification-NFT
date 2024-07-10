@@ -1,3 +1,4 @@
+import * as React from 'react';
 import Course from "./Course";
 import "./BodyCourses.css";
 import { useEffect, useState } from 'react'
@@ -13,9 +14,12 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
-
+import { FaSearch } from 'react-icons/fa';
+import "./SearchBar.css"
 const BodyCourses = ({ className = "" }) => {
     const [courses, setCourses] = useState([]);
+    const [filteredCourses, setFilteredCourses] = useState([]);
+
     const [loading, setLoading] = useState(false);
     const { address, connectWallet } = useSigner();
     const [open, setOpen] = useState(false);
@@ -23,33 +27,31 @@ const BodyCourses = ({ className = "" }) => {
     const [alertSeverity, setAlertSeverity] = useState("");
     const [showAlert, setShowAlert] = useState(false);
     const [messageAlert, setMessageAlert] = useState("")
+    const [input, setInput] = useState("")
     const navigate = useNavigate();
     useEffect(() => {
-        const fetchCourses = async () => {
-            setLoading(true)
-            try {
-                const result = await axios.get(`https://verify-certification-nft-production.up.railway.app/courses`);
-                if (Array.isArray(result.data.courses)) {
-                    setCourses(result.data.courses);
-                }
-
-            } catch (err) {
-                console.log(err);
-
-            }
-            setLoading(false)
-
-        };
         fetchCourses().catch((error) => console.error(error));
+
     }, []);
+    const fetchCourses = async () => {
+        setLoading(true)
+        try {
+            const result = await axios.get(`https://verify-certification-nft-production.up.railway.app/courses`);
+            if (Array.isArray(result.data.courses)) {
+                setCourses(result.data.courses);
+                setFilteredCourses(result.data.courses);
+            }
+        } catch (err) {
+            console.log(err);
+        }
+        setLoading(false)
+    };
     const checkInfoExist = async () => {
         if (address) {
             try {
                 const checkPublicKeyExisted = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`);
                 if (checkPublicKeyExisted.data.address.length === 0) {
-                    console.log("BEFORE")
                     const publicKey = await getPublicKey(); // Await the result of getPublicKey
-                    console.log("AFTER")
                     if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
                         console.log('Error retrieving public key:', publicKey);
                         setAlertSeverity("warning");
@@ -149,6 +151,14 @@ const BodyCourses = ({ className = "" }) => {
         }
 
     };
+    const handleChange = (value) => {
+        setInput(value);
+        const filterCourses = courses.filter((course) =>
+            course.name.toLowerCase().includes(value.toLowerCase())
+        );
+        setFilteredCourses(filterCourses);
+    };
+
     return (
         <>
             {loading && (
@@ -181,12 +191,20 @@ const BodyCourses = ({ className = "" }) => {
                     </Button>
                 </DialogActions>
             </Dialog>
-            <section className={`body-section2 ${className}`}>
-                <div className="body-header3">
-                    <h1 className="body-header-text5">List of Exam</h1>
+            <div className="search-bar-container">
+                <div className="input-wrapper">
+                    <FaSearch id="search-icon" />
+                    <input placeholder="Type to search..." value={input} onChange={(e) => handleChange(e.target.value)} />
                 </div>
+            </div>
+            <section className={`body-section2 ${className}`}>
+                {/* <div className="body-header3">
+                    <h1 className="body-header-text5">List of Exam</h1>
+                    
+                </div> */}
+
                 <div className="careers-section1">
-                    {courses.map((course) => (
+                    {filteredCourses.map((course) => (
                         <button onClick={() => handleClickOpen(course)} key={course.id}>
                             <Course
                                 course1Image={course.image}

@@ -59,6 +59,12 @@ module.exports = {
         }
 
     },
+    getCourseName: async (name) => {
+        const result = await sql`
+            SELECT * FROM course WHERE name=${name}
+        `
+        return result;
+    }
 
 
 }

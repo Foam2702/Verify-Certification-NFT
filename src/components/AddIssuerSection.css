@@ -50,7 +50,7 @@
     background-color: var(--color-aliceblue-200);
     flex-direction: column;
     justify-content: flex-start;
-    padding: var(--padding-21xl) var(--padding-xl);
+    /* padding: var(--padding-21xl) var(--padding-xl); */
     box-sizing: border-box;
     text-align: left;
     font-size: var(--font-size-45xl);

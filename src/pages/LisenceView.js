@@ -24,18 +24,22 @@ import CircularProgress from '@mui/material/CircularProgress';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { formatDateV2, minifyAddress, extractPinataCID, extractCID, pinJSONToIPFS, extractEncryptedDataFromJson, decryptData } from "../helpers/index"
 import { Remove } from "@mui/icons-material";
+import { FaSearch } from 'react-icons/fa';
 
 const LisenceView = () => {
   const { signer, address, connectWallet, contract } = useSigner()
   const [certificates, setCertificates] = useState([]);
+  const [filteredCertificates, setFilteredCertificates] = useState([]);
   const [open, setOpen] = useState(false);
   const [privateKey, setPrivateKey] = useState("");
   const [decryptedCertificates, setDecryptedCertificates] = useState([]);
+  const [filterDecryptedCertificates, setFilterDecryptedCertificates] = useState([])
   const [showAlert, setShowAlert] = useState(false);
   const [messageAlert, setMessageAlert] = useState("");
   const [alertSeverity, setAlertSeverity] = useState("");
   const [loading, setLoading] = useState(false);
   const [isPrivateKeyValid, setIsPrivateKeyValid] = useState(false);
+  const [input, setInput] = useState("")
   const [expandedCertificateIndex, setExpandedCertificateIndex] = useState(null); // Track which certificate is expanded
   const options = { method: 'GET', headers: { accept: 'application/json' } };
   const attributeLabels = {
@@ -115,7 +119,9 @@ const LisenceView = () => {
         setLoading(true)
         try {
           const { data } = await axios(`https://testnets-api.opensea.io/api/v2/chain/sepolia/account/${address}/nfts`, options);
+          console.log(data.nfts)
           setCertificates(data.nfts);
+          setFilteredCertificates(data.nfts)
         } catch (err) {
           console.error(err);
         }
@@ -136,7 +142,6 @@ const LisenceView = () => {
           const nfts = await axios(`https://coral-able-takin-320.mypinata.cloud/ipfs/${extractCID(certificate.metadata_url)}`)
           const name = nfts.data.name
           const opensea_url = certificate.opensea_url
-          console.log("OPENSEA", opensea_url)
           const image = await handleDecryptImage(extractPinataCID(nfts.data.image), privateKey);
           const decryptedAttributes = await Promise.all(nfts.data.attributes.map(async (attribute) => {
             if (attribute.value.startsWith('"') && attribute.value.endsWith('"')) {
@@ -153,8 +158,8 @@ const LisenceView = () => {
             attributes: decryptedAttributes,
           });
         }
-
         setDecryptedCertificates(newDecryptedCertificates);
+        setFilterDecryptedCertificates(newDecryptedCertificates)
         setIsPrivateKeyValid(true);
 
 
@@ -169,7 +174,18 @@ const LisenceView = () => {
 
     if (privateKey && certificates.length > 0) decryptAllFields();
   }, [privateKey, certificates]);
-
+  const handleChange = (value) => {
+    setInput(value);
+    const filterCertificates = certificates.filter((cer) =>
+      cer.description.toLowerCase().includes(value.toLowerCase())
+    );
+    const filterDecryptedCertificates = decryptedCertificates.filter((dec_cer) =>
+      dec_cer.description.toLowerCase().includes(value.toLowerCase())
+    )
+    setFilteredCertificates(filterCertificates);
+    setFilterDecryptedCertificates(filterDecryptedCertificates)
+    console.log(filterDecryptedCertificates)
+  };
   return (
     <div>
       {loading && (
@@ -177,12 +193,21 @@ const LisenceView = () => {
           <CircularProgress />
         </div>
       )}
+      <div className="header-section">
+        <HeaderSection />
+      </div>
+      <LisenceSection />
+
+      <div className="search-bar-container">
+        <div className="input-wrapper">
+          <FaSearch id="search-icon" />
+          <input placeholder="Type to search..." value={input} onChange={(e) => handleChange(e.target.value)} />
+        </div>
+      </div>
       <div className="lisenceview">
         <section className="header-section-parent">
-          <div className="header-section">
-            <HeaderSection />
-          </div>
-          <LisenceSection />
+
+
           {certificates.length === 0 ? (
             <div>No Certificate Yet</div>
           ) : (
@@ -245,7 +270,7 @@ const LisenceView = () => {
                 </DialogActions>
               </Dialog>
               <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', flexDirection: "column" }}>
-                {(isPrivateKeyValid ? decryptedCertificates : certificates).map((certificate, index) => (
+                {(isPrivateKeyValid ? filterDecryptedCertificates : filteredCertificates).map((certificate, index) => (
                   <div key={index} className="upload-wrapper-lisence" style={{ marginBottom: "50px" }}>
                     <div className="upload-lisence">
                       <div className="info_certi">

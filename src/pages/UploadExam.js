@@ -261,7 +261,12 @@ const UploadExam = () => {
                 setAlertSeverity("success");
                 setShowAlert(true);
                 setLoading(false);
-                navigate("/")
+            }
+            else if (result.data.message = "Exam name already exist") {
+                setMessageAlert("Exam name already exist");
+                setAlertSeverity("warning");
+                setShowAlert(true);
+                setLoading(false);
             }
             else {
                 setMessageAlert("Error creating exam");

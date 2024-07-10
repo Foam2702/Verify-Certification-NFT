@@ -51,7 +51,7 @@ module.exports = {
         else if (checkCourseNameExist.length != 0) {
             res.json({
                 code: 400,
-                message: 'Course name already exist'
+                message: 'Exam name already exist'
             })
         }
         else {

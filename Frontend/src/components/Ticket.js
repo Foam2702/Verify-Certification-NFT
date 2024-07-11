@@ -23,7 +23,7 @@ import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import WalletIcon from '@mui/icons-material/Wallet';
-import { hashImage, pinJSONToIPFS, deletePinIPFS, extractEncryptedDataFromJson, decryptData, minifyAddress, imageFileToBase64 } from "../helpers/index"
+import { hashImage, pinJSONToIPFS, deletePinIPFS, remove0x, extractEncryptedDataFromJson, decryptData, minifyAddress, imageFileToBase64 } from "../helpers/index"
 
 const JWT = process.env.REACT_APP_JWT; // Make sure to set this in your React app environment variables
 
@@ -315,8 +315,15 @@ const Ticket = ({ ticket }) => {
     const handleDecryptTicket = async (prop, privateKey) => {
         if (prop != null && prop != '' && prop != undefined) {
             try {
-                const result = await decryptData(JSON.parse(prop), privateKey);
-                console.log(JSON.parse(prop), result)
+                const ownerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${ticket.owner_address}`)
+                if (ownerPublicKeysResponse.data.address.length === 0) {
+                    return;
+                }
+                const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
+                const parseProp = extractEncryptedDataFromJson(prop)
+
+                const result = await decryptData(parseProp.cipher, parseProp.iv, remove0x(publicKeyOwner), privateKey);
+
                 if (result === "") {
 
                     setError("Wrong private key"); // Set the error state
@@ -361,7 +368,13 @@ const Ticket = ({ ticket }) => {
 
             );
             const image = res.data.image
-            const decryptedData = await decryptData(image, privateKey);
+            const ownerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${ticket.owner_address}`)
+            if (ownerPublicKeysResponse.data.address.length === 0) {
+                return;
+            }
+            const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
+            const parseImg = extractEncryptedDataFromJson(JSON.stringify(image))
+            const decryptedData = await decryptData(parseImg.cipher, parseImg.iv, remove0x(publicKeyOwner), privateKey);
             return decryptedData
         }
         catch (err) {

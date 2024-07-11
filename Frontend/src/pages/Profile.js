@@ -14,7 +14,8 @@ import { Box, Typography, useTheme } from "@mui/material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import useSigner from "../state/signer";
-import { hashImage, encryptData, pinJSONToIPFS, deletePinIPFS, extractEncryptedDataFromJson, decryptData, minifyAddress, imageFileToBase64, remove0x } from "../helpers/index"
+import { hashImage, encryptData, pinJSONToIPFS, add0x, deletePinIPFS, extractEncryptedDataFromJson, decryptData, minifyAddress, imageFileToBase64, remove0x } from "../helpers/index"
+const { ethers } = require("ethers");
 
 export const Profile = () => {
     const [loading, setLoading] = useState(false);
@@ -25,7 +26,6 @@ export const Profile = () => {
     const [user, setUser] = useState(null)
     const [error, setError] = useState(null);
     const [isPrivateKeyValid, setIsPrivateKeyValid] = useState(false);
-
     const [open, setOpen] = useState(false);
     const [privateKey, setPrivateKey] = useState("")
     const [decryptedName, setDecryptedName] = useState('');
@@ -38,7 +38,9 @@ export const Profile = () => {
     const { signer, address, connectWallet, contract, provider, getPublicKey } = useSigner();
 
     const navigate = useNavigate();
-    const handleClickOpen = () => {
+    const handleClickOpen = (e) => {
+        e.preventDefault()
+        console.log("HELLO")
         setOpen(true);
     };
     const onCancelBtnClick = async () => {
@@ -76,12 +78,11 @@ export const Profile = () => {
             await connectWallet()
         }
     };
-    const handleUpdateInfo = async (event) => {
-        event.preventDefault();
-        const check = await insertPubToDB()
+    const handleUpdateInfo = async (check) => {
+        setLoading(true); // Start loading before sending the request
+
         if (check) {
             const form = document.querySelector("form");
-            setLoading(true); // Start loading before sending the request
             // Get the form data
             const data = Array.from(form.elements)
                 .filter((input) => input.name)
@@ -89,6 +90,7 @@ export const Profile = () => {
                     (obj, input) => Object.assign(obj, { [input.name]: input.value }),
                     {}
                 );
+            console.log(data)
             const fields = [
                 'citizenId', 'name', 'region', 'dob', 'gender', 'email',
                 'workUnit'
@@ -124,13 +126,13 @@ export const Profile = () => {
             const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
 
             const response = await axios.patch(`https://verify-certification-nft-production.up.railway.app/addresses/profile/${address}`, {
-                citizenId: await encryptData(data.citizenId, remove0x(publicKeyOwner)),
-                name: await encryptData(data.name, remove0x(publicKeyOwner)),
-                region: await encryptData(data.region, remove0x(publicKeyOwner)),
-                dob: await encryptData(data.dob, remove0x(publicKeyOwner)),
-                gender: await encryptData(data.gender, remove0x(publicKeyOwner)),
-                email: await encryptData(data.email, remove0x(publicKeyOwner)),
-                workUnit: await encryptData(data.workUnit, remove0x(publicKeyOwner))
+                citizenId: await encryptData(data.citizenId, privateKey, remove0x(publicKeyOwner)),
+                name: await encryptData(data.name, privateKey, remove0x(publicKeyOwner)),
+                region: await encryptData(data.region, privateKey, remove0x(publicKeyOwner)),
+                dob: await encryptData(data.dob, privateKey, remove0x(publicKeyOwner)),
+                gender: await encryptData(data.gender, privateKey, remove0x(publicKeyOwner)),
+                email: await encryptData(data.email, privateKey, remove0x(publicKeyOwner)),
+                workUnit: await encryptData(data.workUnit, privateKey, remove0x(publicKeyOwner))
 
             });
             if (response.data.message == "Updated successfully") {
@@ -168,12 +170,19 @@ export const Profile = () => {
         const formData = new FormData(event.currentTarget);
         const formJson = Object.fromEntries(formData.entries());
         const privatekey = formJson.privatekey;
+        console.log(privatekey)
         setPrivateKey(privatekey)
     }
     const handleDecryptInfo = async (prop, privateKey) => {
         if (prop != null && prop != '' && prop != undefined) {
             try {
-                const result = await decryptData(JSON.parse(prop), privateKey);
+                const ownerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`)
+                if (ownerPublicKeysResponse.data.address.length === 0) {
+                    return;
+                }
+                const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
+                const parseProp = extractEncryptedDataFromJson(prop)
+                const result = await decryptData(parseProp.cipher, parseProp.iv, remove0x(publicKeyOwner), privateKey);
                 if (result === "") {
                     setError("Wrong private key"); // Set the error state
                     setLoading(true);
@@ -217,7 +226,49 @@ export const Profile = () => {
             return " ";
         }
     };
+    useEffect(() => {
+        const checkCorrectPriv = async () => {
+            setLoading(true)
+            try {
+                const check = await insertPubToDB()
+                if (check) {
 
+                    const privateKeyBytes = ethers.utils.arrayify(add0x(privateKey));
+                    const publicKeyFromPrivateKey = ethers.utils.computePublicKey(privateKeyBytes);
+                    const ownerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`)
+
+                    if (ownerPublicKeysResponse.data.address.length === 0) {
+                        setLoading(false)
+                        return;
+                    }
+                    const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
+                    if (publicKeyFromPrivateKey == publicKeyOwner) {
+                        handleUpdateInfo(check)
+                        setError(null); // Clear any previous errors
+                        setLoading(false)
+                    }
+                    else {
+                        setLoading(false)
+                        setAlertSeverity("error");
+                        setMessageAlert("Wrong private key");
+                        setShowAlert(true);
+                    }
+                }
+                else {
+                    setLoading(false)
+                    return
+                }
+
+            } catch (err) {
+                setLoading(false)
+                setAlertSeverity("error");
+                setMessageAlert("Wrong private key");
+                setShowAlert(true);
+                console.log(err)
+            }
+        }
+        if (privateKey) checkCorrectPriv()
+    }, [privateKey])
     useEffect(() => {
         const fetchDataRegions = async () => {
             try {
@@ -239,9 +290,13 @@ export const Profile = () => {
     useEffect(() => {
         const fetchUserInfo = async () => {
             try {
-                const response = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`);
-                const data = response.data.address[0];
-                setUser(data)
+                if (address) {
+                    console.log(address)
+                    const response = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`);
+                    const data = response.data.address[0];
+                    setUser(data)
+                }
+
 
             } catch (err) {
                 console.log(err)
@@ -358,7 +413,7 @@ export const Profile = () => {
                                 <Button onClick={handleCloseDialog}>Cancel</Button>
                             </DialogActions>
                         </Dialog>
-                        <form className="careers-section" encType="multipart/form-data" onSubmit={handleUpdateInfo}>
+                        <form className="careers-section" encType="multipart/form-data" >
                             <div className="careers-section-inner">
                                 <div className="name-parent">
                                     <div className="name">
@@ -487,96 +542,155 @@ export const Profile = () => {
                         </form>
                     </div>
                     :
-                    <form className="careers-section" encType="multipart/form-data" onSubmit={handleUpdateInfo}>
-                        <div className="careers-section-inner">
-                            <div className="name-parent">
-                                <div className="name">
-                                    <h3 className="name1">Name *</h3>
-                                    <input
-                                        className="input-name"
-                                        name="name"
-                                        placeholder="Type here..."
-                                        type="text"
+                    <div>
+                        <Dialog
+                            open={open}
+                            onClose={handleCloseDialog}
+                            PaperProps={{
+                                component: 'form',
+                                onSubmit: handleSubmitPrivateKey
 
-                                    />
-                                </div>
-                                <div className="gender">
-                                    <h3 className="gender1">Gender *</h3>
+                            }}
 
-                                    <select className="input-gender" name="gender">
-                                        <option value="">Select gender ...</option>
-                                        <option value="Male">Male</option>
-                                        <option value="Female">Female</option>
-                                    </select>
+                            maxWidth="md"
+                            sx={{
+                                '& .MuiDialogContent-root': { fontSize: '1.25rem' },
+                                '& .MuiTextField-root': { fontSize: '1.25rem' },
+                                '& .MuiButton-root': { fontSize: '1.25rem' },
+                            }}
+                        >
+                            <DialogTitle sx={{ fontSize: '1.5rem' }}>Private Key</DialogTitle>
+                            <DialogContent>
+                                <DialogContentText sx={{ fontSize: '1.5rem' }}>
+                                    Please enter private key from your MetaMask
+                                </DialogContentText>
+                                <div className="private-key-image-container">
+                                    <img loading="lazy" className="private-key-image" src="/MetaMask_find_account_details_extension-6df8f1e43a432c53fdaa0353753b1ca8.gif" alt="MetaMask find account details extension"></img>
+                                    <img loading="lazy" className="private-key-image" src="/MetaMask_find_export_account_private_key_extension_1-e67f48ba55b839654514e39e186400fb.gif" alt="MetaMask find account details extension"></img>
+
+                                    <img loading="lazy" className="private-key-image" src="/MetaMask_find_export_account_private_key_extension_2-6c913141ad005ec35a3248944b1a25dd.gif" alt="MetaMask find account details extension"></img>
 
                                 </div>
-                                <div className="email">
-                                    <h3 className="email1">Email *</h3>
-                                    <input
-                                        className="input-email"
-                                        name="email"
-                                        placeholder="abc@abc.com"
-                                        type="email"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                        <div className="careers-section-child">
-                            <div className="cccd-parent">
-                                <div className="cccd">
-                                    <h3 className="cccd1">Citizen ID *</h3>
-                                    <input
-                                        className="input-cccd"
-                                        name="citizenId"
-                                        placeholder="Type here..."
-                                        type="text"
-                                    />
-                                </div>
-                                <div className="date-of-birth">
-                                    <h3 className="date-of-birth1">Date of birth *</h3>
-                                    <input
-                                        className="input-date-of-birth"
-                                        name="dob"
-                                        placeholder="Choose..."
-                                        type="date"
-                                    />
-                                </div>
-                                <div className="home-town">
-                                    <h3 className="home-town-text">Region *</h3>
+                                <TextField
+                                    autoFocus
+                                    required
+                                    margin="normal"
 
-                                    <select className="input-home-town" name="region">
-                                        <option value="">Select region ...</option>
-                                        {regions.map((region) => (
-                                            <option key={region._id} value={region.name}>
-                                                {region.name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="working-unit-parent">
-                            <div className="working-unit">
-                                <h3 className="working-unit-text">Work unit *</h3>
-                                <input
-                                    className="input-working-unit"
-                                    name="workUnit"
-                                    placeholder="Type here..."
-                                    type="text"
+                                    name="privatekey"
+                                    label="Private Key"
+                                    type="privatekey"
+                                    fullWidth
+                                    variant="outlined"
+                                    sx={{
+                                        '& .MuiInputBase-input': {
+                                            fontSize: '1.25rem', // Increase font size
+                                        },
+                                        '& .MuiInputLabel-root': {
+                                            fontSize: '1.25rem', // Increase label font size
+                                        },
+
+                                    }}
                                 />
+
+                            </DialogContent>
+                            <DialogActions>
+                                <Button onClick={handleCloseDialog} type="submit">Decrypt</Button>
+
+                                <Button onClick={handleCloseDialog}>Cancel</Button>
+                            </DialogActions>
+                        </Dialog>
+                        <form className="careers-section" encType="multipart/form-data" onSubmit={handleUpdateInfo}>
+                            <div className="careers-section-inner">
+                                <div className="name-parent">
+                                    <div className="name">
+                                        <h3 className="name1">Name *</h3>
+                                        <input
+                                            className="input-name"
+                                            name="name"
+                                            placeholder="Type here..."
+                                            type="text"
+
+                                        />
+                                    </div>
+                                    <div className="gender">
+                                        <h3 className="gender1">Gender *</h3>
+
+                                        <select className="input-gender" name="gender">
+                                            <option value="">Select gender ...</option>
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
+                                        </select>
+
+                                    </div>
+                                    <div className="email">
+                                        <h3 className="email1">Email *</h3>
+                                        <input
+                                            className="input-email"
+                                            name="email"
+                                            placeholder="abc@abc.com"
+                                            type="email"
+                                        />
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div className="body-button">
-                            <button className="submit-button" type="submit">
-                                <div className="submit">Update</div>
-                            </button>
-                            <button className="cancel-button" type="button" onClick={onCancelBtnClick}>
-                                <div className="cancel">Cancel</div>
-                            </button>
-                        </div>
+                            <div className="careers-section-child">
+                                <div className="cccd-parent">
+                                    <div className="cccd">
+                                        <h3 className="cccd1">Citizen ID *</h3>
+                                        <input
+                                            className="input-cccd"
+                                            name="citizenId"
+                                            placeholder="Type here..."
+                                            type="text"
+                                        />
+                                    </div>
+                                    <div className="date-of-birth">
+                                        <h3 className="date-of-birth1">Date of birth *</h3>
+                                        <input
+                                            className="input-date-of-birth"
+                                            name="dob"
+                                            placeholder="Choose..."
+                                            type="date"
+                                        />
+                                    </div>
+                                    <div className="home-town">
+                                        <h3 className="home-town-text">Region *</h3>
+
+                                        <select className="input-home-town" name="region">
+                                            <option value="">Select region ...</option>
+                                            {regions.map((region) => (
+                                                <option key={region._id} value={region.name}>
+                                                    {region.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="working-unit-parent">
+                                <div className="working-unit">
+                                    <h3 className="working-unit-text">Work unit *</h3>
+                                    <input
+                                        className="input-working-unit"
+                                        name="workUnit"
+                                        placeholder="Type here..."
+                                        type="text"
+                                    />
+                                </div>
+                            </div>
+                            <div className="body-button">
+                                <button className="submit-button" type="submit" onClick={handleClickOpen}>
+                                    <div className="submit">Update</div>
+                                </button>
+                                <button className="cancel-button" type="button" onClick={onCancelBtnClick}>
+                                    <div className="cancel">Cancel</div>
+                                </button>
+                            </div>
 
 
-                    </form>
+                        </form>
+                    </div>
+
                 }
                 <Snackbar open={showAlert} autoHideDuration={10000} onClose={handleClose}>
                     <Alert

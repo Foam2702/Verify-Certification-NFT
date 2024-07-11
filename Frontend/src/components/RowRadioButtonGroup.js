@@ -208,6 +208,7 @@ export default function RowRadioButtonsGroup({ course, exam }) {
 
         try {
             const result = await decryptData(JSON.parse(prop), privateKey);
+
             if (!result) {
                 handleDecryptionError("Wrong private key");
                 return null;

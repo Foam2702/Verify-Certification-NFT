@@ -5,14 +5,24 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import { useNavigate } from "react-router-dom";
-import { hashImage, isExistsInPinata, encryptData, decryptData, remove0x, imageUpload, fetchImagePinata, addFileToIPFS, imageFileToBase64, base64ToImageFile } from "../helpers";
+import { hashImage, isExistsInPinata, encryptData, add0x, decryptData, remove0x, imageUpload, fetchImagePinata, addFileToIPFS, imageFileToBase64, base64ToImageFile } from "../helpers";
 import { v4 as uuidv4 } from 'uuid'
 import MultiActionAreaCard from "./MultiACtionAreaCard";
-
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import TextField from '@mui/material/TextField';
 import "./BodySection.css";
-import { Margin } from "@mui/icons-material";
+import { ContactPageSharp, Margin } from "@mui/icons-material";
+import Button from '@mui/material/Button';
+const { ethers } = require("ethers");
+
 
 const BodySection = () => {
+  const [open, setOpen] = useState(false);
+  const [privateKey, setPrivateKey] = useState("");
   const [errors, setErrors] = useState({});
   const [regions, setRegions] = useState([]);
   const [courses, setCourses] = useState([]);
@@ -25,7 +35,7 @@ const BodySection = () => {
   const [countdown, setCountdown] = useState(3)
   const [alertSeverity, setAlertSeverity] = useState("");
   const [imageUrl, setImageUrl] = useState('');
-
+  const [error, setError] = useState(null)
   const navigate = useNavigate();
   useEffect(() => {
     const fetchDataRegions = async () => {
@@ -60,7 +70,50 @@ const BodySection = () => {
     };
     fetchDataCourses().catch((error) => console.error(error));
   }, []);
+  useEffect(() => {
+    const checkCorrectPriv = async () => {
+      setLoading(true)
+      try {
+        const check = await insertPubToDB()
+        if (check) {
+          const privateKeyBytes = ethers.utils.arrayify(add0x(privateKey));
+          const publicKeyFromPrivateKey = ethers.utils.computePublicKey(privateKeyBytes);
+          const ownerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`)
+          console.log(publicKeyFromPrivateKey)
+          console.log(ownerPublicKeysResponse.data.address[0].publickey)
+          if (ownerPublicKeysResponse.data.address.length === 0) {
+            setLoading(false)
+            return;
+          }
+          const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
+          if (publicKeyFromPrivateKey == publicKeyOwner) {
+            handleSubmit(check)
+            setError(null); // Clear any previous errors
+            setLoading(false)
+          }
+          else {
+            setLoading(false)
+            setAlertSeverity("error");
+            setMessageAlert("Wrong private key");
+            setShowAlert(true);
+          }
+        }
+        else {
+          setLoading(false)
+          return
+        }
 
+      } catch (err) {
+        setLoading(false)
+
+        setAlertSeverity("error");
+        setMessageAlert("Wrong private key");
+        setShowAlert(true);
+        console.log(err)
+      }
+    }
+    if (privateKey) checkCorrectPriv()
+  }, [privateKey])
   const onfileChange = async (event) => {
     setFile(event.target.files);
     if (event.target.files.length > 0) {
@@ -109,10 +162,8 @@ const BodySection = () => {
       }
     }
   };
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setLoading(true);
-    const check = await insertPubToDB()
+  const handleSubmit = async (check) => {
+    setLoading(true)
     if (check) {
       const form = document.querySelector("form");
       let image_res = ''
@@ -169,7 +220,7 @@ const BodySection = () => {
             setShowAlert(true);
             return
           }
-          const imageEncrypt = await encryptData(base64ImageString, remove0x(publicKeyOwner));
+          const imageEncrypt = await encryptData(base64ImageString, privateKey, remove0x(publicKeyOwner));
           image_res = await imageUpload(imageEncrypt, hashImg, address, data["certificateName"])
           const issuers = await checkIssuer(data.licensingAuthority);
           const fieldsToEncrypt = [
@@ -184,11 +235,8 @@ const BodySection = () => {
           }
           else {
             const id = uuidv4();
-
-
             for (const field of fieldsToEncrypt) {
-              const encryptedData = data[field] ? await encryptData(data[field], remove0x(publicKeyOwner)) : null;
-
+              const encryptedData = data[field] ? await encryptData(data[field], privateKey, remove0x(publicKeyOwner)) : null;
               formData.append(field, JSON.stringify(encryptedData));
             }
 
@@ -221,10 +269,10 @@ const BodySection = () => {
                 formData.append("imageCertificate", file[i]);
               }
               const base64ImageString = await imageFileToBase64(formData.get("imageCertificate"));
-              const imageEncrypt = await encryptData(base64ImageString, remove0x(issuerPublicKeysResponse.data.address[0].publickey));
+              const imageEncrypt = await encryptData(base64ImageString, privateKey, remove0x(issuerPublicKeysResponse.data.address[0].publickey));
               const publicKeyIssuer = issuerPublicKeysResponse.data.address[0].publickey
               for (const field of fieldsToEncrypt) {
-                const encryptedData = data[field] ? await encryptData(data[field], remove0x(publicKeyIssuer)) : null;
+                const encryptedData = data[field] ? await encryptData(data[field], privateKey, remove0x(publicKeyIssuer)) : null;
                 formData.append(field, JSON.stringify(encryptedData));
               }
               image_res = await imageUpload(imageEncrypt, hashImg, address, data["certificateName"])
@@ -296,7 +344,18 @@ const BodySection = () => {
 
     return day + "/" + month + "/" + year;
   }
+  const handleClickOpen = (e) => {
+    e.preventDefault()
+    setOpen(true)
+  };
 
+  const handleCloseDialog = () => setOpen(false);
+  const handleSubmitPrivateKey = (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    setPrivateKey(formData.get('privatekey'));
+
+  }
   return (
     <>
       {loading && (
@@ -304,7 +363,54 @@ const BodySection = () => {
           <CircularProgress />
         </div>
       )}
+      <Dialog
+        open={open}
+        onClose={handleCloseDialog}
+        PaperProps={{
+          component: 'form',
+          onSubmit: handleSubmitPrivateKey
+        }}
+        maxWidth="md"
+        sx={{
+          '& .MuiDialogContent-root': { fontSize: '1.25rem' },
+          '& .MuiTextField-root': { fontSize: '1.25rem' },
+          '& .MuiButton-root': { fontSize: '1.25rem' },
+        }}
+      >
+        <DialogTitle sx={{ fontSize: '1.5rem' }}>Private Key</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ fontSize: '1.5rem' }}>
+            Please enter private key from your MetaMask
+          </DialogContentText>
+          <div className="private-key-image-container">
+            <img loading="lazy" className="private-key-image" src="/MetaMask_find_account_details_extension-6df8f1e43a432c53fdaa0353753b1ca8.gif" alt="MetaMask find account details extension"></img>
+            <img loading="lazy" className="private-key-image" src="/MetaMask_find_export_account_private_key_extension_1-e67f48ba55b839654514e39e186400fb.gif" alt="MetaMask find account details extension"></img>
 
+            <img loading="lazy" className="private-key-image" src="/MetaMask_find_export_account_private_key_extension_2-6c913141ad005ec35a3248944b1a25dd.gif" alt="MetaMask find account details extension"></img>
+
+          </div>
+
+
+          <TextField
+            autoFocus
+            required
+            margin="normal"
+            name="privatekey"
+            label="Private Key"
+            type="privatekey"
+            fullWidth
+            variant="outlined"
+            sx={{
+              '& .MuiInputBase-input': { fontSize: '1.25rem' },
+              '& .MuiInputLabel-root': { fontSize: '1.25rem' },
+            }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog} type="submit">Decrypt</Button>
+          <Button onClick={handleCloseDialog}>Cancel</Button>
+        </DialogActions>
+      </Dialog>
       <section className="body-section1">
         <div className="body-header">
           <h1 className="body-header-text2">Fill in your certificate information</h1>
@@ -462,7 +568,7 @@ const BodySection = () => {
             </div>
           </div>
           <div className="body-button">
-            <button className="submit-button" onClick={handleSubmit}>
+            <button className="submit-button" onClick={handleClickOpen}>
               <div className="submit">Submit</div>
             </button>
             <button className="cancel-button" onClick={onCancelBtnClick}>

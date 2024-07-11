@@ -22,7 +22,7 @@ import TextField from '@mui/material/TextField';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import CircularProgress from '@mui/material/CircularProgress';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-import { formatDateV2, minifyAddress, extractPinataCID, extractCID, pinJSONToIPFS, extractEncryptedDataFromJson, decryptData } from "../helpers/index"
+import { formatDateV2, minifyAddress, extractPinataCID, extractCID, remove0x, pinJSONToIPFS, extractEncryptedDataFromJson, decryptData } from "../helpers/index"
 import { Remove } from "@mui/icons-material";
 import { FaSearch } from 'react-icons/fa';
 
@@ -71,10 +71,17 @@ const LisenceView = () => {
 
   }
 
-  const handleDecryptTicket = async (prop, privateKey) => {
+  const handleDecryptTicket = async (prop, privateKey, publicKeyOwner) => {
+
+
+    const parseProp = extractEncryptedDataFromJson(prop)
     if (prop != null && prop != '' && prop != undefined) {
       try {
-        const result = await decryptData(prop.replace(/"/g, ''), privateKey);
+        console.log(parseProp.cipher)
+        console.log(parseProp.iv)
+        console.log(publicKeyOwner)
+        console.log(privateKey)
+        const result = await decryptData(parseProp.cipher, parseProp.iv, remove0x(publicKeyOwner), privateKey);
         if (!result) throw new Error("Wrong private key");
         return result;
       } catch (error) {
@@ -87,11 +94,13 @@ const LisenceView = () => {
     }
   };
 
-  const handleDecryptImage = async (cid, privateKey) => {
+  const handleDecryptImage = async (cid, privateKey, publicKeyOwner) => {
 
     try {
       const { data } = await axios(`https://coral-able-takin-320.mypinata.cloud/ipfs/${cid}`);
-      const decryptedData = await decryptData(data.image, privateKey);
+
+      const parseImg = extractEncryptedDataFromJson(JSON.stringify(data.image))
+      const decryptedData = await decryptData(parseImg.cipher, parseImg.iv, remove0x(publicKeyOwner), privateKey);
       if (!decryptedData) throw new Error("Wrong private key");
       return decryptedData;
     } catch (error) {
@@ -137,16 +146,25 @@ const LisenceView = () => {
 
       try {
         const newDecryptedCertificates = [];
+        const ownerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`)
+        if (ownerPublicKeysResponse.data.address.length === 0) {
+          return;
+        }
+        const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
 
         for (const certificate of certificates) {
           const nfts = await axios(`https://coral-able-takin-320.mypinata.cloud/ipfs/${extractCID(certificate.metadata_url)}`)
           const name = nfts.data.name
           const opensea_url = certificate.opensea_url
-          const image = await handleDecryptImage(extractPinataCID(nfts.data.image), privateKey);
+          const image = await handleDecryptImage(extractPinataCID(nfts.data.image), privateKey, publicKeyOwner);
           const decryptedAttributes = await Promise.all(nfts.data.attributes.map(async (attribute) => {
-            if (attribute.value.startsWith('"') && attribute.value.endsWith('"')) {
-              attribute.value = await handleDecryptTicket(attribute.value, privateKey);
-            }
+            console.log(attribute.value)
+            // if (attribute.value.startsWith('"') && attribute.value.endsWith('"')) {
+
+            //   attribute.value = await handleDecryptTicket(attribute.value, privateKey, publicKeyOwner);
+            // }
+            attribute.value = await handleDecryptTicket(attribute.value, privateKey, publicKeyOwner);
+
             return attribute;
           }));
           newDecryptedCertificates.push({

@@ -83,22 +83,27 @@ export function replaceBaseUrl(ipfsLink, newBaseUrl) {
     const ipfsHash = ipfsLink.split('/').pop();
     return `${newBaseUrl}/ipfs/${ipfsHash}`;
 }
-export async function encryptData(data, publicKeyHex) {
-    const publicKey = ec.keyFromPublic(publicKeyHex, 'hex');
-    const ephPrivateKey = ec.genKeyPair(); // Ephemeral private key
-    const ephPublicKeyHex = ephPrivateKey.getPublic('hex');
-    const sharedKey = ephPrivateKey.derive(publicKey.getPublic()).toString(16); // Derive shared key
+
+export async function encryptData(data, senderPrivateKeyHex, receiverPublicKeyHex) {
+    const senderPrivateKey = ec.keyFromPrivate(senderPrivateKeyHex, 'hex');
+    const receiverPublicKey = ec.keyFromPublic(receiverPublicKeyHex, 'hex');
+
+    const sharedKey = senderPrivateKey.derive(receiverPublicKey.getPublic()).toString(16); // Derive shared key
     const key = CryptoJS.SHA256(sharedKey).toString(CryptoJS.enc.Hex);
+
     const iv = CryptoJS.lib.WordArray.random(16); // Random IV
     const cipher = CryptoJS.AES.encrypt(data, CryptoJS.enc.Hex.parse(key), { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
-    return { cipher: cipher.toString(), iv: iv.toString(), ephPublicKeyHex: ephPublicKeyHex };
+
+    return { cipher: cipher.toString(), iv: iv.toString() };
 }
 
-export async function decryptData(encryptedData, ivHex, ephPublicKeyHex, privateKeyHex) {
-    const privateKey = ec.keyFromPrivate(privateKeyHex, 'hex');
-    const ephPublicKey = ec.keyFromPublic(ephPublicKeyHex, 'hex');
-    const sharedKey = privateKey.derive(ephPublicKey.getPublic()).toString(16); // Derive shared key
+
+export async function decryptData(encryptedData, ivHex, senderPublicKeyHex, receiverPrivateKeyHex) {
+    const receiverPrivateKey = ec.keyFromPrivate(receiverPrivateKeyHex, 'hex');
+    const senderPublicKey = ec.keyFromPublic(senderPublicKeyHex, 'hex');
+    const sharedKey = receiverPrivateKey.derive(senderPublicKey.getPublic()).toString(16); // Derive shared key
     const key = CryptoJS.SHA256(sharedKey).toString(CryptoJS.enc.Hex);
+
     const iv = CryptoJS.enc.Hex.parse(ivHex);
     const decrypted = CryptoJS.AES.decrypt(encryptedData, CryptoJS.enc.Hex.parse(key), { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
 
@@ -184,10 +189,16 @@ export function remove0x(input) {
     }
     return input;
 }
+export function add0x(input) {
+    return "0x" + input
+}
 export function extractEncryptedDataFromJson(jsonString) {
     try {
         const obj = JSON.parse(jsonString);
-        return obj.encryptedData || 'Encrypted data not found';
+        return {
+            cipher: obj.cipher || 'Cipher not found',
+            iv: obj.iv || 'IV not found'
+        };
     } catch (error) {
         console.error('Error parsing JSON:', error);
         return null;

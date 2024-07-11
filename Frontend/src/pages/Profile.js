@@ -304,7 +304,6 @@ export const Profile = () => {
     };
     useEffect(() => {
         const checkCorrectPriv = async () => {
-            setLoading(true)
             try {
                 const check = await insertPubToDB()
                 if (check) {
@@ -314,29 +313,24 @@ export const Profile = () => {
                     const ownerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`)
 
                     if (ownerPublicKeysResponse.data.address.length === 0) {
-                        setLoading(false)
                         return;
                     }
                     const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
                     if (publicKeyFromPrivateKey == publicKeyOwner) {
                         handleUpdateInfo(check)
                         setError(null); // Clear any previous errors
-                        setLoading(false)
                     }
                     else {
-                        setLoading(false)
                         setAlertSeverity("error");
                         setMessageAlert("Wrong private key");
                         setShowAlert(true);
                     }
                 }
                 else {
-                    setLoading(false)
                     return
                 }
 
             } catch (err) {
-                setLoading(false)
                 setAlertSeverity("error");
                 setMessageAlert("Wrong private key");
                 setShowAlert(true);

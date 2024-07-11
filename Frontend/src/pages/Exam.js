@@ -11,7 +11,7 @@ const Exam = () => {
     const [exams, setExams] = useState([])
     const [course, setCourse] = useState(null)
     const { id } = useParams();
-    const { address, connectWallet, contract } = useSigner();
+    const { address, signer, connectWallet, contract } = useSigner();
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
@@ -42,6 +42,22 @@ const Exam = () => {
         const check = async () => {
             setLoading(true); // Start loading
             try {
+                if (signer && address) {
+                    const orgs = await contract.getOrganizationCodes();
+                    const results = [];
+                    for (const org of orgs) {
+                        const orgIssuers = await contract.getVerifiersByOrganizationCode(org);
+                        orgIssuers.forEach((issuer) => {
+                            results.push({ issuer });
+                        });
+                    }
+                    const issuer = results.find((issuer) => issuer.issuer === address);
+                    if (issuer) {
+                        navigate("/");
+
+                    }
+                }
+
                 const result = await axios(`https://verify-certification-nft-production.up.railway.app/exam/${id}?address=${address}`)
                 console.log(result)
                 if (result.data.data[0].status == "examining") {
@@ -52,7 +68,6 @@ const Exam = () => {
                     }, 1000);
                 }
                 else {
-                    console.log("IM HERE")
                     navigate("/");
                 }
             }

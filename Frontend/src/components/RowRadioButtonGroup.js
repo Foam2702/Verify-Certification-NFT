@@ -79,40 +79,6 @@ export default function RowRadioButtonsGroup({ course, exam }) {
             sendToIssuer();
         }
     }, [privateKey]);
-    // useEffect(() => {
-    //     const checkCorrectPriv = async () => {
-    //         try {
-    //             const privateKeyBytes = ethers.utils.arrayify(add0x(privateKey));
-    //             const publicKeyFromPrivateKey = ethers.utils.computePublicKey(privateKeyBytes);
-    //             const ownerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`)
-    //             console.log(publicKeyFromPrivateKey)
-    //             console.log(ownerPublicKeysResponse.data.address[0].publickey)
-    //             if (ownerPublicKeysResponse.data.address.length === 0) {
-    //                 return;
-    //             }
-    //             const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
-    //             if (publicKeyFromPrivateKey == publicKeyOwner) {
-    //                 sendToIssuer(check)
-    //                 setError(null); // Clear any previous errors
-    //             }
-    //             else {
-    //                 setAlertSeverity("error");
-    //                 setMessageAlert("Wrong private key");
-    //                 setShowAlert(true);
-    //             }
-
-
-    //         } catch (err) {
-
-    //             setAlertSeverity("error");
-    //             setMessageAlert("Wrong private key");
-    //             setShowAlert(true);
-    //             console.log(err)
-    //         }
-    //     }
-    //     if (privateKey) checkCorrectPriv()
-    // }, [privateKey])
-
     const handleClose = () => {
         setOpen(false);
     };

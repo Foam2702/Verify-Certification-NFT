@@ -40,11 +40,9 @@ export const Profile = () => {
     const navigate = useNavigate();
     const handleClickOpen = (e) => {
         e.preventDefault()
-        console.log("HELLO")
         setOpen(true);
     };
     const onCancelBtnClick = async () => {
-
         navigate("/")
     };
     const insertPubToDB = async () => {
@@ -65,7 +63,6 @@ export const Profile = () => {
                         publicKey: publicKey // Include the public key in the body
                     });
                     return true
-
                 }
                 return true
             }
@@ -80,7 +77,7 @@ export const Profile = () => {
     };
     const handleUpdateInfo = async (check) => {
         setLoading(true); // Start loading before sending the request
-
+        console.log("PR", isPrivateKeyValid)
         if (check) {
             const form = document.querySelector("form");
             // Get the form data
@@ -90,21 +87,21 @@ export const Profile = () => {
                     (obj, input) => Object.assign(obj, { [input.name]: input.value }),
                     {}
                 );
-            console.log(data)
             const fields = [
                 'citizenId', 'name', 'region', 'dob', 'gender', 'email',
                 'workUnit'
             ];
-            for (const field of fields) {
-                if (!data[field]) {
-                    setMessageAlert(`Please fill out the ${field} field.`);
-                    setAlertSeverity("warning");
-                    setShowAlert(true);
-                    setLoading(false);
-                    return;
+            if (!isPrivateKeyValid) {
+                for (const field of fields) {
+                    if (!data[field]) {
+                        setMessageAlert(`Please fill out the ${field} field.`);
+                        setAlertSeverity("warning");
+                        setShowAlert(true);
+                        setLoading(false);
+                        return;
+                    }
                 }
             }
-
             const formData = new FormData();
             //Email
             let emailPattern = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -159,8 +156,6 @@ export const Profile = () => {
     const handleUpdateInfoAfterCorrectPriv = async (e) => {
         e.preventDefault()
         setLoading(true); // Start loading before sending the request
-
-
         const form = document.querySelector("form");
         // Get the form data
         const data = Array.from(form.elements)
@@ -169,20 +164,19 @@ export const Profile = () => {
                 (obj, input) => Object.assign(obj, { [input.name]: input.value }),
                 {}
             );
-        console.log(data)
         const fields = [
             'citizenId', 'name', 'region', 'dob', 'gender', 'email',
             'workUnit'
         ];
-        for (const field of fields) {
-            if (!data[field]) {
-                setMessageAlert(`Please fill out the ${field} field.`);
-                setAlertSeverity("warning");
-                setShowAlert(true);
-                setLoading(false);
-                return;
-            }
-        }
+        // for (const field of fields) {
+        //     if (!data[field]) {
+        //         setMessageAlert(`Please fill out the ${field} field.`);
+        //         setAlertSeverity("warning");
+        //         setShowAlert(true);
+        //         setLoading(false);
+        //         return;
+        //     }
+        // }
 
         const formData = new FormData();
         //Email
@@ -246,7 +240,6 @@ export const Profile = () => {
         const formData = new FormData(event.currentTarget);
         const formJson = Object.fromEntries(formData.entries());
         const privatekey = formJson.privatekey;
-        console.log(privatekey)
         setPrivateKey(privatekey)
     }
     const handleDecryptInfo = async (prop, privateKey) => {
@@ -305,18 +298,19 @@ export const Profile = () => {
     useEffect(() => {
         const checkCorrectPriv = async () => {
             try {
+
                 const check = await insertPubToDB()
                 if (check) {
-
                     const privateKeyBytes = ethers.utils.arrayify(add0x(privateKey));
                     const publicKeyFromPrivateKey = ethers.utils.computePublicKey(privateKeyBytes);
                     const ownerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`)
-
                     if (ownerPublicKeysResponse.data.address.length === 0) {
                         return;
                     }
                     const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
                     if (publicKeyFromPrivateKey == publicKeyOwner) {
+                        setIsPrivateKeyValid(true)
+
                         handleUpdateInfo(check)
                         setError(null); // Clear any previous errors
                     }
@@ -329,7 +323,6 @@ export const Profile = () => {
                 else {
                     return
                 }
-
             } catch (err) {
                 setAlertSeverity("error");
                 setMessageAlert("Wrong private key");

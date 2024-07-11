@@ -22,7 +22,6 @@ const { ethers } = require("ethers");
 
 const BodySection = () => {
   const [open, setOpen] = useState(false);
-  const [privateKey, setPrivateKey] = useState("");
   const [errors, setErrors] = useState({});
   const [regions, setRegions] = useState([]);
   const [courses, setCourses] = useState([]);
@@ -70,43 +69,6 @@ const BodySection = () => {
     };
     fetchDataCourses().catch((error) => console.error(error));
   }, []);
-  useEffect(() => {
-    const checkCorrectPriv = async () => {
-      try {
-        const check = await insertPubToDB()
-        if (check) {
-          const privateKeyBytes = ethers.utils.arrayify(add0x(privateKey));
-          const publicKeyFromPrivateKey = ethers.utils.computePublicKey(privateKeyBytes);
-          const ownerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`)
-
-          if (ownerPublicKeysResponse.data.address.length === 0) {
-            return;
-          }
-          const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
-          if (publicKeyFromPrivateKey == publicKeyOwner) {
-            handleSubmit(check)
-            setError(null); // Clear any previous errors
-          }
-          else {
-            setAlertSeverity("error");
-            setMessageAlert("Wrong private key");
-            setShowAlert(true);
-          }
-        }
-        else {
-          return
-        }
-
-      } catch (err) {
-
-        setAlertSeverity("error");
-        setMessageAlert("Wrong private key");
-        setShowAlert(true);
-        console.log(err)
-      }
-    }
-    if (privateKey) checkCorrectPriv()
-  }, [privateKey])
   const onfileChange = async (event) => {
     setFile(event.target.files);
     if (event.target.files.length > 0) {
@@ -155,7 +117,7 @@ const BodySection = () => {
       }
     }
   };
-  const handleSubmit = async (check) => {
+  const handleSubmit = async (privateKey, check) => {
     setLoading(true)
     if (check) {
       const form = document.querySelector("form");
@@ -343,11 +305,42 @@ const BodySection = () => {
   };
 
   const handleCloseDialog = () => setOpen(false);
-  const handleSubmitPrivateKey = (event) => {
+  const handleSubmitPrivateKey = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    setPrivateKey(formData.get('privatekey'));
+    const privateKey = formData.get('privatekey')
+    try {
+      const check = await insertPubToDB()
+      if (check) {
+        const privateKeyBytes = ethers.utils.arrayify(add0x(privateKey));
+        const publicKeyFromPrivateKey = ethers.utils.computePublicKey(privateKeyBytes);
+        const ownerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`)
 
+        if (ownerPublicKeysResponse.data.address.length === 0) {
+          return;
+        }
+        const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
+        if (publicKeyFromPrivateKey == publicKeyOwner) {
+          handleSubmit(privateKey, check)
+          setError(null); // Clear any previous errors
+        }
+        else {
+          setAlertSeverity("error");
+          setMessageAlert("Wrong private key");
+          setShowAlert(true);
+        }
+      }
+      else {
+        return
+      }
+
+    } catch (err) {
+
+      setAlertSeverity("error");
+      setMessageAlert("Wrong private key");
+      setShowAlert(true);
+      console.log(err)
+    }
   }
   return (
     <>

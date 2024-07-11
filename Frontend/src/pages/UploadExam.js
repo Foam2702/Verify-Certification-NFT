@@ -8,7 +8,6 @@ import CircularProgress from "@mui/material/CircularProgress";
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import React from 'react'
 import { useNavigate } from "react-router-dom";
-
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { Accordion, AccordionSummary, AccordionDetails, TextField, IconButton, Radio, FormControlLabel, Divider, AccordionActions } from '@mui/material'
@@ -256,13 +255,18 @@ const UploadExam = () => {
             return
         }
         try {
-            const result = await axios.post("http://localhost:8080/exam/postexam", dataToSave)
+            const result = await axios.post("https://verify-certification-nft-production.up.railway.app/exam/postexam", dataToSave)
             if (result.data.message == "Insert Exam successfully") {
                 setMessageAlert("Exam created successfully");
                 setAlertSeverity("success");
                 setShowAlert(true);
                 setLoading(false);
-                navigate("/")
+            }
+            else if (result.data.message = "Exam name already exist") {
+                setMessageAlert("Exam name already exist");
+                setAlertSeverity("warning");
+                setShowAlert(true);
+                setLoading(false);
             }
             else {
                 setMessageAlert("Error creating exam");

@@ -48,7 +48,7 @@ export const Profile = () => {
     const insertPubToDB = async () => {
         if (address) {
             try {
-                const checkPublicKeyExisted = await axios.get(`http://localhost:8080/addresses/${address}`);
+                const checkPublicKeyExisted = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`);
                 if (checkPublicKeyExisted.data.address.length === 0) {
                     const publicKey = await getPublicKey(); // Await the result of getPublicKey
                     if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
@@ -58,7 +58,7 @@ export const Profile = () => {
                         setShowAlert(true);
                         return false;
                     }
-                    await axios.post(`http://localhost:8080/addresses/${address}`, {
+                    await axios.post(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`, {
                         address: address, // Include the address in the body
                         publicKey: publicKey // Include the public key in the body
                     });
@@ -71,6 +71,9 @@ export const Profile = () => {
                 console.log(err)
                 return false
             }
+        }
+        else if (!address) {
+            await connectWallet()
         }
     };
     const handleUpdateInfo = async (event) => {
@@ -116,11 +119,11 @@ export const Profile = () => {
             for (const field of fields) {
                 formData.append(field, data[field]);
             }
-            const ownerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${address}`)
+            const ownerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`)
 
             const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
 
-            const response = await axios.patch(`http://localhost:8080/addresses/profile/${address}`, {
+            const response = await axios.patch(`https://verify-certification-nft-production.up.railway.app/addresses/profile/${address}`, {
                 citizenId: await encryptData(data.citizenId, remove0x(publicKeyOwner)),
                 name: await encryptData(data.name, remove0x(publicKeyOwner)),
                 region: await encryptData(data.region, remove0x(publicKeyOwner)),
@@ -218,7 +221,7 @@ export const Profile = () => {
     useEffect(() => {
         const fetchDataRegions = async () => {
             try {
-                const result = await axios("http://localhost:8080/tickets");
+                const result = await axios("https://verify-certification-nft-production.up.railway.app/tickets");
                 if (Array.isArray(result.data.cities)) {
                     setRegions(result.data.cities);
                 } else {
@@ -236,7 +239,7 @@ export const Profile = () => {
     useEffect(() => {
         const fetchUserInfo = async () => {
             try {
-                const response = await axios.get(`http://localhost:8080/addresses/${address}`);
+                const response = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`);
                 const data = response.data.address[0];
                 setUser(data)
 
@@ -320,6 +323,13 @@ export const Profile = () => {
                                 <DialogContentText sx={{ fontSize: '1.5rem' }}>
                                     Please enter private key from your MetaMask
                                 </DialogContentText>
+                                <div className="private-key-image-container">
+                                    <img loading="lazy" className="private-key-image" src="/MetaMask_find_account_details_extension-6df8f1e43a432c53fdaa0353753b1ca8.gif" alt="MetaMask find account details extension"></img>
+                                    <img loading="lazy" className="private-key-image" src="/MetaMask_find_export_account_private_key_extension_1-e67f48ba55b839654514e39e186400fb.gif" alt="MetaMask find account details extension"></img>
+
+                                    <img loading="lazy" className="private-key-image" src="/MetaMask_find_export_account_private_key_extension_2-6c913141ad005ec35a3248944b1a25dd.gif" alt="MetaMask find account details extension"></img>
+
+                                </div>
                                 <TextField
                                     autoFocus
                                     required

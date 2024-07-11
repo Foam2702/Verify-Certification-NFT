@@ -69,7 +69,7 @@
   width: 100%;
   position: relative;
   display: flex;
-  max-width: 1839px;
+  max-width: 400px;
   font-weight: bold;
   color: rgb(206, 88, 88);
   justify-content: center;
@@ -121,10 +121,10 @@
 
 
 .upload-lisence {
-  flex: 1;
+  /* flex: 1; */
   border-radius: var(--br-xl);
   background-color: var(--color-lightblue);
-  flex-direction: column;
+  flex-direction: row;
   padding: var(--padding-13xl) var(--padding-xl) 46px 35px;
   box-sizing: border-box;
   gap: var(--gap-lgi);
@@ -175,6 +175,18 @@
   line-height: normal;
   letter-spacing: normal;
 }
+
+.private-key-image {
+  width: 200px;
+  height: auto;
+  margin: 10px;
+
+}
+
+.private-key-image-container {
+  display: flex
+}
+
 
 @media screen and (max-width: 1200px) {
   .upload-wrapper-lisence {

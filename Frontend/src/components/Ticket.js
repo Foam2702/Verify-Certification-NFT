@@ -21,6 +21,8 @@ import AlertTicket from "./AlertTicket"
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
+import WalletIcon from '@mui/icons-material/Wallet';
 import { hashImage, pinJSONToIPFS, deletePinIPFS, extractEncryptedDataFromJson, decryptData, minifyAddress, imageFileToBase64 } from "../helpers/index"
 
 const JWT = process.env.REACT_APP_JWT; // Make sure to set this in your React app environment variables
@@ -131,7 +133,7 @@ const Ticket = ({ ticket }) => {
     useEffect(() => {
         const fetchCourses = async () => {
             try {
-                const response = await axios('http://localhost:8080/courses');
+                const response = await axios('https://verify-certification-nft-production.up.railway.app/courses');
                 const courses = response.data.courses; // Assuming the API response structure
                 if (ticket.certificate_name) {
                     const match = courses.some(course => {
@@ -156,15 +158,15 @@ const Ticket = ({ ticket }) => {
         setLoading(true)
         try {
             const status = "reject"
-            const owner = await axios(`http://localhost:8080/tickets/ticket/${ticket.id}?address=`)
+            const owner = await axios(`https://verify-certification-nft-production.up.railway.app/tickets/ticket/${ticket.id}?address=`)
             await deletePinIPFS(owner.data.ticket[0].certificate_cid)
             for (let address of issuer) {
-                const issuer_org = await axios(`http://localhost:8080/tickets/ticket/${ticket.id}?address=${address}`);
+                const issuer_org = await axios(`https://verify-certification-nft-production.up.railway.app/tickets/ticket/${ticket.id}?address=${address}`);
                 if (issuer_org.data.ticket[0].certificate_cid) {
                     await deletePinIPFS(issuer_org.data.ticket[0].certificate_cid)
                 }
             }
-            const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}?status=${status}&transaction_hash=`)
+            const response = await axios.patch(`https://verify-certification-nft-production.up.railway.app/tickets/ticket/${ticket.id}?status=${status}&transaction_hash=`)
 
             if (response.data.message === "updated successfully") {
                 setLoading(false)
@@ -196,7 +198,7 @@ const Ticket = ({ ticket }) => {
         event.preventDefault()
         setLoading(true);
         try {
-            const userTicket = await axios(`http://localhost:8080/tickets/ticket/${ticket.id}?address=`)
+            const userTicket = await axios(`https://verify-certification-nft-production.up.railway.app/tickets/ticket/${ticket.id}?address=`)
             ticket = userTicket.data.ticket[0];
             ticket.status = "approved"
             const metadata = await pinJSONToIPFS(ticket)
@@ -209,14 +211,14 @@ const Ticket = ({ ticket }) => {
                 );
                 setAddressContract(result.to)
                 for (let address of issuer) {
-                    const issuer_org = await axios(`http://localhost:8080/tickets/ticket/${ticket.id}?address=${address}`);
+                    const issuer_org = await axios(`https://verify-certification-nft-production.up.railway.app/tickets/ticket/${ticket.id}?address=${address}`);
                     if (issuer_org.data.ticket[0].certificate_cid) {
 
                         await deletePinIPFS(issuer_org.data.ticket[0].certificate_cid)
                     }
                 }
                 const status = "approved"
-                const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}?status=${status}&transaction_hash=${result.hash}&issuer_address=`)
+                const response = await axios.patch(`https://verify-certification-nft-production.up.railway.app/tickets/ticket/${ticket.id}?status=${status}&transaction_hash=${result.hash}&issuer_address=`)
                 if (response.data.message === "updated successfully") {
                     ticket.transaction_hash = result.hash
                     setLoading(false);
@@ -445,15 +447,23 @@ const Ticket = ({ ticket }) => {
                                 <AlertTicket severity={ticket.status} />
                             </>
                         )}
-
+                        {isExam &&
+                            <Alert variant="outlined" severity="info" sx={{ fontSize: "1.5rem", my: "20px" }}>
+                                Certificate of passing exam at VSCourses
+                            </Alert>}
                         <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
                             {ticket.status === 'approved' ? (
-                                <Button variant="outlined" sx={{ my: "20px", fontSize: "0.5em" }} onClick={addNFTToWallet}>Import NFT to MetaMask</Button>
+                                <Button variant="contained" sx={{ my: "20px", mx: "30px", fontSize: "1.5rem" }} onClick={addNFTToWallet}>
+                                    <div sx={{ mx: "5px" }}>MetaMask</div>
+
+                                    < WalletIcon sx={{ mx: "5px" }} />
+                                </Button>
                             ) : (
                                 <></>
                             )}
-                            <Button variant="outlined" sx={{ my: "20px", fontSize: "0.5em" }} onClick={handleClickOpen}>
-                                Click to view
+                            <Button variant="contained" sx={{ my: "20px", mx: "30px", fontSize: "0.5em" }} onClick={handleClickOpen}>
+                                <div sx={{ mx: "5px" }}>View</div>
+                                <RemoveRedEyeIcon sx={{ mx: "5px" }}></RemoveRedEyeIcon>
                             </Button>
                         </Box>
                         <Dialog
@@ -477,6 +487,13 @@ const Ticket = ({ ticket }) => {
                                 <DialogContentText sx={{ fontSize: '1.5rem' }}>
                                     Please enter private key from your MetaMask
                                 </DialogContentText>
+                                <div className="private-key-image-container">
+                                    <img loading="lazy" className="private-key-image" src="/MetaMask_find_account_details_extension-6df8f1e43a432c53fdaa0353753b1ca8.gif" alt="MetaMask find account details extension"></img>
+                                    <img loading="lazy" className="private-key-image" src="/MetaMask_find_export_account_private_key_extension_1-e67f48ba55b839654514e39e186400fb.gif" alt="MetaMask find account details extension"></img>
+
+                                    <img loading="lazy" className="private-key-image" src="/MetaMask_find_export_account_private_key_extension_2-6c913141ad005ec35a3248944b1a25dd.gif" alt="MetaMask find account details extension"></img>
+
+                                </div>
                                 <TextField
                                     autoFocus
                                     required
@@ -506,10 +523,7 @@ const Ticket = ({ ticket }) => {
                             </DialogActions>
                         </Dialog>
                     </div>
-                    {isExam &&
-                        <Alert variant="outlined" severity="success" sx={{ fontSize: "2rem" }}>
-                            Certificate of passing exam at VSCourses
-                        </Alert>}
+
                     <div className="careers-section-inner">
                         <div className="name-parent">
                             <div className="name">
@@ -650,7 +664,41 @@ const Ticket = ({ ticket }) => {
 
                     {issuer.includes(address) ?
                         <>
-                            <div className="body-button1">
+                            {isExam ?
+                                <div className="body-button1">
+                                    {imageMatch ?
+                                        <button className="submit-button" onClick={handleSubmit}>
+                                            <div className="submit">Mint</div>
+                                        </button>
+                                        :
+                                        <></>
+                                    }
+                                    <button className="cancel-button" onClick={handleCancle}>
+                                        <div className="cancel">Cancel</div>
+                                    </button>
+                                </div>
+                                :
+                                <div className="body-button1">
+                                    <button className="check-button" onClick={handleCheckImage}>
+                                        <div className="check" >Check</div>
+                                    </button>
+                                    {imageMatch ?
+                                        <button className="submit-button" onClick={handleSubmit}>
+                                            <div className="submit">Mint</div>
+                                        </button>
+                                        :
+                                        <></>
+                                    }
+
+                                    <button className="reject-button" onClick={handleReject}>
+                                        <div className="reject">Reject</div>
+                                    </button>
+                                    <button className="cancel-button" onClick={handleCancle}>
+                                        <div className="cancel">Cancel</div>
+                                    </button>
+                                </div>
+                            }
+                            {/* <div className="body-button1">
                                 <button className="check-button" onClick={handleCheckImage}>
                                     <div className="check" >Check</div>
                                 </button>
@@ -668,7 +716,7 @@ const Ticket = ({ ticket }) => {
                                 <button className="cancel-button" onClick={handleCancle}>
                                     <div className="cancel">Cancel</div>
                                 </button>
-                            </div>
+                            </div> */}
                         </>
                         :
                         <></>

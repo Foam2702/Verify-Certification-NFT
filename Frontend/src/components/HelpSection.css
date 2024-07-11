@@ -257,7 +257,7 @@
 .link-to-pages {
   flex: 1;
   justify-content: space-between;
-  padding: 0 var(--padding-151xl);
+  /* padding: 0 var(--padding-151xl); */
   gap: var(--gap-xl);
 }
 

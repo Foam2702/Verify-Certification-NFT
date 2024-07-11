@@ -31,7 +31,7 @@ const Footer = ({
 
                 <div className="company-info">
                   <h1 className="bespoke-software-solutions">
-                    Bespoke software solutions
+                    Verify-Certification-NFT
                   </h1>
                   <div className="social-iconfacebook-parent">
                     <img

@@ -21,7 +21,7 @@ export default function AlertTicket({ severity }) {
     }, [severity]);
 
     return (
-        <Alert variant="filled" severity={alert} sx={{ fontSize: "1.5rem" }}>
+        <Alert variant="outlined" severity={alert} sx={{ fontSize: "1.5rem" }}>
             {message}
 
         </Alert>

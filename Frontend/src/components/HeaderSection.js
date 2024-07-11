@@ -1,4 +1,3 @@
-//import "./Header.css";
 import { useNavigate } from "react-router-dom";
 import Menu from '@mui/material/Menu';
 import useSigner from "../state/signer";
@@ -9,204 +8,276 @@ import IconButton from '@mui/material/IconButton';
 import Box from '@mui/material/Box';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
-import Admin from "../pages/Admin";
-import AddressAvatar from "../components/AddressAvatar"
 import CircularProgress from '@mui/material/CircularProgress';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import NotificationBell from "./NotificationBell";
 import { Button } from "@mui/material";
 import axios from 'axios';
-import SOULBOUND from "../artifacts/contracts/SoulboundToken.sol/SoulboundToken.json"
-import "./BasicMenu.css"
+import AddressAvatar from "../components/AddressAvatar";
+import "./BasicMenu.css";
 import "./HeaderSection.css";
 const { ethers } = require("ethers");
+
 const settings = [
   { name: 'Profile', route: '/profile' },
   { name: 'My Certificates', route: '/lisenceview' },
-  { name: 'Certificate Examined', route: '/courseinfornew' },
   { name: 'Issuer Management', route: '/admin' },
+];
 
-]; const HeaderSection = () => {
-  const SOULBOUND_ADDRESS = process.env.REACT_APP_SOULBOUND_ADDRESS
-  const { signer, address, connectWallet, getPublicKey } = useSigner();
-  const [tickets, setTickets] = useState([])
+const HeaderSection = () => {
+  const SOULBOUND_ADDRESS = process.env.REACT_APP_SOULBOUND_ADDRESS;
+  const { signer, address, connectWallet, getPublicKey, contract } = useSigner();
+  const [tickets, setTickets] = useState([]);
   const [loadingPage, setLoadingPage] = useState(false);
-  const [anchorElNav, setanchorElNav] = React.useState(null);
-  const [anchorElUser, setanchorElUser] = React.useState(null);
+  const [anchorElNav, setAnchorElNav] = useState(null);
+  const [anchorElUser, setAnchorElUser] = useState(null);
   const [showAlert, setShowAlert] = useState(false);
-  const [messageAlert, setMessageAlert] = useState("")
-
+  const [messageAlert, setMessageAlert] = useState("");
+  const [issuers, setIssuers] = useState([]);
   const [alertSeverity, setAlertSeverity] = useState("");
+  const [org, setOrg] = useState('');
+  const [isIssuer, setIsIssuer] = useState(false);
+  const [admin, setAdmin] = useState('')
+
   const navigate = useNavigate();
 
-
   const handleOpenNavMenu = (event) => {
-    setanchorElNav(event.currentTarget);
+    setAnchorElNav(event.currentTarget);
   };
+
   const handleOpenUserMenu = (event) => {
-    setanchorElUser(event.currentTarget);
+    setAnchorElUser(event.currentTarget);
   };
 
   const handleCloseNavMenu = () => {
-    setanchorElNav(null);
+    setAnchorElNav(null);
   };
 
   const handleCloseUserMenu = () => {
-    setanchorElUser(null);
+    setAnchorElUser(null);
   };
-  const handleMenuItemClick = (route) => {
 
+  const handleMenuItemClick = (route) => {
     if (address) {
-      setLoadingPage(true); // Start loading
+      setLoadingPage(true);
       setTimeout(() => {
         handleCloseUserMenu();
         navigate(route);
-        setLoadingPage(false); // Stop loading
-      }, 500); // Delay of 0.5 second
+        setLoadingPage(false);
+      }, 500);
     } else {
       connectWallet();
     }
-
   };
-  const handleClose = async (event, reason) => {
+
+  const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
       return;
     }
-    // setLoading(true);
     setShowAlert(false);
-    // await new Promise(resolve => setTimeout(resolve, 1000));
-    // setLoading(false);
-
   };
+  const handleLogin = () => {
+    const checkMetaMask = () => {
+      if (typeof window.ethereum !== 'undefined') {
+        connectWallet();
+      } else {
+        window.open('https://metamask.io/download/', '_blank');
+      }
+    };
+
+    // Check MetaMask installation after the window has fully loaded
+    if (document.readyState === 'complete') {
+      checkMetaMask();
+    } else {
+      window.addEventListener('load', checkMetaMask);
+      return () => window.removeEventListener('load', checkMetaMask);
+    }
+  };
+
+
   useEffect(() => {
     const fetchTickets = async () => {
       try {
-        const allTickets = await axios("http://localhost:8080/tickets/all");
+        const allTickets = await axios("https://verify-certification-nft-production.up.railway.app/tickets/all");
         if (Array.isArray(allTickets.data.tickets)) {
-          let newTickets = [];
-          for (const ticket of allTickets.data.tickets) {
-            try {
-              if (ticket.issuer_address === address || ticket.owner_address === address) {
-                newTickets.push(ticket);
-              }
-            } catch (error) {
-              console.error('Error:', error);
-            }
-          }
+          const newTickets = allTickets.data.tickets.filter(
+            (ticket) => ticket.issuer_address === address || ticket.owner_address === address
+          );
           setTickets(newTickets);
         } else {
           throw new Error('Unexpected data format');
         }
       } catch (err) {
-        console.log(err)
+        console.log("FETCH TICKET")
+        console.log(err);
       }
-
     };
-    fetchTickets().catch(error => console.error(error));
+    fetchTickets();
   }, [signer, address]);
+
   useEffect(() => {
     const insertPubToDB = async () => {
       if (address) {
         try {
-          const checkPublicKeyExisted = await axios.get(`http://localhost:8080/addresses/${address}`);
+          const checkPublicKeyExisted = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`);
           if (checkPublicKeyExisted.data.address.length === 0) {
-            const publicKey = await getPublicKey(); // Await the result of getPublicKey
+            const publicKey = await getPublicKey();
             if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
-              console.log('Error retrieving public key:', publicKey);
               setAlertSeverity("warning");
               setMessageAlert("Reject to sign");
               setShowAlert(true);
               return;
             }
-            await axios.post(`http://localhost:8080/addresses/${address}`, {
-              address: address, // Include the address in the body
-              publicKey: publicKey // Include the public key in the body
+
+            await axios.post(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`, {
+              address,
+              publicKey,
             });
             setAlertSeverity("success");
             setMessageAlert("Sign successfully");
             setShowAlert(true);
-
           }
-
+        } catch (err) {
+          console.log("INSERT PUB")
+          console.log(err);
         }
-        catch (err) {
-          console.log(err)
-        }
-
       }
     };
     insertPubToDB();
-  }, [address, signer])
+  }, [address, signer]);
 
-  const filteredSettings = address === process.env.REACT_APP_ADMIN ? settings : settings.filter(setting => setting.name !== 'Issuer Management');
+  useEffect(() => {
+    const fetchOrg = async () => {
+      try {
+        if (signer && address) {
+          const orgs = await contract.getOrganizationCodes();
+          const results = [];
+          for (const org of orgs) {
+            const orgIssuers = await contract.getVerifiersByOrganizationCode(org);
+            orgIssuers.forEach((issuer) => {
+              results.push({ issuer });
+            });
+          }
+          setIssuers(results);
+        }
+      } catch (err) {
+        console.log("FETCH ORG")
+        console.log(err);
+      }
+    };
+    fetchOrg();
+  }, [signer, address, contract]);
+
+  useEffect(() => {
+    const isAddressInIssuers = async () => {
+      try {
+        if (address && issuers.length > 0) {
+          const issuer = issuers.find((issuer) => issuer.issuer === address);
+          if (issuer) {
+            const orgs = await contract.getOrganizationCodes();
+            for (const org of orgs) {
+              const orgIssuers = await contract.getVerifiersByOrganizationCode(org);
+              if (orgIssuers.includes(address)) {
+                setOrg(org);
+                setIsIssuer(true);
+                return;
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.log("IS ISSUER")
+        console.log(err);
+      }
+      setIsIssuer(false);
+    };
+
+    isAddressInIssuers();
+  }, [address, issuers, contract]);
+  useEffect(() => {
+    const checkAdmin = () => {
+      try {
+        if (address && address == process.env.REACT_APP_ADMIN) {
+
+          setAdmin('ADMIN')
+        }
+      }
+      catch (err) {
+        console.log(err)
+      }
+
+    }
+    checkAdmin()
+  }, [signer, address])
+
+  const filteredSettings = address === process.env.REACT_APP_ADMIN
+    ? settings
+    : settings.filter((setting) => setting.name !== 'Issuer Management');
+
   return (
     <section className="header-section1">
       <div className="top-header">
         <div className="top-container">
           <div className="fickleflight-logo-wrapper">
             <button className="fickleflight-logo" onClick={() => {
-              setLoadingPage(true); // Start loading
-
+              setLoadingPage(true);
               navigate("/");
-              // reload the current page
               window.location.reload();
-
-              setLoadingPage(false); // Stop loading
-
+              setLoadingPage(false);
             }}>
               <img className="abc" src="/VSCourses.svg" />
             </button>
           </div>
           <div className="navigation-right">
-
             <div className="account-section">
-              <img
-                className="hamburger-menu-icon"
-                alt=""
-                src="/hamburgermenu@2x.png"
-              />
+              <img className="hamburger-menu-icon" alt="" src="/hamburgermenu@2x.png" />
               <button>
                 <NotificationBell tickets={tickets} />
-
               </button>
-
               <Box sx={{ flexGrow: 0 }}>
                 {address ? (
                   <>
                     <Tooltip title="Open settings">
                       <IconButton sx={{ p: 0 }} onClick={handleOpenUserMenu}>
-                        <AddressAvatar address={address} />
+                        {isIssuer ? (
+                          <div>
+                            <AddressAvatar address={org} />
+                          </div>
+                        ) : (
+                          admin ?
+                            <div>
+                              <AddressAvatar address={admin} />
+                            </div> :
+
+                            <div>
+                              <AddressAvatar address={address} />
+                            </div>
+                        )}
                       </IconButton>
                     </Tooltip>
                     <Menu
-                      sx={{ mt: '45px', '& .MuiPaper-root': { width: '300px' } }} // Set your desired width here
+                      sx={{ mt: '45px', '& .MuiPaper-root': { width: '300px' } }}
                       id="menu-appbar"
                       anchorEl={anchorElUser}
-                      anchorOrigin={{
-                        vertical: 'top',
-                        horizontal: 'right',
-                      }}
+                      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
                       keepMounted
-                      transformOrigin={{
-                        vertical: 'top',
-                        horizontal: 'right',
-                      }}
+                      transformOrigin={{ vertical: 'top', horizontal: 'right' }}
                       open={Boolean(anchorElUser)}
                       onClose={handleCloseUserMenu}
                     >
                       {filteredSettings.map((setting) => (
-                        <MenuItem key={setting} onClick={() => handleMenuItemClick(setting.route)}
-                          sx={{ my: 1 }}>
-                          <Typography textAlign="center" sx={{ fontSize: '1.3rem' }}>{setting.name}</Typography>
+                        <MenuItem key={setting.name} onClick={() => handleMenuItemClick(setting.route)} sx={{ my: 1 }}>
+                          <Typography textAlign="center" sx={{ fontSize: '1.3rem' }}>
+                            {setting.name}
+                          </Typography>
                         </MenuItem>
                       ))}
                     </Menu>
                   </>
                 ) : (
-                  <Button onClick={connectWallet}>LOG IN</Button>
+                  <Button onClick={handleLogin}>LOG IN</Button>
                 )}
               </Box>
-
               {loadingPage && (
                 <div className="loading-overlay">
                   <CircularProgress />
@@ -217,21 +288,16 @@ const settings = [
                   onClose={handleClose}
                   severity={alertSeverity}
                   variant="filled"
-                  sx={{
-                    width: '100%',
-                    fontSize: '1.25rem', // Increase font size
-                  }}
+                  sx={{ width: '100%', fontSize: '1.25rem' }}
                 >
                   {messageAlert}
                 </Alert>
               </Snackbar>
-
             </div>
           </div>
         </div>
       </div>
-
-    </section >
+    </section>
   );
 };
 

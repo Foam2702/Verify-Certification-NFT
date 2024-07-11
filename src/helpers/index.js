@@ -84,36 +84,61 @@ export function replaceBaseUrl(ipfsLink, newBaseUrl) {
     return `${newBaseUrl}/ipfs/${ipfsHash}`;
 }
 
-export async function encryptData(data, publicKeyHex) {
-    const publicKey = ec.keyFromPublic(publicKeyHex, 'hex');
-    const fixedIV = CryptoJS.enc.Hex.parse('00000000000000000000000000000000');
+export async function encryptData(data, senderPrivateKeyHex, receiverPublicKeyHex) {
+    const senderPrivateKey = ec.keyFromPrivate(senderPrivateKeyHex, 'hex');
+    const receiverPublicKey = ec.keyFromPublic(receiverPublicKeyHex, 'hex');
 
-    // Derive a shared secret using the public key
-    const sharedKey = publicKey.getPublic().encode('hex'); // using public key as shared key
+    const sharedKey = senderPrivateKey.derive(receiverPublicKey.getPublic()).toString(16); // Derive shared key
     const key = CryptoJS.SHA256(sharedKey).toString(CryptoJS.enc.Hex);
 
-    // Encrypt the data using AES-256-CBC with the fixed IV
-    const cipher = CryptoJS.AES.encrypt(data, CryptoJS.enc.Hex.parse(key), { iv: fixedIV, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
+    const iv = CryptoJS.lib.WordArray.random(16); // Random IV
+    const cipher = CryptoJS.AES.encrypt(data, CryptoJS.enc.Hex.parse(key), { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
 
-    return cipher.toString()
+    return { cipher: cipher.toString(), iv: iv.toString() };
 }
-export async function decryptData(encryptedData, privateKeyHex) {
-    const fixedIV = CryptoJS.enc.Hex.parse('00000000000000000000000000000000');
-    const iv = fixedIV.toString(CryptoJS.enc.Hex)
 
-    const privateKey = ec.keyFromPrivate(privateKeyHex, 'hex');
-    const publicKey = privateKey.getPublic();
 
-    // Derive the shared secret using the recipient's private key
-    const sharedKey = publicKey.encode('hex'); // using public key as shared key
+export async function decryptData(encryptedData, ivHex, senderPublicKeyHex, receiverPrivateKeyHex) {
+    const receiverPrivateKey = ec.keyFromPrivate(receiverPrivateKeyHex, 'hex');
+    const senderPublicKey = ec.keyFromPublic(senderPublicKeyHex, 'hex');
+    const sharedKey = receiverPrivateKey.derive(senderPublicKey.getPublic()).toString(16); // Derive shared key
     const key = CryptoJS.SHA256(sharedKey).toString(CryptoJS.enc.Hex);
 
-    // Decrypt the data using AES-256-CBC with the fixed IV
-    const ivWordArray = CryptoJS.enc.Hex.parse(iv);
-    const decrypted = CryptoJS.AES.decrypt(encryptedData, CryptoJS.enc.Hex.parse(key), { iv: ivWordArray, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
+    const iv = CryptoJS.enc.Hex.parse(ivHex);
+    const decrypted = CryptoJS.AES.decrypt(encryptedData, CryptoJS.enc.Hex.parse(key), { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
 
     return decrypted.toString(CryptoJS.enc.Utf8);
 }
+// export async function encryptData(data, publicKeyHex) {
+//     const publicKey = ec.keyFromPublic(publicKeyHex, 'hex');
+//     const fixedIV = CryptoJS.enc.Hex.parse('00000000000000000000000000000000');
+
+//     // Derive a shared secret using the public key
+//     const sharedKey = publicKey.getPublic().encode('hex'); // using public key as shared key
+//     const key = CryptoJS.SHA256(sharedKey).toString(CryptoJS.enc.Hex);
+
+//     // Encrypt the data using AES-256-CBC with the fixed IV
+//     const cipher = CryptoJS.AES.encrypt(data, CryptoJS.enc.Hex.parse(key), { iv: fixedIV, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
+
+//     return cipher.toString()
+// }
+// export async function decryptData(encryptedData, privateKeyHex) {
+//     const fixedIV = CryptoJS.enc.Hex.parse('00000000000000000000000000000000');
+//     const iv = fixedIV.toString(CryptoJS.enc.Hex)
+
+//     const privateKey = ec.keyFromPrivate(privateKeyHex, 'hex');
+//     const publicKey = privateKey.getPublic();
+
+//     // Derive the shared secret using the recipient's private key
+//     const sharedKey = publicKey.encode('hex'); // using public key as shared key
+//     const key = CryptoJS.SHA256(sharedKey).toString(CryptoJS.enc.Hex);
+
+//     // Decrypt the data using AES-256-CBC with the fixed IV
+//     const ivWordArray = CryptoJS.enc.Hex.parse(iv);
+//     const decrypted = CryptoJS.AES.decrypt(encryptedData, CryptoJS.enc.Hex.parse(key), { iv: ivWordArray, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
+
+//     return decrypted.toString(CryptoJS.enc.Utf8);
+// }
 
 export async function imageFileToBase64(file) {
     return new Promise((resolve, reject) => {
@@ -164,10 +189,16 @@ export function remove0x(input) {
     }
     return input;
 }
+export function add0x(input) {
+    return "0x" + input
+}
 export function extractEncryptedDataFromJson(jsonString) {
     try {
         const obj = JSON.parse(jsonString);
-        return obj.encryptedData || 'Encrypted data not found';
+        return {
+            cipher: obj.cipher || 'Cipher not found',
+            iv: obj.iv || 'IV not found'
+        };
     } catch (error) {
         console.error('Error parsing JSON:', error);
         return null;

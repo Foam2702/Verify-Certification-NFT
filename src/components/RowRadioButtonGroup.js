@@ -28,7 +28,9 @@ import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt
 import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDissatisfied';
 import useSigner from "../state/signer";
 import { v4 as uuidv4 } from 'uuid'
-import { hashImage, isExistsInPinata, encryptData, decryptData, remove0x, imageUpload, fetchImagePinata, addFileToIPFS, imageFileToBase64, base64ToImageFile } from "../helpers";
+const { ethers } = require("ethers");
+
+import { hashImage, isExistsInPinata, encryptData, decryptData, extractEncryptedDataFromJson, add0x, remove0x, imageUpload, fetchImagePinata, addFileToIPFS, imageFileToBase64, base64ToImageFile } from "../helpers";
 export default function RowRadioButtonsGroup({ course, exam }) {
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [responseData, setResponseData] = useState([]);
@@ -201,13 +203,16 @@ export default function RowRadioButtonsGroup({ course, exam }) {
         const formData = new FormData(e.currentTarget);
         setPrivateKey(formData.get('privatekey'))
     }
-    const handleDecryptTicket = async (prop, privateKey) => {
+    const handleDecryptTicket = async (prop, publicKeyOwner, privateKey) => {
         if (!prop) {
             return null;
         }
 
         try {
-            const result = await decryptData(JSON.parse(prop), privateKey);
+
+            const parseProp = extractEncryptedDataFromJson(prop)
+            const result = await decryptData(parseProp.cipher, parseProp.iv, remove0x(publicKeyOwner), privateKey);
+
             if (!result) {
                 handleDecryptionError("Wrong private key");
                 return null;
@@ -241,18 +246,23 @@ export default function RowRadioButtonsGroup({ course, exam }) {
     const sendToIssuer = async () => {
         try {
             setLoading(true)
+            const ownerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`)
+            if (ownerPublicKeysResponse.data.address.length === 0) {
+                return;
+            }
+            const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
             let image_res = ''
             let hashImg = ''
             const user = await axios(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`)
             const id = uuidv4();
             const decryptedUser = {
-                name: await handleDecryptTicket(user.data.address[0].name, privateKey),
-                email: await handleDecryptTicket(user.data.address[0].email, privateKey),
-                citizenId: await handleDecryptTicket(user.data.address[0].citizen_id, privateKey),
-                gender: await handleDecryptTicket(user.data.address[0].gender, privateKey),
-                dob: await handleDecryptTicket(user.data.address[0].dob, privateKey),
-                workUnit: await handleDecryptTicket(user.data.address[0].work_unit, privateKey),
-                region: await handleDecryptTicket(user.data.address[0].region, privateKey),
+                name: await handleDecryptTicket(user.data.address[0].name, publicKeyOwner, privateKey),
+                email: await handleDecryptTicket(user.data.address[0].email, publicKeyOwner, privateKey),
+                citizenId: await handleDecryptTicket(user.data.address[0].citizen_id, publicKeyOwner, privateKey),
+                gender: await handleDecryptTicket(user.data.address[0].gender, publicKeyOwner, privateKey),
+                dob: await handleDecryptTicket(user.data.address[0].dob, publicKeyOwner, privateKey),
+                workUnit: await handleDecryptTicket(user.data.address[0].work_unit, publicKeyOwner, privateKey),
+                region: await handleDecryptTicket(user.data.address[0].region, publicKeyOwner, privateKey),
                 point: point.toString(),
                 issueDate: new Date().toLocaleDateString(),
                 certificateName: course[0].name,
@@ -270,15 +280,15 @@ export default function RowRadioButtonsGroup({ course, exam }) {
             const fieldsToEncrypt = [
                 'citizenId', 'name', 'region', 'dob', 'gender', 'email',
                 'workUnit', 'point', 'issueDate'];
-            const publicKeyOwner = user.data.address[0].publickey
+
             hashImg = hashImage(image)
-            const imageEncrypt = await encryptData(image, remove0x(publicKeyOwner));
+            const imageEncrypt = await encryptData(image, privateKey, remove0x(publicKeyOwner));
             image_res = await imageUpload(imageEncrypt, hashImg, address, decryptedUser["certificateName"])
             const issuers = await checkIssuer(course[0].licensing_authority);
             const formData = new FormData();
 
             for (const field of fieldsToEncrypt) {
-                const encryptedData = decryptedUser[field] ? await encryptData(decryptedUser[field], remove0x(publicKeyOwner)) : null;
+                const encryptedData = decryptedUser[field] ? await encryptData(decryptedUser[field], privateKey, remove0x(publicKeyOwner)) : null;
                 formData.append(field, JSON.stringify(encryptedData));
             }
             formData.append("expiryDate", null)
@@ -294,9 +304,9 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                 const formData = new FormData();
                 const publicKeyIssuer = issuerPublicKeysResponse.data.address[0].publickey
 
-                const imageEncrypt = await encryptData(image, remove0x(issuerPublicKeysResponse.data.address[0].publickey));
+                const imageEncrypt = await encryptData(image, privateKey, remove0x(issuerPublicKeysResponse.data.address[0].publickey));
                 for (const field of fieldsToEncrypt) {
-                    const encryptedData = decryptedUser[field] ? await encryptData(decryptedUser[field], remove0x(publicKeyIssuer)) : null;
+                    const encryptedData = decryptedUser[field] ? await encryptData(decryptedUser[field], privateKey, remove0x(publicKeyIssuer)) : null;
                     formData.append(field, JSON.stringify(encryptedData));
                 }
 

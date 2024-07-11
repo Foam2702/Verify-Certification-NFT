@@ -156,6 +156,82 @@ export const Profile = () => {
             return
         }
     }
+    const handleUpdateInfoAfterCorrectPriv = async (e) => {
+        e.preventDefault()
+        setLoading(true); // Start loading before sending the request
+
+
+        const form = document.querySelector("form");
+        // Get the form data
+        const data = Array.from(form.elements)
+            .filter((input) => input.name)
+            .reduce(
+                (obj, input) => Object.assign(obj, { [input.name]: input.value }),
+                {}
+            );
+        console.log(data)
+        const fields = [
+            'citizenId', 'name', 'region', 'dob', 'gender', 'email',
+            'workUnit'
+        ];
+        for (const field of fields) {
+            if (!data[field]) {
+                setMessageAlert(`Please fill out the ${field} field.`);
+                setAlertSeverity("warning");
+                setShowAlert(true);
+                setLoading(false);
+                return;
+            }
+        }
+
+        const formData = new FormData();
+        //Email
+        let emailPattern = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        if (!emailPattern.test(data.email)) {
+            setMessageAlert(`Invalid Mail`);
+            setAlertSeverity("warning");
+            setShowAlert(true);
+            setLoading(false);
+            document.querySelector("[name='email']").classList.add('invalid-input');
+            return;
+        } else {
+            console.log("Valid email");
+        }
+        for (const field of fields) {
+            formData.append(field, data[field]);
+        }
+        const ownerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`)
+
+        const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
+
+        const response = await axios.patch(`https://verify-certification-nft-production.up.railway.app/addresses/profile/${address}`, {
+            citizenId: await encryptData(data.citizenId, privateKey, remove0x(publicKeyOwner)),
+            name: await encryptData(data.name, privateKey, remove0x(publicKeyOwner)),
+            region: await encryptData(data.region, privateKey, remove0x(publicKeyOwner)),
+            dob: await encryptData(data.dob, privateKey, remove0x(publicKeyOwner)),
+            gender: await encryptData(data.gender, privateKey, remove0x(publicKeyOwner)),
+            email: await encryptData(data.email, privateKey, remove0x(publicKeyOwner)),
+            workUnit: await encryptData(data.workUnit, privateKey, remove0x(publicKeyOwner))
+
+        });
+        if (response.data.message == "Updated successfully") {
+            setMessageAlert("Updated successfully");
+            setAlertSeverity("success");
+            setShowAlert(true);
+            setLoading(false)
+            window.location.reload();
+            return
+        }
+        else {
+            setMessageAlert("Updated fail");
+            setAlertSeverity("error");
+            setShowAlert(true);
+            setLoading(false)
+            return
+        }
+
+
+    }
     const handleClose = async (event, reason) => {
         if (reason === 'clickaway') {
             return;
@@ -530,7 +606,7 @@ export const Profile = () => {
 
                             {isPrivateKeyValid &&
                                 <div className="body-button">
-                                    <button className="submit-button" type="submit">
+                                    <button className="submit-button" type="submit" onClick={handleUpdateInfoAfterCorrectPriv}>
                                         <div className="submit">Update</div>
                                     </button>
                                     <button className="cancel-button" type="button" onClick={onCancelBtnClick}>
@@ -599,7 +675,7 @@ export const Profile = () => {
                                 <Button onClick={handleCloseDialog}>Cancel</Button>
                             </DialogActions>
                         </Dialog>
-                        <form className="careers-section" encType="multipart/form-data" onSubmit={handleUpdateInfo}>
+                        <form className="careers-section" encType="multipart/form-data" >
                             <div className="careers-section-inner">
                                 <div className="name-parent">
                                     <div className="name">
@@ -679,7 +755,7 @@ export const Profile = () => {
                                 </div>
                             </div>
                             <div className="body-button">
-                                <button className="submit-button" type="submit" onClick={handleClickOpen}>
+                                <button className="submit-button" onClick={handleClickOpen}>
                                     <div className="submit">Update</div>
                                 </button>
                                 <button className="cancel-button" type="button" onClick={onCancelBtnClick}>

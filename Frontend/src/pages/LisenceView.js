@@ -72,15 +72,10 @@ const LisenceView = () => {
   }
 
   const handleDecryptTicket = async (prop, privateKey, publicKeyOwner) => {
-
-
-    const parseProp = extractEncryptedDataFromJson(prop)
     if (prop != null && prop != '' && prop != undefined) {
       try {
-        console.log(parseProp.cipher)
-        console.log(parseProp.iv)
-        console.log(publicKeyOwner)
-        console.log(privateKey)
+        const parseProp = extractEncryptedDataFromJson(prop)
+
         const result = await decryptData(parseProp.cipher, parseProp.iv, remove0x(publicKeyOwner), privateKey);
         if (!result) throw new Error("Wrong private key");
         return result;
@@ -158,12 +153,14 @@ const LisenceView = () => {
           const opensea_url = certificate.opensea_url
           const image = await handleDecryptImage(extractPinataCID(nfts.data.image), privateKey, publicKeyOwner);
           const decryptedAttributes = await Promise.all(nfts.data.attributes.map(async (attribute) => {
-            console.log(attribute.value)
             // if (attribute.value.startsWith('"') && attribute.value.endsWith('"')) {
 
             //   attribute.value = await handleDecryptTicket(attribute.value, privateKey, publicKeyOwner);
             // }
-            attribute.value = await handleDecryptTicket(attribute.value, privateKey, publicKeyOwner);
+            if (attribute.trait_type != "status" && attribute.trait_type != "licensing_authority") {
+              attribute.value = await handleDecryptTicket(attribute.value, privateKey, publicKeyOwner);
+
+            }
 
             return attribute;
           }));

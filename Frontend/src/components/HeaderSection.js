@@ -137,6 +137,25 @@ const HeaderSection = () => {
             setMessageAlert("Sign successfully");
             setShowAlert(true);
           }
+          else if (checkPublicKeyExisted.data.address.length !== 0) {
+            if (checkPublicKeyExisted.data.address[0].publickey == null) {
+              const publicKey = await getPublicKey(); // Await the result of getPublicKey
+              if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
+                setAlertSeverity("warning");
+                setMessageAlert("Reject to sign");
+                setShowAlert(true);
+                return
+              }
+              await axios.post(`http://localhost:8080/addresses/${address}`, {
+                address: address, // Include the address in the body
+                publicKey: publicKey // Include the public key in the body
+              });
+
+              setAlertSeverity("success");
+              setMessageAlert("Sign successfully");
+              setShowAlert(true);
+            }
+          }
         } catch (err) {
           console.log("INSERT PUB")
           console.log(err);

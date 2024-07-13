@@ -20,27 +20,34 @@ module.exports = {
     },
     insertAddressPub: async (address, pub) => {
         try {
-            await sql`
+            const addressExist = await sql`SELECT * FROM address where address=${address}`
+            if (addressExist.length == 0) {
+                await sql`
             INSERT INTO address (address, publickey) VALUES (${address}, ${pub})
-        `;
-            return true;
+            `;
+                return true;
+
+            }
+            else if (addressExist.length != 0) {
+                await sql`UPDATE address SET publickey =${pub} WHERE address=${address}`
+                return true
+            }
+
         }
         catch (err) {
             return err
         }
 
     },
-    updateAddressPub: async (id, address) => {
-        const result = await sql`
-            UPDATE address SET address=${address} WHERE id=${id}
-        `;
-        return result;
-    },
-    deleteAddressPub: async (id) => {
-        const result = await sql`
-            DELETE FROM address WHERE id=${id}
-        `;
-        return result;
+    insertAddress: async (address) => {
+        try {
+            await sql`
+            INSERT INTO address (address) VALUES (${address})
+            `;
+            return true;
+        } catch (err) {
+            return err
+        }
     },
     updateInfo: async (address, user) => {
         try {

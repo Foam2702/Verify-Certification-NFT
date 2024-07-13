@@ -150,17 +150,24 @@ const AddIssuer = () => {
         } else {
             // Your code to add a new issuer
             try {
-                const tx = await contract.addVerifier(newAddress, org);
-                setLoading(true)
-                await tx.wait();
-                setLoading(false)
-
-                console.log(tx);
-                setAlertSeverity("success");
-                setMessageAlert("Add Issuer successfully");
-                setShowAlert(true);
-                setRefresh(prevFlag => !prevFlag)
-
+                // const tx = await contract.addVerifier(newAddress, org);
+                // setLoading(true)
+                // await tx.wait();
+                // setLoading(false)
+                const result = await axios.post(`http://localhost:8080/addresses?address=${newAddress}`)
+                console.log(result)
+                if (result.data.message == "Inserted successfully") {
+                    setAlertSeverity("success");
+                    setMessageAlert("Add Issuer successfully");
+                    setShowAlert(true);
+                    setRefresh(prevFlag => !prevFlag)
+                }
+                else if (result.data.message == 'Inserted fail') {
+                    setAlertSeverity("warning");
+                    setMessageAlert("Add Issuer failed");
+                    setShowAlert(true);
+                    setRefresh(prevFlag => !prevFlag)
+                }
             } catch (err) {
                 setAlertSeverity("error");
                 // Check if the error code indicates the user rejected the transaction
@@ -240,7 +247,6 @@ const AddIssuer = () => {
             setLoading(true)
             await tx.wait();
             setLoading(false)
-            console.log(tx);
             setAlertSeverity("success");
             setMessageAlert("Delete Issuer successfully");
             setShowAlert(true);

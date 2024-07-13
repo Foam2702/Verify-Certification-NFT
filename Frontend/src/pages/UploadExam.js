@@ -255,7 +255,7 @@ const UploadExam = () => {
             return
         }
         try {
-            const result = await axios.post("https://verify-certification-nft-production.up.railway.app/exam/postexam", dataToSave)
+            const result = await axios.post("http://localhost:8080/exam/postexam", dataToSave)
             if (result.data.message == "Insert Exam successfully") {
                 setMessageAlert("Exam created successfully");
                 setAlertSeverity("success");
@@ -511,7 +511,6 @@ const UploadExam = () => {
 
                                 <div className="input-upload-file" style={{ border: '1px solid', width: '30%', marginTop: '20px' }}>
                                     <div className="input-box-background" />
-                                    {/* <div classname="input-image"> */}
                                     <input
                                         className="example-here"
                                         name="imageCertificate"
@@ -522,7 +521,6 @@ const UploadExam = () => {
                                     />
                                     <MultiActionAreaCard image={imageUrl} size={350} sx={{ Margin: 10 }} />
 
-                                    {/* </div> */}
                                 </div>
                             </div>
 

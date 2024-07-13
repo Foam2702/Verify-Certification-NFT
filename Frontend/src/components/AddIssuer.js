@@ -17,17 +17,26 @@ import useSigner from "../state/signer";
 import CircularProgress from '@mui/material/CircularProgress';
 import CachedIcon from '@mui/icons-material/Cached';
 import { Tooltip, IconButton } from '@mui/material';
-import { minifyAddress } from "../helpers";
-
+import { minifyAddress, imageFileToBase64 } from "../helpers";
+import MultiActionAreaCard from "../components/MultiACtionAreaCard";
+import axios from 'axios'
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
 const AddIssuer = () => {
     const { signer, address, connectWallet, contract, provider, getPublicKey } = useSigner()
     const [issuers, setIssuers] = useState([])
     const [open, setOpen] = useState(false);
+    const [openOrg, setOpenOrg] = useState(false)
     const [showAlert, setShowAlert] = useState(false);
     const [messageAlert, setMessageAlert] = useState("")
     const [loading, setLoading] = useState(false);
     const [alertSeverity, setAlertSeverity] = useState("");
     const [refresh, setRefresh] = useState(false);
+    const [imageUrl, setImageUrl] = useState("")
+    const [file, setFile] = useState(null)
+    const [orgs, setOrgs] = useState([])
+    const [org, setOrg] = useState('')
     const handleClickOpen = () => {
         setOpen(true);
     };
@@ -35,6 +44,13 @@ const AddIssuer = () => {
     const handleClose = () => {
         setOpen(false);
     };
+    const handleClickOpenOrg = () => {
+        setOpenOrg(true)
+
+    }
+    const handleCloseOrg = async () => {
+        setOpenOrg(false)
+    }
     const handleCloseAlert = async (event, reason) => {
         if (reason === 'clickaway') {
             return;
@@ -65,6 +81,22 @@ const AddIssuer = () => {
         }
         fetchOrg();
     }, [refresh])
+    useEffect(() => {
+        const loadOrgDB = async () => {
+            try {
+                const result = await axios.get("http://localhost:8080/organization");
+                console.log(result.data.org)
+                if (Array.isArray(result.data.org)) {
+                    setOrgs(result.data.org);
+                } else {
+                    console.error('Fetched organization data is not an array', result.data.org);
+                }
+            } catch (error) {
+                console.error('Error fetching organization data', error);
+            }
+        };
+        loadOrgDB();
+    }, []);
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const columns = [
@@ -108,11 +140,8 @@ const AddIssuer = () => {
         const formData = new FormData(event.currentTarget);
         const formJson = Object.fromEntries(formData.entries());
         const newAddress = formJson.address;
-        console.log(newAddress);
-        const newOrganization = formJson.organization;
-        console.log(newOrganization);
+        console.log(newAddress, org)
         if (issuers.some(issuer => issuer.address === newAddress)) {
-            console.log("Issuer with this address already exists.");
             // Optionally, you can set an alert message here to inform the user.
             setAlertSeverity("error");
 
@@ -120,10 +149,8 @@ const AddIssuer = () => {
             setShowAlert(true);
         } else {
             // Your code to add a new issuer
-            console.log(newAddress);
-            console.log(newOrganization);
             try {
-                const tx = await contract.addVerifier(newAddress, newOrganization);
+                const tx = await contract.addVerifier(newAddress, org);
                 setLoading(true)
                 await tx.wait();
                 setLoading(false)
@@ -135,7 +162,6 @@ const AddIssuer = () => {
                 setRefresh(prevFlag => !prevFlag)
 
             } catch (err) {
-                console.log("ERR", err);
                 setAlertSeverity("error");
                 // Check if the error code indicates the user rejected the transaction
                 if (err.code === "ACTION_REJECTED") {
@@ -148,6 +174,66 @@ const AddIssuer = () => {
         }
         handleClose();
     };
+    const handleSubmitOrg = async (event) => {
+        event.preventDefault();
+        setLoading(true)
+        const formData = new FormData(event.currentTarget);
+        const formJson = Object.fromEntries(formData.entries());
+        const newOrganization = formJson.organization;
+        const org = {
+            newOrganization,
+            imageUrl
+        }
+        console.log(org)
+        // Your code to add a new issuer
+        try {
+            const result = await axios.post("http://localhost:8080/organization", org)
+            if (result.data.message == "insert success") {
+                setAlertSeverity("success");
+                setMessageAlert("Add Organization successfully");
+                setShowAlert(true);
+                setLoading(false)
+            }
+            else if (result.data.message == "insert fail") {
+                setAlertSeverity("warning");
+                setMessageAlert("Add Organization fail");
+                setShowAlert(true);
+                setLoading(false)
+            }
+            else {
+                setAlertSeverity("warning");
+                setMessageAlert("Something went wrong");
+                setShowAlert(true);
+                setLoading(false)
+            }
+
+        } catch (err) {
+            setAlertSeverity("error");
+            setMessageAlert("Error");
+            setShowAlert(true);
+            setLoading(false)
+        }
+
+        handleCloseOrg();
+        setImageUrl("")
+
+    }
+    const onfileChange = async (event) => {
+        setFile(event.target.files);
+        if (event.target.files.length > 0) {
+            const file = event.target.files[0];
+            try {
+                const base64ImageString = await imageFileToBase64(file);
+                setImageUrl(base64ImageString);
+            } catch (error) {
+                console.error('Error converting file to base64', error);
+            }
+        }
+    };
+    const handleChangeOrg = (event) => {
+        setOrg(event.target.value);
+    };
+
     const handleDelete = async (address) => {
         try {
             const tx = await contract.removeVerifier(address);
@@ -181,17 +267,22 @@ const AddIssuer = () => {
                 </div>
             )}
             <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                <Button variant="contained" color="success" sx={{ my: "20px", fontSize: "1em" }} onClick={handleClickOpen}>
+                <Button variant="contained" color="success" sx={{ my: "20px", mx: "30px", fontSize: "1em" }} onClick={handleClickOpen}>
                     <AddIcon />
                     NEW ISSUER
+                </Button>
+
+                <Button variant="contained" color="success" sx={{ my: "20px", fontSize: "1em" }} onClick={handleClickOpenOrg}>
+                    <AddIcon />
+                    NEW ORGANIZATION
                 </Button>
                 <Tooltip title="Refresh" sx={{ mx: '20px' }}>
                     <IconButton size="large" onClick={() => setRefresh(prevFlag => !prevFlag)}>
                         <CachedIcon fontSize="large" />
                     </IconButton>
                 </Tooltip>
-
             </Box>
+            {/* Open Issuer */}
             <Dialog
                 open={open}
                 onClose={handleClose}
@@ -233,14 +324,57 @@ const AddIssuer = () => {
 
                         }}
                     />
-                    <TextField
+                    <InputLabel id="demo-simple-select-label">Organization</InputLabel>
+                    <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        value={org}
+                        fullWidth
+                        label="Organization"
+                        onChange={handleChangeOrg}
+                    >
+                        {orgs.map((organization) => (
+                            <MenuItem value={organization.org}>{organization.org}</MenuItem>
+                        ))}
+                    </Select>
 
+                </DialogContent>
+                <DialogActions>
+                    <Button type="submit">Add</Button>
+
+                    <Button onClick={handleClose}>Cancel</Button>
+                </DialogActions>
+            </Dialog>
+            {/* Open Org */}
+            <Dialog
+                open={openOrg}
+                onClose={handleCloseOrg}
+                PaperProps={{
+                    component: 'form',
+                    onSubmit: handleSubmitOrg
+
+                }}
+
+                maxWidth="md" // Adjust this value as needed (sm, md, lg, xl)
+                sx={{
+                    '& .MuiDialogContent-root': { fontSize: '1.25rem' }, // Adjust font size for dialog content
+                    '& .MuiTextField-root': { fontSize: '1.25rem' }, // Adjust font size for text fields
+                    '& .MuiButton-root': { fontSize: '1.25rem' }, // Adjust font size for buttons
+                }}
+            >
+                <DialogTitle sx={{ fontSize: '1.5rem' }}>New Organization</DialogTitle>
+                <DialogContent>
+                    <DialogContentText sx={{ fontSize: '1.5rem' }}>
+                        To add new organization , please enter organization name and image of organization.
+                    </DialogContentText>
+                    <TextField
+                        autoFocus
                         required
                         margin="normal"
-                        id="org"
+                        id="name"
                         name="organization"
-                        label="Organization"
-                        type="text"
+                        label="Organization name"
+                        type="organization"
                         fullWidth
                         variant="outlined"
                         sx={{
@@ -249,14 +383,28 @@ const AddIssuer = () => {
                             },
                             '& .MuiInputLabel-root': {
                                 fontSize: '1.25rem', // Increase label font size
-                            }
+                            },
+
                         }}
                     />
+                    <div className="input-upload-file" style={{ border: '1px solid', width: '100%', marginTop: '20px' }}>
+                        <div className="input-box-background" />
+                        <input
+                            className="example-here"
+                            name="imageCertificate"
+                            type="file"
+                            accept=".jpg"
+                            multiple
+                            onChange={onfileChange}
+                        />
+                        <MultiActionAreaCard image={imageUrl} size={350} sx={{ Margin: 10 }} />
+
+                    </div>
                 </DialogContent>
                 <DialogActions>
                     <Button type="submit">Add</Button>
 
-                    <Button onClick={handleClose}>Cancel</Button>
+                    <Button onClick={handleCloseOrg}>Cancel</Button>
                 </DialogActions>
             </Dialog>
             <Box m="20px">

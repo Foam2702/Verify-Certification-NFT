@@ -98,7 +98,7 @@ const HeaderSection = () => {
   useEffect(() => {
     const fetchTickets = async () => {
       try {
-        const allTickets = await axios("https://verify-certification-nft-production.up.railway.app/tickets/all");
+        const allTickets = await axios("http://localhost:8080/tickets/all");
         if (Array.isArray(allTickets.data.tickets)) {
           const newTickets = allTickets.data.tickets.filter(
             (ticket) => ticket.issuer_address === address || ticket.owner_address === address
@@ -119,7 +119,7 @@ const HeaderSection = () => {
     const insertPubToDB = async () => {
       if (address) {
         try {
-          const checkPublicKeyExisted = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`);
+          const checkPublicKeyExisted = await axios.get(`http://localhost:8080/addresses/${address}`);
           if (checkPublicKeyExisted.data.address.length === 0) {
             const publicKey = await getPublicKey();
             if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
@@ -129,7 +129,7 @@ const HeaderSection = () => {
               return;
             }
 
-            await axios.post(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`, {
+            await axios.post(`http://localhost:8080/addresses/${address}`, {
               address,
               publicKey,
             });

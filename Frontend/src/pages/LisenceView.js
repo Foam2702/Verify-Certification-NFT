@@ -141,7 +141,7 @@ const LisenceView = () => {
 
       try {
         const newDecryptedCertificates = [];
-        const ownerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`)
+        const ownerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${address}`)
         if (ownerPublicKeysResponse.data.address.length === 0) {
           return;
         }

@@ -74,7 +74,7 @@ module.exports = {
     },
     getAllInfoTicket: async (req, res) => {
         const cities = await ticketModel.getAllCities();
-        const certificates = await organizationModel.getAllOrganization();
+        const certificates = await organizationModel.getAllCertificates();
         res.json({
             "code": "200",
             "status": "success",

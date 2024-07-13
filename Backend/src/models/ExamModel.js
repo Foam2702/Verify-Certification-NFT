@@ -8,8 +8,6 @@ module.exports = {
         } catch (err) {
             return err
         }
-
-
     },
     insertQuestions: async (data) => {
         try {

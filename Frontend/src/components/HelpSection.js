@@ -9,7 +9,7 @@ import Alert from '@mui/material/Alert';
 import useSigner from "../state/signer";
 const HelpSection = () => {
   const [loading, setLoading] = useState(false)
-  const { signer, address, connectWallet } = useSigner()
+  const { signer, address, connectWallet, getPublicKey } = useSigner()
   const navigate = useNavigate();
 
   const handleVerification = async () => {
@@ -36,15 +36,46 @@ const HelpSection = () => {
   }
   const handleUploadExam = async () => {
     setLoading(true); // Start loading
-    setTimeout(() => {
-      if (!address) {
-        navigate("/");
-      } else {
-        navigate("/uploadexam");
-      }
-      setLoading(false);
-    }, 1000);
+    console.log("IM HERRE")
+    const checkPub = await insertPubToDB()
+    console.log(checkPub)
+    if (!address) {
+      navigate("/");
+    }
+    else if (!checkPub) {
+      console.log("HELLO")
+      navigate("/");
+    } else if (checkPub && address) {
+      console.log("still ")
+      navigate("/uploadexam");
+    }
+    setLoading(false);
+
   }
+  const insertPubToDB = async () => {
+    if (address) {
+      try {
+        const checkPublicKeyExisted = await axios.get(`http://localhost:8080/addresses/${address}`);
+        if (checkPublicKeyExisted.data.address.length === 0) {
+          const publicKey = await getPublicKey(); // Await the result of getPublicKey
+          if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
+            return false
+          }
+          await axios.post(`http://localhost:8080/addresses/${address}`, {
+            address: address, // Include the address in the body
+            publicKey: publicKey // Include the public key in the body
+          });
+          return true
+
+        }
+        return true
+      }
+      catch (err) {
+        console.log(err)
+        return false
+      }
+    }
+  };
   return (
     <>
       {loading && (

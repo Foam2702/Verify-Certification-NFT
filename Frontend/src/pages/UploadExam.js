@@ -60,6 +60,34 @@ const UploadExam = () => {
             }
         };
         checkIssuer();
+        const insertPubToDB = async () => {
+            setLoading(true)
+            if (address) {
+                try {
+                    const checkPublicKeyExisted = await axios.get(`http://localhost:8080/addresses/${address}`);
+                    if (checkPublicKeyExisted.data.address.length === 0) {
+                        const publicKey = await getPublicKey(); // Await the result of getPublicKey
+                        if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
+                            navigate("/")
+                        }
+                        await axios.post(`http://localhost:8080/addresses/${address}`, {
+                            address: address, // Include the address in the body
+                            publicKey: publicKey // Include the public key in the body
+                        });
+
+                        setLoading(false)
+
+                    }
+
+                }
+                catch (err) {
+                    console.log(err)
+                    navigate("/")
+
+                }
+            }
+        };
+        insertPubToDB()
     }, [address, signer]);
 
     const onfileChange = async (event) => {

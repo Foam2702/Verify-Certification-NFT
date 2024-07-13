@@ -21,6 +21,7 @@ export const SignerProvider = ({ children }) => {
         if (typeof window.ethereum !== 'undefined') {
             const web3modal = new Web3Modal();
             if (web3modal.cachedProvider) {
+
                 connectWallet();
             }
 

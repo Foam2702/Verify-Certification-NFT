@@ -211,7 +211,7 @@ const BodySection = () => {
               formData.append(field, JSON.stringify(encryptedData));
             }
 
-            formData.append("issuerAddress", null)
+            formData.append("issuerAddress", ' ')
             formData.append("cidCertificate", image_res)
             formData.append("id", id)
             formData.append("owner", address)
@@ -409,7 +409,7 @@ const BodySection = () => {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog} type="submit">Encrypt</Button>
+          <Button onClick={handleCloseDialog} type="submit">Enter</Button>
           <Button onClick={handleCloseDialog}>Cancel</Button>
         </DialogActions>
       </Dialog>

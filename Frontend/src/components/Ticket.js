@@ -120,6 +120,7 @@ const Ticket = ({ ticket }) => {
                 setDecryptedImage(imageCertificate)
                 setError(null); // Clear any previous errors
                 setLoading(false)
+                console.log("DEC", decryptedImage)
             } catch (err) {
                 setLoading(false)
                 // setError("Wrong private key"); // No need to set error here since it's already set in handleDecryptTicket
@@ -158,7 +159,10 @@ const Ticket = ({ ticket }) => {
         setLoading(true)
         try {
             const status = "reject"
-            const owner = await axios(`http://localhost:8080/tickets/ticket/${ticket.id}?address=`)
+            const empty = ' '
+            const encodedEmpty = encodeURIComponent(empty);
+            const owner = await axios(`http://localhost:8080/tickets/ticket/${ticket.id}?address=${encodedEmpty}`)
+            console.log("OWNERR", owner)
             await deletePinIPFS(owner.data.ticket[0].certificate_cid)
             for (let address of issuer) {
                 const issuer_org = await axios(`http://localhost:8080/tickets/ticket/${ticket.id}?address=${address}`);
@@ -198,7 +202,9 @@ const Ticket = ({ ticket }) => {
         event.preventDefault()
         setLoading(true);
         try {
-            const userTicket = await axios(`http://localhost:8080/tickets/ticket/${ticket.id}?address=`)
+            const empty = ' '
+            const encodedEmpty = encodeURIComponent(empty);
+            const userTicket = await axios(`http://localhost:8080/tickets/ticket/${ticket.id}?address=${encodedEmpty}`)
             ticket = userTicket.data.ticket[0];
             ticket.status = "approved"
             const metadata = await pinJSONToIPFS(ticket)
@@ -282,6 +288,7 @@ const Ticket = ({ ticket }) => {
         setLoading(true)
         if (addressContract && tokenID) {
             try {
+
                 const wasAdded = await ethereum.request({
                     method: 'wallet_watchAsset',
                     params: {
@@ -711,25 +718,7 @@ const Ticket = ({ ticket }) => {
                                     </button>
                                 </div>
                             }
-                            {/* <div className="body-button1">
-                                <button className="check-button" onClick={handleCheckImage}>
-                                    <div className="check" >Check</div>
-                                </button>
-                                {imageMatch ?
-                                    <button className="submit-button" onClick={handleSubmit}>
-                                        <div className="submit">Mint</div>
-                                    </button>
-                                    :
-                                    <></>
-                                }
 
-                                <button className="reject-button" onClick={handleReject}>
-                                    <div className="reject">Reject</div>
-                                </button>
-                                <button className="cancel-button" onClick={handleCancle}>
-                                    <div className="cancel">Cancel</div>
-                                </button>
-                            </div> */}
                         </>
                         :
                         <></>

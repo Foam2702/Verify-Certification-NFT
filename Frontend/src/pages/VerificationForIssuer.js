@@ -29,7 +29,7 @@ export default function VerificationForIssuer() {
                     } else {
                         result.data.ticket.forEach(item => {
                             if (item.owner_address === address) {
-                                if (item.issuer_address === '') {
+                                if (item.issuer_address === ' ') {
                                     setTicket(item)
                                 }
                             }

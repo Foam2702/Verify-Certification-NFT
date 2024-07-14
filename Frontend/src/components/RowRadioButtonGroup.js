@@ -292,7 +292,7 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                 formData.append(field, JSON.stringify(encryptedData));
             }
             formData.append("expiryDate", null)
-            formData.append("issuerAddress", '')
+            formData.append("issuerAddress", ' ')
             formData.append("cidCertificate", image_res)
             formData.append("id", id)
             formData.append("owner", address)

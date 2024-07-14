@@ -108,7 +108,6 @@ const HeaderSection = () => {
           throw new Error('Unexpected data format');
         }
       } catch (err) {
-        console.log("FETCH TICKET")
         console.log(err);
       }
     };

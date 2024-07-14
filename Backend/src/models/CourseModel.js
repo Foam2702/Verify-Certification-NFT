@@ -64,6 +64,28 @@ module.exports = {
             SELECT * FROM course WHERE name=${name}
         `
         return result;
+    },
+    getCourseByOrg: async (org) => {
+        const result = await sql`SELECT * FROM course where licensing_authority=${org}`
+        return result
+    },
+    deleteOneCourseByOrg: async (org) => {
+        try {
+            await sql`delete from course where licensing_authority = ${org};`;
+            return true;
+        }
+        catch (err) {
+            return false
+        }
+    },
+    deleteQuestionByCourseId: async (course_id) => {
+        try {
+            await sql`delete from question where course = ${course_id};`;
+            return true;
+        }
+        catch (err) {
+            return false
+        }
     }
 
 

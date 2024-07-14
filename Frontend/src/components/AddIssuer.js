@@ -17,7 +17,7 @@ import useSigner from "../state/signer";
 import CircularProgress from '@mui/material/CircularProgress';
 import CachedIcon from '@mui/icons-material/Cached';
 import { Tooltip, IconButton } from '@mui/material';
-import { minifyAddress, imageFileToBase64 } from "../helpers";
+import { minifyAddress, imageFileToBase64, deletePinIPFS } from "../helpers";
 import MultiActionAreaCard from "../components/MultiACtionAreaCard";
 import axios from 'axios'
 import InputLabel from '@mui/material/InputLabel';
@@ -37,27 +37,6 @@ const AddIssuer = () => {
     const [file, setFile] = useState(null)
     const [orgs, setOrgs] = useState([])
     const [org, setOrg] = useState('')
-    const handleClickOpen = () => {
-        setOpen(true);
-    };
-
-    const handleClose = () => {
-        setOpen(false);
-    };
-    const handleClickOpenOrg = () => {
-        setOpenOrg(true)
-
-    }
-    const handleCloseOrg = async () => {
-        setOpenOrg(false)
-    }
-    const handleCloseAlert = async (event, reason) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-        setShowAlert(false);
-
-    };
     useEffect(() => {
         const fetchOrg = async () => {
             if (signer && contract) {
@@ -135,6 +114,28 @@ const AddIssuer = () => {
             }
         },
     ];
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
+    const handleClose = () => {
+        setOpen(false);
+    };
+    const handleClickOpenOrg = () => {
+        setOpenOrg(true)
+
+    }
+    const handleCloseOrg = async () => {
+        setOpenOrg(false)
+    }
+    const handleCloseAlert = async (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setShowAlert(false);
+
+    };
+
+
     const handleSubmit = async (event) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
@@ -154,7 +155,6 @@ const AddIssuer = () => {
                 setLoading(true)
                 await tx.wait();
                 const result = await axios.post(`http://localhost:8080/addresses?address=${newAddress}`)
-                console.log(result)
                 if (result.data.message == "Inserted successfully") {
                     setAlertSeverity("success");
                     setMessageAlert("Add Issuer successfully");
@@ -244,9 +244,37 @@ const AddIssuer = () => {
 
     const handleDelete = async (address) => {
         try {
+            const getOrgFromIssuer = await contract.getOrganizationCode(address)
+
             const tx = await contract.removeVerifier(address);
+
             setLoading(true)
             await tx.wait();
+            //xóa ticket lquan đến issuer vừa xóa
+            const tickets = await axios(`http://localhost:8080/tickets/address?address=${address}`)
+            tickets.data.tickets.map(async ticket => {
+                await deletePinIPFS(ticket.certificate_cid)
+                await axios.delete(`http://localhost:8080/tickets/address?address=${address}`)
+            })
+            console.log("ADD", address)
+            console.log("ORG", getOrgFromIssuer)
+
+            const checkOrg = await contract.getVerifiersByOrganizationCode(getOrgFromIssuer)
+            //kiểm tra có phải issuer cuối cùng bị xóa khỏi tổ chức
+            if (checkOrg.length == 0) {
+                //     //xóa ticket lquan đến tổ chức vừa xóa
+                const tickets_from_org = await axios(`http://localhost:8080/tickets/${getOrgFromIssuer}`)
+                //     //const tickets_from_org = await axios(`http://localhost:8080/tickets/ISC2`)
+                console.log(tickets_from_org)
+                tickets_from_org.data.tickets.map(async ticket => {
+                    console.log(ticket)
+                    await deletePinIPFS(ticket.certificate_cid)
+                    await axios.delete(`http://localhost:8080/tickets/address?address=${ticket.owner_address}`)
+                })
+                //xóa tổ chức
+                await axios.delete(`http://localhost:8080/organization?org=${getOrgFromIssuer}`)
+
+            }
             setLoading(false)
             setAlertSeverity("success");
             setMessageAlert("Delete Issuer successfully");
@@ -254,17 +282,16 @@ const AddIssuer = () => {
             setRefresh(prevFlag => !prevFlag)
 
         } catch (err) {
-            console.log("ERR", err);
             setAlertSeverity("error");
             // Check if the error code indicates the user rejected the transaction
             if (err.code === "ACTION_REJECTED") {
                 setMessageAlert("Rejected transaction");
             } else {
-                setMessageAlert("Failed to add new issuer");
+                setMessageAlert("Failed to delete issuer");
             }
             setShowAlert(true);
+            console.log(err)
         }
-        console.log(address)
     }
     return (
         <>

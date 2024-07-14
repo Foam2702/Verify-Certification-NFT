@@ -5,11 +5,8 @@ module.exports = {
         return certificates;
     },
     getAllOrganization: async () => {
-
-
         const organizations = await sql`select * from organization;`;
         return organizations;
-
     },
 
     insertOrganization: async (org) => {
@@ -23,5 +20,23 @@ module.exports = {
             return false
         }
 
+    },
+    deleteOneOrganization: async (org) => {
+        try {
+            await sql`delete from organization where org = ${org};`;
+            return true;
+        }
+        catch (err) {
+            return false
+        }
+    },
+    deleteOneCertificate: async (org) => {
+        try {
+            await sql`delete from certificate where org = ${org};`;
+            return true;
+        }
+        catch (err) {
+            return false
+        }
     }
 }

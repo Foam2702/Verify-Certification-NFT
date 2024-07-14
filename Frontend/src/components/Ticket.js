@@ -68,7 +68,6 @@ const Ticket = ({ ticket }) => {
         const checkIssuer = async () => {
             const { ethereum } = window;
             if (ethereum) {
-                console.log("TICKET", ticket)
                 const result = await contract.getVerifiersByOrganizationCode(ticket.licensing_authority);
                 setIssuer(result)
             }
@@ -120,7 +119,6 @@ const Ticket = ({ ticket }) => {
                 setDecryptedImage(imageCertificate)
                 setError(null); // Clear any previous errors
                 setLoading(false)
-                console.log("DEC", decryptedImage)
             } catch (err) {
                 setLoading(false)
                 // setError("Wrong private key"); // No need to set error here since it's already set in handleDecryptTicket
@@ -162,7 +160,6 @@ const Ticket = ({ ticket }) => {
             const empty = ' '
             const encodedEmpty = encodeURIComponent(empty);
             const owner = await axios(`http://localhost:8080/tickets/ticket/${ticket.id}?address=${encodedEmpty}`)
-            console.log("OWNERR", owner)
             await deletePinIPFS(owner.data.ticket[0].certificate_cid)
             for (let address of issuer) {
                 const issuer_org = await axios(`http://localhost:8080/tickets/ticket/${ticket.id}?address=${address}`);
@@ -201,14 +198,20 @@ const Ticket = ({ ticket }) => {
     const handleSubmit = async (event) => {
         event.preventDefault()
         setLoading(true);
+        const empty = ' '
+        const encodedEmpty = encodeURIComponent(empty);
         try {
-            const empty = ' '
-            const encodedEmpty = encodeURIComponent(empty);
             const userTicket = await axios(`http://localhost:8080/tickets/ticket/${ticket.id}?address=${encodedEmpty}`)
             ticket = userTicket.data.ticket[0];
             ticket.status = "approved"
-            const metadata = await pinJSONToIPFS(ticket)
-            const ipfsMetadata = `ipfs://${metadata}`
+        }
+        catch (err) {
+            console.log(err)
+        }
+
+        const metadata = await pinJSONToIPFS(ticket)
+        const ipfsMetadata = `ipfs://${metadata}`
+        try {
             const { ethereum } = window
             if (ethereum) {
                 const result = await contract.mintSBTForAddress(
@@ -243,6 +246,8 @@ const Ticket = ({ ticket }) => {
                 }
             }
         } catch (err) {
+
+            await deletePinIPFS(metadata)
             setLoading(false);
             setAlertSeverity("error");
             setMessageAlert("Rejected transaction");

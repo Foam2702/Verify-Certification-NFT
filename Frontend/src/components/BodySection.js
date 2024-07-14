@@ -199,6 +199,7 @@ const BodySection = () => {
             'workUnit', 'point', 'issueDate', 'expiryDate'];
 
           if (issuers.length === 0) {
+            setLoading(false)
             setAlertSeverity("warning");
             setMessageAlert(`No issuer found for ${data.licensingAuthority}`);
             setShowAlert(true);
@@ -237,33 +238,34 @@ const BodySection = () => {
                 setShowAlert(true);
                 return;
               }
-              const formData = new FormData();
-              for (let i = 0; i < file.length; i++) {
-                formData.append("imageCertificate", file[i]);
+              else if (issuerPublicKeysResponse.data.address[0].publickey != null) {
+                const formData = new FormData();
+                for (let i = 0; i < file.length; i++) {
+                  formData.append("imageCertificate", file[i]);
+                }
+                const base64ImageString = await imageFileToBase64(formData.get("imageCertificate"));
+                const imageEncrypt = await encryptData(base64ImageString, privateKey, remove0x(issuerPublicKeysResponse.data.address[0].publickey));
+                const publicKeyIssuer = issuerPublicKeysResponse.data.address[0].publickey
+                for (const field of fieldsToEncrypt) {
+                  const encryptedData = data[field] ? await encryptData(data[field], privateKey, remove0x(publicKeyIssuer)) : null;
+                  formData.append(field, JSON.stringify(encryptedData));
+                }
+                image_res = await imageUpload(imageEncrypt, hashImg, address, data["certificateName"])
+                formData.append("issuerAddress", issuerPublicKeysResponse.data.address[0].address)
+                formData.append("cidCertificate", image_res)
+                formData.append("id", id)
+                formData.append("owner", address)
+                formData.append("certificateName", data.certificateName)
+                formData.append("licensingAuthority", data.licensingAuthority);
+                const response = await axios.post("http://localhost:8080/tickets", formData);
+                if (response.data.message === "ticket already exist") {
+                  setLoading(false); // Stop loading regardless of the request outcome
+                  setAlertSeverity("warning");
+                  setMessageAlert("Ticket already exist");
+                  setShowAlert(true);
+                  return
+                }
               }
-              const base64ImageString = await imageFileToBase64(formData.get("imageCertificate"));
-              const imageEncrypt = await encryptData(base64ImageString, privateKey, remove0x(issuerPublicKeysResponse.data.address[0].publickey));
-              const publicKeyIssuer = issuerPublicKeysResponse.data.address[0].publickey
-              for (const field of fieldsToEncrypt) {
-                const encryptedData = data[field] ? await encryptData(data[field], privateKey, remove0x(publicKeyIssuer)) : null;
-                formData.append(field, JSON.stringify(encryptedData));
-              }
-              image_res = await imageUpload(imageEncrypt, hashImg, address, data["certificateName"])
-              formData.append("issuerAddress", issuerPublicKeysResponse.data.address[0].address)
-              formData.append("cidCertificate", image_res)
-              formData.append("id", id)
-              formData.append("owner", address)
-              formData.append("certificateName", data.certificateName)
-              formData.append("licensingAuthority", data.licensingAuthority);
-              const response = await axios.post("http://localhost:8080/tickets", formData);
-              if (response.data.message === "ticket already exist") {
-                setLoading(false); // Stop loading regardless of the request outcome
-                setAlertSeverity("warning");
-                setMessageAlert("Ticket already exist");
-                setShowAlert(true);
-                return
-              }
-
             }
           }
           setLoading(false); // Stop loading regardless of the request outcome

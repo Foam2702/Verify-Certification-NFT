@@ -92,6 +92,15 @@ module.exports = {
             "tickets": tickets
         })
     },
+    getTicketsByAddress: async (req, res) => {
+        const { address } = req.query
+        const tickets = await ticketModel.getTicketsByAddress(address)
+        res.json({
+            "code": "200",
+            "success": true,
+            "tickets": tickets
+        })
+    },
     updateOneTicket: async (req, res) => {
         const { id } = req.params
         const { status, transaction_hash, issuer_address } = req.query
@@ -117,8 +126,6 @@ module.exports = {
     },
     deleteOneTicket: async (req, res) => {
         const { id } = req.params
-
-
         const result = await ticketModel.deleteOneTicket(id)
         if (result == true) {
             res.json({
@@ -135,6 +142,24 @@ module.exports = {
             })
         }
 
+    },
+    deleteOneTicketByAddress: async (req, res) => {
+        const { address } = req.query
+        const result = await ticketModel.deleteOneTicketByAddress(address)
+        if (result == true) {
+            res.json({
+                "code": "200",
+                "success": true,
+                "message": "deleted successfully"
+            })
+        }
+        else {
+            res.json({
+                "code": "404",
+                "success": false,
+                "message": "delete failed"
+            })
+        }
     }
 
 

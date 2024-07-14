@@ -19,8 +19,6 @@ const HelpSection = () => {
   const handleVerification = async () => {
     setLoading(true); // Start loading
     const checkPub = await insertPubToDB()
-
-
     if (!address) {
       navigate("/");
     }

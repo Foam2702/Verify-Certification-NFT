@@ -63,7 +63,15 @@ module.exports = {
         catch (err) {
             return err
         }
-
-
+    },
+    deleteAddress: async (address) => {
+        try {
+            await sql`
+            DELETE FROM address WHERE address=${address}
+            `;
+            return true;
+        } catch (err) {
+            return false
+        }
     }
 }

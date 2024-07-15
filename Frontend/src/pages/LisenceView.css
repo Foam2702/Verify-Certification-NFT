@@ -98,15 +98,27 @@
 .img_certi {
   display: flex;
   flex-direction: column;
+  justify-content: space-around;
 }
 
 .link-to-transactions {
-  width: 696px;
-  position: relative;
-  display: inline-block;
+  width: 250px;
   max-width: 100%;
-  line-height: 106.5%;
-  color: var(--color-darkorange-100);
+}
+
+.share-button {
+  width: 150px;
+  max-width: 100%;
+}
+
+.share-button:hover {
+  cursor: pointer;
+}
+
+.opensea-share-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }
 
 .lisence-infor {

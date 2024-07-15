@@ -22,16 +22,18 @@ import TextField from '@mui/material/TextField';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import CircularProgress from '@mui/material/CircularProgress';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-import { formatDateV2, minifyAddress, extractPinataCID, extractCID, remove0x, pinJSONToIPFS, extractEncryptedDataFromJson, decryptData } from "../helpers/index"
+import { formatDateV2, minifyAddress, add0x, extractPinataCID, extractCID, remove0x, pinJSONToIPFS, extractEncryptedDataFromJson, decryptData } from "../helpers/index"
 import { Remove } from "@mui/icons-material";
 import { FaSearch } from 'react-icons/fa';
+import LinkIcon from '@mui/icons-material/Link';
+const { ethers } = require("ethers");
 
 const LisenceView = () => {
-  const { signer, address, connectWallet, contract } = useSigner()
+  const { signer, address, connectWallet, contract, getPublicKey } = useSigner()
   const [certificates, setCertificates] = useState([]);
   const [filteredCertificates, setFilteredCertificates] = useState([]);
   const [open, setOpen] = useState(false);
-  const [privateKey, setPrivateKey] = useState("");
+  // const [privateKey, setPrivateKey] = useState("");
   const [decryptedCertificates, setDecryptedCertificates] = useState([]);
   const [filterDecryptedCertificates, setFilterDecryptedCertificates] = useState([])
   const [showAlert, setShowAlert] = useState(false);
@@ -40,6 +42,7 @@ const LisenceView = () => {
   const [loading, setLoading] = useState(false);
   const [isPrivateKeyValid, setIsPrivateKeyValid] = useState(false);
   const [input, setInput] = useState("")
+  const [error, setError] = useState(null)
   const [expandedCertificateIndex, setExpandedCertificateIndex] = useState(null); // Track which certificate is expanded
   const options = { method: 'GET', headers: { accept: 'application/json' } };
   const attributeLabels = {
@@ -62,13 +65,94 @@ const LisenceView = () => {
   const handleClickOpen = () => setOpen(true);
   const handleCloseDialog = () => setOpen(false);
   const handleClose = () => setShowAlert(false);
+  const insertPubToDB = async () => {
+    if (address) {
+      try {
+        const checkPublicKeyExisted = await axios.get(`http://localhost:8080/addresses/${address}`);
+        if (checkPublicKeyExisted.data.address.length === 0) {
+          const publicKey = await getPublicKey(); // Await the result of getPublicKey
+          if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
+            console.log('Error retrieving public key:', publicKey);
+            setAlertSeverity("warning");
+            setMessageAlert("You must sign to submit");
+            setShowAlert(true);
+            return false;
+          }
+          await axios.post(`http://localhost:8080/addresses/${address}`, {
+            address: address, // Include the address in the body
+            publicKey: publicKey // Include the public key in the body
+          });
+          return true
+        }
+        else if (checkPublicKeyExisted.data.address.length !== 0) {
+          if (checkPublicKeyExisted.data.address[0].publickey == null) {
+            const publicKey = await getPublicKey(); // Await the result of getPublicKey
+            if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
+              setAlertSeverity("warning");
+              setMessageAlert("You must sign to submit");
+              setShowAlert(true);
+              return false
+            }
+            await axios.post(`http://localhost:8080/addresses/${address}`, {
+              address: address, // Include the address in the body
+              publicKey: publicKey // Include the public key in the body
+            });
 
-  const handleSubmitPrivateKey = (event) => {
+            return true
+          }
+        }
+        return true
+      }
+      catch (err) {
+        console.log(err)
+        return false
+      }
+    }
+  };
+  const handleSubmitPrivateKey = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    setPrivateKey(formData.get('privatekey'));
+    const privateKey = formData.get('privatekey');
+    console.log(privateKey)
+    // setPrivateKey(formData.get('privatekey'));
     setLoading(true); // Set loading to true when the user submits the private key
+    try {
+      const check = await insertPubToDB();
+      if (check) {
+        const privateKeyBytes = ethers.utils.arrayify(add0x(privateKey));
+        const publicKeyFromPrivateKey = ethers.utils.computePublicKey(privateKeyBytes);
+        const ownerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${address}`);
 
+        if (ownerPublicKeysResponse.data.address.length === 0) {
+          setIsPrivateKeyValid(false); // Set isPrivateKeyValid to false if no address is found
+          return;
+        }
+        const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey;
+        if (publicKeyFromPrivateKey === publicKeyOwner) {
+          setError(null); // Clear any previous errors
+          setIsPrivateKeyValid(true); // Set isPrivateKeyValid to true if keys match
+          await decryptAllFields(privateKey)
+          setLoading(false)
+        } else {
+          setAlertSeverity("error");
+          setMessageAlert("Wrong private key");
+          setShowAlert(true);
+          setIsPrivateKeyValid(false);
+          setLoading(false)// Set isPrivateKeyValid to false if keys do not match
+        }
+      } else {
+        setIsPrivateKeyValid(false);
+        setLoading(false)// Consider setting isPrivateKeyValid to false if check fails
+        return;
+      }
+    } catch (err) {
+      setAlertSeverity("error");
+      setMessageAlert("Wrong private key");
+      setShowAlert(true);
+      setIsPrivateKeyValid(false);
+      setLoading(false)// Set isPrivateKeyValid to false on error
+      console.log(err);
+    }
   }
 
   const handleDecryptTicket = async (prop, privateKey, publicKeyOwner) => {
@@ -85,6 +169,8 @@ const LisenceView = () => {
       }
     }
     else {
+      // handleDecryptionError(error);
+
       return " "; // Return the original prop value in case of error
     }
   };
@@ -136,59 +222,56 @@ const LisenceView = () => {
     getNFTs();
   }, [address]);
 
-  useEffect(() => {
-    const decryptAllFields = async () => {
+  // useEffect(() => {
+  const decryptAllFields = async (privateKey) => {
 
-      try {
-        const newDecryptedCertificates = [];
-        const ownerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${address}`)
-        if (ownerPublicKeysResponse.data.address.length === 0) {
-          return;
-        }
-        const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
-
-        for (const certificate of certificates) {
-          const nfts = await axios(`https://coral-able-takin-320.mypinata.cloud/ipfs/${extractCID(certificate.metadata_url)}`)
-          const name = nfts.data.name
-          const opensea_url = certificate.opensea_url
-          const image = await handleDecryptImage(extractPinataCID(nfts.data.image), privateKey, publicKeyOwner);
-          const decryptedAttributes = await Promise.all(nfts.data.attributes.map(async (attribute) => {
-            // if (attribute.value.startsWith('"') && attribute.value.endsWith('"')) {
-
-            //   attribute.value = await handleDecryptTicket(attribute.value, privateKey, publicKeyOwner);
-            // }
-            if (attribute.trait_type != "status" && attribute.trait_type != "licensing_authority") {
-              attribute.value = await handleDecryptTicket(attribute.value, privateKey, publicKeyOwner);
-
-            }
-
-            return attribute;
-          }));
-          newDecryptedCertificates.push({
-            ...certificate,
-            name,
-            image_url: image,
-            opensea_url,
-            date: formatDateV2(certificate.updated_at),
-            attributes: decryptedAttributes,
-          });
-        }
-        setDecryptedCertificates(newDecryptedCertificates);
-        setFilterDecryptedCertificates(newDecryptedCertificates)
-        setIsPrivateKeyValid(true);
-
-
-      } catch (error) {
-        setIsPrivateKeyValid(false);
-
+    try {
+      const newDecryptedCertificates = [];
+      const ownerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${address}`)
+      if (ownerPublicKeysResponse.data.address.length === 0) {
+        return;
       }
-      finally {
-        setLoading(false); // Set loading to false after decryption process
-      }
-    };
+      const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
 
-    if (privateKey && certificates.length > 0) decryptAllFields();
-  }, [privateKey, certificates]);
+      for (const certificate of certificates) {
+        const nfts = await axios(`https://coral-able-takin-320.mypinata.cloud/ipfs/${extractCID(certificate.metadata_url)}`)
+        const name = nfts.data.name
+        const opensea_url = certificate.opensea_url
+        const image = await handleDecryptImage(extractPinataCID(nfts.data.image), privateKey, publicKeyOwner);
+        const decryptedAttributes = await Promise.all(nfts.data.attributes.map(async (attribute) => {
+          // if (attribute.value.startsWith('"') && attribute.value.endsWith('"')) {
+
+          //   attribute.value = await handleDecryptTicket(attribute.value, privateKey, publicKeyOwner);
+          // }
+          if (attribute.trait_type != "status" && attribute.trait_type != "licensing_authority") {
+            attribute.value = await handleDecryptTicket(attribute.value, privateKey, publicKeyOwner);
+
+          }
+          return attribute;
+        }));
+        newDecryptedCertificates.push({
+          ...certificate,
+          name,
+          image_url: image,
+          opensea_url,
+          date: formatDateV2(certificate.updated_at),
+          attributes: decryptedAttributes,
+        });
+      }
+      setDecryptedCertificates(newDecryptedCertificates);
+      setFilterDecryptedCertificates(newDecryptedCertificates)
+      setIsPrivateKeyValid(true);
+    } catch (error) {
+      setIsPrivateKeyValid(false);
+    }
+    finally {
+      setLoading(false); // Set loading to false after decryption process
+    }
+  };
+
+  //   if (privateKey && certificates.length > 0) decryptAllFields();
+  // }, [privateKey, certificates]);
+
   const handleChange = (value) => {
     setInput(value);
     const filterCertificates = certificates.filter((cer) =>
@@ -201,6 +284,18 @@ const LisenceView = () => {
     setFilterDecryptedCertificates(filterDecryptedCertificates)
     console.log(filterDecryptedCertificates)
   };
+  const handleShare = async () => {
+    if (isPrivateKeyValid == false) {
+      console.log("fase")
+      setAlertSeverity("error");
+      setMessageAlert("You must input correct private to share");
+      setShowAlert(true);
+    }
+    else if (isPrivateKeyValid == true) {
+      console.log("true")
+    }
+
+  }
   return (
     <div>
       {loading && (
@@ -314,7 +409,6 @@ const LisenceView = () => {
                             <Button
                               onClick={() => handleExpandClick(index)}
                               sx={{
-
                                 fontSize: '1.5rem',
                               }}
                             >
@@ -324,11 +418,25 @@ const LisenceView = () => {
                         )}
                       </div>
                       <div className="img_certi">
-                        <MultiActionAreaCard image={certificate.image_url} size={500} />
-                        <Link className="link-to-transactions" href={certificate.opensea_url} underline="hover" target="_blank">
-                          Opensea
-                          <ArrowOutwardIcon />
-                        </Link>
+                        <MultiActionAreaCard image={certificate.image_url} size={500} download={true} />
+
+
+                        {/* {isPrivateKeyValid && <Link className="share-button" sx={{ width: '300px', maxWidth: '100%', fontSize: '1.5rem' }}>Show credential </Link>
+                          } */}
+                        {isPrivateKeyValid &&
+                          <div className="opensea-share-container">
+                            <Link className="link-to-transactions" href={certificate.opensea_url} underline="hover" target="_blank">
+                              Opensea
+                              <ArrowOutwardIcon />
+                            </Link>
+                            <Link className="share-button" underline="hover" target="_blank" onClick={handleShare}>
+                              Share
+                              <LinkIcon />
+                            </Link>
+                          </div>
+
+                        }
+
                       </div>
                     </div>
                   </div>
@@ -349,8 +457,10 @@ const LisenceView = () => {
         </section >
         <Footer shapeLeft="/shape-left@2x.png" socialIcontwitter="/socialicontwitter@2x.png" />
       </div >
-    </div>
+    </div >
   );
 };
 
 export default LisenceView;
+
+

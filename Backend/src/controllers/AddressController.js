@@ -84,5 +84,23 @@ module.exports = {
             })
         }
     },
+    deleteAddress: async (req, res) => {
+        const { address } = req.query;
+        const result = await addressModel.deleteAddress(address);
+        if (result) {
+            res.json({
+                code: 200,
+                status: "success",
+                message: "Deleted successfully"
+            })
+        }
+        else {
+            res.json({
+                code: 404,
+                status: "fail",
+                message: "Deleted fail"
+            })
+        }
+    }
 
 }

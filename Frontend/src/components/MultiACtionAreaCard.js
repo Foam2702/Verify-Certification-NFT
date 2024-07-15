@@ -1,11 +1,12 @@
 import * as React from 'react';
 import Card from '@mui/material/Card';
 import CardMedia from '@mui/material/CardMedia';
-import { CardActionArea } from '@mui/material';
+import { CardActionArea, Button } from '@mui/material';
 import Link from '@mui/material/Link';
 import axios from 'axios';
+import DownloadIcon from '@mui/icons-material/Download'; // Import the download icon
 
-export default function MultiActionAreaCard({ image, size }) {
+export default function MultiActionAreaCard({ image, size, download = false }) {
     const encrypt_image = "/encrypted_image.jpg";
     const [currentImage, setCurrentImage] = React.useState(null);
     const handleError = () => {
@@ -25,7 +26,14 @@ export default function MultiActionAreaCard({ image, size }) {
         };
         fetchImage();
     }, [image]);
-
+    const handleDownload = () => {
+        const link = document.createElement('a');
+        link.href = currentImage;
+        link.download = 'DownloadedImage'; // You can set the default name of the downloaded file here
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
     // If currentImage is not set or is an empty string, don't display anything
     if (!currentImage) {
         return null; // or return <></> for an empty fragment
@@ -45,6 +53,14 @@ export default function MultiActionAreaCard({ image, size }) {
                         />
                     </CardActionArea>
                 </Link>
+                {download && <Button
+                    startIcon={<DownloadIcon />}
+                    onClick={handleDownload}
+                    sx={{ margin: 1, fontSize: '1.5rem' }}
+                >
+                    Download
+                </Button>}
+
             </Card>
         </div>
     );

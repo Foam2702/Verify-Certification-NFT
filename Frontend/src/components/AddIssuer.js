@@ -141,11 +141,8 @@ const AddIssuer = () => {
         const formData = new FormData(event.currentTarget);
         const formJson = Object.fromEntries(formData.entries());
         const newAddress = formJson.address;
-        console.log(newAddress, org)
         if (issuers.some(issuer => issuer.address === newAddress)) {
-            // Optionally, you can set an alert message here to inform the user.
             setAlertSeverity("error");
-
             setMessageAlert("Issuer with this address already exists.");
             setShowAlert(true);
         } else {
@@ -244,28 +241,23 @@ const AddIssuer = () => {
 
     const handleDelete = async (address) => {
         try {
-            const getOrgFromIssuer = await contract.getOrganizationCode(address)
-
-            const tx = await contract.removeVerifier(address);
-
             setLoading(true)
+            const getOrgFromIssuer = await contract.getOrganizationCode(address)
+            const tx = await contract.removeVerifier(address);
             await tx.wait();
-            //xóa ticket lquan đến issuer vừa xóa
+            //xóa ticket và hình ảnh chứng chỉ lquan đến issuer vừa xóa
             const tickets = await axios(`http://localhost:8080/tickets/address?address=${address}`)
             tickets.data.tickets.map(async ticket => {
                 await deletePinIPFS(ticket.certificate_cid)
                 await axios.delete(`http://localhost:8080/tickets/address?address=${address}`)
             })
-            console.log("ADD", address)
-            console.log("ORG", getOrgFromIssuer)
+            await axios.delete(`http://localhost:8080/addresses?address=${address}`)
 
             const checkOrg = await contract.getVerifiersByOrganizationCode(getOrgFromIssuer)
             //kiểm tra có phải issuer cuối cùng bị xóa khỏi tổ chức
             if (checkOrg.length == 0) {
-                //     //xóa ticket lquan đến tổ chức vừa xóa
+                //xóa ticket lquan đến tổ chức vừa xóa
                 const tickets_from_org = await axios(`http://localhost:8080/tickets/${getOrgFromIssuer}`)
-                //     //const tickets_from_org = await axios(`http://localhost:8080/tickets/ISC2`)
-                console.log(tickets_from_org)
                 tickets_from_org.data.tickets.map(async ticket => {
                     console.log(ticket)
                     await deletePinIPFS(ticket.certificate_cid)
@@ -273,7 +265,6 @@ const AddIssuer = () => {
                 })
                 //xóa tổ chức
                 await axios.delete(`http://localhost:8080/organization?org=${getOrgFromIssuer}`)
-
             }
             setLoading(false)
             setAlertSeverity("success");

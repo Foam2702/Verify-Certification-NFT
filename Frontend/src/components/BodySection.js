@@ -193,6 +193,7 @@ const BodySection = () => {
           }
           const imageEncrypt = await encryptData(base64ImageString, privateKey, remove0x(publicKeyOwner));
           image_res = await imageUpload(imageEncrypt, hashImg, address, data["certificateName"])
+          console.log("OWNER", publicKeyOwner)
           const issuers = await checkIssuer(data.licensingAuthority);
           const fieldsToEncrypt = [
             'citizenId', 'name', 'region', 'dob', 'gender', 'email',
@@ -218,9 +219,9 @@ const BodySection = () => {
             formData.append("owner", address)
             formData.append("certificateName", data.certificateName)
             formData.append("licensingAuthority", data.licensingAuthority);
-            for (let pair of formData.entries()) {
-              console.log(pair[0] + ", " + pair[1]);
-            }
+            // for (let pair of formData.entries()) {
+            //   console.log(pair[0] + ", " + pair[1]);
+            // }
             const response = await axios.post("http://localhost:8080/tickets", formData);
             if (response.data.message === "ticket already exist") {
               setLoading(false);
@@ -246,6 +247,8 @@ const BodySection = () => {
                 const base64ImageString = await imageFileToBase64(formData.get("imageCertificate"));
                 const imageEncrypt = await encryptData(base64ImageString, privateKey, remove0x(issuerPublicKeysResponse.data.address[0].publickey));
                 const publicKeyIssuer = issuerPublicKeysResponse.data.address[0].publickey
+                console.log("ISSUER", publicKeyIssuer)
+
                 for (const field of fieldsToEncrypt) {
                   const encryptedData = data[field] ? await encryptData(data[field], privateKey, remove0x(publicKeyIssuer)) : null;
                   formData.append(field, JSON.stringify(encryptedData));

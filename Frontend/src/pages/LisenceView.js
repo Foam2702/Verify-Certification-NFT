@@ -26,6 +26,11 @@ import { formatDateV2, minifyAddress, add0x, extractPinataCID, extractCID, remov
 import { Remove } from "@mui/icons-material";
 import { FaSearch } from 'react-icons/fa';
 import LinkIcon from '@mui/icons-material/Link';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+import Box from '@mui/material/Box';
 const { ethers } = require("ethers");
 
 const LisenceView = () => {
@@ -33,7 +38,6 @@ const LisenceView = () => {
   const [certificates, setCertificates] = useState([]);
   const [filteredCertificates, setFilteredCertificates] = useState([]);
   const [open, setOpen] = useState(false);
-  // const [privateKey, setPrivateKey] = useState("");
   const [decryptedCertificates, setDecryptedCertificates] = useState([]);
   const [filterDecryptedCertificates, setFilterDecryptedCertificates] = useState([])
   const [showAlert, setShowAlert] = useState(false);
@@ -43,7 +47,51 @@ const LisenceView = () => {
   const [isPrivateKeyValid, setIsPrivateKeyValid] = useState(false);
   const [input, setInput] = useState("")
   const [error, setError] = useState(null)
+  const [share, setShare] = useState(false)
+  const [shareCertificate, setShareCertificate] = useState([])
   const [expandedCertificateIndex, setExpandedCertificateIndex] = useState(null); // Track which certificate is expanded
+
+  useEffect(() => {
+    const getNFTs = async () => {
+      if (address) {
+        setLoading(true)
+        try {
+          const { data } = await axios(`https://testnets-api.opensea.io/api/v2/chain/sepolia/account/${address}/nfts`, options);
+          console.log(data.nfts)
+          setCertificates(data.nfts);
+          setFilteredCertificates(data.nfts)
+        } catch (err) {
+          console.error(err);
+        }
+        setLoading(false)
+
+      }
+    };
+    getNFTs();
+  }, [address]);
+  useEffect(() => {
+    getShareCertificate()
+  }, [address, isPrivateKeyValid])
+
+  const getShareCertificate = async () => {
+    if (address && isPrivateKeyValid) {
+      setLoading(true)
+      try {
+        const results = await axios(`http://localhost:8080/share?address=${address}`);
+        if (Array.isArray(results.data.data)) {
+          setShareCertificate(results.data.data)
+        }
+        else {
+          console.error('Fetched share data is not an array', results.data.data);
+        }
+        // setCertificates(data.nfts);
+        // setFilteredCertificates(data.nfts)
+      } catch (err) {
+        console.error(err);
+      }
+      setLoading(false)
+    }
+  }
   const options = { method: 'GET', headers: { accept: 'application/json' } };
   const attributeLabels = {
     citizen_id: "Citizen ID",
@@ -61,7 +109,6 @@ const LisenceView = () => {
     name: "Name",
     point: "Point"
   };
-
   const handleClickOpen = () => setOpen(true);
   const handleCloseDialog = () => setOpen(false);
   const handleClose = () => setShowAlert(false);
@@ -203,24 +250,6 @@ const LisenceView = () => {
     setExpandedCertificateIndex(expandedCertificateIndex === index ? null : index);
   };
 
-  useEffect(() => {
-    const getNFTs = async () => {
-      if (address) {
-        setLoading(true)
-        try {
-          const { data } = await axios(`https://testnets-api.opensea.io/api/v2/chain/sepolia/account/${address}/nfts`, options);
-          console.log(data.nfts)
-          setCertificates(data.nfts);
-          setFilteredCertificates(data.nfts)
-        } catch (err) {
-          console.error(err);
-        }
-        setLoading(false)
-
-      }
-    };
-    getNFTs();
-  }, [address]);
 
   // useEffect(() => {
   const decryptAllFields = async (privateKey) => {
@@ -237,6 +266,7 @@ const LisenceView = () => {
         const nfts = await axios(`https://coral-able-takin-320.mypinata.cloud/ipfs/${extractCID(certificate.metadata_url)}`)
         const name = nfts.data.name
         const opensea_url = certificate.opensea_url
+        const id = certificate.identifier
         const image = await handleDecryptImage(extractPinataCID(nfts.data.image), privateKey, publicKeyOwner);
         const decryptedAttributes = await Promise.all(nfts.data.attributes.map(async (attribute) => {
           // if (attribute.value.startsWith('"') && attribute.value.endsWith('"')) {
@@ -251,6 +281,7 @@ const LisenceView = () => {
         }));
         newDecryptedCertificates.push({
           ...certificate,
+          id,
           name,
           image_url: image,
           opensea_url,
@@ -284,18 +315,50 @@ const LisenceView = () => {
     setFilterDecryptedCertificates(filterDecryptedCertificates)
     console.log(filterDecryptedCertificates)
   };
-  const handleShare = async () => {
-    if (isPrivateKeyValid == false) {
-      console.log("fase")
-      setAlertSeverity("error");
-      setMessageAlert("You must input correct private to share");
-      setShowAlert(true);
-    }
-    else if (isPrivateKeyValid == true) {
-      console.log("true")
+  const handleShareChange = async (event, currentCertificate) => {
+    event.preventDefault()
+    const shareCerti = {
+      certificate_image: currentCertificate.image_url,
+      certificate_name: currentCertificate.description,
+      name: currentCertificate.attributes.find(item => item.trait_type === "name").value,
+      issue_date: currentCertificate.attributes.find(item => item.trait_type === "issue_date").value,
+      expiry_date: currentCertificate.attributes.find(item => item.trait_type === "expiry_date").value,
     }
 
-  }
+    if (event.target.value === 'public') {
+      const result = await axios.post(`http://localhost:8080/share?id=${currentCertificate.identifier}&address=${currentCertificate.name}`, shareCerti)
+      if (result.data.message == "Change to public success") {
+        setAlertSeverity("success");
+        setMessageAlert("Change to public success");
+        setShowAlert(true);
+        setShareCertificate([...shareCertificate, currentCertificate]); // Add currentCertificate to shareCertificate array
+        setShare(true); // Set share to true
+      }
+      else {
+        setAlertSeverity("error");
+        setMessageAlert("Change to public failed");
+        setShowAlert(true);
+      }
+
+    } else {
+      const result = await axios.delete(`http://localhost:8080/share?id=${currentCertificate.identifier}&address=${currentCertificate.name}`, shareCerti)
+      if (result.data.message == 'Change to private success') {
+        setAlertSeverity("success");
+        setMessageAlert("Change to private success");
+        setShowAlert(true);
+        setShareCertificate(shareCertificate.filter(item => item !== currentCertificate)); // Remove currentCertificate from shareCertificate array
+        setShare(false); // Set share to false
+      }
+      else {
+        setAlertSeverity("error");
+        setMessageAlert("Change to private failed");
+        setShowAlert(true);
+      }
+
+    }
+    console.log(shareCertificate)
+  };
+
   return (
     <div>
       {loading && (
@@ -419,23 +482,31 @@ const LisenceView = () => {
                       </div>
                       <div className="img_certi">
                         <MultiActionAreaCard image={certificate.image_url} size={500} download={true} />
-
-
-                        {/* {isPrivateKeyValid && <Link className="share-button" sx={{ width: '300px', maxWidth: '100%', fontSize: '1.5rem' }}>Show credential </Link>
-                          } */}
-                        {isPrivateKeyValid &&
-                          <div className="opensea-share-container">
-                            <Link className="link-to-transactions" href={certificate.opensea_url} underline="hover" target="_blank">
-                              Opensea
-                              <ArrowOutwardIcon />
-                            </Link>
-                            <Link className="share-button" underline="hover" target="_blank" onClick={handleShare}>
-                              Share
-                              <LinkIcon />
-                            </Link>
-                          </div>
-
-                        }
+                        {isPrivateKeyValid && (
+                          <div>
+                            <div className="opensea-share-container">
+                              <Link className="link-to-transactions" href={certificate.opensea_url} underline="hover" target="_blank">
+                                Opensea
+                                <ArrowOutwardIcon />
+                              </Link>
+                              <Box sx={{ minWidth: 240, marginTop: '10px' }}>
+                                <FormControl fullWidth>
+                                  <Select
+                                    labelId="demo-simple-select-label"
+                                    id="demo-simple-select"
+                                    value={shareCertificate.some(cert => cert.id === certificate.identifier) ? 'public' : 'private'}
+                                    label="Share"
+                                    onChange={(e) => handleShareChange(e, certificate)} // Pass certificate as parameter
+                                    sx={{ fontSize: '1.5rem' }}
+                                  >
+                                    <MenuItem sx={{ fontSize: '1.5rem' }} value="public">Public</MenuItem>
+                                    <MenuItem sx={{ fontSize: '1.5rem' }} value="private">Private</MenuItem>
+                                  </Select>
+                                </FormControl>
+                              </Box>
+                            </div>
+                            {shareCertificate.some(cert => cert.id === certificate.identifier) ? <div>PUBLIC</div> : <div>PRIVATE</div>}                          </div>
+                        )}
 
                       </div>
                     </div>

@@ -101,10 +101,11 @@
   justify-content: space-around;
 }
 
-.link-to-transactions {
+/* .link-to-transactions {
+  margin: 5px;
   width: 250px;
   max-width: 100%;
-}
+} */
 
 .share-button {
   width: 150px;
@@ -198,6 +199,11 @@
 .private-key-image-container {
   display: flex
 }
+
+/* .share-link {
+  font-size: 1rem
+} */
+
 
 
 @media screen and (max-width: 1200px) {

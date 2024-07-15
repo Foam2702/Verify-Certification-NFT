@@ -22,9 +22,7 @@ module.exports = {
     insertShareCertificate: async (req, res) => {
         const { id, address } = req.query
         const certificate = req.body
-        console.log(address)
-        console.log(id)
-        console.log(certificate)
+
         if (certificate.issue_date == null || certificate.issue_date == ' ') {
             certificate.issue_date = null
         }
@@ -40,7 +38,6 @@ module.exports = {
             const dateObject = new Date(certificate.expiry_date);
             certificate.expiry_date = dateObject;
         }
-        console.log(certificate)
         const result = await shareModel.insertShareCertificate(id, address, certificate)
         // const result = true
         if (result == true) {

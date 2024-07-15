@@ -6,6 +6,7 @@ import HeaderSection from "../components/HeaderSection";
 import LisenceSection from '../components/LisenceSection';
 import Footer from "../components/Footer";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import useSigner from "../state/signer";
 import MultiActionAreaCard from "../components/MultiACtionAreaCard";
@@ -31,6 +32,8 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import Box from '@mui/material/Box';
+import Avatar from '@mui/material/Avatar';
+import Share from "../pages/Share"
 const { ethers } = require("ethers");
 
 const LisenceView = () => {
@@ -48,6 +51,7 @@ const LisenceView = () => {
   const [input, setInput] = useState("")
   const [error, setError] = useState(null)
   const [share, setShare] = useState(false)
+  const navigate = useNavigate();
   const [shareCertificate, setShareCertificate] = useState([])
   const [expandedCertificateIndex, setExpandedCertificateIndex] = useState(null); // Track which certificate is expanded
 
@@ -75,23 +79,22 @@ const LisenceView = () => {
 
   const getShareCertificate = async () => {
     if (address && isPrivateKeyValid) {
-      setLoading(true)
+      setLoading(true);
       try {
         const results = await axios(`http://localhost:8080/share?address=${address}`);
+        console.log("RES", results);
         if (Array.isArray(results.data.data)) {
-          setShareCertificate(results.data.data)
-        }
-        else {
+          setShareCertificate(results.data.data);
+        } else {
           console.error('Fetched share data is not an array', results.data.data);
         }
-        // setCertificates(data.nfts);
-        // setFilteredCertificates(data.nfts)
       } catch (err) {
         console.error(err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false)
     }
-  }
+  };
   const options = { method: 'GET', headers: { accept: 'application/json' } };
   const attributeLabels = {
     citizen_id: "Citizen ID",
@@ -356,9 +359,19 @@ const LisenceView = () => {
       }
 
     }
-    console.log(shareCertificate)
   };
-
+  const handleCopyLink = (link) => {
+    navigator.clipboard.writeText(link).then(() => {
+      setAlertSeverity("success");
+      setMessageAlert("Link copied to clipboard!");
+      setShowAlert(true);
+    }).catch((error) => {
+      setAlertSeverity("error");
+      setMessageAlert("Failed to copy link.");
+      setShowAlert(true);
+      console.error("Failed to copy link: ", error);
+    });
+  };
   return (
     <div>
       {loading && (
@@ -420,8 +433,6 @@ const LisenceView = () => {
                     <img loading="lazy" className="private-key-image" src="/MetaMask_find_export_account_private_key_extension_2-6c913141ad005ec35a3248944b1a25dd.gif" alt="MetaMask find account details extension"></img>
 
                   </div>
-
-
                   <TextField
                     autoFocus
                     required
@@ -443,9 +454,12 @@ const LisenceView = () => {
                 </DialogActions>
               </Dialog>
               <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', flexDirection: "column" }}>
+
                 {(isPrivateKeyValid ? filterDecryptedCertificates : filteredCertificates).map((certificate, index) => (
                   <div key={index} className="upload-wrapper-lisence" style={{ marginBottom: "50px" }}>
+
                     <div className="upload-lisence">
+
                       <div className="info_certi">
                         <div className="lisence-name-title" >{certificate.description}< VerifiedIcon sx={{ color: "green", fontSize: 50 }} /> </div>
 
@@ -480,15 +494,26 @@ const LisenceView = () => {
                           </>
                         )}
                       </div>
+
                       <div className="img_certi">
+                        {isPrivateKeyValid &&
+                          <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '5px' }}>
+
+                            <Link href={certificate.opensea_url} underline="hover" target="_blank" >
+                              <div style={{ display: 'flex' }}>
+                                {/* <img src="./opensea-logo.svg"></img> */}
+                                <Avatar alt="OpenSea" src="./opensea-logo.svg" />
+                                <ArrowOutwardIcon sx={{ fontSize: '2.5rem' }} />
+                              </div>
+
+                            </Link>
+                          </Box>}
+
                         <MultiActionAreaCard image={certificate.image_url} size={500} download={true} />
                         {isPrivateKeyValid && (
                           <div>
                             <div className="opensea-share-container">
-                              <Link className="link-to-transactions" href={certificate.opensea_url} underline="hover" target="_blank">
-                                Opensea
-                                <ArrowOutwardIcon />
-                              </Link>
+
                               <Box sx={{ minWidth: 240, marginTop: '10px' }}>
                                 <FormControl fullWidth>
                                   <Select
@@ -504,8 +529,20 @@ const LisenceView = () => {
                                   </Select>
                                 </FormControl>
                               </Box>
+                              {shareCertificate.some(cert => cert.id === certificate.identifier) ?
+                                <div>
+                                  <Button sx={{ marginTop: '15px' }} variant="outlined" onClick={() => handleCopyLink(`http://localhost:3000/share/${certificate.identifier}?address=${certificate.name}`)}>
+                                    <Link className="share-link" sx={{ fontSize: "1.5rem" }}>Copy Link</Link>
+                                    <LinkIcon></LinkIcon>
+                                  </Button>
+
+                                </div>
+                                :
+                                <></>}
+
                             </div>
-                            {shareCertificate.some(cert => cert.id === certificate.identifier) ? <div>PUBLIC</div> : <div>PRIVATE</div>}                          </div>
+
+                          </div>
                         )}
 
                       </div>

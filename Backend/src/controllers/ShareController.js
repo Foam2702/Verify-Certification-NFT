@@ -1,5 +1,5 @@
 const shareModel = require("../models/ShareModel")
-
+const formatDate = require("../service/formatDate")
 module.exports = {
     getAllShareCertificate: async (req, res) => {
         const { address } = req.query
@@ -28,7 +28,7 @@ module.exports = {
         }
         else {
             const dateObject = new Date(certificate.issue_date);
-            certificate.issue_date = dateObject;
+            certificate.issue_date = formatDate(certificate.issue_date)
         }
         if (certificate.expiry_date == null || certificate.expiry_date == ' ') {
             certificate.expiry_date = null
@@ -36,7 +36,7 @@ module.exports = {
         }
         else {
             const dateObject = new Date(certificate.expiry_date);
-            certificate.expiry_date = dateObject;
+            certificate.expiry_date = formatDate(certificate.expiry_date);
         }
         const result = await shareModel.insertShareCertificate(id, address, certificate)
         // const result = true

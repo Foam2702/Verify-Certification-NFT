@@ -297,6 +297,7 @@ export function extractPinataCID(url) {
 export function formatDateV2(dateString) {
     // Create a new Date object from the input string
     const date = new Date(dateString);
+    console.log(dateString)
 
     // Define an array of month names
     const monthNames = [

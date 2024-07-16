@@ -320,7 +320,7 @@ const LisenceView = () => {
   };
   const handleShareChange = async (event, currentCertificate) => {
     event.preventDefault()
-
+    console.log(currentCertificate)
     const shareCerti = {
       certificate_image: currentCertificate.image_url,
       certificate_name: currentCertificate.description,
@@ -328,7 +328,7 @@ const LisenceView = () => {
       issue_date: currentCertificate.attributes.find(item => item.trait_type === "issue_date").value,
       expiry_date: currentCertificate.attributes.find(item => item.trait_type === "expiry_date").value,
     }
-
+    console.log(shareCerti)
     if (event.target.value === 'public') {
       const result = await axios.post(`http://localhost:8080/share?id=${currentCertificate.identifier}&address=${currentCertificate.name}`, shareCerti)
       if (result.data.message == "Change to public success") {

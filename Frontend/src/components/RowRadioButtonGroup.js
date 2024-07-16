@@ -301,29 +301,37 @@ export default function RowRadioButtonsGroup({ course, exam }) {
             await axios.post("http://localhost:8080/tickets", formData);
             for (const issuer of issuers) {
                 const issuerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${issuer}`);
-                const formData = new FormData();
-                const publicKeyIssuer = issuerPublicKeysResponse.data.address[0].publickey
+                if (issuerPublicKeysResponse.data.address.length === 0) {
+                    setLoading(false); // Stop loading regardless of the request outcome
+                    setAlertSeverity("warning");
+                    setMessageAlert(`${data.licensingAuthority} is busy. Please comeback later`);
+                    setShowAlert(true);
+                    return;
+                }
+                else if (issuerPublicKeysResponse.data.address[0].publickey != null) {
+                    const formData = new FormData();
+                    const publicKeyIssuer = issuerPublicKeysResponse.data.address[0].publickey
 
-                const imageEncrypt = await encryptData(image, privateKey, remove0x(issuerPublicKeysResponse.data.address[0].publickey));
-                for (const field of fieldsToEncrypt) {
-                    const encryptedData = decryptedUser[field] ? await encryptData(decryptedUser[field], privateKey, remove0x(publicKeyIssuer)) : null;
-                    formData.append(field, JSON.stringify(encryptedData));
+                    const imageEncrypt = await encryptData(image, privateKey, remove0x(issuerPublicKeysResponse.data.address[0].publickey));
+                    for (const field of fieldsToEncrypt) {
+                        const encryptedData = decryptedUser[field] ? await encryptData(decryptedUser[field], privateKey, remove0x(publicKeyIssuer)) : null;
+                        formData.append(field, JSON.stringify(encryptedData));
+                    }
+
+                    image_res = await imageUpload(imageEncrypt, hashImg, address, decryptedUser["certificateName"])
+                    formData.append("expiryDate", null)
+
+                    formData.append("issuerAddress", issuerPublicKeysResponse.data.address[0].address)
+                    formData.append("cidCertificate", image_res)
+                    formData.append("id", id)
+                    formData.append("owner", address)
+                    formData.append("certificateName", decryptedUser["certificateName"])
+                    formData.append("licensingAuthority", decryptedUser["licensingAuthority"]);
+                    await axios.post("http://localhost:8080/tickets", formData);
+
+
                 }
 
-                image_res = await imageUpload(imageEncrypt, hashImg, address, decryptedUser["certificateName"])
-                formData.append("expiryDate", null)
-
-                formData.append("issuerAddress", issuerPublicKeysResponse.data.address[0].address)
-                formData.append("cidCertificate", image_res)
-                formData.append("id", id)
-                formData.append("owner", address)
-                formData.append("certificateName", decryptedUser["certificateName"])
-                formData.append("licensingAuthority", decryptedUser["licensingAuthority"]);
-                await axios.post("http://localhost:8080/tickets", formData);
-
-                for (let pair of formData.entries()) {
-                    console.log(pair[0] + ", " + pair[1]);
-                }
             }
             setLoading(false); // Stop loading regardless of the request outcome
             setAlertSeverity("success");

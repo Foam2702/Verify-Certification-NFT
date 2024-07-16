@@ -23,6 +23,7 @@ import axios from 'axios'
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
+import PersonOffIcon from '@mui/icons-material/PersonOff';
 const AddIssuer = () => {
     const { signer, address, connectWallet, contract, provider, getPublicKey } = useSigner()
     const [issuers, setIssuers] = useState([])
@@ -94,7 +95,7 @@ const AddIssuer = () => {
         },
         {
             field: 'delete',
-            headerName: 'Delete',
+            headerName: 'Privilege',
             sortable: false,
             flex: 0.5,
 
@@ -107,8 +108,8 @@ const AddIssuer = () => {
                 // };
 
                 return (
-                    <Button variant="contained" color="error" startIcon={<DeleteIcon />} sx={{ fontSize: "0.7em " }} onClick={() => handleDelete(params.row.address)}>
-                        Delete
+                    <Button variant="contained" color="error" startIcon={<PersonOffIcon />} sx={{ fontSize: "0.7em " }} onClick={() => handleDelete(params.row.address)}>
+                        REVOKE
                     </Button>
                 );
             }
@@ -151,22 +152,17 @@ const AddIssuer = () => {
                 const tx = await contract.addVerifier(newAddress, org);
                 setLoading(true)
                 await tx.wait();
-                const result = await axios.post(`http://localhost:8080/addresses?address=${newAddress}`)
-                if (result.data.message == "Inserted successfully") {
-                    setAlertSeverity("success");
-                    setMessageAlert("Add Issuer successfully");
-                    setShowAlert(true);
-                    setRefresh(prevFlag => !prevFlag)
-                }
-                else if (result.data.message == 'Inserted fail') {
-                    setAlertSeverity("warning");
-                    setMessageAlert("Add Issuer failed");
-                    setShowAlert(true);
-                    setRefresh(prevFlag => !prevFlag)
-                }
+                await axios.post(`http://localhost:8080/addresses?address=${newAddress}`)
+
                 setLoading(false)
+                setAlertSeverity("success");
+                setMessageAlert("Add Issuer successfully");
+                setShowAlert(true);
+                setRefresh(prevFlag => !prevFlag)
 
             } catch (err) {
+                setLoading(false)
+
                 setAlertSeverity("error");
                 // Check if the error code indicates the user rejected the transaction
                 if (err.code === "ACTION_REJECTED") {
@@ -175,6 +171,7 @@ const AddIssuer = () => {
                     setMessageAlert("Failed to add new issuer");
                 }
                 setShowAlert(true);
+
             }
         }
         handleClose();
@@ -251,8 +248,7 @@ const AddIssuer = () => {
                 await deletePinIPFS(ticket.certificate_cid)
                 await axios.delete(`http://localhost:8080/tickets/address?address=${address}`)
             })
-            await axios.delete(`http://localhost:8080/addresses?address=${address}`)
-
+            // const deleteAddr = await axios.delete(`http://localhost:8080/addresses?address=${address}`)
             const checkOrg = await contract.getVerifiersByOrganizationCode(getOrgFromIssuer)
             //kiểm tra có phải issuer cuối cùng bị xóa khỏi tổ chức
             if (checkOrg.length == 0) {
@@ -273,6 +269,8 @@ const AddIssuer = () => {
             setRefresh(prevFlag => !prevFlag)
 
         } catch (err) {
+            setLoading(false)
+
             setAlertSeverity("error");
             // Check if the error code indicates the user rejected the transaction
             if (err.code === "ACTION_REJECTED") {

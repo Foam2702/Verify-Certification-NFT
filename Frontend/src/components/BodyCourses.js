@@ -23,7 +23,7 @@ const BodyCourses = ({ className = "" }) => {
     const [loading, setLoading] = useState(false);
     const { address, connectWallet, getPublicKey } = useSigner();
     const [open, setOpen] = useState(false);
-    // const [selectedCourse, setSelectedCourse] = useState(null);
+    const [selectedCourse, setSelectedCourse] = useState(null);
     const [alertSeverity, setAlertSeverity] = useState("");
     const [showAlert, setShowAlert] = useState(false);
     const [messageAlert, setMessageAlert] = useState("")
@@ -77,9 +77,10 @@ const BodyCourses = ({ className = "" }) => {
             }
         }
     };
-    const handleClickOpen = async () => {
+    const handleClickOpen = async (course) => {
 
         setOpen(true);
+        setSelectedCourse(course)
 
     };
     const handleClose = () => {
@@ -92,10 +93,10 @@ const BodyCourses = ({ className = "" }) => {
         setShowAlert(false);
         await new Promise(resolve => setTimeout(resolve, 1000));
     };
-    const handleAgree = async (course) => {
+    const handleAgree = async () => {
         try {
             setLoading(true);
-            const result = await axios.post(`http://localhost:8080/courses/course/${course.id}?address=${address}`)
+            const result = await axios.post(`http://localhost:8080/courses/course/${selectedCourse.id}?address=${address}`)
             if (result.data.code == 200) {
                 if (!address) {
                     navigate("/");
@@ -103,27 +104,27 @@ const BodyCourses = ({ className = "" }) => {
                 else {
                     const check = await checkInfoExist()
                     if (check) {
-                        navigate(`/courses/course/${course.id}/exam`);
+                        navigate(`/courses/course/${selectedCourse.id}/exam`);
                     }
                     else {
-                        localStorage.setItem('targetURL', `/courses/course/${course.id}/exam`);
+                        localStorage.setItem('targetURL', `/courses/course/${selectedCourse.id}/exam`);
                         navigate("/profile")
                         setLoading(false);
                     }
                 }
             }
             else {
-                const result = await axios(`http://localhost:8080/exam/${course.id}?address=${address}`)
+                const result = await axios(`http://localhost:8080/exam/${selectedCourse.id}?address=${address}`)
                 if (result.data.data[0].status == "examining") {
                     if (!address)
                         navigate("/");
                     else {
                         const check = await checkInfoExist()
                         if (check) {
-                            navigate(`/courses/course/${course.id}/exam`);
+                            navigate(`/courses/course/${selectedCourse.id}/exam`);
                         }
                         else {
-                            localStorage.setItem('targetURL', `/courses/course/${course.id}/exam`);
+                            localStorage.setItem('targetURL', `/courses/course/${selectedCourse.id}/exam`);
                             navigate("/profile")
 
                         }
@@ -166,7 +167,31 @@ const BodyCourses = ({ className = "" }) => {
                     <CircularProgress />
                 </div>
             )}
-
+            <Dialog
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+                sx={{
+                    '& .MuiDialogContent-root': { fontSize: '1.25rem' },
+                    '& .MuiTextField-root': { fontSize: '1.25rem' },
+                    '& .MuiButton-root': { fontSize: '1.25rem' },
+                }}            >
+                <DialogTitle id="alert-dialog-title" sx={{ fontSize: '1.5rem' }}>
+                    {"Ready for the exam?"}
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description" sx={{ fontSize: '1.5rem' }}>
+                        Are you sure to start the exam?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose}>Cancel</Button>
+                    <Button onClick={handleAgree} autoFocus>
+                        Start
+                    </Button>
+                </DialogActions>
+            </Dialog>
             <div className="search-bar-container">
                 <div className="input-wrapper">
                     <FaSearch id="search-icon" />
@@ -182,33 +207,9 @@ const BodyCourses = ({ className = "" }) => {
                 <div className="careers-section1">
                     {filteredCourses.map((course) => (
                         <div>
-                            <Dialog
-                                open={open}
-                                onClose={handleClose}
-                                aria-labelledby="alert-dialog-title"
-                                aria-describedby="alert-dialog-description"
-                                sx={{
-                                    '& .MuiDialogContent-root': { fontSize: '1.25rem' },
-                                    '& .MuiTextField-root': { fontSize: '1.25rem' },
-                                    '& .MuiButton-root': { fontSize: '1.25rem' },
-                                }}            >
-                                <DialogTitle id="alert-dialog-title" sx={{ fontSize: '1.5rem' }}>
-                                    {"Ready for the exam?"}
-                                </DialogTitle>
-                                <DialogContent>
-                                    <DialogContentText id="alert-dialog-description" sx={{ fontSize: '1.5rem' }}>
-                                        Are you sure to start the exam?
-                                    </DialogContentText>
-                                </DialogContent>
-                                <DialogActions>
-                                    <Button onClick={handleClose}>Cancel</Button>
-                                    <Button onClick={() => handleAgree(course)} autoFocus>
-                                        Start
-                                    </Button>
-                                </DialogActions>
-                            </Dialog>
+
                             {/* onClick={() => handleClickOpen(course)} */}
-                            <button onClick={handleClickOpen} key={course.id}>
+                            <button onClick={() => handleClickOpen(course)} key={course.id}>
                                 <Course
                                     course1Image={course.image}
                                     courseHeader={course.name}

@@ -38,6 +38,7 @@ module.exports = {
             return courses;
         }
         catch (err) {
+            console.log(err)
             return err;
         }
     },
@@ -67,6 +68,12 @@ module.exports = {
     },
     getCourseByOrg: async (org) => {
         const result = await sql`SELECT * FROM course where licensing_authority=${org}`
+        return result
+    },
+    getCourseByOrgAndInfo: async (org) => {
+        const result = await sql`SELECT * FROM course C,organization O where C.licensing_authority=O.org 
+        and licensing_authority=${org}
+        `
         return result
     },
     deleteOneCourseByOrg: async (org) => {

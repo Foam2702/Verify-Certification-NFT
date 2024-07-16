@@ -396,7 +396,7 @@ const AddIssuer = () => {
                 <DialogTitle sx={{ fontSize: '1.5rem' }}>New Organization</DialogTitle>
                 <DialogContent>
                     <DialogContentText sx={{ fontSize: '1.5rem' }}>
-                        To add new organization , please enter organization name and image of organization.
+                        To add new organization , please enter name and logo of your organization.
                     </DialogContentText>
                     <TextField
                         autoFocus

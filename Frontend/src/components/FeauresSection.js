@@ -17,9 +17,10 @@ const FeauresSection = () => {
     const fetchCourses = async () => {
       try {
         const result = await axios.get(`http://localhost:8080/courses/top10`);
+        console.log("RES", result.data.courses);
+
         if (Array.isArray(result.data.courses)) {
           setCourses(result.data.courses);
-          console.log(result.data.courses);
         }
       } catch (error) {
         console.error(error);

@@ -204,7 +204,6 @@ const HeaderSection = () => {
           }
         }
       } catch (err) {
-        console.log("IS ISSUER")
         console.log(err);
       }
       setIsIssuer(false);

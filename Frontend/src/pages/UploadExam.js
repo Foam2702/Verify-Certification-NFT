@@ -2,11 +2,13 @@ import HeaderSection from "../components/HeaderSection";
 import Snackbar from '@mui/material/Snackbar';
 import axios from 'axios'
 import Footer from "../components/Footer";
+import { styled } from '@mui/material/styles';
 import { Grid } from '@mui/material';
 import { Paper, Typography, Button } from '@mui/material';
 import CircularProgress from "@mui/material/CircularProgress";
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import React from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from "react-router-dom";
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
@@ -20,11 +22,14 @@ import MultiActionAreaCard from "../components/MultiACtionAreaCard";
 import { imageFileToBase64 } from "../helpers";
 import Alert from '@mui/material/Alert';
 import useSigner from "../state/signer";
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import * as XLSX from "xlsx";
 
 import "./UploadExam.css"
 const UploadExam = () => {
     const { signer, address, connectWallet, contract, provider, getPublicKey } = useSigner();
     const [org, setOrg] = React.useState("")
+    const [data, setData] = useState([]);
     const [loading, setLoading] = React.useState(false)
     const [showAlert, setShowAlert] = React.useState(false);
     const [alertSeverity, setAlertSeverity] = React.useState("");
@@ -106,7 +111,50 @@ const UploadExam = () => {
         };
         insertPubToDB()
     }, [address, signer]);
+    const VisuallyHiddenInput = styled('input')({
+        clip: 'rect(0 0 0 0)',
+        clipPath: 'inset(50%)',
+        height: 1,
+        overflow: 'hidden',
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        whiteSpace: 'nowrap',
+        width: 1,
+    });
+    const handleFileUpload = (event) => {
+        const file = event.target.files[0];
+        const reader = new FileReader();
 
+        reader.onload = (e) => {
+            const binaryStr = e.target.result;
+            const workbook = XLSX.read(binaryStr, { type: "binary" });
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+            const jsonData = XLSX.utils.sheet_to_json(worksheet);
+            console.log(jsonData)
+            // Transform jsonData to the expected format for setQuestions
+            const transformedQuestions = jsonData.map((q) => {
+                const options = [];
+                if (q.option_a) options.push({ optionText: q.option_a.toString() });
+                if (q.option_b) options.push({ optionText: q.option_b.toString() });
+                if (q.option_c) options.push({ optionText: q.option_c.toString() });
+                if (q.option_d) options.push({ optionText: q.option_d.toString() });
+
+                return {
+                    questionText: q.question_text,
+                    options: options,
+                    correctAnswer: q.correct_option,
+                    open: true // Assuming you want all questions to be open by default
+                };
+            });
+
+            // Update the questions state with the transformed data
+            setQuestions(transformedQuestions);
+        };
+
+        reader.readAsBinaryString(file);
+    };
     const onfileChange = async (event) => {
         setFile(event.target.files);
         if (event.target.files.length > 0) {
@@ -568,11 +616,8 @@ const UploadExam = () => {
 
                                 </div>
                             </div>
-
                             <h1 className="question-exam">Question</h1>
-
                             <div>
-
                                 <DragDropContext onDragEnd={onDragEnd}>
                                     <Droppable droppableId="droppable">
                                         {(provided, snapshot) => (
@@ -596,13 +641,45 @@ const UploadExam = () => {
                                         style={{ margin: '5px' }}
                                     >Add Question </Button>
                                     <Button
+                                        component="label"
+                                        role={undefined}
+                                        variant="contained"
+                                        tabIndex={-1}
+                                        startIcon={<CloudUploadIcon />}
+                                        style={{ margin: '5px', backgroundColor: 'purple' }}
+                                        onChange={handleFileUpload}
+
+                                    >
+                                        Upload file question
+                                        <VisuallyHiddenInput type="file" />
+                                    </Button>
+                                    <Button
                                         variant="contained"
                                         color="success"
                                         onClick={saveQuestions}
                                         style={{ margin: '15px' }}
                                         endIcon={<SaveIcon />}
                                     >Create Exam </Button>
-
+                                    {data.length > 0 && (
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    {Object.keys(data[0]).map((key) => (
+                                                        <th key={key}>{key}</th>
+                                                    ))}
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {data.map((row, index) => (
+                                                    <tr key={index}>
+                                                        {Object.values(row).map((val, idx) => (
+                                                            <td key={idx}>{val}</td>
+                                                        ))}
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    )}
                                 </div>
                             </div>
                         </Grid>

@@ -19,9 +19,9 @@ import "./SearchBar.css"
 const BodyCourses = ({ className = "" }) => {
     const [courses, setCourses] = useState([]);
     const [filteredCourses, setFilteredCourses] = useState([]);
-
+    const [org, setOrg] = useState('');
     const [loading, setLoading] = useState(false);
-    const { address, connectWallet, getPublicKey } = useSigner();
+    const { address, connectWallet, getPublicKey, signer, contract } = useSigner();
     const [open, setOpen] = useState(false);
     const [selectedCourse, setSelectedCourse] = useState(null);
     const [alertSeverity, setAlertSeverity] = useState("");
@@ -31,20 +31,57 @@ const BodyCourses = ({ className = "" }) => {
     const navigate = useNavigate();
     useEffect(() => {
         fetchCourses().catch((error) => console.error(error));
+    }, [org]);
+    useEffect(() => {
+        setLoading(true)
+        const fetchOrg = async () => {
+            try {
+                if (address) {
+                    const org = await contract.getOrganizationCode(address);
+                    setOrg(org);
+                    setLoading(false)
+                }
+            } catch (err) {
+                setLoading(false)
+                console.log(err);
+            }
+            setLoading(false)
 
-    }, []);
+        };
+        fetchOrg();
+    }, [address, signer, contract]);
     const fetchCourses = async () => {
         setLoading(true)
+        console.log(org)
         try {
-            const result = await axios.get(`http://localhost:8080/courses`);
-            if (Array.isArray(result.data.courses)) {
-                setCourses(result.data.courses);
-                setFilteredCourses(result.data.courses);
+            if (org) {
+                const result = await axios(`http://localhost:8080/courses/${org}`)
+                console.log(result)
+                if (Array.isArray(result.data.courses)) {
+                    setCourses(result.data.courses);
+                    setFilteredCourses(result.data.courses);
+                }
+                setLoading(false)
+
             }
+            else if (!org) {
+                const result = await axios.get(`http://localhost:8080/courses`);
+                if (Array.isArray(result.data.courses)) {
+                    setCourses(result.data.courses);
+                    setFilteredCourses(result.data.courses);
+                }
+                setLoading(false)
+            }
+            setLoading(false)
         } catch (err) {
+            setLoading(false)
+
             console.log(err);
         }
-        setLoading(false)
+        finally {
+            setLoading(false)
+
+        }
     };
     const checkInfoExist = async () => {
         if (address) {
@@ -149,17 +186,6 @@ const BodyCourses = ({ className = "" }) => {
         );
         setFilteredCourses(filterCourses);
     };
-    const toggleBlurEffect = (shouldBlur) => {
-        const backgroundElements = document.querySelectorAll('.background-element'); // Replace '.background-element' with the actual selector for your background elements
-        backgroundElements.forEach(el => {
-            if (shouldBlur) {
-                el.classList.add('blur-effect');
-            } else {
-                el.classList.remove('blur-effect');
-            }
-        });
-    };
-
     return (
         <>
             {loading && (

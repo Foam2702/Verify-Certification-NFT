@@ -21,9 +21,9 @@ const BodyCourses = ({ className = "" }) => {
     const [filteredCourses, setFilteredCourses] = useState([]);
 
     const [loading, setLoading] = useState(false);
-    const { address, connectWallet } = useSigner();
+    const { address, connectWallet, getPublicKey } = useSigner();
     const [open, setOpen] = useState(false);
-    const [selectedCourse, setSelectedCourse] = useState(null);
+    // const [selectedCourse, setSelectedCourse] = useState(null);
     const [alertSeverity, setAlertSeverity] = useState("");
     const [showAlert, setShowAlert] = useState(false);
     const [messageAlert, setMessageAlert] = useState("")
@@ -71,28 +71,16 @@ const BodyCourses = ({ className = "" }) => {
                         return false
                     }
                     return true
-
                 }
             } catch (err) {
                 console.log(err);
             }
         }
     };
-    const handleClickOpen = async (course) => {
-        const check = await checkInfoExist()
-        if (check) {
-            setSelectedCourse(course);
-            setOpen(true);
-        }
-        else {
-            setLoading(true)
-            setTimeout(() => {
+    const handleClickOpen = async () => {
 
-                navigate("/profile")
+        setOpen(true);
 
-                setLoading(false);
-            }, 1000);
-        }
     };
     const handleClose = () => {
         setOpen(false);
@@ -104,32 +92,42 @@ const BodyCourses = ({ className = "" }) => {
         setShowAlert(false);
         await new Promise(resolve => setTimeout(resolve, 1000));
     };
-    const handleAgree = async () => {
+    const handleAgree = async (course) => {
         try {
-            setLoading(true); // Start loading
-            const result = await axios.post(`http://localhost:8080/courses/course/${selectedCourse.id}?address=${address}`)
+            setLoading(true);
+            const result = await axios.post(`http://localhost:8080/courses/course/${course.id}?address=${address}`)
             if (result.data.code == 200) {
-                setTimeout(() => {
-                    if (!address) {
-                        navigate("/");
-                    } else {
-                        navigate(`/courses/course/${selectedCourse.id}/exam`);
+                if (!address) {
+                    navigate("/");
+                }
+                else {
+                    const check = await checkInfoExist()
+                    if (check) {
+                        navigate(`/courses/course/${course.id}/exam`);
                     }
-                    setLoading(false);
-                }, 1000);
-                handleClose();
+                    else {
+                        localStorage.setItem('targetURL', `/courses/course/${course.id}/exam`);
+                        navigate("/profile")
+                        setLoading(false);
+                    }
+                }
             }
             else {
-                const result = await axios(`http://localhost:8080/exam/${selectedCourse.id}?address=${address}`)
+                const result = await axios(`http://localhost:8080/exam/${course.id}?address=${address}`)
                 if (result.data.data[0].status == "examining") {
-                    setTimeout(() => {
-                        if (!address)
-                            navigate("/");
-                        else {
-                            navigate(`/courses/course/${selectedCourse.id}/exam`);
+                    if (!address)
+                        navigate("/");
+                    else {
+                        const check = await checkInfoExist()
+                        if (check) {
+                            navigate(`/courses/course/${course.id}/exam`);
                         }
-                        setLoading(false);
-                    }, 1000);
+                        else {
+                            localStorage.setItem('targetURL', `/courses/course/${course.id}/exam`);
+                            navigate("/profile")
+
+                        }
+                    }
                 }
                 else if (result.data.data[0].status == "passed") {
                     setLoading(false);
@@ -138,18 +136,10 @@ const BodyCourses = ({ className = "" }) => {
                     setShowAlert(true);
                     handleClose();
                 }
-                else if (result.data.data[0].status == "failed") {
-                    setLoading(false);
-                    setAlertSeverity("warning")
-                    setMessageAlert("You have failed this exam")
-                    setShowAlert(true);
-                    handleClose();
-                }
             }
         } catch (err) {
             console.log(err)
         }
-
     };
     const handleChange = (value) => {
         setInput(value);
@@ -157,6 +147,16 @@ const BodyCourses = ({ className = "" }) => {
             course.name.toLowerCase().includes(value.toLowerCase())
         );
         setFilteredCourses(filterCourses);
+    };
+    const toggleBlurEffect = (shouldBlur) => {
+        const backgroundElements = document.querySelectorAll('.background-element'); // Replace '.background-element' with the actual selector for your background elements
+        backgroundElements.forEach(el => {
+            if (shouldBlur) {
+                el.classList.add('blur-effect');
+            } else {
+                el.classList.remove('blur-effect');
+            }
+        });
     };
 
     return (
@@ -166,31 +166,7 @@ const BodyCourses = ({ className = "" }) => {
                     <CircularProgress />
                 </div>
             )}
-            <Dialog
-                open={open}
-                onClose={handleClose}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-                sx={{
-                    '& .MuiDialogContent-root': { fontSize: '1.25rem' },
-                    '& .MuiTextField-root': { fontSize: '1.25rem' },
-                    '& .MuiButton-root': { fontSize: '1.25rem' },
-                }}            >
-                <DialogTitle id="alert-dialog-title" sx={{ fontSize: '1.5rem' }}>
-                    {"Ready for the exam?"}
-                </DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="alert-dialog-description" sx={{ fontSize: '1.5rem' }}>
-                        Once you choose to <span style={{ color: "#1976D2" }}>START</span>, you must complete the test. If you exit midway, you will <span style={{ fontWeight: 'bold', color: "red" }}>FAIL</span>  the test
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose}>Cancel</Button>
-                    <Button onClick={handleAgree} autoFocus>
-                        Start
-                    </Button>
-                </DialogActions>
-            </Dialog>
+
             <div className="search-bar-container">
                 <div className="input-wrapper">
                     <FaSearch id="search-icon" />
@@ -205,15 +181,43 @@ const BodyCourses = ({ className = "" }) => {
 
                 <div className="careers-section1">
                     {filteredCourses.map((course) => (
-                        <button onClick={() => handleClickOpen(course)} key={course.id}>
-                            <Course
-                                course1Image={course.image}
-                                courseHeader={course.name}
-                                courseDescription={course.description}
-                                courseOrg={course.licensing_authority}
-                                courseOrgImg={course.image_licensing_authority}
-                            />
-                        </button>
+                        <div>
+                            <Dialog
+                                open={open}
+                                onClose={handleClose}
+                                aria-labelledby="alert-dialog-title"
+                                aria-describedby="alert-dialog-description"
+                                sx={{
+                                    '& .MuiDialogContent-root': { fontSize: '1.25rem' },
+                                    '& .MuiTextField-root': { fontSize: '1.25rem' },
+                                    '& .MuiButton-root': { fontSize: '1.25rem' },
+                                }}            >
+                                <DialogTitle id="alert-dialog-title" sx={{ fontSize: '1.5rem' }}>
+                                    {"Ready for the exam?"}
+                                </DialogTitle>
+                                <DialogContent>
+                                    <DialogContentText id="alert-dialog-description" sx={{ fontSize: '1.5rem' }}>
+                                        Are you sure to start the exam?
+                                    </DialogContentText>
+                                </DialogContent>
+                                <DialogActions>
+                                    <Button onClick={handleClose}>Cancel</Button>
+                                    <Button onClick={() => handleAgree(course)} autoFocus>
+                                        Start
+                                    </Button>
+                                </DialogActions>
+                            </Dialog>
+                            {/* onClick={() => handleClickOpen(course)} */}
+                            <button onClick={handleClickOpen} key={course.id}>
+                                <Course
+                                    course1Image={course.image}
+                                    courseHeader={course.name}
+                                    courseDescription={course.description}
+                                    courseOrg={course.licensing_authority}
+                                    courseOrgImg={course.image_licensing_authority}
+                                />
+                            </button>
+                        </div>
                     ))}
                 </div>
             </section>

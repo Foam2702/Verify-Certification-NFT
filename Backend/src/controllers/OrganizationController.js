@@ -1,6 +1,7 @@
 const organizationModel = require("../models/OrganizationModel")
 const courseModel = require("../models/CourseModel")
 const ticketModel = require("../models/TicketModel")
+const examModel = require("../models/ExamModel")
 module.exports = {
     getAllOrganization: async (req, res) => {
         const organization = await organizationModel.getAllOrganization()
@@ -33,12 +34,11 @@ module.exports = {
     },
     deleteOneOrganization: async (req, res) => {
         const { org } = req.query
-        console.log(org)
         await organizationModel.deleteOneCertificate(org)
         const all_courses_by_org = await courseModel.getCourseByOrg(org)
         for (let i = 0; i < all_courses_by_org.length; i++) {
             await courseModel.deleteQuestionByCourseId(all_courses_by_org[i].id)
-
+            await examModel.deleteExamById(all_courses_by_org[i].id)
         }
         await courseModel.deleteOneCourseByOrg(org)
         await ticketModel.deleteTicketByOrg(org)

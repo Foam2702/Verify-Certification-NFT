@@ -59,5 +59,13 @@ module.exports = {
         } catch (error) {
             return error
         }
+    },
+    deleteExamById: async (id) => {
+        try {
+            await sql`DELETE FROM exam WHERE course=${id}`
+            return true
+        } catch (error) {
+            return error
+        }
     }
 };

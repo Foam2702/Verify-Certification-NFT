@@ -157,8 +157,17 @@ export const Profile = () => {
                 setAlertSeverity("success");
                 setShowAlert(true);
                 setLoading(false)
-                window.location.reload();
-                return
+                const targetURL = localStorage.getItem('targetURL');
+                if (targetURL) {
+                    navigate(targetURL);
+                    // Clear the target URL from localStorage
+                    localStorage.removeItem('targetURL');
+                }
+                else {
+                    window.location.reload();
+
+                }
+
             }
             else {
                 setMessageAlert("Updated fail");
@@ -419,7 +428,7 @@ export const Profile = () => {
 
                             </DialogContent>
                             <DialogActions>
-                                <Button onClick={handleCloseDialog} type="submit">Decrypt</Button>
+                                <Button onClick={handleCloseDialog} type="submit">Enter</Button>
 
                                 <Button onClick={handleCloseDialog}>Cancel</Button>
                             </DialogActions>
@@ -605,7 +614,7 @@ export const Profile = () => {
 
                             </DialogContent>
                             <DialogActions>
-                                <Button onClick={handleCloseDialog} type="submit">Decrypt</Button>
+                                <Button onClick={handleCloseDialog} type="submit">Enter</Button>
 
                                 <Button onClick={handleCloseDialog}>Cancel</Button>
                             </DialogActions>

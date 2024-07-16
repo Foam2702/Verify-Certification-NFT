@@ -48,16 +48,16 @@ const Share = () => {
                 <div className="upload-lisence">
                     <div className="info_certi">
                         <div className="lisence-name-title">{certificate.certificate_name}<VerifiedIcon sx={{ color: "green", fontSize: 50 }} /></div>
-                        <div className="lisence-owner" style={{ fontWeight: "bold" }}>
+                        <div className="lisence-owner" style={{ fontWeight: "bold", width: '900px', lineHeight: '50px' }}>
                             Completed by {certificate.owner_address}
                         </div>
-                        <div className="lisence-owner" style={{}}>
+                        <div className="lisence-owner" style={{ width: '900px' }}>
                             <strong>Name: </strong>{certificate.name}
                         </div>
-                        <div className="lisence-name" style={{ width: '400px', }}>
+                        <div className="lisence-name" style={{ width: '900px', }}>
                             <strong>Issue Date: </strong>{formatDateV2(certificate.issue_date)}
                         </div>
-                        <div className="lisence-name" style={{ width: '400px', }}>
+                        <div className="lisence-name" style={{ width: '600px', }}>
                             <strong>Expiry Date: </strong> {formatDateV2(certificate.expiry_date)}
                         </div>
                     </div>

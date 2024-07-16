@@ -164,5 +164,13 @@ module.exports = {
             console.error(err);
             return false;
         }
+    },
+    deleteTicketByIdAndAddress: async (id, address) => {
+        try {
+            await sql`DELETE FROM ticket WHERE id=${id} and issuer_address=${address}`
+            return true
+        } catch (err) {
+            return false;
+        }
     }
 }

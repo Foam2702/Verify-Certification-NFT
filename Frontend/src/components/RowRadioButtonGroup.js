@@ -267,8 +267,6 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                 issueDate: new Date().toLocaleDateString(),
                 certificateName: course[0].name,
                 licensingAuthority: course[0].licensing_authority
-
-
             }
             // Kiểm tra nếu bất kỳ giá trị giải mã nào là null
             for (const key in decryptedUser) {
@@ -282,6 +280,14 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                 'workUnit', 'point', 'issueDate'];
 
             hashImg = hashImage(image)
+            const exists = await isExistsInPinata(hashImg)
+            if (exists) {
+                setLoading(false);
+                setAlertSeverity("warning");
+                setMessageAlert(`This certificate already belongs to someone else or you already get this certificate`);
+                setShowAlert(true);
+                return
+            }
             const imageEncrypt = await encryptData(image, privateKey, remove0x(publicKeyOwner));
             image_res = await imageUpload(imageEncrypt, hashImg, address, decryptedUser["certificateName"])
             const issuers = await checkIssuer(course[0].licensing_authority);
@@ -311,16 +317,13 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                 else if (issuerPublicKeysResponse.data.address[0].publickey != null) {
                     const formData = new FormData();
                     const publicKeyIssuer = issuerPublicKeysResponse.data.address[0].publickey
-
                     const imageEncrypt = await encryptData(image, privateKey, remove0x(issuerPublicKeysResponse.data.address[0].publickey));
                     for (const field of fieldsToEncrypt) {
                         const encryptedData = decryptedUser[field] ? await encryptData(decryptedUser[field], privateKey, remove0x(publicKeyIssuer)) : null;
                         formData.append(field, JSON.stringify(encryptedData));
                     }
-
                     image_res = await imageUpload(imageEncrypt, hashImg, address, decryptedUser["certificateName"])
                     formData.append("expiryDate", null)
-
                     formData.append("issuerAddress", issuerPublicKeysResponse.data.address[0].address)
                     formData.append("cidCertificate", image_res)
                     formData.append("id", id)
@@ -328,10 +331,7 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                     formData.append("certificateName", decryptedUser["certificateName"])
                     formData.append("licensingAuthority", decryptedUser["licensingAuthority"]);
                     await axios.post("http://localhost:8080/tickets", formData);
-
-
                 }
-
             }
             setLoading(false); // Stop loading regardless of the request outcome
             setAlertSeverity("success");

@@ -225,7 +225,14 @@ const Ticket = ({ ticket }) => {
 
                         await deletePinIPFS(issuer_org.data.ticket[0].certificate_cid)
                     }
+                    await axios.delete(`http://localhost:8080/tickets/ticket/${ticket.id}?address=${address}`)
                 }
+                setLoading(false)
+                setAlertSeverity("success")
+                setMessageAlert("Create transaction successfully.Waiting to confirm")
+                setShowAlert(true);
+                await result.wait();
+
                 const status = "approved"
                 const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}?status=${status}&transaction_hash=${result.hash}&issuer_address=`)
                 if (response.data.message === "updated successfully") {

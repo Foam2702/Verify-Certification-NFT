@@ -187,7 +187,7 @@ const BodySection = () => {
           if (exists) {
             setLoading(false);
             setAlertSeverity("warning");
-            setMessageAlert(`This certificate already belongs to someone else`);
+            setMessageAlert(`This certificate already belongs to someone else or you already get this certificate`);
             setShowAlert(true);
             return
           }

@@ -139,6 +139,8 @@ const AddIssuer = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+        setLoading(true)
+
         const formData = new FormData(event.currentTarget);
         const formJson = Object.fromEntries(formData.entries());
         const newAddress = formJson.address;
@@ -150,7 +152,10 @@ const AddIssuer = () => {
             // Your code to add a new issuer
             try {
                 const tx = await contract.addVerifier(newAddress, org);
-                setLoading(true)
+                setLoading(false)
+                setAlertSeverity("success");
+                setMessageAlert("Create transaction successfully.Waiting to confirm");
+                setShowAlert(true);
                 await tx.wait();
                 await axios.post(`http://localhost:8080/addresses?address=${newAddress}`)
 
@@ -241,6 +246,10 @@ const AddIssuer = () => {
             setLoading(true)
             const getOrgFromIssuer = await contract.getOrganizationCode(address)
             const tx = await contract.removeVerifier(address);
+            setLoading(false)
+            setAlertSeverity("success");
+            setMessageAlert("Create transaction successfully.Waiting to confirm");
+            setShowAlert(true);
             await tx.wait();
             //xóa ticket và hình ảnh chứng chỉ lquan đến issuer vừa xóa
             const tickets = await axios(`http://localhost:8080/tickets/address?address=${address}`)
@@ -248,7 +257,6 @@ const AddIssuer = () => {
                 await deletePinIPFS(ticket.certificate_cid)
                 await axios.delete(`http://localhost:8080/tickets/address?address=${address}`)
             })
-            // const deleteAddr = await axios.delete(`http://localhost:8080/addresses?address=${address}`)
             const checkOrg = await contract.getVerifiersByOrganizationCode(getOrgFromIssuer)
             //kiểm tra có phải issuer cuối cùng bị xóa khỏi tổ chức
             if (checkOrg.length == 0) {

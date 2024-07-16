@@ -320,6 +320,7 @@ const LisenceView = () => {
   };
   const handleShareChange = async (event, currentCertificate) => {
     event.preventDefault()
+
     const shareCerti = {
       certificate_image: currentCertificate.image_url,
       certificate_name: currentCertificate.description,

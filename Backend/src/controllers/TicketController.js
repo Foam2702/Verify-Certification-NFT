@@ -107,7 +107,7 @@ module.exports = {
 
         const result = await ticketModel.updateOneTicket(id, status, transaction_hash)
         if (result == true) {
-            await ticketModel.deleteTicketExceptUser(id)
+            // await ticketModel.deleteTicketExceptUser(id)
             res.json({
                 "code": "200",
                 "success": true,
@@ -121,12 +121,11 @@ module.exports = {
                 "message": "update failed"
             })
         }
-
-
     },
     deleteOneTicket: async (req, res) => {
         const { id } = req.params
-        const result = await ticketModel.deleteOneTicket(id)
+        const { address } = req.query
+        const result = await ticketModel.deleteTicketByIdAndAddress(id, address)
         if (result == true) {
             res.json({
                 "code": "200",

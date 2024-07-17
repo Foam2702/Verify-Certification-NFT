@@ -206,6 +206,9 @@ const LisenceView = () => {
         }
         const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey;
         if (publicKeyFromPrivateKey === publicKeyOwner) {
+          setAlertSeverity("success");
+          setMessageAlert("Correct private key");
+          setShowAlert(true);
           setError(null); // Clear any previous errors
           setIsPrivateKeyValid(true); // Set isPrivateKeyValid to true if keys match
           await decryptAllFields(privateKey)

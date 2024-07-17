@@ -29,10 +29,8 @@ import * as XLSX from "xlsx";
 const JWT = process.env.REACT_APP_JWT; // Make sure to set this in your React app environment variables
 import { styled } from '@mui/material/styles';
 import { format } from "date-fns";
-
 import "./BodySection.css";
 import "../pages/LisenceView"
-
 const Ticket = ({ ticket }) => {
     const { signer, address, connectWallet, contract, provider } = useSigner()
     const [file, setFile] = useState(null);
@@ -88,14 +86,11 @@ const Ticket = ({ ticket }) => {
                             navigate("/")
                         }, 5000)
                         return
-
                     }
-
                 }
                 else {
                     return;
                 }
-
             }
         }
         if (ticket != null) { // Only run if ticket is defined
@@ -206,8 +201,6 @@ const Ticket = ({ ticket }) => {
             }, 10000)
             return
         }
-
-
         setLoading(true)
         try {
             const status = "reject"
@@ -222,7 +215,6 @@ const Ticket = ({ ticket }) => {
                 }
             }
             const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}?status=${status}&transaction_hash=`)
-
             if (response.data.message === "updated successfully") {
                 setLoading(false)
                 setUpdate(true)
@@ -234,7 +226,6 @@ const Ticket = ({ ticket }) => {
             }
             else if (response.data.message === "update failed") {
                 setLoading(false)
-
                 setpdate(false)
                 setAlertSeverity("error")
                 setMessageAlert("Already Rejected")
@@ -274,8 +265,6 @@ const Ticket = ({ ticket }) => {
             }, 10000)
             return
         }
-
-
         setLoading(true);
         const empty = ' '
         const encodedEmpty = encodeURIComponent(empty);
@@ -287,7 +276,6 @@ const Ticket = ({ ticket }) => {
         catch (err) {
             console.log(err)
         }
-
         const metadata = await pinJSONToIPFS(ticket)
         const ipfsMetadata = `ipfs://${metadata}`
         try {
@@ -311,7 +299,6 @@ const Ticket = ({ ticket }) => {
                 setMessageAlert("Create transaction successfully.Waiting to confirm")
                 setShowAlert(true);
                 await result.wait();
-
                 const status = "approved"
                 const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}?status=${status}&transaction_hash=${result.hash}&issuer_address=`)
                 if (response.data.message === "updated successfully") {
@@ -332,14 +319,12 @@ const Ticket = ({ ticket }) => {
                 }
             }
         } catch (err) {
-
             await deletePinIPFS(metadata)
             setLoading(false);
             setAlertSeverity("error");
             setMessageAlert("Rejected transaction");
             setShowAlert(true);
             window.location.reload();
-
         }
     };
     const handleClose = async (event, reason) => {

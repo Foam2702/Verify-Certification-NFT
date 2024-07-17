@@ -27,7 +27,6 @@ export const Profile = () => {
     const [error, setError] = useState(null);
     const [isPrivateKeyValid, setIsPrivateKeyValid] = useState(false);
     const [open, setOpen] = useState(false);
-    const [privateKey, setPrivateKey] = useState("")
     const [decryptedName, setDecryptedName] = useState('');
     const [decryptedGender, setDecryptedGender] = useState('');
     const [decryptedEmail, setDecryptedEmail] = useState('');
@@ -35,9 +34,45 @@ export const Profile = () => {
     const [decryptedDob, setDecryptedDob] = useState('');
     const [decryptedRegion, setDecryptedRegion] = useState('');
     const [decryptedWorkUnit, setDecryptedWorkUnit] = useState('');
+    const [privateKey, setPrivateKey] = useState("")
     const { signer, address, connectWallet, contract, provider, getPublicKey } = useSigner();
-
     const navigate = useNavigate();
+    useEffect(() => {
+
+        const fetchDataRegions = async () => {
+            try {
+                const result = await axios("http://localhost:8080/tickets");
+                if (Array.isArray(result.data.cities)) {
+                    setRegions(result.data.cities);
+                } else {
+                    throw new Error("Unexpected data format");
+                }
+            }
+            catch (err) {
+                console.log(err)
+            }
+
+        };
+
+        fetchDataRegions().catch((error) => console.error(error));
+    }, [])
+    useEffect(() => {
+        const fetchUserInfo = async () => {
+            try {
+                if (address) {
+                    console.log(address)
+                    const response = await axios.get(`http://localhost:8080/addresses/${address}`);
+                    const data = response.data.address[0];
+                    setUser(data)
+                }
+
+
+            } catch (err) {
+                console.log(err)
+            }
+        }
+        fetchUserInfo().catch(err => console.log(err))
+    }, [address, signer])
     const handleClickOpen = (e) => {
         e.preventDefault()
         setOpen(true);
@@ -95,92 +130,101 @@ export const Profile = () => {
             await connectWallet()
         }
     };
-    const handleUpdateInfo = async (privatekey, check) => {
+    const handleUpdateInfo = async (e) => {
+        e.preventDefault()
+        console.log("IM HERE")
+        console.log(isPrivateKeyValid)
+        if (isPrivateKeyValid) {
+            setLoading(true); // Start loading before sending the request
+            const check = await insertPubToDB()
+            if (check) {
+                const form = document.querySelector("form");
+                // Get the form data
+                const data = Array.from(form.elements)
+                    .filter((input) => input.name)
+                    .reduce(
+                        (obj, input) => Object.assign(obj, { [input.name]: input.value }),
+                        {}
+                    );
+                const fields = [
+                    'citizenId', 'name', 'region', 'dob', 'gender', 'email',
+                    'workUnit'
+                ];
 
-        setLoading(true); // Start loading before sending the request
-        if (check) {
-            const form = document.querySelector("form");
-            // Get the form data
-            const data = Array.from(form.elements)
-                .filter((input) => input.name)
-                .reduce(
-                    (obj, input) => Object.assign(obj, { [input.name]: input.value }),
-                    {}
-                );
-            const fields = [
-                'citizenId', 'name', 'region', 'dob', 'gender', 'email',
-                'workUnit'
-            ];
+                for (const field of fields) {
 
-            for (const field of fields) {
-
-                if (!data[field]) {
-                    setMessageAlert(`Please fill out the ${field} field.`);
+                    if (!data[field]) {
+                        setMessageAlert(`Please fill out the ${field} field.`);
+                        setAlertSeverity("warning");
+                        setShowAlert(true);
+                        setLoading(false);
+                        return;
+                    }
+                }
+                const formData = new FormData();
+                //Email
+                let emailPattern = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+                if (!emailPattern.test(data.email)) {
+                    setMessageAlert(`Invalid Mail`);
                     setAlertSeverity("warning");
                     setShowAlert(true);
                     setLoading(false);
+                    document.querySelector("[name='email']").classList.add('invalid-input');
                     return;
+                } else {
+                    console.log("Valid email");
                 }
-            }
-            const formData = new FormData();
-            //Email
-            let emailPattern = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-            if (!emailPattern.test(data.email)) {
-                setMessageAlert(`Invalid Mail`);
-                setAlertSeverity("warning");
-                setShowAlert(true);
-                setLoading(false);
-                document.querySelector("[name='email']").classList.add('invalid-input');
-                return;
-            } else {
-                console.log("Valid email");
-            }
-            for (const field of fields) {
-                formData.append(field, data[field]);
-            }
-            const ownerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${address}`)
+                for (const field of fields) {
+                    formData.append(field, data[field]);
+                }
+                const ownerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${address}`)
 
-            const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
+                const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
 
-            const response = await axios.patch(`http://localhost:8080/addresses/profile/${address}`, {
-                citizenId: await encryptData(data.citizenId, privatekey, remove0x(publicKeyOwner)),
-                name: await encryptData(data.name, privatekey, remove0x(publicKeyOwner)),
-                region: await encryptData(data.region, privatekey, remove0x(publicKeyOwner)),
-                dob: await encryptData(data.dob, privatekey, remove0x(publicKeyOwner)),
-                gender: await encryptData(data.gender, privatekey, remove0x(publicKeyOwner)),
-                email: await encryptData(data.email, privatekey, remove0x(publicKeyOwner)),
-                workUnit: await encryptData(data.workUnit, privatekey, remove0x(publicKeyOwner))
+                const response = await axios.patch(`http://localhost:8080/addresses/profile/${address}`, {
+                    citizenId: await encryptData(data.citizenId, privateKey, remove0x(publicKeyOwner)),
+                    name: await encryptData(data.name, privateKey, remove0x(publicKeyOwner)),
+                    region: await encryptData(data.region, privateKey, remove0x(publicKeyOwner)),
+                    dob: await encryptData(data.dob, privateKey, remove0x(publicKeyOwner)),
+                    gender: await encryptData(data.gender, privateKey, remove0x(publicKeyOwner)),
+                    email: await encryptData(data.email, privateKey, remove0x(publicKeyOwner)),
+                    workUnit: await encryptData(data.workUnit, privateKey, remove0x(publicKeyOwner))
 
-            });
-            if (response.data.message == "Updated successfully") {
-                setMessageAlert("Updated successfully");
-                setAlertSeverity("success");
-                setShowAlert(true);
-                setLoading(false)
-                const targetURL = localStorage.getItem('targetURL');
-                if (targetURL) {
-                    navigate(targetURL);
-                    // Clear the target URL from localStorage
-                    localStorage.removeItem('targetURL');
+                });
+                if (response.data.message == "Updated successfully") {
+                    setMessageAlert("Updated successfully");
+                    setAlertSeverity("success");
+                    setShowAlert(true);
+                    setLoading(false)
+                    const targetURL = localStorage.getItem('targetURL');
+                    if (targetURL) {
+                        navigate(targetURL);
+                        // Clear the target URL from localStorage
+                        localStorage.removeItem('targetURL');
+                    }
+                    else {
+                        window.location.reload();
+
+                    }
+
                 }
                 else {
-                    window.location.reload();
-
+                    setMessageAlert("Updated fail");
+                    setAlertSeverity("error");
+                    setShowAlert(true);
+                    setLoading(false)
+                    return
                 }
-
             }
             else {
-                setMessageAlert("Updated fail");
-                setAlertSeverity("error");
-                setShowAlert(true);
                 setLoading(false)
                 return
             }
         }
-        else {
-            setLoading(false)
-            return
+        else if (!isPrivateKeyValid) {
+            setOpen(true)
         }
+
     }
 
     const handleClose = async (event, reason) => {
@@ -197,7 +241,6 @@ export const Profile = () => {
         const formData = new FormData(event.currentTarget);
         const formJson = Object.fromEntries(formData.entries());
         const privatekey = formJson.privatekey;
-        setPrivateKey(privatekey)
 
         try {
 
@@ -211,11 +254,19 @@ export const Profile = () => {
                 }
                 const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
                 if (publicKeyFromPrivateKey == publicKeyOwner) {
-                    handleUpdateInfo(privatekey, check)
+                    await decryptAllFields(privatekey)
+                    // handleUpdateInfo(privatekey, check)
+                    setAlertSeverity("success");
+                    setMessageAlert("Correct private key");
+                    setShowAlert(true);
+                    setPrivateKey(privatekey)
+                    setIsPrivateKeyValid(true);
 
                     setError(null); // Clear any previous errors
                 }
                 else {
+                    setIsPrivateKeyValid(false);
+
                     setAlertSeverity("error");
                     setMessageAlert("Wrong private key");
                     setShowAlert(true);
@@ -242,7 +293,6 @@ export const Profile = () => {
                 const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
                 const parseProp = extractEncryptedDataFromJson(prop)
                 const result = await decryptData(parseProp.cipher, parseProp.iv, remove0x(publicKeyOwner), privateKey);
-                console.log("PRIV", privateKey)
                 if (result === "") {
                     setError("Wrong private key"); // Set the error state
                     setLoading(true);
@@ -250,12 +300,10 @@ export const Profile = () => {
                     setAlertSeverity("error")
                     setMessageAlert("Wrong private key")
                     setShowAlert(true);
-                    setIsPrivateKeyValid(false);
 
                     return minifyAddress(prop.toString()); // Return the original prop value in case of error
                 }
                 console.log("handleDecryptInfo")
-                setIsPrivateKeyValid(true);
                 return result;
             } catch (error) {
                 if (error.message.includes("Cipher key could not be derived")) {
@@ -266,7 +314,6 @@ export const Profile = () => {
                     setAlertSeverity("error")
                     setMessageAlert("Wrong private key")
                     setShowAlert(true);
-                    setIsPrivateKeyValid(false);
 
                 } else {
 
@@ -276,7 +323,6 @@ export const Profile = () => {
                     setAlertSeverity("error")
                     setMessageAlert("Wrong private key")
                     setShowAlert(true);
-                    setIsPrivateKeyValid(false);
 
                 }
                 return minifyAddress(prop.toString());
@@ -286,55 +332,17 @@ export const Profile = () => {
             return " ";
         }
     };
-
-    useEffect(() => {
-
-        const fetchDataRegions = async () => {
-            try {
-                const result = await axios("http://localhost:8080/tickets");
-                if (Array.isArray(result.data.cities)) {
-                    setRegions(result.data.cities);
-                } else {
-                    throw new Error("Unexpected data format");
-                }
-            }
-            catch (err) {
-                console.log(err)
-            }
-
-        };
-
-        fetchDataRegions().catch((error) => console.error(error));
-    }, [])
-    useEffect(() => {
-
-        const fetchUserInfo = async () => {
-            try {
-                if (address) {
-                    console.log(address)
-                    const response = await axios.get(`http://localhost:8080/addresses/${address}`);
-                    const data = response.data.address[0];
-                    setUser(data)
-                }
-
-
-            } catch (err) {
-                console.log(err)
-            }
-        }
-        fetchUserInfo().catch(err => console.log(err))
-    }, [address, signer])
-    useEffect(() => {
-        const decryptAllFields = async () => {
-            try {
+    const decryptAllFields = async (privatekey) => {
+        try {
+            if (privatekey) {
                 setLoading(true)
-                const name = await handleDecryptInfo(user.name, privateKey);
-                const gender = await handleDecryptInfo(user.gender, privateKey);
-                const email = await handleDecryptInfo(user.email, privateKey);
-                const citizenId = await handleDecryptInfo(user.citizen_id, privateKey);
-                const dob = await handleDecryptInfo(user.dob, privateKey);
-                const region = await handleDecryptInfo(user.region, privateKey);
-                const workUnit = await handleDecryptInfo(user.work_unit, privateKey);
+                const name = await handleDecryptInfo(user.name, privatekey);
+                const gender = await handleDecryptInfo(user.gender, privatekey);
+                const email = await handleDecryptInfo(user.email, privatekey);
+                const citizenId = await handleDecryptInfo(user.citizen_id, privatekey);
+                const dob = await handleDecryptInfo(user.dob, privatekey);
+                const region = await handleDecryptInfo(user.region, privatekey);
+                const workUnit = await handleDecryptInfo(user.work_unit, privatekey);
 
                 setDecryptedName(name);
                 setDecryptedGender(gender);
@@ -345,16 +353,15 @@ export const Profile = () => {
                 setDecryptedWorkUnit(workUnit);
                 setError(null); // Clear any previous errors
                 setLoading(false)
-            } catch (err) {
-                setLoading(false)
-                setIsPrivateKeyValid(false);
             }
-        };
-        if (user && privateKey) {
-            decryptAllFields();
-        }
-    }, [user, privateKey]);
+            else {
+                setOpen(true)
+            }
 
+        } catch (err) {
+            setLoading(false)
+        }
+    };
     return (
         <div>
             <HeaderSection />
@@ -363,8 +370,6 @@ export const Profile = () => {
                     <CircularProgress />
                 </div>
             )}
-
-
             <section className="body-section1">
                 <div className="body-header">
                     <h1 className="body-header-text2">Your information</h1>
@@ -550,7 +555,7 @@ export const Profile = () => {
 
                             {isPrivateKeyValid &&
                                 <div className="body-button">
-                                    <button className="submit-button" type="submit" onClick={handleClickOpen}>
+                                    <button className="submit-button" type="submit" onClick={handleUpdateInfo}>
                                         <div className="submit">Update</div>
                                     </button>
                                     <button className="cancel-button" type="button" onClick={onCancelBtnClick}>
@@ -699,7 +704,7 @@ export const Profile = () => {
                                 </div>
                             </div>
                             <div className="body-button">
-                                <button className="submit-button" onClick={handleClickOpen}>
+                                <button className="submit-button" onClick={handleUpdateInfo}>
                                     <div className="submit">Update</div>
                                 </button>
                                 <button className="cancel-button" type="button" onClick={onCancelBtnClick}>

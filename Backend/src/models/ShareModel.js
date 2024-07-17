@@ -19,8 +19,9 @@ module.exports = {
     insertShareCertificate: async (id, address, certificate) => {
         try {
             await sql`
-            INSERT INTO share  VALUES (${id}, ${address},${certificate.certificate_image},${certificate.certificate_name},
-            ${certificate.name},${certificate.issue_date}::timestamp without time zone,${certificate.expiry_date}::timestamp without time zone)
+            INSERT INTO share  VALUES (${id}, ${address},${certificate.issuer},${certificate.certificate_image},${certificate.certificate_name},
+            ${certificate.name},${certificate.issue_date}::timestamp without time zone,
+            ${certificate.expiry_date}::timestamp without time zone,${certificate.transaction})
             `;
             return true;
         }

@@ -2,6 +2,7 @@ import "./LisenceView.css";
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import AlertTicket from "../components/AlertTicket"
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import HeaderSection from "../components/HeaderSection";
 import LisenceSection from '../components/LisenceSection';
 import Footer from "../components/Footer";
@@ -353,8 +354,9 @@ const LisenceView = () => {
       name: currentCertificate.attributes.find(item => item.trait_type === "name").value,
       issue_date: currentCertificate.attributes.find(item => item.trait_type === "issue_date").value,
       expiry_date: currentCertificate.attributes.find(item => item.trait_type === "expiry_date").value,
+      issuer: currentCertificate.from,
+      transaction: currentCertificate.transaction_hash
     }
-    console.log(shareCerti)
     if (event.target.value === 'public') {
       const result = await axios.post(`http://localhost:8080/share?id=${currentCertificate.identifier}&address=${currentCertificate.name}`, shareCerti)
       if (result.data.message == "Change to public success") {
@@ -492,11 +494,14 @@ const LisenceView = () => {
 
                         {isPrivateKeyValid && (
                           <>
-                            <div className="lisence-owner" style={{ fontWeight: "bold" }}>
-                              Completed by {certificate.name}
+                            <div className="lisence-owner" style={{}}>
+                              <strong>Completed by</strong> {certificate.name}
                             </div>
-                            <div className="lisence-name" style={{ fontWeight: "bold" }}>
-                              {certificate.date}
+                            <div className="lisence-owner" style={{}}>
+                              <strong>Minted by</strong> {certificate.from}
+                            </div>
+                            <div className="lisence-name" style={{}}>
+                              <strong>Minted date</strong> {certificate.date}
                             </div>
                             {expandedCertificateIndex === index && (
                               <div className="lisence-attributes">
@@ -524,7 +529,15 @@ const LisenceView = () => {
 
                       <div className="img_certi">
                         {isPrivateKeyValid &&
-                          <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '5px' }}>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+
+                            <Link underline="hover" href={`https://sepolia.etherscan.io/tx/${certificate.transaction_hash}`} target="_blank">
+                              <div style={{ display: 'flex' }}>
+                                {/* <img src="./opensea-logo.svg"></img> */}
+                                <Avatar alt="Etherscan" src="./logo-etherscan.png" />
+                                <ArrowOutwardIcon sx={{ fontSize: '2.5rem' }} />
+                              </div>
+                            </Link>
 
                             <Link href={certificate.opensea_url} underline="hover" target="_blank" >
                               <div style={{ display: 'flex' }}>

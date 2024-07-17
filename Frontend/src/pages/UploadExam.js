@@ -288,7 +288,31 @@ const UploadExam = () => {
     };
 
     async function saveQuestions() {
+        try {
+            const checkIssuer = await contract.getOrganizationCode(address)
+            if (!checkIssuer) {
+                setAlertSeverity("warning")
+                setMessageAlert("Your rights have been revoked by the admin. Return to the home page within 10 seconds")
+                setShowAlert(true);
+                setTimeout(() => {
+                    navigate("/")
+                }, 10000)
+                return
+            }
+            console.log(checkIssuer)
+        } catch (err) {
+            console.log(err)
+
+            setAlertSeverity("warning")
+            setMessageAlert("Your rights have been revoked by the admin. Return to the home page within 10 seconds")
+            setShowAlert(true);
+            setTimeout(() => {
+                navigate("/")
+            }, 10000)
+            return
+        }
         setLoading(true)
+
         const dataToSave = {
             certificateName,
             shortName,

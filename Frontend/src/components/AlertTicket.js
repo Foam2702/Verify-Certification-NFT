@@ -3,7 +3,7 @@ import Alert from '@mui/material/Alert';
 import { useState, useEffect } from 'react'
 
 
-export default function AlertTicket({ severity }) {
+export default function AlertTicket({ severity, minter = "" }) {
     const [alert, setAlert] = useState("");
     const [message, setMessage] = useState("");
 
@@ -16,9 +16,9 @@ export default function AlertTicket({ severity }) {
             setMessage("Rejected");
         } else if (severity === "approved") {
             setAlert("success");
-            setMessage("Minted");
+            setMessage(`Minted By ${minter}`);
         }
-    }, [severity]);
+    }, [severity, minter]);
 
     return (
         <Alert variant="outlined" severity={alert} sx={{ fontSize: "1.5rem" }}>

@@ -56,9 +56,6 @@ export const pinJSONToIPFS = async (ticket) => {
                 { "trait_type": "issue_date", "value": `${ticket.issue_date}` },
                 { "trait_type": "expiry_date", "value": `${ticket.expiry_date ? ticket.expiry_date : ''}` },
                 { "trait_type": "status", "value": `${ticket.status}` },
-
-
-
             ]
         },
         pinataMetadata: {

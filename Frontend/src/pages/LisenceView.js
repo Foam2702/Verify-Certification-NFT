@@ -34,7 +34,9 @@ import Select from '@mui/material/Select';
 import Box from '@mui/material/Box';
 import Avatar from '@mui/material/Avatar';
 import Share from "../pages/Share"
+import Web3 from 'web3';
 const { ethers } = require("ethers");
+const SOULBOUND_ADDRESS = process.env.REACT_APP_SOULBOUND_ADDRESS;
 
 const LisenceView = () => {
   const { signer, address, connectWallet, contract, getPublicKey } = useSigner()
@@ -54,6 +56,7 @@ const LisenceView = () => {
   const navigate = useNavigate();
   const [shareCertificate, setShareCertificate] = useState([])
   const [expandedCertificateIndex, setExpandedCertificateIndex] = useState(null); // Track which certificate is expanded
+  const web3 = new Web3(window.ethereum);
 
   useEffect(() => {
     const getNFTs = async () => {
@@ -62,8 +65,31 @@ const LisenceView = () => {
         try {
           const { data } = await axios(`https://testnets-api.opensea.io/api/v2/chain/sepolia/account/${address}/nfts`, options);
           console.log(data.nfts)
+          data.nfts.map(async nft => {
+            const tokenId = nft.identifier
+            const logs = await web3.eth.getPastLogs({
+              address: SOULBOUND_ADDRESS,
+              topics: [
+                web3.utils.sha3('Transfer(address,address,uint256)'),
+                null,  // Any sender
+                null,  // Any receiver
+                web3.utils.padLeft(web3.utils.numberToHex(tokenId), 64)  // Token ID
+              ],
+              fromBlock: 0,
+              toBlock: 'latest'
+            });
+
+            // Get unique transaction hashes from logs
+            const transactionHashes = logs.map(log => log.transactionHash);
+            const uniqueTransactionHashes = [...new Set(transactionHashes)];
+            nft.transaction_hash = uniqueTransactionHashes[0]
+            const transaction_receipt = await web3.eth.getTransactionReceipt(nft.transaction_hash);
+            nft.from = transaction_receipt.from
+          })
+          console.log(data.nfts)
           setCertificates(data.nfts);
           setFilteredCertificates(data.nfts)
+
         } catch (err) {
           console.error(err);
         }
@@ -235,7 +261,7 @@ const LisenceView = () => {
       if (!decryptedData) throw new Error("Wrong private key");
       return decryptedData;
     } catch (error) {
-      handleDecryptionError(error);
+      // handleDecryptionError(error);
       return null;
     }
   };

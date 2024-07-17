@@ -66,6 +66,7 @@ const Ticket = ({ ticket }) => {
     const [imageMatch, setImageMatch] = useState(false)
     const [infoMatch, setInfoMatch] = useState(false)
     const [isExam, setIsExam] = useState(false)
+    const [mint, setMint] = useState("")
     const web3 = new Web3(window.ethereum);
     const navigate = useNavigate();
     useEffect(() => {
@@ -85,8 +86,11 @@ const Ticket = ({ ticket }) => {
             try {
                 const data = await web3.eth.getTransactionReceipt(ticket.transaction_hash);
                 let transaction = data;
+                console.log("TRANS", transaction.from)
+
                 let logs = data.logs;
                 const tokenIdValue = web3.utils.hexToNumber(logs[0].topics[3]);
+                setMint(transaction.from)
                 setTokenID(tokenIdValue.toString());
                 setAddressContract(logs[0].address)
             } catch (err) {
@@ -711,7 +715,7 @@ const Ticket = ({ ticket }) => {
                             </>
                         ) : (
                             <>
-                                <AlertTicket severity={ticket.status} />
+                                <AlertTicket severity={ticket.status} minter={mint} />
                             </>
                         )}
                         {isExam &&

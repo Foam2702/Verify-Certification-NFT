@@ -263,9 +263,11 @@ const AddIssuer = () => {
                 //xóa ticket lquan đến tổ chức vừa xóa
                 const tickets_from_org = await axios(`http://localhost:8080/tickets/${getOrgFromIssuer}`)
                 tickets_from_org.data.tickets.map(async ticket => {
-                    console.log(ticket)
-                    await deletePinIPFS(ticket.certificate_cid)
-                    await axios.delete(`http://localhost:8080/tickets/address?address=${ticket.owner_address}`)
+                    if (ticket.status == 'processing') {
+                        await deletePinIPFS(ticket.certificate_cid)
+                        await axios.delete(`http://localhost:8080/tickets/address?address=${ticket.owner_address}`)
+                    }
+
                 })
                 //xóa tổ chức
                 await axios.delete(`http://localhost:8080/organization?org=${getOrgFromIssuer}`)

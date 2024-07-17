@@ -26,16 +26,16 @@ module.exports = {
         if (certificate.issue_date == null || certificate.issue_date == ' ') {
             certificate.issue_date = null
         }
-        else {
-            certificate.issue_date = formatDate(certificate.issue_date)
-        }
+        // else {
+        //     certificate.issue_date = formatDate(certificate.issue_date)
+        // }
         if (certificate.expiry_date == null || certificate.expiry_date == ' ') {
             certificate.expiry_date = null
 
         }
-        else {
-            certificate.expiry_date = formatDate(certificate.expiry_date);
-        }
+        // else {
+        //     certificate.expiry_date = formatDate(certificate.expiry_date);
+        // }
         const result = await shareModel.insertShareCertificate(id, address, certificate)
         // const result = true
         if (result == true) {

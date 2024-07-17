@@ -73,11 +73,32 @@ const Ticket = ({ ticket }) => {
         const checkIssuer = async () => {
             const { ethereum } = window;
             if (ethereum) {
-                const result = await contract.getVerifiersByOrganizationCode(ticket.licensing_authority);
-                setIssuer(result)
+                if (ticket.licensing_authority != null) {
+                    try {
+                        const result = await contract.getVerifiersByOrganizationCode(ticket.licensing_authority);
+                        setIssuer(result)
+                    }
+                    catch (err) {
+                        console.log(err)
+
+                        setAlertSeverity("warning")
+                        setMessageAlert("Your rights have been revoked by the admin. Return to the home page within 5 seconds")
+                        setShowAlert(true);
+                        setTimeout(() => {
+                            navigate("/")
+                        }, 5000)
+                        return
+
+                    }
+
+                }
+                else {
+                    return;
+                }
+
             }
         }
-        if (ticket) { // Only run if ticket is defined
+        if (ticket != null) { // Only run if ticket is defined
             checkIssuer().catch(error => console.error(error));
         }
     }, [ticket, address, signer]) // Add ticket as a dependency
@@ -162,6 +183,31 @@ const Ticket = ({ ticket }) => {
     }, [ticket, setImageMatch]);
     const handleReject = async (e) => {
         e.preventDefault()
+        try {
+            const checkIssuer = await contract.getOrganizationCode(address)
+            if (!checkIssuer) {
+                setAlertSeverity("warning")
+                setMessageAlert("Your rights have been revoked by the admin. Return to the home page within 10 seconds")
+                setShowAlert(true);
+                setTimeout(() => {
+                    navigate("/")
+                }, 10000)
+                return
+            }
+            console.log(checkIssuer)
+        } catch (err) {
+            console.log(err)
+
+            setAlertSeverity("warning")
+            setMessageAlert("Your rights have been revoked by the admin. Return to the home page within 10 seconds")
+            setShowAlert(true);
+            setTimeout(() => {
+                navigate("/")
+            }, 10000)
+            return
+        }
+
+
         setLoading(true)
         try {
             const status = "reject"
@@ -205,6 +251,31 @@ const Ticket = ({ ticket }) => {
     }
     const handleSubmit = async (event) => {
         event.preventDefault()
+        try {
+            const checkIssuer = await contract.getOrganizationCode(address)
+            if (!checkIssuer) {
+                setAlertSeverity("warning")
+                setMessageAlert("Your rights have been revoked by the admin. Return to the home page within 10 seconds")
+                setShowAlert(true);
+                setTimeout(() => {
+                    navigate("/")
+                }, 10000)
+                return
+            }
+            console.log(checkIssuer)
+        } catch (err) {
+            console.log(err)
+
+            setAlertSeverity("warning")
+            setMessageAlert("Your rights have been revoked by the admin. Return to the home page within 10 seconds")
+            setShowAlert(true);
+            setTimeout(() => {
+                navigate("/")
+            }, 10000)
+            return
+        }
+
+
         setLoading(true);
         const empty = ' '
         const encodedEmpty = encodeURIComponent(empty);
@@ -494,24 +565,7 @@ const Ticket = ({ ticket }) => {
                 let isMatchFound = false;
 
                 jsonData.forEach(item => {
-                    // let issueDate = item.issue_date ? item.issue_date : ' ';
-                    // let expiryDate = item.expiry_date ? item.expiry_date : ' ';
-                    // let dob = item.dob ? item.dob : '';
 
-                    // // Handle potential undefined values
-                    // let citizenId = item.citizen_id !== undefined ? item.citizen_id.toString() : ' ';
-                    // let point = item.point !== undefined ? item.point.toString() : ' ';
-
-                    // if (typeof item.issue_date === 'number' && issueDate != ' ') {
-                    //     issueDate = format(excelDateToJSDate(item.issue_date), "yyyy-MM-dd");
-                    // }
-
-                    // if (typeof item.expiry_date === 'number' && expiryDate != ' ') {
-                    //     expiryDate = format(excelDateToJSDate(item.expiry_date), "yyyy-MM-dd");
-                    // }
-                    // if (typeof item.dob === 'number' && dob != ' ') {
-                    //     dob = format(excelDateToJSDate(item.dob), "yyyy-MM-dd");
-                    // }
                     let issueDate = item.issue_date ? item.issue_date : '';
                     let expiryDate = item.expiry_date ? item.expiry_date : '';
                     let dob = item.dob ? item.dob : '';
@@ -736,19 +790,22 @@ const Ticket = ({ ticket }) => {
                                 <div sx={{ mx: "5px" }}>View</div>
                                 <RemoveRedEyeIcon sx={{ mx: "5px" }}></RemoveRedEyeIcon>
                             </Button>
-                            <Button
-                                component="label"
-                                role={undefined}
-                                variant="contained"
-                                tabIndex={-1}
-                                startIcon={<CloudUploadIcon />}
-                                sx={{ backgroundColor: 'purple', my: "20px", mx: "30px", fontSize: "0.5em" }}
-                                onChange={handleFileUpload}
+                            {issuer.includes(address) &&
+                                <Button
+                                    component="label"
+                                    role={undefined}
+                                    variant="contained"
+                                    tabIndex={-1}
+                                    startIcon={<CloudUploadIcon />}
+                                    sx={{ backgroundColor: 'purple', my: "20px", mx: "30px", fontSize: "0.5em" }}
+                                    onChange={handleFileUpload}
 
-                            >
-                                Upload file
-                                <VisuallyHiddenInput type="file" />
-                            </Button>
+                                >
+                                    Upload file
+                                    <VisuallyHiddenInput type="file" />
+                                </Button>
+                            }
+
                         </Box>
                         <Dialog
                             open={open}

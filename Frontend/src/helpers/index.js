@@ -356,6 +356,13 @@ export async function isExistsInPinata(hashImg) {
     }
 }
 
+export const excelDateToJSDate = (excelDate) => {
+    // Excel's epoch is January 1, 1900
+    const excelEpoch = new Date(1900, 0, 1);
+    // Subtract 1 day to account for Excel's leap year bug
+    const jsDate = new Date(excelEpoch.getTime() + (excelDate - 2) * 24 * 60 * 60 * 1000);
+    return jsDate;
+};
 
 
 

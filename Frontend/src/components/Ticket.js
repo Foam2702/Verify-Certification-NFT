@@ -23,9 +23,12 @@ import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import WalletIcon from '@mui/icons-material/Wallet';
-import { hashImage, pinJSONToIPFS, deletePinIPFS, remove0x, extractEncryptedDataFromJson, decryptData, minifyAddress, imageFileToBase64 } from "../helpers/index"
-
+import { hashImage, pinJSONToIPFS, excelDateToJSDate, deletePinIPFS, remove0x, extractEncryptedDataFromJson, decryptData, minifyAddress, imageFileToBase64 } from "../helpers/index"
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import * as XLSX from "xlsx";
 const JWT = process.env.REACT_APP_JWT; // Make sure to set this in your React app environment variables
+import { styled } from '@mui/material/styles';
+import { format } from "date-fns";
 
 import "./BodySection.css";
 import "../pages/LisenceView"
@@ -61,6 +64,7 @@ const Ticket = ({ ticket }) => {
     const [userTicket, setUserTicket] = useState(null)
     const [imageUrl, setImageUrl] = useState('');
     const [imageMatch, setImageMatch] = useState(false)
+    const [infoMatch, setInfoMatch] = useState(false)
     const [isExam, setIsExam] = useState(false)
     const web3 = new Web3(window.ethereum);
     const navigate = useNavigate();
@@ -441,9 +445,7 @@ const Ticket = ({ ticket }) => {
                 setShowAlert(true);
                 setLoading(false);
                 setImageMatch(false)
-
             }
-
         }
         else {
             setLoading(true);
@@ -453,9 +455,242 @@ const Ticket = ({ ticket }) => {
             setLoading(false);
             return;
         }
-
-
     }
+    const VisuallyHiddenInput = styled('input')({
+        clip: 'rect(0 0 0 0)',
+        clipPath: 'inset(50%)',
+        height: 1,
+        overflow: 'hidden',
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        whiteSpace: 'nowrap',
+        width: 1,
+    });
+    const handleFileUpload = (event) => {
+        event.preventDefault();
+        if (decryptedImage == null) {
+            setLoading(true);
+            setAlertSeverity("warning");
+            setMessageAlert("Decrypt to upload");
+            setShowAlert(true);
+            setLoading(false);
+            return;
+        }
+        try {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+                const binaryStr = e.target.result;
+                const workbook = XLSX.read(binaryStr, { type: "binary" });
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                let isMatchFound = false;
+
+                jsonData.forEach(item => {
+                    // let issueDate = item.issue_date ? item.issue_date : ' ';
+                    // let expiryDate = item.expiry_date ? item.expiry_date : ' ';
+                    // let dob = item.dob ? item.dob : '';
+
+                    // // Handle potential undefined values
+                    // let citizenId = item.citizen_id !== undefined ? item.citizen_id.toString() : ' ';
+                    // let point = item.point !== undefined ? item.point.toString() : ' ';
+
+                    // if (typeof item.issue_date === 'number' && issueDate != ' ') {
+                    //     issueDate = format(excelDateToJSDate(item.issue_date), "yyyy-MM-dd");
+                    // }
+
+                    // if (typeof item.expiry_date === 'number' && expiryDate != ' ') {
+                    //     expiryDate = format(excelDateToJSDate(item.expiry_date), "yyyy-MM-dd");
+                    // }
+                    // if (typeof item.dob === 'number' && dob != ' ') {
+                    //     dob = format(excelDateToJSDate(item.dob), "yyyy-MM-dd");
+                    // }
+                    let issueDate = item.issue_date ? item.issue_date : '';
+                    let expiryDate = item.expiry_date ? item.expiry_date : '';
+                    let dob = item.dob ? item.dob : '';
+
+                    // Handle potential undefined values
+                    let citizenId = item.citizen_id !== undefined ? item.citizen_id.toString() : '';
+                    let point = item.point !== undefined ? item.point.toString() : '';
+
+                    if (typeof item.issue_date === 'number' && issueDate != '') {
+                        issueDate = format(excelDateToJSDate(item.issue_date), "yyyy-MM-dd");
+                    }
+
+                    if (typeof item.expiry_date === 'number' && expiryDate != '') {
+                        expiryDate = format(excelDateToJSDate(item.expiry_date), "yyyy-MM-dd");
+                    }
+                    if (typeof item.dob === 'number' && dob != '') {
+                        dob = format(excelDateToJSDate(item.dob), "yyyy-MM-dd");
+                    }
+
+                    if (
+                        item.name === decryptedName &&
+                        item.gender === decryptedGender &&
+                        item.email === decryptedEmail &&
+                        citizenId === decryptedCitizenId &&
+                        dob === decryptedDob &&
+                        item.region === decryptedRegion &&
+                        item.work_unit === decryptedWorkUnit &&
+                        point.trim() === decryptedPoint.trim() &&
+                        item.certificate_name === ticket.certificate_name &&
+                        issueDate === decryptedIssueDate &&
+                        expiryDate.trim() === decryptedExpiryDate.trim() &&
+                        item.licensing_authority === ticket.licensing_authority
+                    ) {
+                        isMatchFound = true;
+                    }
+                });
+
+
+                if (isMatchFound) {
+                    setInfoMatch(true)
+                    setAlertSeverity("success");
+                    setMessageAlert("Matching info found in the file");
+                    setShowAlert(true);
+                } else {
+                    setInfoMatch(false)
+
+                    setAlertSeverity("warning");
+                    setMessageAlert("No matching info found in the file");
+                    setShowAlert(true);
+                }
+                setLoading(false);
+            };
+
+            reader.readAsBinaryString(file);
+        } catch (err) {
+            console.log(err);
+            setAlertSeverity("warning");
+            setMessageAlert("Wrong excel format");
+            setShowAlert(true);
+            setLoading(false);
+        }
+    };
+
+    // const handleFileUpload = (event) => {
+    //     event.preventDefault();
+    //     if (decryptedImage == null) {
+    //         setLoading(true);
+    //         setAlertSeverity("warning");
+    //         setMessageAlert("Decrypt to upload");
+    //         setShowAlert(true);
+    //         setLoading(false);
+    //         return;
+    //     }
+    //     try {
+    //         const file = event.target.files[0];
+    //         const reader = new FileReader();
+
+    //         reader.onload = (e) => {
+    //             const binaryStr = e.target.result;
+    //             const workbook = XLSX.read(binaryStr, { type: "binary" });
+    //             const sheetName = workbook.SheetNames[0];
+    //             const worksheet = workbook.Sheets[sheetName];
+    //             const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+    //             let mismatches = [];
+
+    //             jsonData.forEach(item => {
+    //                 let issueDate = item.issue_date ? item.issue_date : '';
+    //                 let expiryDate = item.expiry_date ? item.expiry_date : '';
+    //                 let dob = item.dob ? item.dob : '';
+
+    //                 // Handle potential undefined values
+    //                 let citizenId = item.citizen_id !== undefined ? item.citizen_id.toString() : '';
+    //                 let point = item.point !== undefined ? item.point.toString() : '';
+
+    //                 if (typeof item.issue_date === 'number' && issueDate != '') {
+    //                     issueDate = format(excelDateToJSDate(item.issue_date), "yyyy-MM-dd");
+    //                 }
+
+    //                 if (typeof item.expiry_date === 'number' && expiryDate != '') {
+    //                     expiryDate = format(excelDateToJSDate(item.expiry_date), "yyyy-MM-dd");
+    //                 }
+    //                 if (typeof item.dob === 'number' && dob != '') {
+    //                     dob = format(excelDateToJSDate(item.dob), "yyyy-MM-dd");
+    //                 }
+
+    //                 let mismatchDetails = [];
+
+    //                 // Check each field for mismatch
+    //                 if (item.name !== decryptedName) {
+    //                     mismatchDetails.push(`Name: Expected ${decryptedName}, Found ${item.name}`);
+    //                 }
+    //                 if (item.gender !== decryptedGender) {
+    //                     mismatchDetails.push(`Gender: Expected ${decryptedGender}, Found ${item.gender}`);
+    //                 }
+    //                 if (item.email !== decryptedEmail) {
+    //                     mismatchDetails.push(`Email: Expected ${decryptedEmail}, Found ${item.email}`);
+    //                 }
+    //                 if (citizenId !== decryptedCitizenId) {
+    //                     mismatchDetails.push(`Citizen ID: Expected ${decryptedCitizenId}, Found ${citizenId}`);
+    //                 }
+    //                 if (dob !== decryptedDob) {
+    //                     mismatchDetails.push(`DOB: Expected ${decryptedDob}, Found ${dob}`);
+    //                 }
+    //                 if (item.region !== decryptedRegion) {
+    //                     mismatchDetails.push(`Region: Expected ${decryptedRegion}, Found ${item.region}`);
+    //                 }
+    //                 if (item.work_unit !== decryptedWorkUnit) {
+    //                     mismatchDetails.push(`Work Unit: Expected ${decryptedWorkUnit}, Found ${item.work_unit}`);
+    //                 }
+    //                 if (point.trim() !== decryptedPoint.trim()) {
+    //                     mismatchDetails.push(`Point: Expected ${decryptedPoint}, Found ${point}`);
+    //                 }
+    //                 if (item.certificate_name !== ticket.certificate_name) {
+    //                     mismatchDetails.push(`Certificate Name: Expected ${ticket.certificate_name}, Found ${item.certificate_name}`);
+    //                 }
+    //                 if (issueDate !== decryptedIssueDate) {
+    //                     mismatchDetails.push(`Issue Date: Expected ${decryptedIssueDate}, Found ${issueDate}`);
+    //                 }
+    //                 if (expiryDate.trim() !== decryptedExpiryDate.trim()) {
+    //                     mismatchDetails.push(`Expiry Date: Expected ${decryptedExpiryDate}, Found ${expiryDate}`);
+    //                 }
+    //                 if (item.licensing_authority !== ticket.licensing_authority) {
+    //                     mismatchDetails.push(`Licensing Authority: Expected ${ticket.licensing_authority}, Found ${item.licensing_authority}`);
+    //                 }
+
+    //                 if (mismatchDetails.length > 0) {
+    //                     mismatches.push({
+    //                         row: item.__rowNum__,
+    //                         details: mismatchDetails
+    //                     });
+    //                 }
+    //             });
+
+    //             if (mismatches.length > 0) {
+    //                 let mismatchMessage = "Mismatched values found:\n";
+    //                 mismatches.forEach(mismatch => {
+    //                     mismatchMessage += `Row ${mismatch.row}:\n`;
+    //                     mismatch.details.forEach(detail => {
+    //                         mismatchMessage += `- ${detail}\n`;
+    //                     });
+    //                 });
+    //                 setAlertSeverity("warning");
+    //                 setMessageAlert(mismatchMessage);
+    //                 setShowAlert(true);
+    //             } else {
+    //                 setAlertSeverity("success");
+    //                 setMessageAlert("Matching info found in the file");
+    //                 setShowAlert(true);
+    //             }
+    //             setLoading(false);
+    //         };
+
+    //         reader.readAsBinaryString(file);
+    //     } catch (err) {
+    //         console.log(err);
+    //         setAlertSeverity("warning");
+    //         setMessageAlert("Wrong excel format");
+    //         setShowAlert(true);
+    //         setLoading(false);
+    //     }
+    // };
+
     return (
         <>
             {loading && (
@@ -496,6 +731,19 @@ const Ticket = ({ ticket }) => {
                             <Button variant="contained" sx={{ my: "20px", mx: "30px", fontSize: "0.5em" }} onClick={handleClickOpen}>
                                 <div sx={{ mx: "5px" }}>View</div>
                                 <RemoveRedEyeIcon sx={{ mx: "5px" }}></RemoveRedEyeIcon>
+                            </Button>
+                            <Button
+                                component="label"
+                                role={undefined}
+                                variant="contained"
+                                tabIndex={-1}
+                                startIcon={<CloudUploadIcon />}
+                                sx={{ backgroundColor: 'purple', my: "20px", mx: "30px", fontSize: "0.5em" }}
+                                onChange={handleFileUpload}
+
+                            >
+                                Upload file
+                                <VisuallyHiddenInput type="file" />
                             </Button>
                         </Box>
                         <Dialog
@@ -714,7 +962,7 @@ const Ticket = ({ ticket }) => {
                                     <button className="check-button" onClick={handleCheckImage}>
                                         <div className="check" >Check</div>
                                     </button>
-                                    {imageMatch ?
+                                    {imageMatch && infoMatch ?
                                         <button className="submit-button" onClick={handleSubmit}>
                                             <div className="submit">Mint</div>
                                         </button>

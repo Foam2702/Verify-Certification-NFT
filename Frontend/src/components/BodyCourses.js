@@ -115,7 +115,14 @@ const BodyCourses = ({ className = "" }) => {
         }
     };
     const handleClickOpen = async (course) => {
-
+        const checkIssuer = await contract.getOrganizationCode(address)
+        console.log(checkIssuer)
+        if (checkIssuer) {
+            setAlertSeverity("warning")
+            setMessageAlert("You are Issuer !! Can take the exam")
+            setShowAlert(true);
+            return
+        }
         setOpen(true);
         setSelectedCourse(course)
 

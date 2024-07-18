@@ -24,6 +24,54 @@ module.exports = {
         }
 
     },
+    getQuestionByCourseId: async (req, res) => {
+        const { courseid } = req.params
+        const result = await examModel.getQuestionByCourseId(courseid)
+        res.json({
+            code: 200,
+            message: 'Get question by course id successfully',
+            questions: result
+        })
+    },
+    updateExamAndQuestions: async (req, res) => {
+        const result = req.body
+        const course = {
+            id: result.courseId,
+            slug: result.shortName,
+            name: result.certificateName,
+            description: result.description,
+            image: result.imageUrl,
+            licensing_authority: result.org
+        }
+        const exam = {
+            course: course.id,
+            questions: result.questions
+        }
+        console.log(exam)
+        const checkCourseExist = await courseModel.getCourseById(course.id)
+        if (checkCourseExist.length == 0) {
+            res.json({
+                code: 404,
+                message: 'Exam has been deleted'
+            })
+        }
+        else if (checkCourseExist.length != 0) {
+            const updateExam = await courseModel.updateExamAndQuestions(course, exam)
+            if (updateExam == true) {
+                res.json({
+                    code: 200,
+                    message: 'Update successfully'
+                })
+            }
+            else {
+
+                res.json({
+                    code: 400,
+                    message: 'Update exam failed'
+                })
+            }
+        }
+    },
     uploadExam: async (req, res) => {
         const result = req.body
         const course = {

@@ -47,6 +47,8 @@ const Ticket = ({ ticket }) => {
     const [tokenID, setTokenID] = useState("")
     const [open, setOpen] = useState(false);
     const [privateKey, setPrivateKey] = useState("")
+    const [isPrivateKeyValid, setIsPrivateKeyValid] = useState(false);
+
     const [error, setError] = useState(null);
     const [decryptedName, setDecryptedName] = useState('');
     const [decryptedGender, setDecryptedGender] = useState('');
@@ -176,6 +178,17 @@ const Ticket = ({ ticket }) => {
         };
         fetchCourses();
     }, [ticket, setImageMatch]);
+    const VisuallyHiddenInput = styled('input')({
+        clip: 'rect(0 0 0 0)',
+        clipPath: 'inset(50%)',
+        height: 1,
+        overflow: 'hidden',
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        whiteSpace: 'nowrap',
+        width: 1,
+    });
     const handleReject = async (e) => {
         e.preventDefault()
         try {
@@ -352,14 +365,7 @@ const Ticket = ({ ticket }) => {
         const privatekey = formJson.privatekey;
         setPrivateKey(privatekey)
     }
-    function formatDateDB(input) {
-        const datePart = input.match(/\d+/g);
-        const year = datePart[0];
-        const month = datePart[1];
-        const day = datePart[2];
 
-        return day + '/' + month + '/' + year;
-    }
     async function addNFTToWallet() {
         setLoading(true)
         if (addressContract && tokenID) {
@@ -516,17 +522,7 @@ const Ticket = ({ ticket }) => {
             return;
         }
     }
-    const VisuallyHiddenInput = styled('input')({
-        clip: 'rect(0 0 0 0)',
-        clipPath: 'inset(50%)',
-        height: 1,
-        overflow: 'hidden',
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        whiteSpace: 'nowrap',
-        width: 1,
-    });
+
     const handleFileUpload = (event) => {
         event.preventDefault();
         if (decryptedImage == null) {
@@ -613,127 +609,6 @@ const Ticket = ({ ticket }) => {
             setLoading(false);
         }
     };
-
-    // const handleFileUpload = (event) => {
-    //     event.preventDefault();
-    //     if (decryptedImage == null) {
-    //         setLoading(true);
-    //         setAlertSeverity("warning");
-    //         setMessageAlert("Decrypt to upload");
-    //         setShowAlert(true);
-    //         setLoading(false);
-    //         return;
-    //     }
-    //     try {
-    //         const file = event.target.files[0];
-    //         const reader = new FileReader();
-
-    //         reader.onload = (e) => {
-    //             const binaryStr = e.target.result;
-    //             const workbook = XLSX.read(binaryStr, { type: "binary" });
-    //             const sheetName = workbook.SheetNames[0];
-    //             const worksheet = workbook.Sheets[sheetName];
-    //             const jsonData = XLSX.utils.sheet_to_json(worksheet);
-
-    //             let mismatches = [];
-
-    //             jsonData.forEach(item => {
-    //                 let issueDate = item.issue_date ? item.issue_date : '';
-    //                 let expiryDate = item.expiry_date ? item.expiry_date : '';
-    //                 let dob = item.dob ? item.dob : '';
-
-    //                 // Handle potential undefined values
-    //                 let citizenId = item.citizen_id !== undefined ? item.citizen_id.toString() : '';
-    //                 let point = item.point !== undefined ? item.point.toString() : '';
-
-    //                 if (typeof item.issue_date === 'number' && issueDate != '') {
-    //                     issueDate = format(excelDateToJSDate(item.issue_date), "yyyy-MM-dd");
-    //                 }
-
-    //                 if (typeof item.expiry_date === 'number' && expiryDate != '') {
-    //                     expiryDate = format(excelDateToJSDate(item.expiry_date), "yyyy-MM-dd");
-    //                 }
-    //                 if (typeof item.dob === 'number' && dob != '') {
-    //                     dob = format(excelDateToJSDate(item.dob), "yyyy-MM-dd");
-    //                 }
-
-    //                 let mismatchDetails = [];
-
-    //                 // Check each field for mismatch
-    //                 if (item.name !== decryptedName) {
-    //                     mismatchDetails.push(`Name: Expected ${decryptedName}, Found ${item.name}`);
-    //                 }
-    //                 if (item.gender !== decryptedGender) {
-    //                     mismatchDetails.push(`Gender: Expected ${decryptedGender}, Found ${item.gender}`);
-    //                 }
-    //                 if (item.email !== decryptedEmail) {
-    //                     mismatchDetails.push(`Email: Expected ${decryptedEmail}, Found ${item.email}`);
-    //                 }
-    //                 if (citizenId !== decryptedCitizenId) {
-    //                     mismatchDetails.push(`Citizen ID: Expected ${decryptedCitizenId}, Found ${citizenId}`);
-    //                 }
-    //                 if (dob !== decryptedDob) {
-    //                     mismatchDetails.push(`DOB: Expected ${decryptedDob}, Found ${dob}`);
-    //                 }
-    //                 if (item.region !== decryptedRegion) {
-    //                     mismatchDetails.push(`Region: Expected ${decryptedRegion}, Found ${item.region}`);
-    //                 }
-    //                 if (item.work_unit !== decryptedWorkUnit) {
-    //                     mismatchDetails.push(`Work Unit: Expected ${decryptedWorkUnit}, Found ${item.work_unit}`);
-    //                 }
-    //                 if (point.trim() !== decryptedPoint.trim()) {
-    //                     mismatchDetails.push(`Point: Expected ${decryptedPoint}, Found ${point}`);
-    //                 }
-    //                 if (item.certificate_name !== ticket.certificate_name) {
-    //                     mismatchDetails.push(`Certificate Name: Expected ${ticket.certificate_name}, Found ${item.certificate_name}`);
-    //                 }
-    //                 if (issueDate !== decryptedIssueDate) {
-    //                     mismatchDetails.push(`Issue Date: Expected ${decryptedIssueDate}, Found ${issueDate}`);
-    //                 }
-    //                 if (expiryDate.trim() !== decryptedExpiryDate.trim()) {
-    //                     mismatchDetails.push(`Expiry Date: Expected ${decryptedExpiryDate}, Found ${expiryDate}`);
-    //                 }
-    //                 if (item.licensing_authority !== ticket.licensing_authority) {
-    //                     mismatchDetails.push(`Licensing Authority: Expected ${ticket.licensing_authority}, Found ${item.licensing_authority}`);
-    //                 }
-
-    //                 if (mismatchDetails.length > 0) {
-    //                     mismatches.push({
-    //                         row: item.__rowNum__,
-    //                         details: mismatchDetails
-    //                     });
-    //                 }
-    //             });
-
-    //             if (mismatches.length > 0) {
-    //                 let mismatchMessage = "Mismatched values found:\n";
-    //                 mismatches.forEach(mismatch => {
-    //                     mismatchMessage += `Row ${mismatch.row}:\n`;
-    //                     mismatch.details.forEach(detail => {
-    //                         mismatchMessage += `- ${detail}\n`;
-    //                     });
-    //                 });
-    //                 setAlertSeverity("warning");
-    //                 setMessageAlert(mismatchMessage);
-    //                 setShowAlert(true);
-    //             } else {
-    //                 setAlertSeverity("success");
-    //                 setMessageAlert("Matching info found in the file");
-    //                 setShowAlert(true);
-    //             }
-    //             setLoading(false);
-    //         };
-
-    //         reader.readAsBinaryString(file);
-    //     } catch (err) {
-    //         console.log(err);
-    //         setAlertSeverity("warning");
-    //         setMessageAlert("Wrong excel format");
-    //         setShowAlert(true);
-    //         setLoading(false);
-    //     }
-    // };
-
     return (
         <>
             {loading && (
@@ -743,7 +618,6 @@ const Ticket = ({ ticket }) => {
             )}
             <main className="body-section1">
                 <form className="careers-section" encType="multipart/form-data" action="" >
-
                     <div>
                         {issuer.includes(address) ? (
                             <>

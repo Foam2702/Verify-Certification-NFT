@@ -28,61 +28,47 @@ const BodyCourses = ({ className = "" }) => {
     const [showAlert, setShowAlert] = useState(false);
     const [messageAlert, setMessageAlert] = useState("")
     const [input, setInput] = useState("")
+    const [isIssuer, setIsIssuer] = useState(false)
     const navigate = useNavigate();
     useEffect(() => {
-        fetchCourses().catch((error) => console.error(error));
-    }, [org]);
-    useEffect(() => {
-        setLoading(true)
-        const fetchOrg = async () => {
+        const fetchOrgAndCourses = async () => {
+            setLoading(true);
             try {
+                let orgCode;
                 if (address) {
-                    const org = await contract.getOrganizationCode(address);
-                    setOrg(org);
-                    setLoading(false)
+                    orgCode = await contract.getOrganizationCode(address);
+                    setOrg(orgCode);
+                }
+
+                let result;
+                if (orgCode) {
+                    console.log("ORG", orgCode);
+                    setIsIssuer(true)
+                    result = await axios.get(`http://localhost:8080/courses/${orgCode}`);
+                } else {
+                    console.log("ORG not set");
+                    setIsIssuer(false)
+
+                    result = await axios.get(`http://localhost:8080/courses`);
+                }
+
+                if (Array.isArray(result.data.courses)) {
+                    setCourses(result.data.courses);
+                    setFilteredCourses(result.data.courses);
                 }
             } catch (err) {
-                setLoading(false)
                 console.log(err);
+            } finally {
+                setLoading(false);
             }
-            setLoading(false)
-
         };
-        fetchOrg();
-    }, [address, signer, contract]);
-    const fetchCourses = async () => {
-        setLoading(true)
-        console.log(org)
-        try {
-            if (org) {
-                const result = await axios(`http://localhost:8080/courses/${org}`)
-                console.log(result)
-                if (Array.isArray(result.data.courses)) {
-                    setCourses(result.data.courses);
-                    setFilteredCourses(result.data.courses);
-                }
-                setLoading(false)
 
-            }
-            else if (!org) {
-                const result = await axios.get(`http://localhost:8080/courses`);
-                if (Array.isArray(result.data.courses)) {
-                    setCourses(result.data.courses);
-                    setFilteredCourses(result.data.courses);
-                }
-                setLoading(false)
-            }
-            setLoading(false)
-        } catch (err) {
-            setLoading(false)
-
-            console.log(err);
+        if (address) {
+            fetchOrgAndCourses();
         }
-        finally {
-            setLoading(false)
+    }, [address, contract]);
 
-        }
-    };
+
     const checkInfoExist = async () => {
         if (address) {
             try {
@@ -118,10 +104,7 @@ const BodyCourses = ({ className = "" }) => {
         const checkIssuer = await contract.getOrganizationCode(address)
         console.log(checkIssuer)
         if (checkIssuer) {
-            setAlertSeverity("warning")
-            setMessageAlert("You are Issuer !! Can take the exam")
-            setShowAlert(true);
-            return
+            navigate(`/editexam/${course.id}`)
         }
         setOpen(true);
         setSelectedCourse(course)

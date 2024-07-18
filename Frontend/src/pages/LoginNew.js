@@ -5,8 +5,23 @@ import Footer from "../components/Footer";
 import HomeSection from "../components/HomeSection";
 import "./LoginNew.css";
 import { motion } from "framer-motion";
+import useSigner from "../state/signer";
+import React from "react"
+import { useNavigate } from "react-router-dom";
 
 const LoginNew = () => {
+  const { signer, address, connectWallet, contract, provider, getPublicKey } = useSigner();
+  const adminAddress = process.env.REACT_APP_ADMIN;
+  const navigate = useNavigate();
+
+  React.useEffect(() => {
+    if (address) {
+      if (address == adminAddress) {
+        navigate("*")
+      }
+    }
+
+  }, [address, signer])
   return (
     <motion.div
       exit={{ opacity: 0, y: -50 }}

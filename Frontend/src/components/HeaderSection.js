@@ -21,7 +21,6 @@ const { ethers } = require("ethers");
 const settings = [
   { name: 'Profile', route: '/profile' },
   { name: 'My Certificates', route: '/lisenceview' },
-  { name: 'Issuer Management', route: '/admin' },
 ];
 
 const HeaderSection = () => {
@@ -227,9 +226,9 @@ const HeaderSection = () => {
     checkAdmin()
   }, [signer, address])
 
-  const filteredSettings = address === process.env.REACT_APP_ADMIN
-    ? settings
-    : settings.filter((setting) => setting.name !== 'Issuer Management');
+  const filteredSettings = isIssuer
+    ? settings.filter((setting) => setting.name !== 'My Certificates' && setting.name !== 'Profile')
+    : settings
 
   return (
     <section className="header-section1">

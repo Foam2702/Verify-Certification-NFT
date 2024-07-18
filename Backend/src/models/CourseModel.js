@@ -91,6 +91,7 @@ module.exports = {
             let count = 1;
             const currentQuestions = await sql`SELECT id FROM question WHERE course=${course}`;
             const currentQuestionCount = currentQuestions.length;
+
             for (let question of questions) {
                 const { questionText, options, open, correctAnswer } = question;
 
@@ -119,18 +120,24 @@ module.exports = {
                 count++;
 
             }
-            const currentQuestionIds = currentQuestions.map(q => q.id);
-            console.log(currentQuestionIds)
-            // Assuming 'questions' is an array of updated questions with their ids
             const updatedQuestionIds = questions.map(q => q.id);
-            console.log(updatedQuestionIds)
+
+            const currentQuestionIds = currentQuestions.map(q => q.id);
+            console.log(currentQuestionIds);
+            console.log(updatedQuestionIds);
+
             // Find ids of questions to delete (present in current but not in updated)
             const questionsToDelete = currentQuestionIds.filter(id => !updatedQuestionIds.includes(id));
-            console.log(questionsToDelete)
+            console.log(questionsToDelete);
             // // Delete questions that are not present in the updated list
-            // if (questionsToDelete.length > 0) {
-            //     await sql`DELETE FROM question WHERE course=${course} AND id = ANY(${sql.array(questionsToDelete)})`;
-            // }
+            if (questionsToDelete.length > 0) {
+                // Convert questionsToDelete to an array of integers
+                const questionsToDeleteInt = questionsToDelete.map(id => parseInt(id));
+                console.log(sql.array(questionsToDeleteInt).value)
+                await sql`DELETE FROM question WHERE course=${course} AND id = ANY(${sql.array(questionsToDeleteInt).value})`;
+            }
+
+
             return true;
         } catch (err) {
             console.log(err)

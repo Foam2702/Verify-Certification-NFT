@@ -14,7 +14,16 @@ const Exam = () => {
     const { address, signer, connectWallet, contract } = useSigner();
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const adminAddress = process.env.REACT_APP_ADMIN;
 
+    useEffect(() => {
+        if (address) {
+            if (address == adminAddress) {
+                navigate("*")
+            }
+        }
+
+    }, [address, signer])
     useEffect(() => {
         const fetchExam = async () => {
             try {

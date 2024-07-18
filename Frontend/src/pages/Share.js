@@ -17,7 +17,7 @@ const Share = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const queryParams = new URLSearchParams(location.search);
-    const address = queryParams.get('address');
+    const owner_address = queryParams.get('address');
 
     useEffect(() => {
         fetchCerti();
@@ -27,7 +27,7 @@ const Share = () => {
         console.log("HELLO");
 
         try {
-            const result = await axios(`http://localhost:8080/share/${id}?address=${address}`);
+            const result = await axios(`http://localhost:8080/share/${id}?address=${owner_address}`);
             console.log(result);
             if (result.data.message === "ticket doesn't exist" || result.data.data.length === 0) {
                 navigate("/");

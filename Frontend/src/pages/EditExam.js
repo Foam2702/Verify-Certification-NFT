@@ -24,9 +24,11 @@ import Alert from '@mui/material/Alert';
 import useSigner from "../state/signer";
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import * as XLSX from "xlsx";
+import { useParams } from 'react-router-dom';
 
 import "./UploadExam.css"
-const UploadExam = () => {
+const EditExam = () => {
+    const { id } = useParams();
     const { signer, address, connectWallet, contract, provider, getPublicKey } = useSigner();
     const [org, setOrg] = React.useState("")
     const [data, setData] = useState([]);
@@ -35,6 +37,7 @@ const UploadExam = () => {
     const [alertSeverity, setAlertSeverity] = React.useState("");
     const [messageAlert, setMessageAlert] = React.useState("")
     const [questions, setQuestions] = React.useState([]);
+    const [courseId, setCourseId] = useState("")
     const [certificateName, setCertificateName] = React.useState("");
     const [shortName, setShortName] = React.useState("");
     const [description, setDescription] = React.useState("");
@@ -45,7 +48,54 @@ const UploadExam = () => {
     const [imageUrl, setImageUrl] = React.useState("");
     const navigate = useNavigate();
     const adminAddress = process.env.REACT_APP_ADMIN;
+    React.useEffect(() => {
+        const fetchQuestionsAndCourse = async () => {
+            try {
+                if (address) {
+                    const course = await axios(`http://localhost:8080/courses/course/${id}`)
+                    const orgOfAddress = await contract.getOrganizationCode(address)
+                    console.log(course.data.course[0])
+                    if (course && orgOfAddress == course.data.course[0].org) {
+                        setCourseId(course.data.course[0].id)
+                        setCertificateName(course.data.course[0].name)
+                        setShortName(course.data.course[0].slug)
+                        setDescription(course.data.course[0].description)
+                        setImageUrl(course.data.course[0].image)
+                        const questions = await axios(`http://localhost:8080/exam/${id}`)
+                        if (Array.isArray(questions.data.questions)) {
+                            const transformedQuestions = questions.data.questions.map((q) => {
+                                const options = [];
+                                if (q.option_a) options.push({ optionText: q.option_a.toString() });
+                                if (q.option_b) options.push({ optionText: q.option_b.toString() });
+                                if (q.option_c) options.push({ optionText: q.option_c.toString() });
+                                if (q.option_d) options.push({ optionText: q.option_d.toString() });
+                                return {
+                                    id: q.id,
+                                    questionText: q.question_text,
+                                    options: options,
+                                    correctAnswer: q.correct_option,
+                                    open: true
+                                };
+                            });
+                            console.log("TRAN", transformedQuestions)
+                            setQuestions(transformedQuestions)
+                        }
+                    }
+                    else {
+                        navigate("/")
+                    }
 
+                }
+            }
+            catch (err) {
+                console.log(err)
+                setAlertSeverity("warning")
+                setMessageAlert("Something wen wrong")
+                setShowAlert(true);
+            }
+        }
+        fetchQuestionsAndCourse()
+    }, [address, signer])
     React.useEffect(() => {
         if (address) {
             if (address == adminAddress) {
@@ -323,6 +373,7 @@ const UploadExam = () => {
         setLoading(true)
 
         const dataToSave = {
+            courseId,
             certificateName,
             shortName,
             description,
@@ -381,15 +432,16 @@ const UploadExam = () => {
             return
         }
         try {
-            const result = await axios.post("http://localhost:8080/exam/postexam", dataToSave)
-            if (result.data.message == "Insert Exam successfully") {
-                setMessageAlert("Exam created successfully");
+            const result = await axios.patch("http://localhost:8080/exam/postexam", dataToSave)
+            if (result.data.message == "Update successfully") {
+                setMessageAlert("Update successfully");
                 setAlertSeverity("success");
                 setShowAlert(true);
                 setLoading(false);
+                window.location.reload()
             }
-            else if (result.data.message = "Exam name already exist") {
-                setMessageAlert("Exam name already exist");
+            else if (result.data.message = "Exam has been deleted") {
+                setMessageAlert("Exam has been deleted");
                 setAlertSeverity("warning");
                 setShowAlert(true);
                 setLoading(false);
@@ -692,7 +744,7 @@ const UploadExam = () => {
                                         onClick={saveQuestions}
                                         style={{ margin: '15px' }}
                                         endIcon={<SaveIcon />}
-                                    >Create Exam </Button>
+                                    >Update Exam </Button>
                                     {data.length > 0 && (
                                         <table>
                                             <thead>
@@ -738,4 +790,4 @@ const UploadExam = () => {
         </div>
     )
 }
-export default UploadExam
+export default EditExam

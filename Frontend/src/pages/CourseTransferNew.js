@@ -9,9 +9,18 @@ import useSigner from "../state/signer";
 import "./CourseTransferNew.css";
 
 const CourseTransferNew = () => {
-  const adminAddress = process.env.REACT_APP_ADMIN;
+
   const navigate = useNavigate()
   const { signer, address, connectWallet, contract, provider, getPublicKey } = useSigner();
+  const adminAddress = process.env.REACT_APP_ADMIN;
+  useEffect(() => {
+    if (address) {
+      if (address == adminAddress) {
+        navigate("*")
+      }
+    }
+
+  }, [address, signer])
   useEffect(() => {
     if (address) {
       if (address === adminAddress) {

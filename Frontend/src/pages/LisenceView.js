@@ -58,7 +58,35 @@ const LisenceView = () => {
   const [shareCertificate, setShareCertificate] = useState([])
   const [expandedCertificateIndex, setExpandedCertificateIndex] = useState(null); // Track which certificate is expanded
   const web3 = new Web3(window.ethereum);
+  const adminAddress = process.env.REACT_APP_ADMIN;
 
+  useEffect(() => {
+    if (address) {
+      if (address == adminAddress) {
+        navigate("*")
+      }
+    }
+  }, [address, signer])
+  useEffect(() => {
+    const isIssuer = async () => {
+      try {
+        if (address) {
+          const result = await contract.getOrganizationCode(address);
+          console.log("RES", result)
+          if (result.length != 0) {
+            navigate("/")
+
+          }
+        }
+      }
+      catch (err) {
+        console.error(err)
+        navigate("/")
+      }
+
+    }
+    isIssuer()
+  }, [address, signer])
   useEffect(() => {
     const getNFTs = async () => {
       if (address) {
@@ -286,11 +314,13 @@ const LisenceView = () => {
 
   // useEffect(() => {
   const decryptAllFields = async (privateKey) => {
-
+    setLoading(true)
     try {
       const newDecryptedCertificates = [];
       const ownerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${address}`)
       if (ownerPublicKeysResponse.data.address.length === 0) {
+        setLoading(false)
+
         return;
       }
       const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
@@ -325,8 +355,10 @@ const LisenceView = () => {
       setDecryptedCertificates(newDecryptedCertificates);
       setFilterDecryptedCertificates(newDecryptedCertificates)
       setIsPrivateKeyValid(true);
+      setLoading(false)
     } catch (error) {
       setIsPrivateKeyValid(false);
+      setLoading(false)
     }
     finally {
       setLoading(false); // Set loading to false after decryption process
@@ -574,7 +606,7 @@ const LisenceView = () => {
                               </Box>
                               {shareCertificate.some(cert => cert.id === certificate.identifier) ?
                                 <div>
-                                  <Button sx={{ marginTop: '15px' }} variant="outlined" onClick={() => handleCopyLink(`http://localhost:3000/share/${certificate.identifier}?address=${certificate.name}`)}>
+                                  <Button sx={{ marginTop: '15px' }} variant="outlined" onClick={() => handleCopyLink(`https://verify-certification-nft.vercel.app/share/${certificate.identifier}?address=${certificate.name}`)}>
                                     <Link className="share-link" sx={{ fontSize: "1.5rem" }}>Copy Link</Link>
                                     <LinkIcon></LinkIcon>
                                   </Button>

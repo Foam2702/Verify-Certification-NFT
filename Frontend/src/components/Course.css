@@ -4,6 +4,13 @@
   max-width: 100%;
 }
 
+.icons-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  /* Optional: Add some margin to separate icons from the content above */
+}
+
 .course-1-image {
   align-self: center;
   height: 200px;

@@ -87,7 +87,7 @@ export const SignerProvider = ({ children }) => {
             const signer = provider.getSigner();
             // Tạo một thông điệp ngẫu nhiên để ký
             const message =
-                `Welcome to VSCourses! \n\nThis request will not trigger a blockchain transaction or cost any gas fees.\n\nWallet address: ${address}`;
+                `Welcome to VSCourses! \n\nThis request will not trigger a blockchain transaction or cost any gas fees.\n\nThis signing is only for the purpose of obtaining the public key to serve the system's functions.\n\nWallet address: ${address}`;
 
             const signature = await signer.signMessage(message);
 

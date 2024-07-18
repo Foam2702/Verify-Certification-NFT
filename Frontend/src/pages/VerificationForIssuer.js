@@ -18,7 +18,16 @@ export default function VerificationForIssuer() {
     const [ticket, setTicket] = useState([]);
     const { id } = useParams();
     const navigate = useNavigate();
+    const adminAddress = process.env.REACT_APP_ADMIN;
 
+    useEffect(() => {
+        if (address) {
+            if (address == adminAddress) {
+                navigate("*")
+            }
+        }
+
+    }, [address, signer])
     useEffect(() => {
         const fetchTicketsById = async () => {
             if (address) {

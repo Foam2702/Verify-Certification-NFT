@@ -52,7 +52,7 @@ const NotificationBell = ({ tickets }) => {
         checkIssuer();
     }, [address, issuers, isIssuer]);
 
-    const filteredTickets = isIssuer ? tickets : tickets.filter(ticket => ticket.issuer_address === '');
+    const filteredTickets = isIssuer ? tickets : tickets.filter(ticket => ticket.issuer_address === ' ');
     const notificationMessage = filteredTickets.length ? `You have ${filteredTickets.length} new notifications!` : 'No new notifications';
 
     return (

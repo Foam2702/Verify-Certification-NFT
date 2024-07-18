@@ -16,11 +16,23 @@ export default function BasicMenu({ anchorEl, handleClose, open, menuItems }) {
 
     const navigate = useNavigate();
     const handleItemClick = async (newItem) => {
-        setLoading(true);
-        await new Promise(resolve => setTimeout(resolve, 500)); // wait for 2 seconds
-        setLoading(false);
-        navigate(`/tickets/ticket/${newItem.id}`);
-        handleClose();
+        try {
+            if (newItem) {
+                setLoading(true);
+                await new Promise(resolve => setTimeout(resolve, 500)); // wait for 2 seconds
+                setLoading(false);
+                navigate(`/tickets/ticket/${newItem.id}`);
+                handleClose();
+            }
+            else {
+                return
+            }
+
+        }
+        catch (err) {
+            console.log(err)
+        }
+
     };
 
     return (

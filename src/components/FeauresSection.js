@@ -10,16 +10,17 @@ import useSigner from "../state/signer";
 const FeauresSection = () => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(false)
-  const { signer, address, connectWallet } = useSigner()
+  const { signer, address, connectWallet, getPublicKey } = useSigner()
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const result = await axios.get(`https://verify-certification-nft-production.up.railway.app/courses/top10`);
+        const result = await axios.get(`http://localhost:8080/courses/top10`);
+        console.log("RES", result.data.courses);
+
         if (Array.isArray(result.data.courses)) {
           setCourses(result.data.courses);
-          console.log(result.data.courses);
         }
       } catch (error) {
         console.error(error);
@@ -27,18 +28,59 @@ const FeauresSection = () => {
     };
     fetchCourses();
   }, []);
-  const handleCourseClick = () => {
+  const handleCourseClick = async () => {
     setLoading(true); // Start loading
-    setTimeout(() => {
-      if (!address) {
-        navigate("/");
-      } else {
-        navigate("/coursetransfernew");
-      }
-      setLoading(false);
-    }, 1000);
-  }
+    const checkPub = await insertPubToDB()
+    if (!address) {
+      navigate("/");
+    }
+    else if (!checkPub) {
+      navigate("/");
+    }
+    else {
+      navigate("/coursetransfernew");
+    }
+    setLoading(false);
 
+  }
+  const insertPubToDB = async () => {
+    if (address) {
+      try {
+        const checkPublicKeyExisted = await axios.get(`http://localhost:8080/addresses/${address}`);
+        if (checkPublicKeyExisted.data.address.length === 0) {
+          const publicKey = await getPublicKey(); // Await the result of getPublicKey
+          if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
+            return false
+          }
+          await axios.post(`http://localhost:8080/addresses/${address}`, {
+            address: address, // Include the address in the body
+            publicKey: publicKey // Include the public key in the body
+          });
+          return true
+        }
+        else if (checkPublicKeyExisted.data.address.length !== 0) {
+          if (checkPublicKeyExisted.data.address[0].publickey == null) {
+            const publicKey = await getPublicKey(); // Await the result of getPublicKey
+            if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
+
+              return false
+            }
+            await axios.post(`http://localhost:8080/addresses/${address}`, {
+              address: address, // Include the address in the body
+              publicKey: publicKey // Include the public key in the body
+            });
+
+            return true
+          }
+        }
+        return true
+      }
+      catch (err) {
+        console.log(err)
+        return false
+      }
+    }
+  };
   // Duplicate courses to create an infinite loop effect
   const duplicatedCourses = [...courses, ...courses];
 

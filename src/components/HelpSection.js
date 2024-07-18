@@ -9,42 +9,112 @@ import Alert from '@mui/material/Alert';
 import useSigner from "../state/signer";
 const HelpSection = () => {
   const [loading, setLoading] = useState(false)
-  const { signer, address, connectWallet } = useSigner()
+  const [showAlert, setShowAlert] = useState(false);
+  const [messageAlert, setMessageAlert] = useState("")
+  const [alertSeverity, setAlertSeverity] = useState("");
+
+  const { signer, address, connectWallet, getPublicKey } = useSigner()
   const navigate = useNavigate();
 
   const handleVerification = async () => {
     setLoading(true); // Start loading
-    setTimeout(() => {
-      if (!address) {
-        navigate("/");
-      } else {
-        navigate("/verification");
-      }
-      setLoading(false);
-    }, 1000);
+    const checkPub = await insertPubToDB()
+    if (!address) {
+      navigate("/");
+    }
+    else if (!checkPub) {
+      setAlertSeverity("warning");
+      setMessageAlert("You must sign ");
+      setShowAlert(true);
+      navigate("/");
+    }
+    else {
+      navigate("/verification");
+    }
+    setLoading(false);
+
   }
   const handleBuyCourses = async () => {
     setLoading(true); // Start loading
-    setTimeout(() => {
-      if (!address) {
-        navigate("/");
-      } else {
-        navigate("/coursetransfernew");
-      }
-      setLoading(false);
-    }, 1000);
+    const checkPub = await insertPubToDB()
+    if (!address) {
+      navigate("/");
+    }
+    else if (!checkPub) {
+      setAlertSeverity("warning");
+      setMessageAlert("You must sign ");
+      setShowAlert(true);
+      navigate("/");
+
+    }
+    else {
+      navigate("/coursetransfernew");
+    }
+    setLoading(false);
+
   }
   const handleUploadExam = async () => {
     setLoading(true); // Start loading
-    setTimeout(() => {
-      if (!address) {
-        navigate("/");
-      } else {
-        navigate("/uploadexam");
-      }
-      setLoading(false);
-    }, 1000);
+    const checkPub = await insertPubToDB()
+    if (!address) {
+      navigate("/");
+    }
+    else if (!checkPub) {
+      setAlertSeverity("warning");
+      setMessageAlert("You must sign ");
+      setShowAlert(true);
+      navigate("/");
+    } else if (checkPub && address) {
+      navigate("/uploadexam");
+    }
+    setLoading(false);
+
   }
+  const handleClose = async (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setShowAlert(false);
+  };
+
+  const insertPubToDB = async () => {
+    if (address) {
+      try {
+        const checkPublicKeyExisted = await axios.get(`http://localhost:8080/addresses/${address}`);
+        if (checkPublicKeyExisted.data.address.length === 0) {
+          const publicKey = await getPublicKey(); // Await the result of getPublicKey
+          if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
+            return false
+          }
+          await axios.post(`http://localhost:8080/addresses/${address}`, {
+            address: address, // Include the address in the body
+            publicKey: publicKey // Include the public key in the body
+          });
+          return true
+        }
+        else if (checkPublicKeyExisted.data.address.length !== 0) {
+          if (checkPublicKeyExisted.data.address[0].publickey == null) {
+            const publicKey = await getPublicKey(); // Await the result of getPublicKey
+            if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
+
+              return false
+            }
+            await axios.post(`http://localhost:8080/addresses/${address}`, {
+              address: address, // Include the address in the body
+              publicKey: publicKey // Include the public key in the body
+            });
+
+            return true
+          }
+        }
+        return true
+      }
+      catch (err) {
+        console.log(err)
+        return false
+      }
+    }
+  };
   return (
     <>
       {loading && (
@@ -109,6 +179,19 @@ const HelpSection = () => {
         </div>
 
       </div>
+      <Snackbar open={showAlert} autoHideDuration={10000} onClose={handleClose}>
+        <Alert
+          onClose={handleClose}
+          severity={alertSeverity}
+          variant="filled"
+          sx={{
+            width: '100%',
+            fontSize: '1.25rem', // Increase font size
+          }}
+        >
+          {messageAlert}
+        </Alert>
+      </Snackbar>
     </>
   );
 };

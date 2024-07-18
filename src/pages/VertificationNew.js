@@ -12,7 +12,14 @@ const VertificationNew = () => {
   const { signer, address, connectWallet, contract, provider, getPublicKey } = useSigner();
   const navigate = useNavigate();
   const adminAddress = process.env.REACT_APP_ADMIN;
+  React.useEffect(() => {
+    if (address) {
+      if (address !== adminAddress) {
+        navigate("*")
+      }
+    }
 
+  }, [address, signer])
   React.useEffect(() => {
     const checkIssuer = async () => {
       if (address) {

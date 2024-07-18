@@ -19,9 +19,9 @@ import "./SearchBar.css"
 const BodyCourses = ({ className = "" }) => {
     const [courses, setCourses] = useState([]);
     const [filteredCourses, setFilteredCourses] = useState([]);
-
+    const [org, setOrg] = useState('');
     const [loading, setLoading] = useState(false);
-    const { address, connectWallet } = useSigner();
+    const { address, connectWallet, getPublicKey, signer, contract } = useSigner();
     const [open, setOpen] = useState(false);
     const [selectedCourse, setSelectedCourse] = useState(null);
     const [alertSeverity, setAlertSeverity] = useState("");
@@ -31,25 +31,62 @@ const BodyCourses = ({ className = "" }) => {
     const navigate = useNavigate();
     useEffect(() => {
         fetchCourses().catch((error) => console.error(error));
+    }, [org]);
+    useEffect(() => {
+        setLoading(true)
+        const fetchOrg = async () => {
+            try {
+                if (address) {
+                    const org = await contract.getOrganizationCode(address);
+                    setOrg(org);
+                    setLoading(false)
+                }
+            } catch (err) {
+                setLoading(false)
+                console.log(err);
+            }
+            setLoading(false)
 
-    }, []);
+        };
+        fetchOrg();
+    }, [address, signer, contract]);
     const fetchCourses = async () => {
         setLoading(true)
+        console.log(org)
         try {
-            const result = await axios.get(`https://verify-certification-nft-production.up.railway.app/courses`);
-            if (Array.isArray(result.data.courses)) {
-                setCourses(result.data.courses);
-                setFilteredCourses(result.data.courses);
+            if (org) {
+                const result = await axios(`http://localhost:8080/courses/${org}`)
+                console.log(result)
+                if (Array.isArray(result.data.courses)) {
+                    setCourses(result.data.courses);
+                    setFilteredCourses(result.data.courses);
+                }
+                setLoading(false)
+
             }
+            else if (!org) {
+                const result = await axios.get(`http://localhost:8080/courses`);
+                if (Array.isArray(result.data.courses)) {
+                    setCourses(result.data.courses);
+                    setFilteredCourses(result.data.courses);
+                }
+                setLoading(false)
+            }
+            setLoading(false)
         } catch (err) {
+            setLoading(false)
+
             console.log(err);
         }
-        setLoading(false)
+        finally {
+            setLoading(false)
+
+        }
     };
     const checkInfoExist = async () => {
         if (address) {
             try {
-                const checkPublicKeyExisted = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`);
+                const checkPublicKeyExisted = await axios.get(`http://localhost:8080/addresses/${address}`);
                 if (checkPublicKeyExisted.data.address.length === 0) {
                     const publicKey = await getPublicKey(); // Await the result of getPublicKey
                     if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
@@ -59,7 +96,7 @@ const BodyCourses = ({ className = "" }) => {
                         setShowAlert(true);
                         return false;
                     }
-                    await axios.post(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`, {
+                    await axios.post(`http://localhost:8080/addresses/${address}`, {
                         address: address, // Include the address in the body
                         publicKey: publicKey // Include the public key in the body
                     });
@@ -71,7 +108,6 @@ const BodyCourses = ({ className = "" }) => {
                         return false
                     }
                     return true
-
                 }
             } catch (err) {
                 console.log(err);
@@ -79,20 +115,17 @@ const BodyCourses = ({ className = "" }) => {
         }
     };
     const handleClickOpen = async (course) => {
-        const check = await checkInfoExist()
-        if (check) {
-            setSelectedCourse(course);
-            setOpen(true);
+        const checkIssuer = await contract.getOrganizationCode(address)
+        console.log(checkIssuer)
+        if (checkIssuer) {
+            setAlertSeverity("warning")
+            setMessageAlert("You are Issuer !! Can take the exam")
+            setShowAlert(true);
+            return
         }
-        else {
-            setLoading(true)
-            setTimeout(() => {
+        setOpen(true);
+        setSelectedCourse(course)
 
-                navigate("/profile")
-
-                setLoading(false);
-            }, 1000);
-        }
     };
     const handleClose = () => {
         setOpen(false);
@@ -106,30 +139,40 @@ const BodyCourses = ({ className = "" }) => {
     };
     const handleAgree = async () => {
         try {
-            setLoading(true); // Start loading
-            const result = await axios.post(`https://verify-certification-nft-production.up.railway.app/courses/course/${selectedCourse.id}?address=${address}`)
+            setLoading(true);
+            const result = await axios.post(`http://localhost:8080/courses/course/${selectedCourse.id}?address=${address}`)
             if (result.data.code == 200) {
-                setTimeout(() => {
-                    if (!address) {
-                        navigate("/");
-                    } else {
+                if (!address) {
+                    navigate("/");
+                }
+                else {
+                    const check = await checkInfoExist()
+                    if (check) {
                         navigate(`/courses/course/${selectedCourse.id}/exam`);
                     }
-                    setLoading(false);
-                }, 1000);
-                handleClose();
+                    else {
+                        localStorage.setItem('targetURL', `/courses/course/${selectedCourse.id}/exam`);
+                        navigate("/profile")
+                        setLoading(false);
+                    }
+                }
             }
             else {
-                const result = await axios(`https://verify-certification-nft-production.up.railway.app/exam/${selectedCourse.id}?address=${address}`)
+                const result = await axios(`http://localhost:8080/exam/${selectedCourse.id}?address=${address}`)
                 if (result.data.data[0].status == "examining") {
-                    setTimeout(() => {
-                        if (!address)
-                            navigate("/");
-                        else {
+                    if (!address)
+                        navigate("/");
+                    else {
+                        const check = await checkInfoExist()
+                        if (check) {
                             navigate(`/courses/course/${selectedCourse.id}/exam`);
                         }
-                        setLoading(false);
-                    }, 1000);
+                        else {
+                            localStorage.setItem('targetURL', `/courses/course/${selectedCourse.id}/exam`);
+                            navigate("/profile")
+
+                        }
+                    }
                 }
                 else if (result.data.data[0].status == "passed") {
                     setLoading(false);
@@ -138,18 +181,10 @@ const BodyCourses = ({ className = "" }) => {
                     setShowAlert(true);
                     handleClose();
                 }
-                else if (result.data.data[0].status == "failed") {
-                    setLoading(false);
-                    setAlertSeverity("warning")
-                    setMessageAlert("You have failed this exam")
-                    setShowAlert(true);
-                    handleClose();
-                }
             }
         } catch (err) {
             console.log(err)
         }
-
     };
     const handleChange = (value) => {
         setInput(value);
@@ -158,7 +193,6 @@ const BodyCourses = ({ className = "" }) => {
         );
         setFilteredCourses(filterCourses);
     };
-
     return (
         <>
             {loading && (
@@ -181,7 +215,7 @@ const BodyCourses = ({ className = "" }) => {
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description" sx={{ fontSize: '1.5rem' }}>
-                        Once you choose to <span style={{ color: "#1976D2" }}>START</span>, you must complete the test. If you exit midway, you will <span style={{ fontWeight: 'bold', color: "red" }}>FAIL</span>  the test
+                        Are you sure to start the exam?
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
@@ -205,15 +239,19 @@ const BodyCourses = ({ className = "" }) => {
 
                 <div className="careers-section1">
                     {filteredCourses.map((course) => (
-                        <button onClick={() => handleClickOpen(course)} key={course.id}>
-                            <Course
-                                course1Image={course.image}
-                                courseHeader={course.name}
-                                courseDescription={course.description}
-                                courseOrg={course.licensing_authority}
-                                courseOrgImg={course.image_licensing_authority}
-                            />
-                        </button>
+                        <div>
+
+                            {/* onClick={() => handleClickOpen(course)} */}
+                            <button onClick={() => handleClickOpen(course)} key={course.id}>
+                                <Course
+                                    course1Image={course.image}
+                                    courseHeader={course.name}
+                                    courseDescription={course.description}
+                                    courseOrg={course.licensing_authority}
+                                    courseOrgImg={course.image_licensing_authority}
+                                />
+                            </button>
+                        </div>
                     ))}
                 </div>
             </section>

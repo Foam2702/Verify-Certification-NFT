@@ -27,6 +27,12 @@ export const SignerProvider = ({ children }) => {
             window.ethereum.on("accountsChanged", (accounts) => {
                 if (accounts.length === 0) {
                     setAddress(null);
+                    setSigner(null);
+                    setProvider(null);
+                    setContract(null);
+                    console.log("No accounts connected");
+                    // Navigate to login or show a message to the user
+                    navigate("/login"); // Change "/login" to your login route
                 } else {
                     connectWallet();
                 }
@@ -42,6 +48,7 @@ export const SignerProvider = ({ children }) => {
             const web3modal = new Web3Modal({ cacheProvider: true });
             const instance = await web3modal.connect();
             const provider = new ethers.providers.Web3Provider(instance);
+            await provider.send("eth_requestAccounts", []);
             const signer = provider.getSigner();
             const address = await signer.getAddress();
             const newContract = new ethers.Contract(SOULBOUND_ADDRESS, SOULBOUND.abi, signer);
@@ -65,8 +72,11 @@ export const SignerProvider = ({ children }) => {
                 });
             }
         } catch (e) {
-
-            console.log(e);
+            console.error("Error connecting wallet:", e);
+            setAddress(null);
+            setSigner(null);
+            setProvider(null);
+            setContract(null);
         }
         setLoading(false);
     };

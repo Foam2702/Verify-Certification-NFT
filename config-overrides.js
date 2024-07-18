@@ -4,7 +4,7 @@ module.exports = function override(config, env) {
     // Polyfill for process
     config.plugins = (config.plugins || []).concat([
         new webpack.ProvidePlugin({
-            process: 'process/browser',
+            process: 'process/browser.js',
         }),
     ]);
 

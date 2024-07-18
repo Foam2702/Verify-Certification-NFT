@@ -39,7 +39,7 @@ const BodySection = () => {
   useEffect(() => {
     const fetchDataRegions = async () => {
       try {
-        const result = await axios("https://verify-certification-nft-production.up.railway.app/tickets");
+        const result = await axios("http://localhost:8080/tickets");
         if (Array.isArray(result.data.cities)) {
           setRegions(result.data.cities);
           console.log({ regions });
@@ -55,7 +55,7 @@ const BodySection = () => {
     fetchDataRegions().catch((error) => console.error(error));
     const fetchDataCourses = async () => {
       try {
-        const result = await axios("https://verify-certification-nft-production.up.railway.app/tickets");
+        const result = await axios("http://localhost:8080/tickets");
         if (Array.isArray(result.data.certificates)) {
           setCourses(result.data.certificates);
           console.log(result.data.certificates);
@@ -92,7 +92,7 @@ const BodySection = () => {
   const insertPubToDB = async () => {
     if (address) {
       try {
-        const checkPublicKeyExisted = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`);
+        const checkPublicKeyExisted = await axios.get(`http://localhost:8080/addresses/${address}`);
         if (checkPublicKeyExisted.data.address.length === 0) {
           const publicKey = await getPublicKey(); // Await the result of getPublicKey
           if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
@@ -102,12 +102,28 @@ const BodySection = () => {
             setShowAlert(true);
             return false;
           }
-          await axios.post(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`, {
+          await axios.post(`http://localhost:8080/addresses/${address}`, {
             address: address, // Include the address in the body
             publicKey: publicKey // Include the public key in the body
           });
           return true
+        }
+        else if (checkPublicKeyExisted.data.address.length !== 0) {
+          if (checkPublicKeyExisted.data.address[0].publickey == null) {
+            const publicKey = await getPublicKey(); // Await the result of getPublicKey
+            if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
+              setAlertSeverity("warning");
+              setMessageAlert("You must sign to submit");
+              setShowAlert(true);
+              return false
+            }
+            await axios.post(`http://localhost:8080/addresses/${address}`, {
+              address: address, // Include the address in the body
+              publicKey: publicKey // Include the public key in the body
+            });
 
+            return true
+          }
         }
         return true
       }
@@ -159,7 +175,7 @@ const BodySection = () => {
           formData.append("imageCertificate", file[i]);
         }
         try {
-          const ownerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`)
+          const ownerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${address}`)
           if (ownerPublicKeysResponse.data.address.length === 0) {
             setLoading(false);
             return;
@@ -171,18 +187,20 @@ const BodySection = () => {
           if (exists) {
             setLoading(false);
             setAlertSeverity("warning");
-            setMessageAlert(`This certificate already belongs to someone else`);
+            setMessageAlert(`This certificate already belongs to someone else or you already get this certificate`);
             setShowAlert(true);
             return
           }
           const imageEncrypt = await encryptData(base64ImageString, privateKey, remove0x(publicKeyOwner));
           image_res = await imageUpload(imageEncrypt, hashImg, address, data["certificateName"])
+          console.log("OWNER", publicKeyOwner)
           const issuers = await checkIssuer(data.licensingAuthority);
           const fieldsToEncrypt = [
             'citizenId', 'name', 'region', 'dob', 'gender', 'email',
             'workUnit', 'point', 'issueDate', 'expiryDate'];
 
           if (issuers.length === 0) {
+            setLoading(false)
             setAlertSeverity("warning");
             setMessageAlert(`No issuer found for ${data.licensingAuthority}`);
             setShowAlert(true);
@@ -195,14 +213,16 @@ const BodySection = () => {
               formData.append(field, JSON.stringify(encryptedData));
             }
 
-            formData.append("issuerAddress", '')
+            formData.append("issuerAddress", ' ')
             formData.append("cidCertificate", image_res)
             formData.append("id", id)
             formData.append("owner", address)
             formData.append("certificateName", data.certificateName)
             formData.append("licensingAuthority", data.licensingAuthority);
-
-            const response = await axios.post("https://verify-certification-nft-production.up.railway.app/tickets", formData);
+            // for (let pair of formData.entries()) {
+            //   console.log(pair[0] + ", " + pair[1]);
+            // }
+            const response = await axios.post("http://localhost:8080/tickets", formData);
             if (response.data.message === "ticket already exist") {
               setLoading(false);
               setAlertSeverity("warning");
@@ -211,7 +231,7 @@ const BodySection = () => {
               return
             }
             for (const issuer of issuers) {
-              const issuerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${issuer}`);
+              const issuerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${issuer}`);
               if (issuerPublicKeysResponse.data.address.length === 0) {
                 setLoading(false); // Stop loading regardless of the request outcome
                 setAlertSeverity("warning");
@@ -219,34 +239,35 @@ const BodySection = () => {
                 setShowAlert(true);
                 return;
               }
-              const formData = new FormData();
-              for (let i = 0; i < file.length; i++) {
-                formData.append("imageCertificate", file[i]);
-              }
-              const base64ImageString = await imageFileToBase64(formData.get("imageCertificate"));
-              const imageEncrypt = await encryptData(base64ImageString, privateKey, remove0x(issuerPublicKeysResponse.data.address[0].publickey));
-              const publicKeyIssuer = issuerPublicKeysResponse.data.address[0].publickey
-              for (const field of fieldsToEncrypt) {
-                const encryptedData = data[field] ? await encryptData(data[field], privateKey, remove0x(publicKeyIssuer)) : null;
-                formData.append(field, JSON.stringify(encryptedData));
-              }
-              image_res = await imageUpload(imageEncrypt, hashImg, address, data["certificateName"])
-              formData.append("issuerAddress", issuerPublicKeysResponse.data.address[0].address)
-              formData.append("cidCertificate", image_res)
-              formData.append("id", id)
-              formData.append("owner", address)
-              formData.append("certificateName", data.certificateName)
-              formData.append("licensingAuthority", data.licensingAuthority);
-              const response = await axios.post("https://verify-certification-nft-production.up.railway.app/tickets", formData);
-              if (response.data.message === "ticket already exist") {
-                setLoading(false); // Stop loading regardless of the request outcome
-                setAlertSeverity("warning");
-                setMessageAlert("Ticket already exist");
-                setShowAlert(true);
-                return
-              }
-              for (let pair of formData.entries()) {
-                console.log(pair[0] + ", " + pair[1]);
+              else if (issuerPublicKeysResponse.data.address[0].publickey != null) {
+                const formData = new FormData();
+                for (let i = 0; i < file.length; i++) {
+                  formData.append("imageCertificate", file[i]);
+                }
+                const base64ImageString = await imageFileToBase64(formData.get("imageCertificate"));
+                const imageEncrypt = await encryptData(base64ImageString, privateKey, remove0x(issuerPublicKeysResponse.data.address[0].publickey));
+                const publicKeyIssuer = issuerPublicKeysResponse.data.address[0].publickey
+                console.log("ISSUER", publicKeyIssuer)
+
+                for (const field of fieldsToEncrypt) {
+                  const encryptedData = data[field] ? await encryptData(data[field], privateKey, remove0x(publicKeyIssuer)) : null;
+                  formData.append(field, JSON.stringify(encryptedData));
+                }
+                image_res = await imageUpload(imageEncrypt, hashImg, address, data["certificateName"])
+                formData.append("issuerAddress", issuerPublicKeysResponse.data.address[0].address)
+                formData.append("cidCertificate", image_res)
+                formData.append("id", id)
+                formData.append("owner", address)
+                formData.append("certificateName", data.certificateName)
+                formData.append("licensingAuthority", data.licensingAuthority);
+                const response = await axios.post("http://localhost:8080/tickets", formData);
+                if (response.data.message === "ticket already exist") {
+                  setLoading(false); // Stop loading regardless of the request outcome
+                  setAlertSeverity("warning");
+                  setMessageAlert("Ticket already exist");
+                  setShowAlert(true);
+                  return
+                }
               }
             }
           }
@@ -314,7 +335,7 @@ const BodySection = () => {
       if (check) {
         const privateKeyBytes = ethers.utils.arrayify(add0x(privateKey));
         const publicKeyFromPrivateKey = ethers.utils.computePublicKey(privateKeyBytes);
-        const ownerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`)
+        const ownerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${address}`)
 
         if (ownerPublicKeysResponse.data.address.length === 0) {
           return;
@@ -393,7 +414,7 @@ const BodySection = () => {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog} type="submit">Encrypt</Button>
+          <Button onClick={handleCloseDialog} type="submit">Enter</Button>
           <Button onClick={handleCloseDialog}>Cancel</Button>
         </DialogActions>
       </Dialog>

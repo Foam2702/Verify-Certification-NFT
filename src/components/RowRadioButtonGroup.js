@@ -104,7 +104,7 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                 response: values[index],
             }));
             const result = await axios.post(
-                `https://verify-certification-nft-production.up.railway.app/courses/course/${course[0].id}/exam?address=${address}`,
+                `http://localhost:8080/courses/course/${course[0].id}/exam?address=${address}`,
                 combinedData,
                 {
                     headers: {
@@ -112,7 +112,7 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                     },
                 }
             );
-            const org = await axios(`https://verify-certification-nft-production.up.railway.app/courses/course/${course[0].id}`);
+            const org = await axios(`http://localhost:8080/courses/course/${course[0].id}`);
             const orgName = org.data.course[0].licensing_authority;
             setOrganization(orgName)
             console.log(orgName);
@@ -176,8 +176,8 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                 backgroundImg.src = '/certificate-background.png'; // Set the image source for the background 
 
             } else {
-                // await axios.patch(`https://verify-certification-nft-production.up.railway.app/exam/${course[0].id}?address=${address}&status=failed`)
-                const result = await axios.delete(`https://verify-certification-nft-production.up.railway.app/exam/${course[0].id}?address=${address}`)
+                // await axios.patch(`http://localhost:8080/exam/${course[0].id}?address=${address}&status=failed`)
+                const result = await axios.delete(`http://localhost:8080/exam/${course[0].id}?address=${address}`)
                 if (result.data.code == 200) {
                     setOpenCheck(false);
                     setPassed(false);
@@ -246,14 +246,14 @@ export default function RowRadioButtonsGroup({ course, exam }) {
     const sendToIssuer = async () => {
         try {
             setLoading(true)
-            const ownerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`)
+            const ownerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${address}`)
             if (ownerPublicKeysResponse.data.address.length === 0) {
                 return;
             }
             const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
             let image_res = ''
             let hashImg = ''
-            const user = await axios(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`)
+            const user = await axios(`http://localhost:8080/addresses/${address}`)
             const id = uuidv4();
             const decryptedUser = {
                 name: await handleDecryptTicket(user.data.address[0].name, publicKeyOwner, privateKey),
@@ -267,8 +267,6 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                 issueDate: new Date().toLocaleDateString(),
                 certificateName: course[0].name,
                 licensingAuthority: course[0].licensing_authority
-
-
             }
             // Kiểm tra nếu bất kỳ giá trị giải mã nào là null
             for (const key in decryptedUser) {
@@ -282,6 +280,14 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                 'workUnit', 'point', 'issueDate'];
 
             hashImg = hashImage(image)
+            const exists = await isExistsInPinata(hashImg)
+            if (exists) {
+                setLoading(false);
+                setAlertSeverity("warning");
+                setMessageAlert(`This certificate already belongs to someone else or you already get this certificate`);
+                setShowAlert(true);
+                return
+            }
             const imageEncrypt = await encryptData(image, privateKey, remove0x(publicKeyOwner));
             image_res = await imageUpload(imageEncrypt, hashImg, address, decryptedUser["certificateName"])
             const issuers = await checkIssuer(course[0].licensing_authority);
@@ -292,44 +298,46 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                 formData.append(field, JSON.stringify(encryptedData));
             }
             formData.append("expiryDate", null)
-            formData.append("issuerAddress", '')
+            formData.append("issuerAddress", ' ')
             formData.append("cidCertificate", image_res)
             formData.append("id", id)
             formData.append("owner", address)
             formData.append("certificateName", decryptedUser["certificateName"])
             formData.append("licensingAuthority", decryptedUser["licensingAuthority"]);
-            await axios.post("https://verify-certification-nft-production.up.railway.app/tickets", formData);
+            await axios.post("http://localhost:8080/tickets", formData);
             for (const issuer of issuers) {
-                const issuerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${issuer}`);
-                const formData = new FormData();
-                const publicKeyIssuer = issuerPublicKeysResponse.data.address[0].publickey
-
-                const imageEncrypt = await encryptData(image, privateKey, remove0x(issuerPublicKeysResponse.data.address[0].publickey));
-                for (const field of fieldsToEncrypt) {
-                    const encryptedData = decryptedUser[field] ? await encryptData(decryptedUser[field], privateKey, remove0x(publicKeyIssuer)) : null;
-                    formData.append(field, JSON.stringify(encryptedData));
+                const issuerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${issuer}`);
+                if (issuerPublicKeysResponse.data.address.length === 0) {
+                    setLoading(false); // Stop loading regardless of the request outcome
+                    setAlertSeverity("warning");
+                    setMessageAlert(`${data.licensingAuthority} is busy. Please comeback later`);
+                    setShowAlert(true);
+                    return;
                 }
-
-                image_res = await imageUpload(imageEncrypt, hashImg, address, decryptedUser["certificateName"])
-                formData.append("expiryDate", null)
-
-                formData.append("issuerAddress", issuerPublicKeysResponse.data.address[0].address)
-                formData.append("cidCertificate", image_res)
-                formData.append("id", id)
-                formData.append("owner", address)
-                formData.append("certificateName", decryptedUser["certificateName"])
-                formData.append("licensingAuthority", decryptedUser["licensingAuthority"]);
-                await axios.post("https://verify-certification-nft-production.up.railway.app/tickets", formData);
-
-                for (let pair of formData.entries()) {
-                    console.log(pair[0] + ", " + pair[1]);
+                else if (issuerPublicKeysResponse.data.address[0].publickey != null) {
+                    const formData = new FormData();
+                    const publicKeyIssuer = issuerPublicKeysResponse.data.address[0].publickey
+                    const imageEncrypt = await encryptData(image, privateKey, remove0x(issuerPublicKeysResponse.data.address[0].publickey));
+                    for (const field of fieldsToEncrypt) {
+                        const encryptedData = decryptedUser[field] ? await encryptData(decryptedUser[field], privateKey, remove0x(publicKeyIssuer)) : null;
+                        formData.append(field, JSON.stringify(encryptedData));
+                    }
+                    image_res = await imageUpload(imageEncrypt, hashImg, address, decryptedUser["certificateName"])
+                    formData.append("expiryDate", null)
+                    formData.append("issuerAddress", issuerPublicKeysResponse.data.address[0].address)
+                    formData.append("cidCertificate", image_res)
+                    formData.append("id", id)
+                    formData.append("owner", address)
+                    formData.append("certificateName", decryptedUser["certificateName"])
+                    formData.append("licensingAuthority", decryptedUser["licensingAuthority"]);
+                    await axios.post("http://localhost:8080/tickets", formData);
                 }
             }
             setLoading(false); // Stop loading regardless of the request outcome
             setAlertSeverity("success");
             setMessageAlert(`Submitted successfully. Please wait for confirmation from the ${course[0].licensing_authority}`);
             setShowAlert(true);
-            await axios.patch(`https://verify-certification-nft-production.up.railway.app/exam/${course[0].id}?address=${address}&status=passed`)
+            await axios.patch(`http://localhost:8080/exam/${course[0].id}?address=${address}&status=passed`)
 
             navigate("/")
         } catch (err) {

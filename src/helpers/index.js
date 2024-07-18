@@ -56,9 +56,6 @@ export const pinJSONToIPFS = async (ticket) => {
                 { "trait_type": "issue_date", "value": `${ticket.issue_date}` },
                 { "trait_type": "expiry_date", "value": `${ticket.expiry_date ? ticket.expiry_date : ''}` },
                 { "trait_type": "status", "value": `${ticket.status}` },
-
-
-
             ]
         },
         pinataMetadata: {
@@ -297,6 +294,7 @@ export function extractPinataCID(url) {
 export function formatDateV2(dateString) {
     // Create a new Date object from the input string
     const date = new Date(dateString);
+    console.log(dateString)
 
     // Define an array of month names
     const monthNames = [
@@ -355,6 +353,13 @@ export async function isExistsInPinata(hashImg) {
     }
 }
 
+export const excelDateToJSDate = (excelDate) => {
+    // Excel's epoch is January 1, 1900
+    const excelEpoch = new Date(1900, 0, 1);
+    // Subtract 1 day to account for Excel's leap year bug
+    const jsDate = new Date(excelEpoch.getTime() + (excelDate - 2) * 24 * 60 * 60 * 1000);
+    return jsDate;
+};
 
 
 

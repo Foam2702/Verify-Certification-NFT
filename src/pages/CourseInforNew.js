@@ -4,8 +4,20 @@ import BodyButtons from "../components/BodyButtons";
 import HeaderSection from "../components/HeaderSection";
 import MyCourseSection from "../components/MyCourseSection";
 import "./CourseInforNew.css";
+import useSigner from "../state/signer";
 
 const CourseInforNew = () => {
+  const { signer, address, connectWallet, contract, getPublicKey } = useSigner()
+  const adminAddress = process.env.REACT_APP_ADMIN;
+
+  useEffect(() => {
+    if (address) {
+      if (address !== adminAddress) {
+        navigate("*")
+      }
+    }
+
+  }, [address, signer])
   return (
     <div className="courseinfornew">
       <section className="header-section-group">

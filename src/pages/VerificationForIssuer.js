@@ -18,18 +18,27 @@ export default function VerificationForIssuer() {
     const [ticket, setTicket] = useState([]);
     const { id } = useParams();
     const navigate = useNavigate();
+    const adminAddress = process.env.REACT_APP_ADMIN;
 
+    useEffect(() => {
+        if (address) {
+            if (address !== adminAddress) {
+                navigate("*")
+            }
+        }
+
+    }, [address, signer])
     useEffect(() => {
         const fetchTicketsById = async () => {
             if (address) {
                 try {
-                    const result = await axios(`https://verify-certification-nft-production.up.railway.app/tickets/ticket/${id}?address=${address}`);
+                    const result = await axios(`http://localhost:8080/tickets/ticket/${id}?address=${address}`);
                     if (result.data.message === "ticket doesn't exist" || result.data.ticket.length == 0) {
                         navigate("/");
                     } else {
                         result.data.ticket.forEach(item => {
                             if (item.owner_address === address) {
-                                if (item.issuer_address === '') {
+                                if (item.issuer_address === ' ') {
                                     setTicket(item)
                                 }
                             }

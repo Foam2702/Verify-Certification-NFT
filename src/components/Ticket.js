@@ -23,13 +23,14 @@ import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import WalletIcon from '@mui/icons-material/Wallet';
-import { hashImage, pinJSONToIPFS, deletePinIPFS, remove0x, extractEncryptedDataFromJson, decryptData, minifyAddress, imageFileToBase64 } from "../helpers/index"
-
+import { hashImage, pinJSONToIPFS, excelDateToJSDate, deletePinIPFS, remove0x, extractEncryptedDataFromJson, decryptData, minifyAddress, imageFileToBase64 } from "../helpers/index"
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import * as XLSX from "xlsx";
 const JWT = process.env.REACT_APP_JWT; // Make sure to set this in your React app environment variables
-
+import { styled } from '@mui/material/styles';
+import { format } from "date-fns";
 import "./BodySection.css";
 import "../pages/LisenceView"
-
 const Ticket = ({ ticket }) => {
     const { signer, address, connectWallet, contract, provider } = useSigner()
     const [file, setFile] = useState(null);
@@ -46,6 +47,8 @@ const Ticket = ({ ticket }) => {
     const [tokenID, setTokenID] = useState("")
     const [open, setOpen] = useState(false);
     const [privateKey, setPrivateKey] = useState("")
+    const [isPrivateKeyValid, setIsPrivateKeyValid] = useState(false);
+
     const [error, setError] = useState(null);
     const [decryptedName, setDecryptedName] = useState('');
     const [decryptedGender, setDecryptedGender] = useState('');
@@ -61,19 +64,38 @@ const Ticket = ({ ticket }) => {
     const [userTicket, setUserTicket] = useState(null)
     const [imageUrl, setImageUrl] = useState('');
     const [imageMatch, setImageMatch] = useState(false)
+    const [infoMatch, setInfoMatch] = useState(false)
     const [isExam, setIsExam] = useState(false)
+    const [mint, setMint] = useState("")
     const web3 = new Web3(window.ethereum);
     const navigate = useNavigate();
     useEffect(() => {
         const checkIssuer = async () => {
             const { ethereum } = window;
             if (ethereum) {
-                console.log("TICKET", ticket)
-                const result = await contract.getVerifiersByOrganizationCode(ticket.licensing_authority);
-                setIssuer(result)
+                if (ticket.licensing_authority != null) {
+                    try {
+                        const result = await contract.getVerifiersByOrganizationCode(ticket.licensing_authority);
+                        setIssuer(result)
+                    }
+                    catch (err) {
+                        console.log(err)
+
+                        setAlertSeverity("warning")
+                        setMessageAlert("Your rights have been revoked by the admin. Return to the home page within 5 seconds")
+                        setShowAlert(true);
+                        setTimeout(() => {
+                            navigate("/")
+                        }, 5000)
+                        return
+                    }
+                }
+                else {
+                    return;
+                }
             }
         }
-        if (ticket) { // Only run if ticket is defined
+        if (ticket != null) { // Only run if ticket is defined
             checkIssuer().catch(error => console.error(error));
         }
     }, [ticket, address, signer]) // Add ticket as a dependency
@@ -82,8 +104,11 @@ const Ticket = ({ ticket }) => {
             try {
                 const data = await web3.eth.getTransactionReceipt(ticket.transaction_hash);
                 let transaction = data;
+                console.log("TRANS", transaction.from)
+
                 let logs = data.logs;
                 const tokenIdValue = web3.utils.hexToNumber(logs[0].topics[3]);
+                setMint(transaction.from)
                 setTokenID(tokenIdValue.toString());
                 setAddressContract(logs[0].address)
             } catch (err) {
@@ -133,7 +158,7 @@ const Ticket = ({ ticket }) => {
     useEffect(() => {
         const fetchCourses = async () => {
             try {
-                const response = await axios('https://verify-certification-nft-production.up.railway.app/courses');
+                const response = await axios('http://localhost:8080/courses');
                 const courses = response.data.courses; // Assuming the API response structure
                 if (ticket.certificate_name) {
                     const match = courses.some(course => {
@@ -153,21 +178,56 @@ const Ticket = ({ ticket }) => {
         };
         fetchCourses();
     }, [ticket, setImageMatch]);
+    const VisuallyHiddenInput = styled('input')({
+        clip: 'rect(0 0 0 0)',
+        clipPath: 'inset(50%)',
+        height: 1,
+        overflow: 'hidden',
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        whiteSpace: 'nowrap',
+        width: 1,
+    });
     const handleReject = async (e) => {
         e.preventDefault()
+        try {
+            const checkIssuer = await contract.getOrganizationCode(address)
+            if (!checkIssuer) {
+                setAlertSeverity("warning")
+                setMessageAlert("Your rights have been revoked by the admin. Return to the home page within 10 seconds")
+                setShowAlert(true);
+                setTimeout(() => {
+                    navigate("/")
+                }, 10000)
+                return
+            }
+            console.log(checkIssuer)
+        } catch (err) {
+            console.log(err)
+
+            setAlertSeverity("warning")
+            setMessageAlert("Your rights have been revoked by the admin. Return to the home page within 10 seconds")
+            setShowAlert(true);
+            setTimeout(() => {
+                navigate("/")
+            }, 10000)
+            return
+        }
         setLoading(true)
         try {
             const status = "reject"
-            const owner = await axios(`https://verify-certification-nft-production.up.railway.app/tickets/ticket/${ticket.id}?address=`)
+            const empty = ' '
+            const encodedEmpty = encodeURIComponent(empty);
+            const owner = await axios(`http://localhost:8080/tickets/ticket/${ticket.id}?address=${encodedEmpty}`)
             await deletePinIPFS(owner.data.ticket[0].certificate_cid)
             for (let address of issuer) {
-                const issuer_org = await axios(`https://verify-certification-nft-production.up.railway.app/tickets/ticket/${ticket.id}?address=${address}`);
+                const issuer_org = await axios(`http://localhost:8080/tickets/ticket/${ticket.id}?address=${address}`);
                 if (issuer_org.data.ticket[0].certificate_cid) {
                     await deletePinIPFS(issuer_org.data.ticket[0].certificate_cid)
                 }
             }
-            const response = await axios.patch(`https://verify-certification-nft-production.up.railway.app/tickets/ticket/${ticket.id}?status=${status}&transaction_hash=`)
-
+            const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}?status=${status}&transaction_hash=`)
             if (response.data.message === "updated successfully") {
                 setLoading(false)
                 setUpdate(true)
@@ -179,7 +239,6 @@ const Ticket = ({ ticket }) => {
             }
             else if (response.data.message === "update failed") {
                 setLoading(false)
-
                 setpdate(false)
                 setAlertSeverity("error")
                 setMessageAlert("Already Rejected")
@@ -196,13 +255,43 @@ const Ticket = ({ ticket }) => {
     }
     const handleSubmit = async (event) => {
         event.preventDefault()
-        setLoading(true);
         try {
-            const userTicket = await axios(`https://verify-certification-nft-production.up.railway.app/tickets/ticket/${ticket.id}?address=`)
+            const checkIssuer = await contract.getOrganizationCode(address)
+            if (!checkIssuer) {
+                setAlertSeverity("warning")
+                setMessageAlert("Your rights have been revoked by the admin. Return to the home page within 10 seconds")
+                setShowAlert(true);
+                setTimeout(() => {
+                    navigate("/")
+                }, 10000)
+                return
+            }
+            console.log(checkIssuer)
+        } catch (err) {
+            console.log(err)
+
+            setAlertSeverity("warning")
+            setMessageAlert("Your rights have been revoked by the admin. Return to the home page within 10 seconds")
+            setShowAlert(true);
+            setTimeout(() => {
+                navigate("/")
+            }, 10000)
+            return
+        }
+        setLoading(true);
+        const empty = ' '
+        const encodedEmpty = encodeURIComponent(empty);
+        try {
+            const userTicket = await axios(`http://localhost:8080/tickets/ticket/${ticket.id}?address=${encodedEmpty}`)
             ticket = userTicket.data.ticket[0];
             ticket.status = "approved"
-            const metadata = await pinJSONToIPFS(ticket)
-            const ipfsMetadata = `ipfs://${metadata}`
+        }
+        catch (err) {
+            console.log(err)
+        }
+        const metadata = await pinJSONToIPFS(ticket)
+        const ipfsMetadata = `ipfs://${metadata}`
+        try {
             const { ethereum } = window
             if (ethereum) {
                 const result = await contract.mintSBTForAddress(
@@ -211,14 +300,20 @@ const Ticket = ({ ticket }) => {
                 );
                 setAddressContract(result.to)
                 for (let address of issuer) {
-                    const issuer_org = await axios(`https://verify-certification-nft-production.up.railway.app/tickets/ticket/${ticket.id}?address=${address}`);
+                    const issuer_org = await axios(`http://localhost:8080/tickets/ticket/${ticket.id}?address=${address}`);
                     if (issuer_org.data.ticket[0].certificate_cid) {
 
                         await deletePinIPFS(issuer_org.data.ticket[0].certificate_cid)
                     }
+                    await axios.delete(`http://localhost:8080/tickets/ticket/${ticket.id}?address=${address}`)
                 }
+                setLoading(false)
+                setAlertSeverity("success")
+                setMessageAlert("Create transaction successfully.Waiting to confirm")
+                setShowAlert(true);
+                await result.wait();
                 const status = "approved"
-                const response = await axios.patch(`https://verify-certification-nft-production.up.railway.app/tickets/ticket/${ticket.id}?status=${status}&transaction_hash=${result.hash}&issuer_address=`)
+                const response = await axios.patch(`http://localhost:8080/tickets/ticket/${ticket.id}?status=${status}&transaction_hash=${result.hash}&issuer_address=`)
                 if (response.data.message === "updated successfully") {
                     ticket.transaction_hash = result.hash
                     setLoading(false);
@@ -237,12 +332,12 @@ const Ticket = ({ ticket }) => {
                 }
             }
         } catch (err) {
+            await deletePinIPFS(metadata)
             setLoading(false);
             setAlertSeverity("error");
             setMessageAlert("Rejected transaction");
             setShowAlert(true);
             window.location.reload();
-
         }
     };
     const handleClose = async (event, reason) => {
@@ -270,18 +365,12 @@ const Ticket = ({ ticket }) => {
         const privatekey = formJson.privatekey;
         setPrivateKey(privatekey)
     }
-    function formatDateDB(input) {
-        const datePart = input.match(/\d+/g);
-        const year = datePart[0];
-        const month = datePart[1];
-        const day = datePart[2];
 
-        return day + '/' + month + '/' + year;
-    }
     async function addNFTToWallet() {
         setLoading(true)
         if (addressContract && tokenID) {
             try {
+
                 const wasAdded = await ethereum.request({
                     method: 'wallet_watchAsset',
                     params: {
@@ -315,7 +404,7 @@ const Ticket = ({ ticket }) => {
     const handleDecryptTicket = async (prop, privateKey) => {
         if (prop != null && prop != '' && prop != undefined) {
             try {
-                const ownerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${ticket.owner_address}`)
+                const ownerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${ticket.owner_address}`)
                 if (ownerPublicKeysResponse.data.address.length === 0) {
                     return;
                 }
@@ -368,7 +457,7 @@ const Ticket = ({ ticket }) => {
 
             );
             const image = res.data.image
-            const ownerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${ticket.owner_address}`)
+            const ownerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${ticket.owner_address}`)
             if (ownerPublicKeysResponse.data.address.length === 0) {
                 return;
             }
@@ -422,9 +511,7 @@ const Ticket = ({ ticket }) => {
                 setShowAlert(true);
                 setLoading(false);
                 setImageMatch(false)
-
             }
-
         }
         else {
             setLoading(true);
@@ -434,9 +521,94 @@ const Ticket = ({ ticket }) => {
             setLoading(false);
             return;
         }
-
-
     }
+
+    const handleFileUpload = (event) => {
+        event.preventDefault();
+        if (decryptedImage == null) {
+            setLoading(true);
+            setAlertSeverity("warning");
+            setMessageAlert("Decrypt to upload");
+            setShowAlert(true);
+            setLoading(false);
+            return;
+        }
+        try {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+                const binaryStr = e.target.result;
+                const workbook = XLSX.read(binaryStr, { type: "binary" });
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                let isMatchFound = false;
+
+                jsonData.forEach(item => {
+
+                    let issueDate = item.issue_date ? item.issue_date : '';
+                    let expiryDate = item.expiry_date ? item.expiry_date : '';
+                    let dob = item.dob ? item.dob : '';
+
+                    // Handle potential undefined values
+                    let citizenId = item.citizen_id !== undefined ? item.citizen_id.toString() : '';
+                    let point = item.point !== undefined ? item.point.toString() : '';
+
+                    if (typeof item.issue_date === 'number' && issueDate != '') {
+                        issueDate = format(excelDateToJSDate(item.issue_date), "yyyy-MM-dd");
+                    }
+
+                    if (typeof item.expiry_date === 'number' && expiryDate != '') {
+                        expiryDate = format(excelDateToJSDate(item.expiry_date), "yyyy-MM-dd");
+                    }
+                    if (typeof item.dob === 'number' && dob != '') {
+                        dob = format(excelDateToJSDate(item.dob), "yyyy-MM-dd");
+                    }
+
+                    if (
+                        item.name === decryptedName &&
+                        item.gender === decryptedGender &&
+                        item.email === decryptedEmail &&
+                        citizenId === decryptedCitizenId &&
+                        dob === decryptedDob &&
+                        item.region === decryptedRegion &&
+                        item.work_unit === decryptedWorkUnit &&
+                        point.trim() === decryptedPoint.trim() &&
+                        item.certificate_name === ticket.certificate_name &&
+                        issueDate === decryptedIssueDate &&
+                        expiryDate.trim() === decryptedExpiryDate.trim() &&
+                        item.licensing_authority === ticket.licensing_authority
+                    ) {
+                        isMatchFound = true;
+                    }
+                });
+
+
+                if (isMatchFound) {
+                    setInfoMatch(true)
+                    setAlertSeverity("success");
+                    setMessageAlert("Matching info found in the file");
+                    setShowAlert(true);
+                } else {
+                    setInfoMatch(false)
+
+                    setAlertSeverity("warning");
+                    setMessageAlert("No matching info found in the file");
+                    setShowAlert(true);
+                }
+                setLoading(false);
+            };
+
+            reader.readAsBinaryString(file);
+        } catch (err) {
+            console.log(err);
+            setAlertSeverity("warning");
+            setMessageAlert("Wrong excel format");
+            setShowAlert(true);
+            setLoading(false);
+        }
+    };
     return (
         <>
             {loading && (
@@ -446,7 +618,6 @@ const Ticket = ({ ticket }) => {
             )}
             <main className="body-section1">
                 <form className="careers-section" encType="multipart/form-data" action="" >
-
                     <div>
                         {issuer.includes(address) ? (
                             <>
@@ -457,7 +628,7 @@ const Ticket = ({ ticket }) => {
                             </>
                         ) : (
                             <>
-                                <AlertTicket severity={ticket.status} />
+                                <AlertTicket severity={ticket.status} minter={mint} />
                             </>
                         )}
                         {isExam &&
@@ -478,6 +649,22 @@ const Ticket = ({ ticket }) => {
                                 <div sx={{ mx: "5px" }}>View</div>
                                 <RemoveRedEyeIcon sx={{ mx: "5px" }}></RemoveRedEyeIcon>
                             </Button>
+                            {issuer.includes(address) &&
+                                <Button
+                                    component="label"
+                                    role={undefined}
+                                    variant="contained"
+                                    tabIndex={-1}
+                                    startIcon={<CloudUploadIcon />}
+                                    sx={{ backgroundColor: 'purple', my: "20px", mx: "30px", fontSize: "0.5em" }}
+                                    onChange={handleFileUpload}
+
+                                >
+                                    Upload file
+                                    <VisuallyHiddenInput type="file" />
+                                </Button>
+                            }
+
                         </Box>
                         <Dialog
                             open={open}
@@ -695,7 +882,7 @@ const Ticket = ({ ticket }) => {
                                     <button className="check-button" onClick={handleCheckImage}>
                                         <div className="check" >Check</div>
                                     </button>
-                                    {imageMatch ?
+                                    {imageMatch && infoMatch ?
                                         <button className="submit-button" onClick={handleSubmit}>
                                             <div className="submit">Mint</div>
                                         </button>
@@ -711,25 +898,7 @@ const Ticket = ({ ticket }) => {
                                     </button>
                                 </div>
                             }
-                            {/* <div className="body-button1">
-                                <button className="check-button" onClick={handleCheckImage}>
-                                    <div className="check" >Check</div>
-                                </button>
-                                {imageMatch ?
-                                    <button className="submit-button" onClick={handleSubmit}>
-                                        <div className="submit">Mint</div>
-                                    </button>
-                                    :
-                                    <></>
-                                }
 
-                                <button className="reject-button" onClick={handleReject}>
-                                    <div className="reject">Reject</div>
-                                </button>
-                                <button className="cancel-button" onClick={handleCancle}>
-                                    <div className="cancel">Cancel</div>
-                                </button>
-                            </div> */}
                         </>
                         :
                         <></>

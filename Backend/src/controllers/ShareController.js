@@ -17,7 +17,6 @@ module.exports = {
             status: "success",
             data: result
         })
-
     },
     insertShareCertificate: async (req, res) => {
         const { id, address } = req.query

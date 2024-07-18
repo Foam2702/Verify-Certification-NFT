@@ -9,6 +9,10 @@ module.exports = {
             return err
         }
     },
+    getQuestionByCourseId: async (courseId) => {
+        const result = await sql`SELECT * FROM question WHERE course=${courseId}`
+        return result
+    },
     insertQuestions: async (data) => {
         try {
             const { course, questions } = data;

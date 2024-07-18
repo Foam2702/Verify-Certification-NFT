@@ -39,6 +39,25 @@ module.exports = {
         }
 
     },
+    insertAddress: async (req, res) => {
+        const { address } = req.query;
+        const result = await addressModel.insertAddress(address);
+        if (result == true) {
+            res.json({
+                code: 200,
+                status: "success",
+                message: "Inserted successfully"
+            });
+        }
+        else {
+            res.json({
+                code: 404,
+                status: "fail",
+                message: "Inserted fail"
+            });
+        }
+    },
+
     updateInfo: async (req, res) => {
         const { address } = req.params;
         const user = req.body;
@@ -65,5 +84,23 @@ module.exports = {
             })
         }
     },
+    deleteAddress: async (req, res) => {
+        const { address } = req.query;
+        const result = await addressModel.deleteAddress(address);
+        if (result) {
+            res.json({
+                code: 200,
+                status: "success",
+                message: "Deleted successfully"
+            })
+        }
+        else {
+            res.json({
+                code: 404,
+                status: "fail",
+                message: "Deleted fail"
+            })
+        }
+    }
 
 }

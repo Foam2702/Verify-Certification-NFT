@@ -24,6 +24,10 @@ router
     .get(ticketController.getAllInfoTicket)
     // .post(ticketController.sendTicketFromStudent)
     .post(upload.single("imageCertificate"), ticketController.sendTicketFromStudent)
+router.route("/address")
+    .get(ticketController.getTicketsByAddress)
+    .delete(ticketController.deleteOneTicketByAddress)
+
 router
     .route("/ticket/:id/")
     .get(ticketController.getOneTicket)

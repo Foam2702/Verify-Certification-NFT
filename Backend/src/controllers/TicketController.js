@@ -74,7 +74,7 @@ module.exports = {
     },
     getAllInfoTicket: async (req, res) => {
         const cities = await ticketModel.getAllCities();
-        const certificates = await organizationModel.getAllOrganization();
+        const certificates = await organizationModel.getAllCertificates();
         res.json({
             "code": "200",
             "status": "success",
@@ -92,13 +92,22 @@ module.exports = {
             "tickets": tickets
         })
     },
+    getTicketsByAddress: async (req, res) => {
+        const { address } = req.query
+        const tickets = await ticketModel.getTicketsByAddress(address)
+        res.json({
+            "code": "200",
+            "success": true,
+            "tickets": tickets
+        })
+    },
     updateOneTicket: async (req, res) => {
         const { id } = req.params
         const { status, transaction_hash, issuer_address } = req.query
 
         const result = await ticketModel.updateOneTicket(id, status, transaction_hash)
         if (result == true) {
-            await ticketModel.deleteTicketExceptUser(id)
+            // await ticketModel.deleteTicketExceptUser(id)
             res.json({
                 "code": "200",
                 "success": true,
@@ -112,14 +121,11 @@ module.exports = {
                 "message": "update failed"
             })
         }
-
-
     },
     deleteOneTicket: async (req, res) => {
         const { id } = req.params
-
-
-        const result = await ticketModel.deleteOneTicket(id)
+        const { address } = req.query
+        const result = await ticketModel.deleteTicketByIdAndAddress(id, address)
         if (result == true) {
             res.json({
                 "code": "200",
@@ -135,6 +141,24 @@ module.exports = {
             })
         }
 
+    },
+    deleteOneTicketByAddress: async (req, res) => {
+        const { address } = req.query
+        const result = await ticketModel.deleteOneTicketByAddress(address)
+        if (result == true) {
+            res.json({
+                "code": "200",
+                "success": true,
+                "message": "deleted successfully"
+            })
+        }
+        else {
+            res.json({
+                "code": "404",
+                "success": false,
+                "message": "delete failed"
+            })
+        }
     }
 
 

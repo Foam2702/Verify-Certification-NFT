@@ -103,11 +103,17 @@ module.exports = {
             `SELECT  * FROM ticket WHERE licensing_authority=${org} `;
         return result;
     },
+    getTicketsByAddress: async (address) => {
+
+        const result = await sql`SELECT * FROM ticket WHERE issuer_address=${address}`
+        return result
+
+    },
 
     updateOneTicket: async (id, status, transaction_hash) => {
         transaction_hash = transaction_hash || null;
         try {
-            await sql`UPDATE ticket SET status=${status} , transaction_hash=${transaction_hash} WHERE id=${id} and issuer_address=''`;
+            await sql`UPDATE ticket SET status=${status} , transaction_hash=${transaction_hash} WHERE id=${id} and issuer_address=' '`;
             return true;
         } catch (error) {
             console.error(error);
@@ -125,12 +131,46 @@ module.exports = {
     },
     deleteTicketExceptUser: async (id) => {
         try {
-            await sql`DELETE FROM ticket WHERE id=${id} and issuer_address!=''`;
+            await sql`DELETE FROM ticket WHERE id=${id} and issuer_address!=' '`;
             return true;
         } catch (error) {
             console.error(error);
             return false;
         }
-    }
+    },
+    deleteOneTicketByAddress: async (address) => {
+        try {
+            const ticket = await sql`SELECT * FROM ticket WHERE issuer_address=${address}`
+            if (ticket.length == 0) {
+                return false
+            }
+            await sql`DELETE FROM ticket WHERE issuer_address=${address}`
+            return true
+        } catch (err) {
+            console.error(err);
+            return false;
+        }
 
+    },
+    deleteTicketByOrg: async (org) => {
+        try {
+            const ticket = await sql`SELECT * FROM ticket WHERE licensing_authority=${org}`
+            if (ticket.length == 0) {
+                return false
+            }
+            await sql`DELETE FROM ticket WHERE licensing_authority=${org}`
+            return true
+        } catch (err) {
+            console.error(err);
+            return false;
+        }
+    },
+    deleteTicketByIdAndAddress: async (id, address) => {
+        try {
+            await sql`DELETE FROM ticket WHERE id=${id} and issuer_address=${address}`
+            return true
+        } catch (err) {
+            return false;
+        }
+    }
 }

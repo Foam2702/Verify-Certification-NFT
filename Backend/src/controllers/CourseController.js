@@ -36,6 +36,25 @@ module.exports = {
             exams
         })
     },
+    getCourseByOrgAndInfo: async (req, res) => {
+        const { org } = req.params
+        const result = await courseModel.getCourseByOrgAndInfo(org)
+        if (result) {
+            res.json({
+                status: "success",
+                code: 200,
+                message: "Course found",
+                courses: result
+            })
+        }
+        else {
+            res.json({
+                status: "fail",
+                code: 404,
+                message: "Course not found"
+            })
+        }
+    },
     enrollCourse: async (req, res) => {
         const { address } = req.query;
         const { id } = req.params

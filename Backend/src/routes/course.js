@@ -23,6 +23,12 @@ router
     .route("/")
     .get(courseController.getAllCourses)
 router
+    .route("/top10")
+    .get(courseController.getTop10Courses)
+router
+    .route("/:org")
+    .get(courseController.getCourseByOrgAndInfo)
+router
     .route("/course/:id")
     .get(courseController.getOneCourse)
     .post(courseController.enrollCourse)
@@ -30,8 +36,7 @@ router
     .route("/course/:id/exam")
     .get(courseController.getExamForCourse)
     .post(courseController.submitExam)
-router.route("/top10")
-    .get(courseController.getTop10Courses)
+
 
 
 module.exports = router;

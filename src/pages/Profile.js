@@ -38,6 +38,26 @@ export const Profile = () => {
     const { signer, address, connectWallet, contract, provider, getPublicKey } = useSigner();
     const navigate = useNavigate();
     useEffect(() => {
+        const isIssuer = async () => {
+            try {
+                if (address) {
+                    const result = await contract.getOrganizationCode(address);
+                    console.log("RES", result)
+                    if (result.length != 0) {
+                        navigate("/")
+
+                    }
+                }
+            }
+            catch (err) {
+                console.error(err)
+                navigate("/")
+            }
+
+        }
+        isIssuer()
+    }, [address, signer])
+    useEffect(() => {
 
         const fetchDataRegions = async () => {
             try {

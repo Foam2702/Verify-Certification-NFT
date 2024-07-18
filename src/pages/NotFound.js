@@ -8,7 +8,6 @@ const NotFound = () => (
             alt="not-found"
         />
         <Link to="/" className="go-home">
-
             Go Home
         </Link>
     </div>

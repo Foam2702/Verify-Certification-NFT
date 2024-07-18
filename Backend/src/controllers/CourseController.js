@@ -79,15 +79,19 @@ module.exports = {
         const { id } = req.params;
         const { address } = req.query;
         const answers = req.body; // Assuming this is an object where keys are question IDs and values are the selected options
-
         const correctAns = await courseModel.getExamForCourse(id); // Assuming this returns an array of questions with a correct_option field
-
         let score = 0;
+
         correctAns.forEach(question => {
-            if (answers[question.id - 1] && (answers[question.id - 1].response === question.correct_option)) {
+            // Find the submitted answer for the current question
+            const submittedAnswer = answers.find(answer => answer.id === question.id);
+
+            // Compare the submitted answer with the correct answer
+            if (submittedAnswer && submittedAnswer.response === question.correct_option) {
                 score++;
             }
         });
+
 
 
         const resultPercentage = (score / correctAns.length) * 100;

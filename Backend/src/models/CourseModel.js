@@ -48,7 +48,7 @@ module.exports = {
     },
     getExamForCourse: async (id) => {
         const result = await sql`
-            SELECT * FROM question WHERE course=${id}
+            SELECT * FROM question WHERE course=${id} ORDER BY id ASC
         `
         return result;
 

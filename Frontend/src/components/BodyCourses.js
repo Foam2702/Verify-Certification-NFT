@@ -124,6 +124,8 @@ const BodyCourses = ({ className = "" }) => {
         try {
             setLoading(true);
             const result = await axios.post(`http://localhost:8080/courses/course/${selectedCourse.id}?address=${address}`)
+            console.log(result)
+
             if (result.data.code == 200) {
                 if (!address) {
                     navigate("/");
@@ -142,7 +144,9 @@ const BodyCourses = ({ className = "" }) => {
             }
             else {
                 const result = await axios(`http://localhost:8080/exam/${selectedCourse.id}?address=${address}`)
+                console.log(result)
                 if (result.data.data[0].status == "examining") {
+
                     if (!address)
                         navigate("/");
                     else {

@@ -75,6 +75,7 @@ module.exports = {
         }
     },
     submitExam: async (req, res) => {
+        console.log("submit exam")
         const { id } = req.params;
         const { address } = req.query;
         const answers = req.body; // Assuming this is an object where keys are question IDs and values are the selected options
@@ -90,7 +91,7 @@ module.exports = {
 
 
         const resultPercentage = (score / correctAns.length) * 100;
-
+        console.log(resultPercentage)
         // You can then decide what to do with the result, for example, save it, send it back in the response, etc.
         res.json({
             status: "success",

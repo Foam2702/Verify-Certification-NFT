@@ -183,13 +183,11 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                     setPassed(false);
                     setMessage("You failed the exam. Good luck next time.");
                     setOpen(true);
-                    setTimeout(() => navigate("/"), 3000)
                 }
                 else {
                     setAlertSeverity("error");
                     setMessageAlert("Something went wrong");
                     setShowAlert(true);
-                    setTimeout(() => navigate("/"), 3000)
 
 
                 }
@@ -400,8 +398,6 @@ export default function RowRadioButtonsGroup({ course, exam }) {
 
                 <DialogActions>
                     <Button type="submit">OK</Button>
-
-
                 </DialogActions>
             </Dialog>
             <Dialog

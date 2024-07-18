@@ -93,8 +93,8 @@ module.exports = {
             const currentQuestionCount = currentQuestions.length;
 
             for (let question of questions) {
-                const { questionText, options, open, correctAnswer } = question;
-
+                const { id, questionText, options, open, correctAnswer } = question;
+                console.log(question)
                 // Construct an array of option texts, ensuring there are always 4 options
                 const optionValues = [
                     options[0] ? options[0].optionText : '', // option_a
@@ -108,7 +108,7 @@ module.exports = {
                     await sql`
                     UPDATE question SET question_text=${questionText}, option_a=${optionValues[0]}, 
                     option_b=${optionValues[1]}, option_c=${optionValues[2]}, option_d=${optionValues[3]},
-                    correct_option=${correctAnswer} WHERE course=${course} and id=${count}
+                    correct_option=${correctAnswer} WHERE course=${course} and id=${id}
                 `;
                 } else {
                     // Insert new question
@@ -123,17 +123,14 @@ module.exports = {
             const updatedQuestionIds = questions.map(q => q.id);
 
             const currentQuestionIds = currentQuestions.map(q => q.id);
-            console.log(currentQuestionIds);
-            console.log(updatedQuestionIds);
+
 
             // Find ids of questions to delete (present in current but not in updated)
             const questionsToDelete = currentQuestionIds.filter(id => !updatedQuestionIds.includes(id));
-            console.log(questionsToDelete);
             // // Delete questions that are not present in the updated list
             if (questionsToDelete.length > 0) {
                 // Convert questionsToDelete to an array of integers
                 const questionsToDeleteInt = questionsToDelete.map(id => parseInt(id));
-                console.log(sql.array(questionsToDeleteInt).value)
                 await sql`DELETE FROM question WHERE course=${course} AND id = ANY(${sql.array(questionsToDeleteInt).value})`;
             }
 

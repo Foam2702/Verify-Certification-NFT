@@ -434,11 +434,12 @@ const EditExam = () => {
         try {
             const result = await axios.patch("http://localhost:8080/exam/postexam", dataToSave)
             if (result.data.message == "Update successfully") {
+
+                window.location.reload()
                 setMessageAlert("Update successfully");
                 setAlertSeverity("success");
                 setShowAlert(true);
                 setLoading(false);
-                window.location.reload()
             }
             else if (result.data.message = "Exam has been deleted") {
                 setMessageAlert("Exam has been deleted");

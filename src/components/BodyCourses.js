@@ -29,60 +29,98 @@ const BodyCourses = ({ className = "" }) => {
     const [messageAlert, setMessageAlert] = useState("")
     const [input, setInput] = useState("")
     const navigate = useNavigate();
+    // useEffect(() => {
+    //     fetchCourses().catch((error) => console.error(error));
+    // }, [org]);
+    // useEffect(() => {
+    //     setLoading(true)
+    //     const fetchOrg = async () => {
+    //         try {
+    //             if (address) {
+    //                 const org = await contract.getOrganizationCode(address);
+    //                 setOrg(org);
+    //                 setLoading(false)
+    //             }
+    //         } catch (err) {
+    //             setLoading(false)
+    //             console.log(err);
+    //         }
+    //         setLoading(false)
+
+    //     };
+    //     fetchOrg();
+    // }, [address, signer, contract]);
+    // const fetchCourses = async () => {
+    //     setLoading(true)
+
+    //     try {
+    //         if (org) {
+    //             console.log("ORG", org)
+    //             const result = await axios(`https://verify-certification-nft-production.up.railway.app/courses/${org}`)
+    //             console.log("RES", result.data.courses)
+    //             if (Array.isArray(result.data.courses)) {
+    //                 setCourses(result.data.courses);
+    //                 setFilteredCourses(result.data.courses);
+    //             }
+    //             setLoading(false)
+
+    //         }
+    //         else if (!org) {
+    //             console.log("ORG", org)
+    //             const result = await axios.get(`https://verify-certification-nft-production.up.railway.app/courses`);
+    //             if (Array.isArray(result.data.courses)) {
+    //                 setCourses(result.data.courses);
+    //                 setFilteredCourses(result.data.courses);
+    //             }
+    //             setLoading(false)
+    //         }
+    //         setLoading(false)
+    //     } catch (err) {
+    //         setLoading(false)
+
+    //         console.log(err);
+    //     }
+    //     finally {
+    //         setLoading(false)
+
+    //     }
+    // };
     useEffect(() => {
-        fetchCourses().catch((error) => console.error(error));
-    }, [org]);
-    useEffect(() => {
-        setLoading(true)
-        const fetchOrg = async () => {
+        const fetchOrgAndCourses = async () => {
+            setLoading(true);
             try {
+                let orgCode;
                 if (address) {
-                    const org = await contract.getOrganizationCode(address);
-                    setOrg(org);
-                    setLoading(false)
+                    orgCode = await contract.getOrganizationCode(address);
+                    setOrg(orgCode);
+                }
+
+                let result;
+                if (orgCode) {
+                    console.log("ORG", orgCode);
+                    result = await axios.get(`https://verify-certification-nft-production.up.railway.app/courses/${orgCode}`);
+                } else {
+                    console.log("ORG not set");
+                    result = await axios.get(`https://verify-certification-nft-production.up.railway.app/courses`);
+                }
+
+                if (Array.isArray(result.data.courses)) {
+                    setCourses(result.data.courses);
+                    setFilteredCourses(result.data.courses);
                 }
             } catch (err) {
-                setLoading(false)
                 console.log(err);
+            } finally {
+                setLoading(false);
             }
-            setLoading(false)
-
         };
-        fetchOrg();
-    }, [address, signer, contract]);
-    const fetchCourses = async () => {
-        setLoading(true)
-        console.log(org)
-        try {
-            if (org) {
-                const result = await axios(`https://verify-certification-nft-production.up.railway.app/courses/${org}`)
-                console.log(result)
-                if (Array.isArray(result.data.courses)) {
-                    setCourses(result.data.courses);
-                    setFilteredCourses(result.data.courses);
-                }
-                setLoading(false)
 
-            }
-            else if (!org) {
-                const result = await axios.get(`https://verify-certification-nft-production.up.railway.app/courses`);
-                if (Array.isArray(result.data.courses)) {
-                    setCourses(result.data.courses);
-                    setFilteredCourses(result.data.courses);
-                }
-                setLoading(false)
-            }
-            setLoading(false)
-        } catch (err) {
-            setLoading(false)
-
-            console.log(err);
+        if (address) {
+            fetchOrgAndCourses();
         }
-        finally {
-            setLoading(false)
+    }, [address, contract]);
 
-        }
-    };
+
     const checkInfoExist = async () => {
         if (address) {
             try {

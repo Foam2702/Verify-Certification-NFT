@@ -48,7 +48,7 @@ const UploadExam = () => {
 
     React.useEffect(() => {
         if (address) {
-            if (address !== adminAddress) {
+            if (address == adminAddress) {
                 navigate("*")
             }
         }

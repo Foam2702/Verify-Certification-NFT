@@ -14,7 +14,7 @@ const VertificationNew = () => {
   const adminAddress = process.env.REACT_APP_ADMIN;
   React.useEffect(() => {
     if (address) {
-      if (address !== adminAddress) {
+      if (address == adminAddress) {
         navigate("*")
       }
     }

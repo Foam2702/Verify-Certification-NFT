@@ -22,7 +22,7 @@ export default function VerificationForIssuer() {
 
     useEffect(() => {
         if (address) {
-            if (address !== adminAddress) {
+            if (address == adminAddress) {
                 navigate("*")
             }
         }

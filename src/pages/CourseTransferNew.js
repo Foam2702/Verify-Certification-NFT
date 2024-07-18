@@ -15,7 +15,7 @@ const CourseTransferNew = () => {
   const adminAddress = process.env.REACT_APP_ADMIN;
   useEffect(() => {
     if (address) {
-      if (address !== adminAddress) {
+      if (address == adminAddress) {
         navigate("*")
       }
     }

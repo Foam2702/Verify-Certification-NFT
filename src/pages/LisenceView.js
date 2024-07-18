@@ -136,7 +136,7 @@ const LisenceView = () => {
     if (address && isPrivateKeyValid) {
       setLoading(true);
       try {
-        const results = await axios(`https://verify-certification-nft-production.up.railway.app/share?address=${address}`);
+        const results = await axios(`http://localhost:8080/share?address=${address}`);
         console.log("RES", results);
         if (Array.isArray(results.data.data)) {
           setShareCertificate(results.data.data);
@@ -173,7 +173,7 @@ const LisenceView = () => {
   const insertPubToDB = async () => {
     if (address) {
       try {
-        const checkPublicKeyExisted = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`);
+        const checkPublicKeyExisted = await axios.get(`http://localhost:8080/addresses/${address}`);
         if (checkPublicKeyExisted.data.address.length === 0) {
           const publicKey = await getPublicKey(); // Await the result of getPublicKey
           if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
@@ -183,7 +183,7 @@ const LisenceView = () => {
             setShowAlert(true);
             return false;
           }
-          await axios.post(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`, {
+          await axios.post(`http://localhost:8080/addresses/${address}`, {
             address: address, // Include the address in the body
             publicKey: publicKey // Include the public key in the body
           });
@@ -198,7 +198,7 @@ const LisenceView = () => {
               setShowAlert(true);
               return false
             }
-            await axios.post(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`, {
+            await axios.post(`http://localhost:8080/addresses/${address}`, {
               address: address, // Include the address in the body
               publicKey: publicKey // Include the public key in the body
             });
@@ -226,7 +226,7 @@ const LisenceView = () => {
       if (check) {
         const privateKeyBytes = ethers.utils.arrayify(add0x(privateKey));
         const publicKeyFromPrivateKey = ethers.utils.computePublicKey(privateKeyBytes);
-        const ownerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`);
+        const ownerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${address}`);
 
         if (ownerPublicKeysResponse.data.address.length === 0) {
           setIsPrivateKeyValid(false); // Set isPrivateKeyValid to false if no address is found
@@ -317,7 +317,7 @@ const LisenceView = () => {
     setLoading(true)
     try {
       const newDecryptedCertificates = [];
-      const ownerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`)
+      const ownerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${address}`)
       if (ownerPublicKeysResponse.data.address.length === 0) {
         setLoading(false)
 
@@ -393,7 +393,7 @@ const LisenceView = () => {
       transaction: currentCertificate.transaction_hash
     }
     if (event.target.value === 'public') {
-      const result = await axios.post(`https://verify-certification-nft-production.up.railway.app/share?id=${currentCertificate.identifier}&address=${currentCertificate.name}`, shareCerti)
+      const result = await axios.post(`http://localhost:8080/share?id=${currentCertificate.identifier}&address=${currentCertificate.name}`, shareCerti)
       if (result.data.message == "Change to public success") {
         setAlertSeverity("success");
         setMessageAlert("Change to public success");
@@ -408,7 +408,7 @@ const LisenceView = () => {
       }
 
     } else {
-      const result = await axios.delete(`https://verify-certification-nft-production.up.railway.app/share?id=${currentCertificate.identifier}&address=${currentCertificate.name}`, shareCerti)
+      const result = await axios.delete(`http://localhost:8080/share?id=${currentCertificate.identifier}&address=${currentCertificate.name}`, shareCerti)
       if (result.data.message == 'Change to private success') {
         setAlertSeverity("success");
         setMessageAlert("Change to private success");

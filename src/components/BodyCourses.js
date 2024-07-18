@@ -28,63 +28,8 @@ const BodyCourses = ({ className = "" }) => {
     const [showAlert, setShowAlert] = useState(false);
     const [messageAlert, setMessageAlert] = useState("")
     const [input, setInput] = useState("")
+    const [isIssuer, setIsIssuer] = useState(false)
     const navigate = useNavigate();
-    // useEffect(() => {
-    //     fetchCourses().catch((error) => console.error(error));
-    // }, [org]);
-    // useEffect(() => {
-    //     setLoading(true)
-    //     const fetchOrg = async () => {
-    //         try {
-    //             if (address) {
-    //                 const org = await contract.getOrganizationCode(address);
-    //                 setOrg(org);
-    //                 setLoading(false)
-    //             }
-    //         } catch (err) {
-    //             setLoading(false)
-    //             console.log(err);
-    //         }
-    //         setLoading(false)
-
-    //     };
-    //     fetchOrg();
-    // }, [address, signer, contract]);
-    // const fetchCourses = async () => {
-    //     setLoading(true)
-
-    //     try {
-    //         if (org) {
-    //             console.log("ORG", org)
-    //             const result = await axios(`https://verify-certification-nft-production.up.railway.app/courses/${org}`)
-    //             console.log("RES", result.data.courses)
-    //             if (Array.isArray(result.data.courses)) {
-    //                 setCourses(result.data.courses);
-    //                 setFilteredCourses(result.data.courses);
-    //             }
-    //             setLoading(false)
-
-    //         }
-    //         else if (!org) {
-    //             console.log("ORG", org)
-    //             const result = await axios.get(`https://verify-certification-nft-production.up.railway.app/courses`);
-    //             if (Array.isArray(result.data.courses)) {
-    //                 setCourses(result.data.courses);
-    //                 setFilteredCourses(result.data.courses);
-    //             }
-    //             setLoading(false)
-    //         }
-    //         setLoading(false)
-    //     } catch (err) {
-    //         setLoading(false)
-
-    //         console.log(err);
-    //     }
-    //     finally {
-    //         setLoading(false)
-
-    //     }
-    // };
     useEffect(() => {
         const fetchOrgAndCourses = async () => {
             setLoading(true);
@@ -98,10 +43,13 @@ const BodyCourses = ({ className = "" }) => {
                 let result;
                 if (orgCode) {
                     console.log("ORG", orgCode);
-                    result = await axios.get(`https://verify-certification-nft-production.up.railway.app/courses/${orgCode}`);
+                    setIsIssuer(true)
+                    result = await axios.get(`http://localhost:8080/courses/${orgCode}`);
                 } else {
                     console.log("ORG not set");
-                    result = await axios.get(`https://verify-certification-nft-production.up.railway.app/courses`);
+                    setIsIssuer(false)
+
+                    result = await axios.get(`http://localhost:8080/courses`);
                 }
 
                 if (Array.isArray(result.data.courses)) {
@@ -124,7 +72,7 @@ const BodyCourses = ({ className = "" }) => {
     const checkInfoExist = async () => {
         if (address) {
             try {
-                const checkPublicKeyExisted = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`);
+                const checkPublicKeyExisted = await axios.get(`http://localhost:8080/addresses/${address}`);
                 if (checkPublicKeyExisted.data.address.length === 0) {
                     const publicKey = await getPublicKey(); // Await the result of getPublicKey
                     if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
@@ -134,7 +82,7 @@ const BodyCourses = ({ className = "" }) => {
                         setShowAlert(true);
                         return false;
                     }
-                    await axios.post(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`, {
+                    await axios.post(`http://localhost:8080/addresses/${address}`, {
                         address: address, // Include the address in the body
                         publicKey: publicKey // Include the public key in the body
                     });
@@ -156,10 +104,7 @@ const BodyCourses = ({ className = "" }) => {
         const checkIssuer = await contract.getOrganizationCode(address)
         console.log(checkIssuer)
         if (checkIssuer) {
-            setAlertSeverity("warning")
-            setMessageAlert("You are Issuer !! Can take the exam")
-            setShowAlert(true);
-            return
+            navigate(`/editexam/${course.id}`)
         }
         setOpen(true);
         setSelectedCourse(course)
@@ -178,7 +123,9 @@ const BodyCourses = ({ className = "" }) => {
     const handleAgree = async () => {
         try {
             setLoading(true);
-            const result = await axios.post(`https://verify-certification-nft-production.up.railway.app/courses/course/${selectedCourse.id}?address=${address}`)
+            const result = await axios.post(`http://localhost:8080/courses/course/${selectedCourse.id}?address=${address}`)
+            console.log(result)
+
             if (result.data.code == 200) {
                 if (!address) {
                     navigate("/");
@@ -196,8 +143,10 @@ const BodyCourses = ({ className = "" }) => {
                 }
             }
             else {
-                const result = await axios(`https://verify-certification-nft-production.up.railway.app/exam/${selectedCourse.id}?address=${address}`)
+                const result = await axios(`http://localhost:8080/exam/${selectedCourse.id}?address=${address}`)
+                console.log(result)
                 if (result.data.data[0].status == "examining") {
+
                     if (!address)
                         navigate("/");
                     else {

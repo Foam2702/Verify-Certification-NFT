@@ -27,7 +27,7 @@ const Exam = () => {
     useEffect(() => {
         const fetchExam = async () => {
             try {
-                const result = await axios(`https://verify-certification-nft-production.up.railway.app/courses/course/${id}/exam`)
+                const result = await axios(`http://localhost:8080/courses/course/${id}/exam`)
                 setExams(result.data.exams)
 
             }
@@ -39,7 +39,7 @@ const Exam = () => {
         fetchExam()
         const fetchCourse = async () => {
             try {
-                const result = await axios(`https://verify-certification-nft-production.up.railway.app/courses/course/${id}`)
+                const result = await axios(`http://localhost:8080/courses/course/${id}`)
                 setCourse(result.data.course)
             }
             catch (err) {
@@ -67,7 +67,7 @@ const Exam = () => {
                     }
                 }
 
-                const result = await axios(`https://verify-certification-nft-production.up.railway.app/exam/${id}?address=${address}`)
+                const result = await axios(`http://localhost:8080/exam/${id}?address=${address}`)
                 console.log(result)
                 if (result.data.data[0].status == "examining") {
                     setTimeout(() => {

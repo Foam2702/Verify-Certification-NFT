@@ -24,6 +24,7 @@ import { Profile } from "./pages/Profile";
 import UploadExam from "./pages/UploadExam";
 import MetaMaskRequired from "./components/MetaMaskRequired";
 import Share from "./pages/Share";
+import EditExam from "./pages/EditExam";
 function App() {
   const action = useNavigationType();
   const location = useLocation();
@@ -102,6 +103,7 @@ function App() {
         <Routes>
           <Route path="/share/:id" element={<Share />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/editexam/:id" element={<EditExam />} />
           <Route path="/uploadexam" element={<UploadExam />} />
           <Route path="/coursetransfernew" element={<CourseTransferNew />} />
           <Route path="/courseinfornew" element={<CourseInforNew />} />

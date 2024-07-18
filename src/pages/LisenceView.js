@@ -606,7 +606,7 @@ const LisenceView = () => {
                               </Box>
                               {shareCertificate.some(cert => cert.id === certificate.identifier) ?
                                 <div>
-                                  <Button sx={{ marginTop: '15px' }} variant="outlined" onClick={() => handleCopyLink(`http://localhost:3000/share/${certificate.identifier}?address=${certificate.name}`)}>
+                                  <Button sx={{ marginTop: '15px' }} variant="outlined" onClick={() => handleCopyLink(`https://verify-certification-nft.vercel.app/share/${certificate.identifier}?address=${certificate.name}`)}>
                                     <Link className="share-link" sx={{ fontSize: "1.5rem" }}>Copy Link</Link>
                                     <LinkIcon></LinkIcon>
                                   </Button>

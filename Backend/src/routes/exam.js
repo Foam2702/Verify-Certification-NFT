@@ -7,6 +7,6 @@ router.route("/postexam").post(ExamController.uploadExam).patch(ExamController.u
 router.route("/:id").get(ExamController.getExam)
     .patch(ExamController.updateExam)
     .delete(ExamController.deleteExam)
-router.route("/:courseid").get(ExamController.getQuestionByCourseId)
+router.route("/question/:courseid").get(ExamController.getQuestionByCourseId)
 
 module.exports = router;

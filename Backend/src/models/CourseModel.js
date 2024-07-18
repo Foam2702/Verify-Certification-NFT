@@ -160,6 +160,15 @@ module.exports = {
         catch (err) {
             return false
         }
+    },
+    deleteCourseById: async (course_id) => {
+        try {
+            await sql`delete from course where id = ${course_id};`;
+            return true;
+        }
+        catch (err) {
+            return false
+        }
     }
 
 

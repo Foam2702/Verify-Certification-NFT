@@ -1,5 +1,5 @@
 const courseModel = require("../models/CourseModel")
-// const examModel = require("../models/ExamModel")
+const examModel = require("../models/ExamModel")
 module.exports = {
     getAllCourses: async (req, res) => {
         const courses = await courseModel.getAllCourses();
@@ -104,6 +104,26 @@ module.exports = {
             score: resultPercentage
         });
     },
+    deleteOneCourse: async (req, res) => {
+        const { id } = req.params;
+        await courseModel.deleteQuestionByCourseId(id)
+        await examModel.deleteExamById(id)
+        const result = await courseModel.deleteCourseById(id)
+        if (result == true) {
+            res.json({
+                status: "success",
+                code: 200,
+                message: "Course deleted successfully"
+            })
+        }
+        else {
+            res.json({
+                status: "fail",
+                code: 404,
+                message: "Course not found"
+            })
+        }
+    }
 
 
 }

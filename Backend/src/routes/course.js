@@ -32,6 +32,7 @@ router
     .route("/course/:id")
     .get(courseController.getOneCourse)
     .post(courseController.enrollCourse)
+    .delete(courseController.deleteOneCourse)
 router
     .route("/course/:id/exam")
     .get(courseController.getExamForCourse)

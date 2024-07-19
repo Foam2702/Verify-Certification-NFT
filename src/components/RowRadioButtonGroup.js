@@ -342,6 +342,31 @@ export default function RowRadioButtonsGroup({ course, exam }) {
             console.log(err)
         }
     }
+    const handleCloseFailExam = (event, reason) => {
+
+        console.log("Function called with reason:", reason);
+
+        if (reason === 'backdropClick') {
+            if (!passed) {
+                setOpen(false);
+                console.log("Navigating to home...");
+                navigate("/");
+            } else {
+                setOpen(false);
+            }
+            return; // Prevent further execution after handling backdrop click
+        }
+
+        if (reason === 'buttonClick') {
+
+            setOpen(false);
+            console.log("OK button clicked. Navigating to home...");
+            navigate("/");
+
+        }
+    }
+
+
     return (
         <>
             {loading && (
@@ -351,7 +376,7 @@ export default function RowRadioButtonsGroup({ course, exam }) {
             )}
             <Dialog
                 open={open}
-                onClose={handleClose}
+                onClose={(event, reason) => handleCloseFailExam(event, reason)}
                 PaperProps={{
                     component: 'form',
                     onSubmit: handleSubmitPrivateKey
@@ -395,10 +420,13 @@ export default function RowRadioButtonsGroup({ course, exam }) {
 
                     </DialogContentText>
                 </DialogContent>
-
-                <DialogActions>
-                    <Button type="submit">OK</Button>
-                </DialogActions>
+                {passed ?
+                    <DialogActions>
+                        <Button type="submit"  >Enter</Button>
+                    </DialogActions> :
+                    <DialogActions>
+                        <Button onClick={(event) => handleCloseFailExam(event, 'buttonClick')} >OK</Button>
+                    </DialogActions>}
             </Dialog>
             <Dialog
                 open={openCheck}

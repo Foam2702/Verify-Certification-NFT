@@ -497,13 +497,24 @@ const Ticket = ({ ticket }) => {
             const hashStudentImg = hashImage(decryptedImage)
             const hashIssuerImg = hashImage(imageUrl)
             if (hashIssuerImg == hashStudentImg) {
-                setLoading(true);
-                setAlertSeverity("success")
-                setMessageAlert("The two images match")
-                setShowAlert(true);
-                setLoading(false);
-                setImageMatch(true)
+                if (infoMatch) {
+                    setLoading(true);
+                    setAlertSeverity("success")
+                    setMessageAlert("All info and image match")
+                    setShowAlert(true);
+                    setLoading(false);
+                    setImageMatch(true)
+                }
+                else if (!infoMatch) {
+                    setLoading(true);
+                    setAlertSeverity("warning")
+                    setMessageAlert("Import file excel to check info")
+                    setShowAlert(true);
+                    setLoading(false);
+
+                }
             }
+
             else {
                 setLoading(true);
                 setAlertSeverity("error")

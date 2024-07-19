@@ -665,7 +665,7 @@ const Ticket = ({ ticket }) => {
                     const mimeType = `image/${image.extension}`;
                     try {
                         const base64 = await bufferToBase64(image.buffer, mimeType);
-                        imageMap[index] = hashImage(base64); // Store images with index
+                        imageMap[index] = (base64); // Store images with index
                     } catch (error) {
                         console.error('Error converting image to Base64:', error);
                     }
@@ -748,9 +748,9 @@ const Ticket = ({ ticket }) => {
                         issueDate === decryptedIssueDate &&
                         expiryDate === decryptedExpiryDate &&
                         item.licensing_authority === ticket.licensing_authority &&
-                        item.images === hashImage(decryptedImage) // Compare images
+                        hashImage(item.images) === hashImage(decryptedImage) // Compare images
                     ) {
-                        setIm
+                        setImageUrl(item.images)
                         isMatchFound = true;
                     }
                 });
@@ -1009,7 +1009,7 @@ const Ticket = ({ ticket }) => {
                                 <div className="upload">
                                     <h3 className="upload-file-text">Image of Issuer</h3>
 
-                                    <div className="input-box-background" />
+                                    {/* <div className="input-box-background" />
                                     <input
                                         className="example-here"
                                         name="imageCertificate"
@@ -1017,7 +1017,7 @@ const Ticket = ({ ticket }) => {
                                         accept=".jpg"
                                         multiple
                                         onChange={onfileChange}
-                                    />
+                                    /> */}
                                     <MultiActionAreaCard image={imageUrl} size={500} sx={{ Margin: 10 }} />
 
                                 </div>

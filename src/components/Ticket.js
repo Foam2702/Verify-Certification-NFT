@@ -2,6 +2,7 @@ import "./Ticket.css";
 import React, { useState, useEffect } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 import axios from 'axios';
+import ExcelJS from 'exceljs'
 import Web3 from 'web3';
 import useSigner from "../state/signer";
 import MultiActionAreaCard from "./MultiACtionAreaCard";
@@ -23,7 +24,7 @@ import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import WalletIcon from '@mui/icons-material/Wallet';
-import { hashImage, pinJSONToIPFS, excelDateToJSDate, deletePinIPFS, remove0x, extractEncryptedDataFromJson, decryptData, minifyAddress, imageFileToBase64 } from "../helpers/index"
+import { hashImage, pinJSONToIPFS, excelDateToJSDate, bufferToBase64, getImageDimensionsFromBase64, formatDateToISO, deletePinIPFS, remove0x, extractEncryptedDataFromJson, decryptData, minifyAddress, imageFileToBase64 } from "../helpers/index"
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import * as XLSX from "xlsx";
 const JWT = process.env.REACT_APP_JWT; // Make sure to set this in your React app environment variables
@@ -534,7 +535,92 @@ const Ticket = ({ ticket }) => {
         }
     }
 
-    const handleFileUpload = (event) => {
+    // const handleFileUpload = (event) => {
+    //     event.preventDefault();
+    //     if (decryptedImage == null) {
+    //         setLoading(true);
+    //         setAlertSeverity("warning");
+    //         setMessageAlert("Decrypt to upload");
+    //         setShowAlert(true);
+    //         setLoading(false);
+    //         return;
+    //     }
+    //     try {
+    //         const file = event.target.files[0];
+    //         const reader = new FileReader();
+
+    //         reader.onload = (e) => {
+    //             const binaryStr = e.target.result;
+    //             const workbook = XLSX.read(binaryStr, { type: "binary" });
+    //             const sheetName = workbook.SheetNames[0];
+    //             const worksheet = workbook.Sheets[sheetName];
+    //             const jsonData = XLSX.utils.sheet_to_json(worksheet);
+    //             let isMatchFound = false;
+    //             console.log(jsonData)
+    //             jsonData.forEach(item => {
+
+    //                 let issueDate = item.issue_date ? item.issue_date : '';
+    //                 let expiryDate = item.expiry_date ? item.expiry_date : '';
+    //                 let dob = item.dob ? item.dob : '';
+
+    //                 // Handle potential undefined values
+    //                 let citizenId = item.citizen_id !== undefined ? item.citizen_id.toString() : '';
+    //                 let point = item.point !== undefined ? item.point.toString() : '';
+
+    //                 if (typeof item.issue_date === 'number' && issueDate != '') {
+    //                     issueDate = format(excelDateToJSDate(item.issue_date), "yyyy-MM-dd");
+    //                 }
+
+    //                 if (typeof item.expiry_date === 'number' && expiryDate != '') {
+    //                     expiryDate = format(excelDateToJSDate(item.expiry_date), "yyyy-MM-dd");
+    //                 }
+    //                 if (typeof item.dob === 'number' && dob != '') {
+    //                     dob = format(excelDateToJSDate(item.dob), "yyyy-MM-dd");
+    //                 }
+    //                 if (
+    //                     item.name == decryptedName &&
+    //                     item.gender == decryptedGender &&
+    //                     item.email == decryptedEmail &&
+    //                     citizenId == decryptedCitizenId &&
+    //                     dob == decryptedDob &&
+    //                     item.region == decryptedRegion &&
+    //                     item.work_unit == decryptedWorkUnit &&
+    //                     point.trim() == decryptedPoint.trim() &&
+    //                     item.certificate_name == ticket.certificate_name &&
+    //                     issueDate == decryptedIssueDate &&
+    //                     expiryDate.trim() == decryptedExpiryDate.trim() &&
+    //                     item.licensing_authority == ticket.licensing_authority
+    //                 ) {
+    //                     isMatchFound = true;
+    //                 }
+    //             });
+
+
+    //             if (isMatchFound) {
+    //                 setInfoMatch(true)
+    //                 setAlertSeverity("success");
+    //                 setMessageAlert("Matching info found in the file");
+    //                 setShowAlert(true);
+    //             } else {
+    //                 setInfoMatch(false)
+
+    //                 setAlertSeverity("warning");
+    //                 setMessageAlert("No matching info found in the file");
+    //                 setShowAlert(true);
+    //             }
+    //             setLoading(false);
+    //         };
+
+    //         reader.readAsBinaryString(file);
+    //     } catch (err) {
+    //         console.log(err);
+    //         setAlertSeverity("warning");
+    //         setMessageAlert("Wrong excel format");
+    //         setShowAlert(true);
+    //         setLoading(false);
+    //     }
+    // };
+    const handleFileUpload = async (event) => {
         event.preventDefault();
         if (decryptedImage == null) {
             setLoading(true);
@@ -544,82 +630,162 @@ const Ticket = ({ ticket }) => {
             setLoading(false);
             return;
         }
+
         try {
             const file = event.target.files[0];
             const reader = new FileReader();
+            reader.onload = async (e) => {
+                const arrayBuffer = e.target.result;
+                const workbook = new ExcelJS.Workbook();
+                await workbook.xlsx.load(arrayBuffer);
+                const worksheet = workbook.getWorksheet(1);
+                const headers = worksheet.getRow(1).values.slice(1); // Get headers from the first row
 
-            reader.onload = (e) => {
-                const binaryStr = e.target.result;
-                const workbook = XLSX.read(binaryStr, { type: "binary" });
-                const sheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[sheetName];
-                const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                const jsonData = [];
+                const images = workbook.model.media;
+                // Get dimensions of the decrypted image
+                const decryptedImageDimensions = await getImageDimensionsFromBase64(decryptedImage);
+                const decryptedImageWidth = decryptedImageDimensions.width;
+                const decryptedImageHeight = decryptedImageDimensions.height;
+                // const imageMap = {}; // To map row numbers to base64 image data
+
+                // // Extract images and convert them to base64
+                // for (const [index, image] of images.entries()) {
+                //     const mimeType = `image/${image.extension}`;
+                //     const base64 = await bufferToBase64(image.buffer, mimeType);
+                //     console.log(base64)
+                //     imageMap[index] = hashImage(base64); // Store images with index
+
+                // }
+                let imageIndex = 0;
+                const imageMap = {}; // To map row numbers to base64 image data
+                for (const [index, image] of images.entries()) {
+                    image.width = decryptedImageWidth;
+                    image.height = decryptedImageHeight;
+                    const mimeType = `image/${image.extension}`;
+                    try {
+                        const base64 = await bufferToBase64(image.buffer, mimeType);
+                        imageMap[index] = hashImage(base64); // Store images with index
+                    } catch (error) {
+                        console.error('Error converting image to Base64:', error);
+                    }
+                }
+
+
+                worksheet.eachRow({ includeEmpty: true }, async (row, rowNumber) => {
+                    if (rowNumber === 1) return; // Skip the header row
+                    const rowData = {};
+                    row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+                        rowData[headers[colNumber - 1]] = cell.value; // Use header as key
+                    });
+
+                    // Associate image with this row if available
+                    if (imageIndex in imageMap) {
+                        rowData.images = imageMap[imageIndex];
+                    } else {
+                        rowData.images = null;
+                    }
+
+                    jsonData.push(rowData);
+                    imageIndex++;
+                });
+                console.log(jsonData)
+
+                // Ensure all rows are processed before checking for matches
+                await new Promise((resolve) => setTimeout(resolve, 100)); // Give some time for processing
+
                 let isMatchFound = false;
 
                 jsonData.forEach(item => {
-
                     let issueDate = item.issue_date ? item.issue_date : '';
                     let expiryDate = item.expiry_date ? item.expiry_date : '';
                     let dob = item.dob ? item.dob : '';
-
+                    let point = item.point ? item.point.toString() : ''
                     // Handle potential undefined values
                     let citizenId = item.citizen_id !== undefined ? item.citizen_id.toString() : '';
-                    let point = item.point !== undefined ? item.point.toString() : '';
-
-                    if (typeof item.issue_date === 'number' && issueDate != '') {
-                        issueDate = format(excelDateToJSDate(item.issue_date), "yyyy-MM-dd");
+                    // let point = item.point !== undefined ? item.point.toString() : '';
+                    console.log(item.issue_date, item.expiry_date, item.dob)
+                    if (issueDate !== '') {
+                        issueDate = formatDateToISO(item.issue_date);
                     }
 
-                    if (typeof item.expiry_date === 'number' && expiryDate != '') {
-                        expiryDate = format(excelDateToJSDate(item.expiry_date), "yyyy-MM-dd");
+                    if (expiryDate !== '') {
+                        expiryDate = formatDateToISO(item.expiry_date);
                     }
-                    if (typeof item.dob === 'number' && dob != '') {
-                        dob = format(excelDateToJSDate(item.dob), "yyyy-MM-dd");
+                    if (dob !== '') {
+                        dob = formatDateToISO(item.dob);
                     }
+                    console.log(issueDate, expiryDate, dob)
 
+                    // issueDate = typeof issueDate === 'string' ? issueDate : '';
+                    // expiryDate = typeof expiryDate === 'string' ? expiryDate : '';
+                    // dob = typeof dob === 'string' ? dob : '';
+                    console.log('Comparing values:');
+                    console.log('Name:', item.name, 'Decrypted Name:', decryptedName, item.name === decryptedName);
+                    console.log('Gender:', item.gender, 'Decrypted Gender:', decryptedGender, item.gender === decryptedGender);
+                    console.log('Email:', item.email.text, 'Decrypted Email:', decryptedEmail, item.email.text === decryptedEmail);
+                    console.log('Citizen ID:', citizenId, 'Decrypted Citizen ID:', decryptedCitizenId, citizenId === decryptedCitizenId);
+                    console.log('Date of Birth:', dob, 'Decrypted Date of Birth:', decryptedDob, dob === decryptedDob);
+                    console.log('Region:', item.region, 'Decrypted Region:', decryptedRegion, item.region === decryptedRegion);
+                    console.log('Work Unit:', item.work_unit, 'Decrypted Work Unit:', decryptedWorkUnit, item.work_unit === decryptedWorkUnit);
+                    console.log('Point:', point.trim(), 'Decrypted Point:', decryptedPoint.trim(), point.trim() === decryptedPoint.trim());
+                    console.log('Certificate Name:', item.certificate_name, 'Ticket Certificate Name:', ticket.certificate_name, item.certificate_name === ticket.certificate_name);
+                    console.log('Issue Date:', issueDate, 'Decrypted Issue Date:', decryptedIssueDate, issueDate === decryptedIssueDate);
+                    console.log('Expiry Date:', expiryDate.trim(), 'Decrypted Expiry Date:', decryptedExpiryDate.trim(), expiryDate.trim() === decryptedExpiryDate.trim());
+                    console.log('Licensing Authority:', item.licensing_authority, 'Ticket Licensing Authority:', ticket.licensing_authority, item.licensing_authority === ticket.licensing_authority);
+                    console.log('Image:', item.images, 'Decrypted Image:', hashImage(decryptedImage), hashImage(decryptedImage) === item.images);
+                    console.log("EX", expiryDate != '' ? expiryDate : expiryDate.trim())
                     if (
                         item.name === decryptedName &&
                         item.gender === decryptedGender &&
-                        item.email === decryptedEmail &&
+                        item.email.text === decryptedEmail &&
                         citizenId === decryptedCitizenId &&
                         dob === decryptedDob &&
                         item.region === decryptedRegion &&
                         item.work_unit === decryptedWorkUnit &&
-                        point.trim() === decryptedPoint.trim() &&
+                        point === decryptedPoint &&
                         item.certificate_name === ticket.certificate_name &&
                         issueDate === decryptedIssueDate &&
-                        expiryDate.trim() === decryptedExpiryDate.trim() &&
-                        item.licensing_authority === ticket.licensing_authority
+                        expiryDate === decryptedExpiryDate &&
+                        item.licensing_authority === ticket.licensing_authority &&
+                        item.images === hashImage(decryptedImage) // Compare images
                     ) {
+                        setIm
                         isMatchFound = true;
                     }
                 });
 
-
                 if (isMatchFound) {
-                    setInfoMatch(true)
+                    setInfoMatch(true);
                     setAlertSeverity("success");
                     setMessageAlert("Matching info found in the file");
-                    setShowAlert(true);
                 } else {
-                    setInfoMatch(false)
-
+                    setInfoMatch(false);
                     setAlertSeverity("warning");
                     setMessageAlert("No matching info found in the file");
-                    setShowAlert(true);
                 }
+                setShowAlert(true);
                 setLoading(false);
             };
 
-            reader.readAsBinaryString(file);
+            reader.readAsArrayBuffer(file);
         } catch (err) {
-            console.log(err);
+            console.error(err);
             setAlertSeverity("warning");
             setMessageAlert("Wrong excel format");
             setShowAlert(true);
             setLoading(false);
         }
     };
+
+
+    // Helper function to convert Excel date to JS date
+    const excelDateToJSDate = (excelDate) => {
+        const date = new Date(Math.round((excelDate - 25569) * 86400 * 1000));
+        const utcDate = new Date(date.getTime() + (date.getTimezoneOffset() * 60000));
+        return utcDate;
+    };
+
     return (
         <>
             {loading && (

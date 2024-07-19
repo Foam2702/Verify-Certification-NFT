@@ -60,10 +60,10 @@ const Share = () => {
                             <strong>Name: </strong>{certificate.name}
                         </div>
                         <div className="lisence-name" style={{ width: '900px', }}>
-                            <strong>Issue Date: </strong>{formatDateV2(certificate.issue_date)}
+                            <strong>Issue Date: </strong>{certificate.issue_date}
                         </div>
                         <div className="lisence-name" style={{ width: '600px', }}>
-                            <strong>Expiry Date: </strong> {certificate.expiry_date ? formatDateV2(certificate.expiry_date) : 'indefinitely'}
+                            <strong>Expiry Date: </strong> {certificate.expiry_date ? certificate.expiry_date : 'indefinitely'}
                         </div>
                     </div>
                     <div className="img_certi">

@@ -145,6 +145,57 @@ export async function imageFileToBase64(file) {
         reader.readAsDataURL(file);
     });
 }
+export function formatDateToISO(date) {
+    // Ensure the input is a Date object
+    if (!(date instanceof Date)) {
+        throw new Error('Input must be a Date object');
+    }
+
+    // Extract year, month, and day
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+    const day = String(date.getDate()).padStart(2, '0');
+
+    // Format as YYYY-MM-DD
+    return `${year}-${month}-${day}`;
+}
+// export async function bufferToBase64(buffer, mimeType) {
+//     return new Promise((resolve, reject) => {
+//         const blob = new Blob([buffer], { type: mimeType });
+//         const reader = new FileReader();
+//         reader.onloadend = () => {
+//             const base64String = reader.result;
+//             resolve(base64String);
+//         };
+//         reader.onerror = () => reject(new Error('Error reading file'));
+//         reader.readAsDataURL(blob);
+//     });
+// }
+export const bufferToBase64 = (buffer, mimeType) => {
+    return new Promise((resolve, reject) => {
+        try {
+            const base64 = Buffer.from(buffer).toString('base64');
+            resolve(`data:${mimeType};base64,${base64}`);
+        } catch (error) {
+            reject(error);
+        }
+    });
+};
+export const getImageDimensionsFromBase64 = (base64Image) => {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+            resolve({ width: img.width, height: img.height });
+        };
+        img.onerror = (err) => {
+            reject(err);
+        };
+        img.src = base64Image;
+    });
+};
+
+
+
 export async function base64ToImageFile(base64String, filename = 'image.png') {
     // Split the base64 string in data and contentType
     const block = base64String.split(";");

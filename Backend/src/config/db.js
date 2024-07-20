@@ -11,10 +11,6 @@ const sql = postgres({
     password: PGPASSWORD,
     port: 5432,
     ssl: 'require',
-    connection: {
-        options: `project=${ENDPOINT_ID}`,
-    },
-    onnotice: console.log,
     retry: {
         max: 10, // Maximum number of retries
         delay: 5000, // Delay between retries in milliseconds

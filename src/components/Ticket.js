@@ -668,7 +668,6 @@ const Ticket = ({ ticket }) => {
             const file = event.target.files[0];
             const reader = new FileReader();
             reader.onload = async (e) => {
-                XLSX.stream.set_readable(Readable);
                 const arrayBuffer = e.target.result;
                 const workbook = new ExcelJS.Workbook();
                 await workbook.xlsx.load(arrayBuffer);

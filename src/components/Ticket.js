@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 import axios from 'axios';
 import ExcelJS from 'exceljs'
+import { Readable } from 'stream';
 import Web3 from 'web3';
 import useSigner from "../state/signer";
 import MultiActionAreaCard from "./MultiACtionAreaCard";
@@ -29,7 +30,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import * as XLSX from "xlsx";
 const JWT = process.env.REACT_APP_JWT; // Make sure to set this in your React app environment variables
 import { styled } from '@mui/material/styles';
-import { format } from "date-fns";
+import { format, set } from "date-fns";
 import "./BodySection.css";
 import "../pages/LisenceView"
 const Ticket = ({ ticket }) => {
@@ -535,8 +536,30 @@ const Ticket = ({ ticket }) => {
             return;
         }
     }
+    // async function process_RS(stream) {
+    //     /* collect data */
+    //     XLSX.stream.set_readable(Readable);
 
-    // const handleFileUpload = (event) => {
+    //     const buffers = [];
+    //     const reader = stream.getReader();
+    //     for (; ;) {
+    //         const res = await reader.read();
+    //         if (res.value) buffers.push(res.value);
+    //         if (res.done) break;
+    //     }
+
+    //     /* concat */
+    //     const out = new Uint8Array(buffers.reduce((acc, v) => acc + v.length, 0));
+
+    //     let off = 0;
+    //     for (const u8 of arr) {
+    //         out.set(u8, off);
+    //         off += u8.length;
+    //     }
+
+    //     return out;
+    // }
+    // const handleFileUpload = async (event) => {
     //     event.preventDefault();
     //     if (decryptedImage == null) {
     //         setLoading(true);
@@ -547,12 +570,21 @@ const Ticket = ({ ticket }) => {
     //         return;
     //     }
     //     try {
+    //         XLSX.stream.set_readable(Readable);
+
     //         const file = event.target.files[0];
     //         const reader = new FileReader();
+    //         // const data = await process_RS(event.target.files[0]);
+    //         // const workbookImage = XLSX.read(data);
+    //         // console.log("WORK", workbookImage)
 
     //         reader.onload = (e) => {
+
     //             const binaryStr = e.target.result;
+    //             console.log(binaryStr)
+    //             // const workbook = XLSX.read(binaryStr, { type: "binary" });
     //             const workbook = XLSX.read(binaryStr, { type: "binary" });
+
     //             const sheetName = workbook.SheetNames[0];
     //             const worksheet = workbook.Sheets[sheetName];
     //             const jsonData = XLSX.utils.sheet_to_json(worksheet);
@@ -621,6 +653,7 @@ const Ticket = ({ ticket }) => {
     //         setLoading(false);
     //     }
     // };
+
     const handleFileUpload = async (event) => {
         event.preventDefault();
         if (decryptedImage == null) {
@@ -633,47 +666,44 @@ const Ticket = ({ ticket }) => {
         }
 
         try {
+            setLoading(true)
             const file = event.target.files[0];
             const reader = new FileReader();
             reader.onload = async (e) => {
+                XLSX.stream.set_readable(Readable);
                 const arrayBuffer = e.target.result;
                 const workbook = new ExcelJS.Workbook();
                 await workbook.xlsx.load(arrayBuffer);
                 const worksheet = workbook.getWorksheet(1);
                 const headers = worksheet.getRow(1).values.slice(1); // Get headers from the first row
-
                 const jsonData = [];
                 const images = workbook.model.media;
+                images.sort((a, b) => {
+                    const numA = parseInt(a.name.replace('image', ''), 10);
+                    const numB = parseInt(b.name.replace('image', ''), 10);
+                    return numA - numB;
+                });
+
                 // Get dimensions of the decrypted image
                 const decryptedImageDimensions = await getImageDimensionsFromBase64(decryptedImage);
                 const decryptedImageWidth = decryptedImageDimensions.width;
                 const decryptedImageHeight = decryptedImageDimensions.height;
-                // const imageMap = {}; // To map row numbers to base64 image data
-
-                // // Extract images and convert them to base64
-                // for (const [index, image] of images.entries()) {
-                //     const mimeType = `image/${image.extension}`;
-                //     const base64 = await bufferToBase64(image.buffer, mimeType);
-                //     console.log(base64)
-                //     imageMap[index] = hashImage(base64); // Store images with index
-
-                // }
                 let imageIndex = 0;
-                const imageMap = {}; // To map row numbers to base64 image data
+                const imageMap = {};
                 for (const [index, image] of images.entries()) {
+                    const mimeType = `image/${image.extension}`;
+
                     image.width = decryptedImageWidth;
                     image.height = decryptedImageHeight;
-                    const mimeType = `image/${image.extension}`;
+
                     try {
                         const base64 = await bufferToBase64(image.buffer, mimeType);
-                        imageMap[index] = (base64); // Store images with index
+                        imageMap[`image${index}`] = base64; // Lưu trữ hình ảnh với chỉ số
                     } catch (error) {
                         console.error('Error converting image to Base64:', error);
                     }
                 }
-
-
-                worksheet.eachRow({ includeEmpty: true }, async (row, rowNumber) => {
+                worksheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
                     if (rowNumber === 1) return; // Skip the header row
                     const rowData = {};
                     row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
@@ -681,31 +711,31 @@ const Ticket = ({ ticket }) => {
                     });
 
                     // Associate image with this row if available
-                    if (imageIndex in imageMap) {
-                        rowData.images = imageMap[imageIndex];
+                    if (imageMap[`image${rowNumber - 2}`]) { // Adjust index to match row
+                        rowData.images = imageMap[`image${rowNumber - 2}`];
                     } else {
                         rowData.images = null;
                     }
 
                     jsonData.push(rowData);
-                    imageIndex++;
                 });
-                console.log(jsonData)
-
+                // console.log(jsonData)
                 // Ensure all rows are processed before checking for matches
                 await new Promise((resolve) => setTimeout(resolve, 100)); // Give some time for processing
-
                 let isMatchFound = false;
-
                 jsonData.forEach(item => {
-                    let issueDate = item.issue_date ? item.issue_date : '';
+                    let name = item.name || '';
+                    let gender = item.gender || '';
+                    let email = item.email ? item.email.text : '';
+                    let citizenId = item.citizen_id !== undefined ? item.citizen_id.toString() : '';
+                    let point = item.point ? item.point.toString() : '';
+                    let region = item.region || '';
+                    let workUnit = item.work_unit || '';
+                    let certificateName = item.certificate_name || '';
+                    let licensingAuthority = item.licensing_authority || ''; let issueDate = item.issue_date ? item.issue_date : '';
                     let expiryDate = item.expiry_date ? item.expiry_date : '';
                     let dob = item.dob ? item.dob : '';
-                    let point = item.point ? item.point.toString() : ''
-                    // Handle potential undefined values
-                    let citizenId = item.citizen_id !== undefined ? item.citizen_id.toString() : '';
-                    // let point = item.point !== undefined ? item.point.toString() : '';
-                    console.log(item.issue_date, item.expiry_date, item.dob)
+
                     if (issueDate !== '') {
                         issueDate = formatDateToISO(item.issue_date);
                     }
@@ -716,56 +746,64 @@ const Ticket = ({ ticket }) => {
                     if (dob !== '') {
                         dob = formatDateToISO(item.dob);
                     }
-                    console.log(issueDate, expiryDate, dob)
 
                     // issueDate = typeof issueDate === 'string' ? issueDate : '';
                     // expiryDate = typeof expiryDate === 'string' ? expiryDate : '';
                     // dob = typeof dob === 'string' ? dob : '';
                     console.log('Comparing values:');
-                    console.log('Name:', item.name, 'Decrypted Name:', decryptedName, item.name === decryptedName);
-                    console.log('Gender:', item.gender, 'Decrypted Gender:', decryptedGender, item.gender === decryptedGender);
-                    console.log('Email:', item.email.text, 'Decrypted Email:', decryptedEmail, item.email.text === decryptedEmail);
+                    console.log('Name:', name, 'Decrypted Name:', decryptedName, name === decryptedName);
+                    console.log('Gender:', gender, 'Decrypted Gender:', decryptedGender, gender === decryptedGender);
+                    console.log('Email:', email, 'Decrypted Email:', decryptedEmail, email === decryptedEmail);
                     console.log('Citizen ID:', citizenId, 'Decrypted Citizen ID:', decryptedCitizenId, citizenId === decryptedCitizenId);
                     console.log('Date of Birth:', dob, 'Decrypted Date of Birth:', decryptedDob, dob === decryptedDob);
-                    console.log('Region:', item.region, 'Decrypted Region:', decryptedRegion, item.region === decryptedRegion);
-                    console.log('Work Unit:', item.work_unit, 'Decrypted Work Unit:', decryptedWorkUnit, item.work_unit === decryptedWorkUnit);
+                    console.log('Region:', region, 'Decrypted Region:', decryptedRegion, region === decryptedRegion);
+                    console.log('Work Unit:', workUnit, 'Decrypted Work Unit:', decryptedWorkUnit, workUnit === decryptedWorkUnit);
                     console.log('Point:', point.trim(), 'Decrypted Point:', decryptedPoint.trim(), point.trim() === decryptedPoint.trim());
-                    console.log('Certificate Name:', item.certificate_name, 'Ticket Certificate Name:', ticket.certificate_name, item.certificate_name === ticket.certificate_name);
+                    console.log('Certificate Name:', certificateName, 'Ticket Certificate Name:', ticket.certificate_name, certificateName === ticket.certificate_name);
                     console.log('Issue Date:', issueDate, 'Decrypted Issue Date:', decryptedIssueDate, issueDate === decryptedIssueDate);
                     console.log('Expiry Date:', expiryDate.trim(), 'Decrypted Expiry Date:', decryptedExpiryDate.trim(), expiryDate.trim() === decryptedExpiryDate.trim());
-                    console.log('Licensing Authority:', item.licensing_authority, 'Ticket Licensing Authority:', ticket.licensing_authority, item.licensing_authority === ticket.licensing_authority);
-                    console.log('Image:', item.images, 'Decrypted Image:', decryptedImage, hashImage(decryptedImage) === hashImage(item.images));
+                    console.log('Licensing Authority:', licensingAuthority, 'Ticket Licensing Authority:', ticket.licensing_authority, licensingAuthority === ticket.licensing_authority);
+                    console.log('Image:', hashImage(item.images), 'Decrypted Image:', hashImage(decryptedImage), hashImage(decryptedImage) === hashImage(item.images));
                     console.log("EX", expiryDate != '' ? expiryDate : expiryDate.trim())
                     if (
-                        item.name === decryptedName &&
-                        item.gender === decryptedGender &&
-                        item.email.text === decryptedEmail &&
+                        name === decryptedName &&
+                        gender === decryptedGender &&
+                        email === decryptedEmail &&
                         citizenId === decryptedCitizenId &&
                         dob === decryptedDob &&
-                        item.region === decryptedRegion &&
-                        item.work_unit === decryptedWorkUnit &&
-                        point === decryptedPoint &&
-                        item.certificate_name === ticket.certificate_name &&
+                        region === decryptedRegion &&
+                        workUnit === decryptedWorkUnit &&
+                        point.trim() === decryptedPoint.trim() &&
+                        certificateName === ticket.certificate_name &&
                         issueDate === decryptedIssueDate &&
-                        expiryDate === decryptedExpiryDate &&
-                        item.licensing_authority === ticket.licensing_authority &&
+                        expiryDate.trim() === decryptedExpiryDate.trim() &&
+                        licensingAuthority === ticket.licensing_authority &&
                         hashImage(item.images) === hashImage(decryptedImage) // Compare images
                     ) {
+                        console.log("TRUEEEEEEEEEEEEEE")
                         setImageUrl(item.images)
                         isMatchFound = true;
+
                     }
                 });
 
                 if (isMatchFound) {
+                    setLoading(false)
                     setInfoMatch(true);
                     setAlertSeverity("success");
                     setMessageAlert("Matching info found in the file");
+                    setShowAlert(true);
+
+                    return
                 } else {
+                    setLoading(false)
+
                     setInfoMatch(false);
                     setAlertSeverity("warning");
                     setMessageAlert("No matching info found in the file");
+                    setShowAlert(true);
+
                 }
-                setShowAlert(true);
                 setLoading(false);
             };
 

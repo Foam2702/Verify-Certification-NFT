@@ -862,7 +862,7 @@ const Ticket = ({ ticket }) => {
                                 <div sx={{ mx: "5px" }}>View</div>
                                 <RemoveRedEyeIcon sx={{ mx: "5px" }}></RemoveRedEyeIcon>
                             </Button>
-                            {issuer.includes(address) &&
+                            {(issuer.includes(address) && !isExam) ?
                                 <Button
                                     component="label"
                                     role={undefined}
@@ -876,6 +876,7 @@ const Ticket = ({ ticket }) => {
                                     Upload file
                                     <VisuallyHiddenInput type="file" />
                                 </Button>
+                                : <></>
                             }
 
                         </Box>

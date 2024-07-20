@@ -227,6 +227,7 @@ const Ticket = ({ ticket }) => {
                 if (issuer_org.data.ticket[0].certificate_cid) {
                     await deletePinIPFS(issuer_org.data.ticket[0].certificate_cid)
                 }
+                await axios.delete(`https://verify-certification-nft-production.up.railway.app/tickets/ticket/${ticket.id}?address=${address}`)
             }
             const response = await axios.patch(`https://verify-certification-nft-production.up.railway.app/tickets/ticket/${ticket.id}?status=${status}&transaction_hash=`)
             if (response.data.message === "updated successfully") {
@@ -733,7 +734,7 @@ const Ticket = ({ ticket }) => {
                     console.log('Issue Date:', issueDate, 'Decrypted Issue Date:', decryptedIssueDate, issueDate === decryptedIssueDate);
                     console.log('Expiry Date:', expiryDate.trim(), 'Decrypted Expiry Date:', decryptedExpiryDate.trim(), expiryDate.trim() === decryptedExpiryDate.trim());
                     console.log('Licensing Authority:', item.licensing_authority, 'Ticket Licensing Authority:', ticket.licensing_authority, item.licensing_authority === ticket.licensing_authority);
-                    console.log('Image:', item.images, 'Decrypted Image:', hashImage(decryptedImage), hashImage(decryptedImage) === item.images);
+                    console.log('Image:', item.images, 'Decrypted Image:', decryptedImage, hashImage(decryptedImage) === hashImage(item.images));
                     console.log("EX", expiryDate != '' ? expiryDate : expiryDate.trim())
                     if (
                         item.name === decryptedName &&

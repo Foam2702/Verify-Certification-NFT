@@ -666,6 +666,14 @@ const Ticket = ({ ticket }) => {
         try {
             setLoading(true)
             const file = event.target.files[0];
+            const fileExtension = file.name.split('.').pop();
+            if (fileExtension !== 'xlsx') {
+                setAlertSeverity("warning");
+                setMessageAlert("Please upload a valid .xlsx file");
+                setShowAlert(true);
+                setLoading(false);
+                return;
+            }
             const reader = new FileReader();
             reader.onload = async (e) => {
                 const arrayBuffer = e.target.result;
@@ -716,7 +724,8 @@ const Ticket = ({ ticket }) => {
 
                     jsonData.push(rowData);
                 });
-                // console.log(jsonData)
+
+                console.log(jsonData)
                 // Ensure all rows are processed before checking for matches
                 await new Promise((resolve) => setTimeout(resolve, 100)); // Give some time for processing
                 let isMatchFound = false;
@@ -732,6 +741,7 @@ const Ticket = ({ ticket }) => {
                     let licensingAuthority = item.licensing_authority || ''; let issueDate = item.issue_date ? item.issue_date : '';
                     let expiryDate = item.expiry_date ? item.expiry_date : '';
                     let dob = item.dob ? item.dob : '';
+                    let image = item.images ? image : ''
 
                     if (issueDate !== '') {
                         issueDate = formatDateToISO(item.issue_date);
@@ -760,7 +770,7 @@ const Ticket = ({ ticket }) => {
                     console.log('Issue Date:', issueDate, 'Decrypted Issue Date:', decryptedIssueDate, issueDate === decryptedIssueDate);
                     console.log('Expiry Date:', expiryDate.trim(), 'Decrypted Expiry Date:', decryptedExpiryDate.trim(), expiryDate.trim() === decryptedExpiryDate.trim());
                     console.log('Licensing Authority:', licensingAuthority, 'Ticket Licensing Authority:', ticket.licensing_authority, licensingAuthority === ticket.licensing_authority);
-                    console.log('Image:', hashImage(item.images), 'Decrypted Image:', hashImage(decryptedImage), hashImage(decryptedImage) === hashImage(item.images));
+                    console.log('Image:', hashImage(image), 'Decrypted Image:', hashImage(decryptedImage), hashImage(decryptedImage) === hashImage(image));
                     console.log("EX", expiryDate != '' ? expiryDate : expiryDate.trim())
                     if (
                         name === decryptedName &&
@@ -775,10 +785,10 @@ const Ticket = ({ ticket }) => {
                         issueDate === decryptedIssueDate &&
                         expiryDate.trim() === decryptedExpiryDate.trim() &&
                         licensingAuthority === ticket.licensing_authority &&
-                        hashImage(item.images) === hashImage(decryptedImage) // Compare images
+                        hashImage(image) === hashImage(decryptedImage) // Compare images
                     ) {
                         console.log("TRUEEEEEEEEEEEEEE")
-                        setImageUrl(item.images)
+                        setImageUrl(image)
                         isMatchFound = true;
 
                     }
@@ -874,7 +884,7 @@ const Ticket = ({ ticket }) => {
 
                                 >
                                     Upload file
-                                    <VisuallyHiddenInput type="file" />
+                                    <VisuallyHiddenInput type="file" accept=".xlsx" />
                                 </Button>
                                 : <></>
                             }
@@ -915,7 +925,7 @@ const Ticket = ({ ticket }) => {
 
                                     name="privatekey"
                                     label="Private Key"
-                                    type="privatekey"
+                                    type="password"
                                     fullWidth
                                     variant="outlined"
                                     sx={{

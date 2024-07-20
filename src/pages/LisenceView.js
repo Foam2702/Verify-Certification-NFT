@@ -240,7 +240,7 @@ const LisenceView = () => {
           setError(null); // Clear any previous errors
           setIsPrivateKeyValid(true); // Set isPrivateKeyValid to true if keys match
           await decryptAllFields(privateKey)
-          setLoading(false)
+          // setLoading(false)
         } else {
           setAlertSeverity("error");
           setMessageAlert("Wrong private key");
@@ -503,7 +503,7 @@ const LisenceView = () => {
                     margin="normal"
                     name="privatekey"
                     label="Private Key"
-                    type="privatekey"
+                    type="password"
                     fullWidth
                     variant="outlined"
                     sx={{

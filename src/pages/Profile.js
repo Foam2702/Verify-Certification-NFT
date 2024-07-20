@@ -437,7 +437,7 @@ export const Profile = () => {
 
                                     name="privatekey"
                                     label="Private Key"
-                                    type="privatekey"
+                                    type="password"
                                     fullWidth
                                     variant="outlined"
                                     sx={{
@@ -623,7 +623,7 @@ export const Profile = () => {
 
                                     name="privatekey"
                                     label="Private Key"
-                                    type="privatekey"
+                                    type="password"
                                     fullWidth
                                     variant="outlined"
                                     sx={{

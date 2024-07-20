@@ -405,7 +405,7 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                                     margin="normal"
                                     name="privatekey"
                                     label="Private Key"
-                                    type="privatekey"
+                                    type="password"
                                     fullWidth
                                     variant="outlined"
                                     sx={{

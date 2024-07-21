@@ -534,124 +534,6 @@ const Ticket = ({ ticket }) => {
             return;
         }
     }
-    // async function process_RS(stream) {
-    //     /* collect data */
-    //     XLSX.stream.set_readable(Readable);
-
-    //     const buffers = [];
-    //     const reader = stream.getReader();
-    //     for (; ;) {
-    //         const res = await reader.read();
-    //         if (res.value) buffers.push(res.value);
-    //         if (res.done) break;
-    //     }
-
-    //     /* concat */
-    //     const out = new Uint8Array(buffers.reduce((acc, v) => acc + v.length, 0));
-
-    //     let off = 0;
-    //     for (const u8 of arr) {
-    //         out.set(u8, off);
-    //         off += u8.length;
-    //     }
-
-    //     return out;
-    // }
-    // const handleFileUpload = async (event) => {
-    //     event.preventDefault();
-    //     if (decryptedImage == null) {
-    //         setLoading(true);
-    //         setAlertSeverity("warning");
-    //         setMessageAlert("Decrypt to upload");
-    //         setShowAlert(true);
-    //         setLoading(false);
-    //         return;
-    //     }
-    //     try {
-    //         XLSX.stream.set_readable(Readable);
-
-    //         const file = event.target.files[0];
-    //         const reader = new FileReader();
-    //         // const data = await process_RS(event.target.files[0]);
-    //         // const workbookImage = XLSX.read(data);
-    //         // console.log("WORK", workbookImage)
-
-    //         reader.onload = (e) => {
-
-    //             const binaryStr = e.target.result;
-    //             console.log(binaryStr)
-    //             // const workbook = XLSX.read(binaryStr, { type: "binary" });
-    //             const workbook = XLSX.read(binaryStr, { type: "binary" });
-
-    //             const sheetName = workbook.SheetNames[0];
-    //             const worksheet = workbook.Sheets[sheetName];
-    //             const jsonData = XLSX.utils.sheet_to_json(worksheet);
-    //             let isMatchFound = false;
-    //             console.log(jsonData)
-    //             jsonData.forEach(item => {
-
-    //                 let issueDate = item.issue_date ? item.issue_date : '';
-    //                 let expiryDate = item.expiry_date ? item.expiry_date : '';
-    //                 let dob = item.dob ? item.dob : '';
-
-    //                 // Handle potential undefined values
-    //                 let citizenId = item.citizen_id !== undefined ? item.citizen_id.toString() : '';
-    //                 let point = item.point !== undefined ? item.point.toString() : '';
-
-    //                 if (typeof item.issue_date === 'number' && issueDate != '') {
-    //                     issueDate = format(excelDateToJSDate(item.issue_date), "yyyy-MM-dd");
-    //                 }
-
-    //                 if (typeof item.expiry_date === 'number' && expiryDate != '') {
-    //                     expiryDate = format(excelDateToJSDate(item.expiry_date), "yyyy-MM-dd");
-    //                 }
-    //                 if (typeof item.dob === 'number' && dob != '') {
-    //                     dob = format(excelDateToJSDate(item.dob), "yyyy-MM-dd");
-    //                 }
-    //                 if (
-    //                     item.name == decryptedName &&
-    //                     item.gender == decryptedGender &&
-    //                     item.email == decryptedEmail &&
-    //                     citizenId == decryptedCitizenId &&
-    //                     dob == decryptedDob &&
-    //                     item.region == decryptedRegion &&
-    //                     item.work_unit == decryptedWorkUnit &&
-    //                     point.trim() == decryptedPoint.trim() &&
-    //                     item.certificate_name == ticket.certificate_name &&
-    //                     issueDate == decryptedIssueDate &&
-    //                     expiryDate.trim() == decryptedExpiryDate.trim() &&
-    //                     item.licensing_authority == ticket.licensing_authority
-    //                 ) {
-    //                     isMatchFound = true;
-    //                 }
-    //             });
-
-
-    //             if (isMatchFound) {
-    //                 setInfoMatch(true)
-    //                 setAlertSeverity("success");
-    //                 setMessageAlert("Matching info found in the file");
-    //                 setShowAlert(true);
-    //             } else {
-    //                 setInfoMatch(false)
-
-    //                 setAlertSeverity("warning");
-    //                 setMessageAlert("No matching info found in the file");
-    //                 setShowAlert(true);
-    //             }
-    //             setLoading(false);
-    //         };
-
-    //         reader.readAsBinaryString(file);
-    //     } catch (err) {
-    //         console.log(err);
-    //         setAlertSeverity("warning");
-    //         setMessageAlert("Wrong excel format");
-    //         setShowAlert(true);
-    //         setLoading(false);
-    //     }
-    // };
-
     const handleFileUpload = async (event) => {
         event.preventDefault();
         if (decryptedImage == null) {
@@ -730,6 +612,8 @@ const Ticket = ({ ticket }) => {
                 await new Promise((resolve) => setTimeout(resolve, 100)); // Give some time for processing
                 let isMatchFound = false;
                 jsonData.forEach(item => {
+                    console.log("IM HRER")
+                    console.log(item)
                     let name = item.name || '';
                     let gender = item.gender || '';
                     let email = item.email ? item.email.text : '';
@@ -741,7 +625,8 @@ const Ticket = ({ ticket }) => {
                     let licensingAuthority = item.licensing_authority || ''; let issueDate = item.issue_date ? item.issue_date : '';
                     let expiryDate = item.expiry_date ? item.expiry_date : '';
                     let dob = item.dob ? item.dob : '';
-                    let image = item.images ? image : ''
+                    console.log(item.images)
+                    let image = item.images ? item.images : ''
 
                     if (issueDate !== '') {
                         issueDate = formatDateToISO(item.issue_date);
@@ -798,7 +683,7 @@ const Ticket = ({ ticket }) => {
                     setLoading(false)
                     setInfoMatch(true);
                     setAlertSeverity("success");
-                    setMessageAlert("Matching info found in the file");
+                    setMessageAlert("Matching information found in the file");
                     setShowAlert(true);
 
                     return

@@ -277,7 +277,7 @@ export const Profile = () => {
                     await decryptAllFields(privatekey)
                     // handleUpdateInfo(privatekey, check)
                     setAlertSeverity("success");
-                    setMessageAlert("Correct private key");
+                    setMessageAlert("Correct private key.You can update your information now");
                     setShowAlert(true);
                     setPrivateKey(privatekey)
                     setIsPrivateKeyValid(true);

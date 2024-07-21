@@ -612,12 +612,11 @@ const Ticket = ({ ticket }) => {
                 await new Promise((resolve) => setTimeout(resolve, 100)); // Give some time for processing
                 let isMatchFound = false;
                 jsonData.forEach(item => {
-                    console.log("IM HRER")
-                    console.log(item)
+
                     let name = item.name || '';
                     let gender = item.gender || '';
                     let email = item.email ? item.email.text : '';
-                    let citizenId = item.citizen_id !== undefined ? item.citizen_id.toString() : '';
+                    let citizenId = item.citizen_id ? item.citizen_id.toString() : '';
                     let point = item.point ? item.point.toString() : '';
                     let region = item.region || '';
                     let workUnit = item.work_unit || '';
@@ -625,7 +624,6 @@ const Ticket = ({ ticket }) => {
                     let licensingAuthority = item.licensing_authority || ''; let issueDate = item.issue_date ? item.issue_date : '';
                     let expiryDate = item.expiry_date ? item.expiry_date : '';
                     let dob = item.dob ? item.dob : '';
-                    console.log(item.images)
                     let image = item.images ? item.images : ''
 
                     if (issueDate !== '') {
@@ -672,7 +670,6 @@ const Ticket = ({ ticket }) => {
                         licensingAuthority === ticket.licensing_authority &&
                         hashImage(image) === hashImage(decryptedImage) // Compare images
                     ) {
-                        console.log("TRUEEEEEEEEEEEEEE")
                         setImageUrl(image)
                         isMatchFound = true;
 

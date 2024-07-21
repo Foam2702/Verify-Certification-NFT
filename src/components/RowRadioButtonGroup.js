@@ -254,6 +254,17 @@ export default function RowRadioButtonsGroup({ course, exam }) {
 
     const sendToIssuer = async () => {
         try {
+            const checkExist = await axios(`https://verify-certification-nft-production.up.railway.app/courses/course/${course[0].id}`)
+            console.log(checkExist)
+            if (checkExist.data.course.length == 0) {
+                setAlertSeverity("error");
+                setMessageAlert("Couse has been deleted by Issuer");
+                setShowAlert(true);
+                setTimeout(() => {
+                    navigate("/")
+                }, 3000)
+                return
+            }
             setLoading(true)
             const ownerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`)
             if (ownerPublicKeysResponse.data.address.length === 0) {

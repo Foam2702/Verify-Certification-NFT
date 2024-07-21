@@ -175,39 +175,37 @@ const BodySection = () => {
           formData.append("imageCertificate", file[i]);
         }
         try {
-          const ownerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`)
-          if (ownerPublicKeysResponse.data.address.length === 0) {
-            setLoading(false);
-            return;
-          }
-          const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
-          const base64ImageString = await imageFileToBase64(formData.get("imageCertificate"));
-          hashImg = hashImage(base64ImageString)
-          const exists = await isExistsInPinata(hashImg)
-          if (exists) {
-            setLoading(false);
-            setAlertSeverity("warning");
-            setMessageAlert(`This certificate already belongs to someone else or you already get this certificate`);
-            setShowAlert(true);
-            return
-          }
-          const imageEncrypt = await encryptData(base64ImageString, privateKey, remove0x(publicKeyOwner));
-          image_res = await imageUpload(imageEncrypt, hashImg, address, data["certificateName"])
-          console.log("OWNER", publicKeyOwner)
           const issuers = await checkIssuer(data.licensingAuthority);
-          const fieldsToEncrypt = [
-            'citizenId', 'name', 'region', 'dob', 'gender', 'email',
-            'workUnit', 'point', 'issueDate', 'expiryDate'];
-
           if (issuers.length === 0) {
             setLoading(false)
             setAlertSeverity("warning");
-            setMessageAlert(`No issuer found for ${data.licensingAuthority}`);
+            setMessageAlert(`No issuer found for ${data.licensingAuthority}.Please select another certificate`);
             setShowAlert(true);
             return;
           }
           else {
+            const ownerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`)
+            if (ownerPublicKeysResponse.data.address.length === 0) {
+              setLoading(false);
+              return;
+            }
+            const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
+            const base64ImageString = await imageFileToBase64(formData.get("imageCertificate"));
+            hashImg = hashImage(base64ImageString)
+            const exists = await isExistsInPinata(hashImg)
+            if (exists) {
+              setLoading(false);
+              setAlertSeverity("warning");
+              setMessageAlert(`This certificate already belongs to someone else or you already get this certificate`);
+              setShowAlert(true);
+              return
+            }
+            const imageEncrypt = await encryptData(base64ImageString, privateKey, remove0x(publicKeyOwner));
+            image_res = await imageUpload(imageEncrypt, hashImg, address, data["certificateName"])
             const id = uuidv4();
+            const fieldsToEncrypt = [
+              'citizenId', 'name', 'region', 'dob', 'gender', 'email',
+              'workUnit', 'point', 'issueDate', 'expiryDate'];
             for (const field of fieldsToEncrypt) {
               const encryptedData = data[field] ? await encryptData(data[field], privateKey, remove0x(publicKeyOwner)) : null;
               formData.append(field, JSON.stringify(encryptedData));

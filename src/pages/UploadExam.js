@@ -521,7 +521,7 @@ const UploadExam = () => {
                                             <br></br>
                                             <br></br>
 
-                                            <Typography variant="body2" style={{ color: 'grey' }}>You can add maximum 4 options. If you want to add more then change in settings. Multiple choice single option is availible</Typography>
+                                            <Typography variant="body2" style={{ color: 'grey' }}>You can add maximum 4 option</Typography>
                                             <TextField
                                                 fullWidth={true}
                                                 placeholder="Correct Answer"

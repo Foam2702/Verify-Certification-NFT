@@ -5,6 +5,7 @@ const adddressRouter = require("../routes/address")
 const examRouter = require("../routes/exam")
 const organizationRouter = require("../routes/organization")
 const shareRouter = require("../routes/share")
+const certificateRouter = require("../routes/certificate")
 function route(app) {
     app.use("/", homeRouter)
     app.use("/tickets", ticketRouter);
@@ -13,5 +14,6 @@ function route(app) {
     app.use("/exam", examRouter)
     app.use("/organization", organizationRouter)
     app.use("/share", shareRouter)
+    app.use("/certificate", certificateRouter)
 }
 module.exports = route;

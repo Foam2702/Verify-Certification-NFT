@@ -43,7 +43,7 @@ const CourseTransferNew = () => {
   const [refresh, setRefresh] = useState(false);
   const [certificates, setCertificates] = useState([])
   const [certificatesRow, setCertificatesRow] = useState([])
-
+  const [isIssuer, setIsIssuer] = useState(false)
   const navigate = useNavigate()
   const { signer, address, connectWallet, contract, provider, getPublicKey } = useSigner();
   const adminAddress = process.env.REACT_APP_ADMIN;
@@ -73,9 +73,19 @@ const CourseTransferNew = () => {
     }
     else if (!address) {
       navigate("/");
-
     }
   }, [address, signer]);
+  useEffect(() => {
+    const checkIssuer = async () => {
+      if (address) {
+        const isIssuer = await contract.isVerifier(address)
+        if (isIssuer) setIsIssuer(true)
+        else setIsIssuer(false)
+
+      }
+    }
+    checkIssuer()
+  }, [address, signer])
   useEffect(() => {
     const loadCertiDB = async () => {
       try {
@@ -242,7 +252,6 @@ const CourseTransferNew = () => {
         </div>
 
         <CourseSection />
-
         <Snackbar open={showAlert} autoHideDuration={3000} onClose={handleCloseAlert}>
           <Alert
             onClose={handleCloseAlert}
@@ -255,135 +264,128 @@ const CourseTransferNew = () => {
         </Snackbar>
 
       </div>
-      <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
-        <Box sx={{ width: '100%' }}>
-          <Tabs
-            value={tab}
-            onChange={handleChangeTab}
-            textColor="secondary"
-            indicatorColor="secondary"
-            aria-label="secondary tabs example"
-          >
-            <Tab value="coursesTab" label="Courses" sx={{ fontSize: "1em" }} />
-            <Tab value="certificatesTab" label="Certificates" sx={{ fontSize: "1em" }} />
-          </Tabs>
-        </Box>
-      </Box>
-      {tab == 'coursesTab' && <BodyCourses />}
-      {tab == 'certificatesTab' &&
-        <div>
-          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-            <Button variant="contained" color="success" sx={{ my: "20px", fontSize: "1em" }} onClick={handleClickOpenCerti}>
-              <AddIcon />
-              NEW CERTIFICATE
-            </Button>
-            <Tooltip title="Refresh" sx={{ mx: '20px' }}>
-              <IconButton size="large" onClick={() => setRefresh(prevFlag => !prevFlag)}>
-                <CachedIcon fontSize="large" />
-              </IconButton>
-            </Tooltip>
+      {isIssuer && (
+        <>
+          <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
+            <Box sx={{ width: '100%' }}>
+              <Tabs
+                value={tab}
+                onChange={handleChangeTab}
+                textColor="secondary"
+                indicatorColor="secondary"
+                aria-label="secondary tabs example"
+              >
+                <Tab value="coursesTab" label="Courses" sx={{ fontSize: "1em" }} />
+                <Tab value="certificatesTab" label="Certificates" sx={{ fontSize: "1em" }} />
+              </Tabs>
+            </Box>
           </Box>
-        </div>
+
+          {tab === 'coursesTab' && <BodyCourses />}
+          {tab === 'certificatesTab' && (
+            <>
+              <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                <Button variant="contained" color="success" sx={{ my: "20px", fontSize: "1em" }} onClick={handleClickOpenCerti}>
+                  <AddIcon />
+                  NEW CERTIFICATE
+                </Button>
+                <Tooltip title="Refresh" sx={{ mx: '20px' }}>
+                  <IconButton size="large" onClick={() => setRefresh(prevFlag => !prevFlag)}>
+                    <CachedIcon fontSize="large" />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+
+              <Dialog
+                open={certificateOpen}
+                onClose={handleCloseCertificate}
+                PaperProps={{
+                  component: 'form',
+                  onSubmit: handleSubmitCertificate
+                }}
+                maxWidth="md"
+                sx={{
+                  '& .MuiDialogContent-root': { fontSize: '1.25rem' },
+                  '& .MuiTextField-root': { fontSize: '1.25rem' },
+                  '& .MuiButton-root': { fontSize: '1.25rem' },
+                }}
+              >
+                <DialogTitle sx={{ fontSize: '1.5rem' }}>New Certificate</DialogTitle>
+                <DialogContent>
+                  <DialogContentText sx={{ fontSize: '1.5rem' }}>
+                    To add a new certificate, please enter the certificate name and select the organization.
+                  </DialogContentText>
+                  <TextField
+                    autoFocus
+                    required
+                    margin="normal"
+                    id="name"
+                    name="certificate"
+                    label="Certificate name"
+                    fullWidth
+                    variant="outlined"
+                    sx={{
+                      '& .MuiInputBase-input': {
+                        fontSize: '1.25rem',
+                      },
+                      '& .MuiInputLabel-root': {
+                        fontSize: '1.25rem',
+                      },
+                    }}
+                  />
+                </DialogContent>
+                <DialogActions>
+                  <Button type="submit">Add</Button>
+                  <Button onClick={handleCloseCertificate}>Cancel</Button>
+                </DialogActions>
+              </Dialog>
+
+              <Box m="20px">
+                <Box
+                  m="40px 0 0 0"
+                  height="75vh"
+                  sx={{
+                    "& .MuiDataGrid-root": {
+                      border: "none",
+                      fontSize: "1.5em",
+                    },
+                    "& .MuiDataGrid-cell": {
+                      borderBottom: "none",
+                    },
+                    "& .name-column--cell": {
+                      color: colors.greenAccent[300],
+                    },
+                    "& .MuiDataGrid-columnHeaders": {
+                      backgroundColor: colors.blueAccent[700],
+                      borderBottom: "none",
+                    },
+                    "& .MuiDataGrid-virtualScroller": {
+                      backgroundColor: colors.primary[400],
+                    },
+                    "& .MuiDataGrid-footerContainer": {
+                      borderTop: "none",
+                      backgroundColor: colors.blueAccent[700],
+                    },
+                    "& .MuiCheckbox-root": {
+                      color: `${colors.greenAccent[200]} !important`,
+                    },
+                  }}
+                >
+                  {tab === 'certificatesTab' && (
+                    <DataGrid rows={certificatesRow} columns={columnsCertificate} />
+                  )}
+                </Box>
+              </Box>
+            </>
+          )}
+        </>
+      )}
+      {!isIssuer && <BodyCourses />
       }
-      <Dialog
-        open={certificateOpen}
-        onClose={handleCloseCertificate}
-        PaperProps={{
-          component: 'form',
-          onSubmit: handleSubmitCertificate
-
-        }}
-
-        maxWidth="md" // Adjust this value as needed (sm, md, lg, xl)
-        sx={{
-          '& .MuiDialogContent-root': { fontSize: '1.25rem' }, // Adjust font size for dialog content
-          '& .MuiTextField-root': { fontSize: '1.25rem' }, // Adjust font size for text fields
-          '& .MuiButton-root': { fontSize: '1.25rem' }, // Adjust font size for buttons
-        }}
-      >
-        <DialogTitle sx={{ fontSize: '1.5rem' }}>New Certificate</DialogTitle>
-        <DialogContent>
-          <DialogContentText sx={{ fontSize: '1.5rem' }}>
-            To add new certificate , please enter certificate name and select organization.
-          </DialogContentText>
-          <TextField
-            autoFocus
-            required
-            margin="normal"
-            id="name"
-            name="certificate"
-            label="Certificate name"
-            fullWidth
-            variant="outlined"
-            sx={{
-              '& .MuiInputBase-input': {
-                fontSize: '1.25rem', // Increase font size
-              },
-              '& .MuiInputLabel-root': {
-                fontSize: '1.25rem', // Increase label font size
-              },
-
-            }}
-          />
-          {/* <Select
-            required
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
-            value={org}
-            fullWidth
-            label="Organization"
-            onChange={handleChangeOrg}
-          >
-            {orgs.map((organization) => (
-              <MenuItem value={organization.org}>{organization.org}</MenuItem>
-            ))}
-          </Select> */}
-
-        </DialogContent>
-        <DialogActions>
-          <Button type="submit">Add</Button>
-
-          <Button onClick={handleCloseCertificate}>Cancel</Button>
-        </DialogActions>
-      </Dialog>
-      <Box m="20px">
-        <Box
-          m="40px 0 0 0"
-          height="75vh"
-          sx={{
-            "& .MuiDataGrid-root": {
-              border: "none",
-              fontSize: "1.5em", // Increase font size here
-            },
-            "& .MuiDataGrid-cell": {
-              borderBottom: "none",
-            },
-            "& .name-column--cell": {
-              color: colors.greenAccent[300],
-            },
-            "& .MuiDataGrid-columnHeaders": {
-              backgroundColor: colors.blueAccent[700],
-              borderBottom: "none",
-            },
-            "& .MuiDataGrid-virtualScroller": {
-              backgroundColor: colors.primary[400],
-            },
-            "& .MuiDataGrid-footerContainer": {
-              borderTop: "none",
-              backgroundColor: colors.blueAccent[700],
-            },
-            "& .MuiCheckbox-root": {
-              color: `${colors.greenAccent[200]} !important`,
-            },
-          }}
-        >
 
 
-          {tab == 'certificatesTab' &&
-            <DataGrid rows={certificatesRow} columns={columnsCertificate} />}
 
-        </Box>
-      </Box>
+
       <Footer
         shapeLeft="/shape-left@2x.png"
         socialIcontwitter="/socialicontwitter@2x.png"

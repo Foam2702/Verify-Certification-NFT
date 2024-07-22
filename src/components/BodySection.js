@@ -176,6 +176,18 @@ const BodySection = () => {
         }
         try {
           const issuers = await checkIssuer(data.licensingAuthority);
+          const org = await contract.getOrganizationCode(address);
+          const certificates = await axios.get("https://verify-certification-nft-production.up.railway.app/tickets");
+          if (Array.isArray(certificates.data.certificates)) {
+            const certificateExist = certificates.data.certificates.filter(certi => certi.certificate == data.certificateName)
+            if (certificateExist.length === 0) {
+              setLoading(false)
+              setAlertSeverity("warning");
+              setMessageAlert(` ${data.certificateName} not found.Please select another certificate`);
+              setShowAlert(true);
+              return;
+            }
+          }
           if (issuers.length === 0) {
             setLoading(false)
             setAlertSeverity("warning");

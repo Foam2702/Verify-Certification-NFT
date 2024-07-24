@@ -377,7 +377,7 @@ export async function isExistsInPinata(hashImg) {
 
     try {
         const allCIDs = await axios(
-            "https://api.pinata.cloud/data/pinList?status=pinned",
+            "https://api.pinata.cloud/data/pinList?status=pinned&pageLimit=1000",
             {
                 headers: {
                     Authorization: `Bearer ${JWT}`,

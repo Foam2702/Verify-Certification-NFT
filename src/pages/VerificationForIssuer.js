@@ -32,7 +32,7 @@ export default function VerificationForIssuer() {
         const fetchTicketsById = async () => {
             if (address) {
                 try {
-                    const result = await axios(`http://localhost:8080/tickets/ticket/${id}?address=${address}`);
+                    const result = await axios(`https://soulbound-token-nft-api.vercel.app/tickets/ticket/${id}?address=${address}`);
                     if (result.data.message === "ticket doesn't exist" || result.data.ticket.length == 0) {
                         navigate("/");
                     } else {

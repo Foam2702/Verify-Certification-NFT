@@ -44,12 +44,12 @@ const BodyCourses = ({ className = "" }) => {
                 if (orgCode) {
                     console.log("ORG", orgCode);
                     setIsIssuer(true)
-                    result = await axios.get(`http://localhost:8080/courses/${orgCode}`);
+                    result = await axios.get(`https://soulbound-token-nft-api.vercel.app/courses/${orgCode}`);
                 } else {
                     console.log("ORG not set");
                     setIsIssuer(false)
 
-                    result = await axios.get(`http://localhost:8080/courses`);
+                    result = await axios.get(`https://soulbound-token-nft-api.vercel.app/courses`);
                 }
 
                 if (Array.isArray(result.data.courses)) {
@@ -72,7 +72,7 @@ const BodyCourses = ({ className = "" }) => {
     const checkInfoExist = async () => {
         if (address) {
             try {
-                const checkPublicKeyExisted = await axios.get(`http://localhost:8080/addresses/${address}`);
+                const checkPublicKeyExisted = await axios.get(`https://soulbound-token-nft-api.vercel.app/addresses/${address}`);
                 if (checkPublicKeyExisted.data.address.length === 0) {
                     const publicKey = await getPublicKey(); // Await the result of getPublicKey
                     if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
@@ -82,7 +82,7 @@ const BodyCourses = ({ className = "" }) => {
                         setShowAlert(true);
                         return false;
                     }
-                    await axios.post(`http://localhost:8080/addresses/${address}`, {
+                    await axios.post(`https://soulbound-token-nft-api.vercel.app/addresses/${address}`, {
                         address: address, // Include the address in the body
                         publicKey: publicKey // Include the public key in the body
                     });
@@ -123,7 +123,7 @@ const BodyCourses = ({ className = "" }) => {
     const handleAgree = async () => {
         try {
             setLoading(true);
-            const result = await axios.post(`http://localhost:8080/courses/course/${selectedCourse.id}?address=${address}`)
+            const result = await axios.post(`https://soulbound-token-nft-api.vercel.app/courses/course/${selectedCourse.id}?address=${address}`)
             console.log(result)
 
             if (result.data.code == 200) {
@@ -143,7 +143,7 @@ const BodyCourses = ({ className = "" }) => {
                 }
             }
             else {
-                const result = await axios(`http://localhost:8080/exam/${selectedCourse.id}?address=${address}`)
+                const result = await axios(`https://soulbound-token-nft-api.vercel.app/exam/${selectedCourse.id}?address=${address}`)
                 console.log(result)
                 if (result.data.data[0].status == "examining") {
 

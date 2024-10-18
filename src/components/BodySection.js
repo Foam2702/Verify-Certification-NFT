@@ -39,7 +39,7 @@ const BodySection = () => {
   useEffect(() => {
     const fetchDataRegions = async () => {
       try {
-        const result = await axios("http://localhost:8080/tickets");
+        const result = await axios("https://soulbound-token-nft-api.vercel.app/tickets");
         if (Array.isArray(result.data.cities)) {
           setRegions(result.data.cities);
           console.log({ regions });
@@ -55,7 +55,7 @@ const BodySection = () => {
     fetchDataRegions().catch((error) => console.error(error));
     const fetchDataCourses = async () => {
       try {
-        const result = await axios("http://localhost:8080/tickets");
+        const result = await axios("https://soulbound-token-nft-api.vercel.app/tickets");
         if (Array.isArray(result.data.certificates)) {
           setCourses(result.data.certificates);
           console.log(result.data.certificates);
@@ -92,7 +92,7 @@ const BodySection = () => {
   const insertPubToDB = async () => {
     if (address) {
       try {
-        const checkPublicKeyExisted = await axios.get(`http://localhost:8080/addresses/${address}`);
+        const checkPublicKeyExisted = await axios.get(`https://soulbound-token-nft-api.vercel.app/addresses/${address}`);
         if (checkPublicKeyExisted.data.address.length === 0) {
           const publicKey = await getPublicKey(); // Await the result of getPublicKey
           if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
@@ -102,7 +102,7 @@ const BodySection = () => {
             setShowAlert(true);
             return false;
           }
-          await axios.post(`http://localhost:8080/addresses/${address}`, {
+          await axios.post(`https://soulbound-token-nft-api.vercel.app/addresses/${address}`, {
             address: address, // Include the address in the body
             publicKey: publicKey // Include the public key in the body
           });
@@ -117,7 +117,7 @@ const BodySection = () => {
               setShowAlert(true);
               return false
             }
-            await axios.post(`http://localhost:8080/addresses/${address}`, {
+            await axios.post(`https://soulbound-token-nft-api.vercel.app/addresses/${address}`, {
               address: address, // Include the address in the body
               publicKey: publicKey // Include the public key in the body
             });
@@ -177,7 +177,7 @@ const BodySection = () => {
   //       try {
   //         const issuers = await checkIssuer(data.licensingAuthority);
   //         const org = await contract.getOrganizationCode(address);
-  //         const certificates = await axios.get("http://localhost:8080/tickets");
+  //         const certificates = await axios.get("https://soulbound-token-nft-api.vercel.app/tickets");
   //         if (Array.isArray(certificates.data.certificates)) {
   //           const certificateExist = certificates.data.certificates.filter(certi => certi.certificate == data.certificateName)
   //           if (certificateExist.length === 0) {
@@ -196,7 +196,7 @@ const BodySection = () => {
   //           return;
   //         }
   //         else {
-  //           const ownerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${address}`)
+  //           const ownerPublicKeysResponse = await axios.get(`https://soulbound-token-nft-api.vercel.app/addresses/${address}`)
   //           if (ownerPublicKeysResponse.data.address.length === 0) {
   //             setLoading(false);
   //             return;
@@ -232,7 +232,7 @@ const BodySection = () => {
   //           // for (let pair of formData.entries()) {
   //           //   console.log(pair[0] + ", " + pair[1]);
   //           // }
-  //           const response = await axios.post("http://localhost:8080/tickets", formData);
+  //           const response = await axios.post("https://soulbound-token-nft-api.vercel.app/tickets", formData);
   //           if (response.data.message === "ticket already exist") {
   //             setLoading(false);
   //             setAlertSeverity("warning");
@@ -241,7 +241,7 @@ const BodySection = () => {
   //             return
   //           }
   //           for (const issuer of issuers) {
-  //             const issuerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${issuer}`);
+  //             const issuerPublicKeysResponse = await axios.get(`https://soulbound-token-nft-api.vercel.app/addresses/${issuer}`);
   //             if (issuerPublicKeysResponse.data.address.length === 0) {
   //               setLoading(false); // Stop loading regardless of the request outcome
   //               setAlertSeverity("warning");
@@ -270,7 +270,7 @@ const BodySection = () => {
   //               formData.append("owner", address)
   //               formData.append("certificateName", data.certificateName)
   //               formData.append("licensingAuthority", data.licensingAuthority);
-  //               const response = await axios.post("http://localhost:8080/tickets", formData);
+  //               const response = await axios.post("https://soulbound-token-nft-api.vercel.app/tickets", formData);
   //               if (response.data.message === "ticket already exist") {
   //                 setLoading(false); // Stop loading regardless of the request outcome
   //                 setAlertSeverity("warning");
@@ -358,7 +358,7 @@ const BodySection = () => {
     try {
       const issuers = await checkIssuer(data.licensingAuthority);
       const org = await contract.getOrganizationCode(address);
-      const certificates = await axios.get("http://localhost:8080/tickets");
+      const certificates = await axios.get("https://soulbound-token-nft-api.vercel.app/tickets");
 
       if (Array.isArray(certificates.data.certificates)) {
         const certificateExist = certificates.data.certificates.filter(certi => certi.certificate == data.certificateName);
@@ -379,7 +379,7 @@ const BodySection = () => {
         return;
       }
 
-      const ownerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${address}`);
+      const ownerPublicKeysResponse = await axios.get(`https://soulbound-token-nft-api.vercel.app/addresses/${address}`);
       if (ownerPublicKeysResponse.data.address.length === 0) {
         setLoading(false);
         return;
@@ -421,7 +421,7 @@ const BodySection = () => {
         formData.append("certificateName", data.certificateName);
         formData.append("licensingAuthority", data.licensingAuthority);
 
-        const response = await axios.post("http://localhost:8080/tickets", formData);
+        const response = await axios.post("https://soulbound-token-nft-api.vercel.app/tickets", formData);
 
         if (response.data.message === "ticket already exist") {
           setLoading(false);
@@ -432,7 +432,7 @@ const BodySection = () => {
         }
 
         for (const issuer of issuers) {
-          const issuerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${issuer}`);
+          const issuerPublicKeysResponse = await axios.get(`https://soulbound-token-nft-api.vercel.app/addresses/${issuer}`);
           if (issuerPublicKeysResponse.data.address.length === 0) {
             setLoading(false);
             setAlertSeverity("warning");
@@ -464,7 +464,7 @@ const BodySection = () => {
             formDataForIssuer.append("certificateName", data.certificateName);
             formDataForIssuer.append("licensingAuthority", data.licensingAuthority);
 
-            const responseForIssuer = await axios.post("http://localhost:8080/tickets", formDataForIssuer);
+            const responseForIssuer = await axios.post("https://soulbound-token-nft-api.vercel.app/tickets", formDataForIssuer);
             if (responseForIssuer.data.message === "ticket already exist") {
               setLoading(false);
               setAlertSeverity("warning");
@@ -537,7 +537,7 @@ const BodySection = () => {
       if (check) {
         const privateKeyBytes = ethers.utils.arrayify(add0x(privateKey));
         const publicKeyFromPrivateKey = ethers.utils.computePublicKey(privateKeyBytes);
-        const ownerPublicKeysResponse = await axios.get(`http://localhost:8080/addresses/${address}`)
+        const ownerPublicKeysResponse = await axios.get(`https://soulbound-token-nft-api.vercel.app/addresses/${address}`)
 
         if (ownerPublicKeysResponse.data.address.length === 0) {
           return;

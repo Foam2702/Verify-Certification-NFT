@@ -91,7 +91,7 @@ const CourseTransferNew = () => {
       try {
         const org = await contract.getOrganizationCode(address);
         setOrgs(org);
-        const result = await axios.get("https://soulbound-token-nft-api.vercel.app/tickets");
+        const result = await axios.get("http://localhost:8080/tickets");
         if (Array.isArray(result.data.certificates)) {
           setCertificates(result.data.certificates.filter(certi => certi.org == org));
         } else {
@@ -175,7 +175,7 @@ const CourseTransferNew = () => {
   }
   const handleDeleteCertificate = async (certificate, org) => {
     try {
-      const result = await axios.delete(`https://soulbound-token-nft-api.vercel.app/certificate?certificate=${certificate}&org=${org}`)
+      const result = await axios.delete(`http://localhost:8080/certificate?certificate=${certificate}&org=${org}`)
       if (result.data.message == "Certificate deleted") {
         setAlertSeverity("success");
         setMessageAlert("Deleted Certificate successfully");
@@ -215,7 +215,7 @@ const CourseTransferNew = () => {
     }
     console.log(certificate)
     try {
-      const result = await axios.post(`https://soulbound-token-nft-api.vercel.app/certificate`, certificate)
+      const result = await axios.post(`http://localhost:8080/certificate`, certificate)
       console.log(result)
       if (result.data.message == "Certificate inserted") {
         setAlertSeverity("success");

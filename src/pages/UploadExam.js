@@ -77,13 +77,13 @@ const UploadExam = () => {
             setLoading(true)
             if (address) {
                 try {
-                    const checkPublicKeyExisted = await axios.get(`https://soulbound-token-nft-api.vercel.app/addresses/${address}`);
+                    const checkPublicKeyExisted = await axios.get(`http://localhost:8080/addresses/${address}`);
                     if (checkPublicKeyExisted.data.address.length === 0) {
                         const publicKey = await getPublicKey(); // Await the result of getPublicKey
                         if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
                             navigate("/")
                         }
-                        await axios.post(`https://soulbound-token-nft-api.vercel.app/addresses/${address}`, {
+                        await axios.post(`http://localhost:8080/addresses/${address}`, {
                             address: address, // Include the address in the body
                             publicKey: publicKey // Include the public key in the body
                         });
@@ -98,7 +98,7 @@ const UploadExam = () => {
                             if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
                                 navigate("/")
                             }
-                            await axios.post(`https://soulbound-token-nft-api.vercel.app/addresses/${address}`, {
+                            await axios.post(`http://localhost:8080/addresses/${address}`, {
                                 address: address, // Include the address in the body
                                 publicKey: publicKey // Include the public key in the body
                             });
@@ -381,7 +381,7 @@ const UploadExam = () => {
             return
         }
         try {
-            const result = await axios.post("https://soulbound-token-nft-api.vercel.app/exam/postexam", dataToSave)
+            const result = await axios.post("http://localhost:8080/exam/postexam", dataToSave)
             if (result.data.message == "Insert Exam successfully") {
                 setMessageAlert("Exam created successfully");
                 setAlertSeverity("success");

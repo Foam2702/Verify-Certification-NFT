@@ -39,7 +39,7 @@ const BodySection = () => {
   useEffect(() => {
     const fetchDataRegions = async () => {
       try {
-        const result = await axios("https://verify-certification-nft-production.up.railway.app/tickets");
+        const result = await axios("https://soulbound-token-nft-api.vercel.app/tickets");
         if (Array.isArray(result.data.cities)) {
           setRegions(result.data.cities);
           console.log({ regions });
@@ -55,7 +55,7 @@ const BodySection = () => {
     fetchDataRegions().catch((error) => console.error(error));
     const fetchDataCourses = async () => {
       try {
-        const result = await axios("https://verify-certification-nft-production.up.railway.app/tickets");
+        const result = await axios("https://soulbound-token-nft-api.vercel.app/tickets");
         if (Array.isArray(result.data.certificates)) {
           setCourses(result.data.certificates);
           console.log(result.data.certificates);
@@ -92,7 +92,7 @@ const BodySection = () => {
   const insertPubToDB = async () => {
     if (address) {
       try {
-        const checkPublicKeyExisted = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`);
+        const checkPublicKeyExisted = await axios.get(`https://soulbound-token-nft-api.vercel.app/addresses/${address}`);
         if (checkPublicKeyExisted.data.address.length === 0) {
           const publicKey = await getPublicKey(); // Await the result of getPublicKey
           if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
@@ -102,7 +102,7 @@ const BodySection = () => {
             setShowAlert(true);
             return false;
           }
-          await axios.post(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`, {
+          await axios.post(`https://soulbound-token-nft-api.vercel.app/addresses/${address}`, {
             address: address, // Include the address in the body
             publicKey: publicKey // Include the public key in the body
           });
@@ -117,7 +117,7 @@ const BodySection = () => {
               setShowAlert(true);
               return false
             }
-            await axios.post(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`, {
+            await axios.post(`https://soulbound-token-nft-api.vercel.app/addresses/${address}`, {
               address: address, // Include the address in the body
               publicKey: publicKey // Include the public key in the body
             });
@@ -133,174 +133,366 @@ const BodySection = () => {
       }
     }
   };
+  // const handleSubmit = async (privateKey, check) => {
+  //   setLoading(true)
+  //   if (check) {
+  //     const form = document.querySelector("form");
+  //     let image_res = ''
+  //     let hashImg = ''
+  //     const formData = new FormData();
+  //     const emailPattern = /^[a-zA-Z0-9._%+-]+@(gmail\.com|student\.hcmus\.edu\.vn)$/;
+  //     const data = Array.from(form.elements)
+  //       .filter((input) => input.name)
+  //       .reduce(
+  //         (obj, input) => Object.assign(obj, { [input.name]: input.value }),
+  //         {}
+  //       );
+  //     const fields = [
+  //       'name', 'gender', 'email', 'citizenId', 'dob', 'region',
+  //       'workUnit', 'certificateName', 'issueDate'
+  //     ];
+  //     for (const field of fields) {
+  //       if (!data[field]) {
+  //         setMessageAlert(`Please fill out the ${field} field.`);
+  //         setAlertSeverity("warning");
+  //         setShowAlert(true);
+  //         setLoading(false);
+  //         return;
+  //       }
+  //     }
+  //     if (!emailPattern.test(data.email)) {
+  //       setMessageAlert(`Invalid Mail`);
+  //       setAlertSeverity("warning");
+  //       setShowAlert(true);
+  //       setLoading(false);
+  //       document.querySelector("[name='email']").classList.add('invalid-input');
+  //       return;
+  //     } else {
+  //       console.log("Valid email");
+  //     }
+  //     if (file && file.length > 0) {
+  //       for (let i = 0; i < file.length; i++) {
+  //         formData.append("imageCertificate", file[i]);
+  //       }
+  //       try {
+  //         const issuers = await checkIssuer(data.licensingAuthority);
+  //         const org = await contract.getOrganizationCode(address);
+  //         const certificates = await axios.get("https://soulbound-token-nft-api.vercel.app/tickets");
+  //         if (Array.isArray(certificates.data.certificates)) {
+  //           const certificateExist = certificates.data.certificates.filter(certi => certi.certificate == data.certificateName)
+  //           if (certificateExist.length === 0) {
+  //             setLoading(false)
+  //             setAlertSeverity("warning");
+  //             setMessageAlert(` ${data.certificateName} not found.Please select another certificate`);
+  //             setShowAlert(true);
+  //             return;
+  //           }
+  //         }
+  //         if (issuers.length === 0) {
+  //           setLoading(false)
+  //           setAlertSeverity("warning");
+  //           setMessageAlert(`No issuer found for ${data.licensingAuthority}.Please select another certificate`);
+  //           setShowAlert(true);
+  //           return;
+  //         }
+  //         else {
+  //           const ownerPublicKeysResponse = await axios.get(`https://soulbound-token-nft-api.vercel.app/addresses/${address}`)
+  //           if (ownerPublicKeysResponse.data.address.length === 0) {
+  //             setLoading(false);
+  //             return;
+  //           }
+  //           const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
+  //           const base64ImageString = await imageFileToBase64(formData.get("imageCertificate"));
+  //           hashImg = hashImage(base64ImageString)
+  //           const exists = await isExistsInPinata(hashImg)
+  //           if (exists) {
+  //             setLoading(false);
+  //             setAlertSeverity("warning");
+  //             setMessageAlert(`This certificate already belongs to someone else or you already get this certificate`);
+  //             setShowAlert(true);
+  //             return
+  //           }
+  //           const imageEncrypt = await encryptData(base64ImageString, privateKey, remove0x(publicKeyOwner));
+  //           image_res = await imageUpload(imageEncrypt, hashImg, address, data["certificateName"])
+  //           const id = uuidv4();
+  //           const fieldsToEncrypt = [
+  //             'citizenId', 'name', 'region', 'dob', 'gender', 'email',
+  //             'workUnit', 'point', 'issueDate', 'expiryDate'];
+  //           for (const field of fieldsToEncrypt) {
+  //             const encryptedData = data[field] ? await encryptData(data[field], privateKey, remove0x(publicKeyOwner)) : null;
+  //             formData.append(field, JSON.stringify(encryptedData));
+  //           }
+
+  //           formData.append("issuerAddress", ' ')
+  //           formData.append("cidCertificate", image_res)
+  //           formData.append("id", id)
+  //           formData.append("owner", address)
+  //           formData.append("certificateName", data.certificateName)
+  //           formData.append("licensingAuthority", data.licensingAuthority);
+  //           // for (let pair of formData.entries()) {
+  //           //   console.log(pair[0] + ", " + pair[1]);
+  //           // }
+  //           const response = await axios.post("https://soulbound-token-nft-api.vercel.app/tickets", formData);
+  //           if (response.data.message === "ticket already exist") {
+  //             setLoading(false);
+  //             setAlertSeverity("warning");
+  //             setMessageAlert("Ticket already exist");
+  //             setShowAlert(true);
+  //             return
+  //           }
+  //           for (const issuer of issuers) {
+  //             const issuerPublicKeysResponse = await axios.get(`https://soulbound-token-nft-api.vercel.app/addresses/${issuer}`);
+  //             if (issuerPublicKeysResponse.data.address.length === 0) {
+  //               setLoading(false); // Stop loading regardless of the request outcome
+  //               setAlertSeverity("warning");
+  //               setMessageAlert(`${data.licensingAuthority} is busy. Please comeback later`);
+  //               setShowAlert(true);
+  //               return;
+  //             }
+  //             else if (issuerPublicKeysResponse.data.address[0].publickey != null) {
+  //               const formData = new FormData();
+  //               for (let i = 0; i < file.length; i++) {
+  //                 formData.append("imageCertificate", file[i]);
+  //               }
+  //               const base64ImageString = await imageFileToBase64(formData.get("imageCertificate"));
+  //               const imageEncrypt = await encryptData(base64ImageString, privateKey, remove0x(issuerPublicKeysResponse.data.address[0].publickey));
+  //               const publicKeyIssuer = issuerPublicKeysResponse.data.address[0].publickey
+  //               console.log("ISSUER", publicKeyIssuer)
+
+  //               for (const field of fieldsToEncrypt) {
+  //                 const encryptedData = data[field] ? await encryptData(data[field], privateKey, remove0x(publicKeyIssuer)) : null;
+  //                 formData.append(field, JSON.stringify(encryptedData));
+  //               }
+  //               image_res = await imageUpload(imageEncrypt, hashImg, address, data["certificateName"])
+  //               formData.append("issuerAddress", issuerPublicKeysResponse.data.address[0].address)
+  //               formData.append("cidCertificate", image_res)
+  //               formData.append("id", id)
+  //               formData.append("owner", address)
+  //               formData.append("certificateName", data.certificateName)
+  //               formData.append("licensingAuthority", data.licensingAuthority);
+  //               const response = await axios.post("https://soulbound-token-nft-api.vercel.app/tickets", formData);
+  //               if (response.data.message === "ticket already exist") {
+  //                 setLoading(false); // Stop loading regardless of the request outcome
+  //                 setAlertSeverity("warning");
+  //                 setMessageAlert("Ticket already exist");
+  //                 setShowAlert(true);
+  //                 return
+  //               }
+  //             }
+  //           }
+  //         }
+  //         setLoading(false); // Stop loading regardless of the request outcome
+  //         setAlertSeverity("success");
+  //         setMessageAlert(`Submitted successfully. Please wait for confirmation from the ${data.licensingAuthority}`);
+  //         setShowAlert(true);
+  //       } catch (err) {
+  //         console.log(err)
+  //       }
+  //     } else {
+  //       setMessageAlert(`Please select image`);
+  //       setAlertSeverity("warning");
+  //       setShowAlert(true);
+  //       setLoading(false); // Stop loading regardless of the request outcome
+  //       return;
+  //     }
+  //   }
+  //   else {
+  //     setLoading(false)
+  //     return
+  //   }
+  // };
   const handleSubmit = async (privateKey, check) => {
-    setLoading(true)
-    if (check) {
-      const form = document.querySelector("form");
-      let image_res = ''
-      let hashImg = ''
-      const formData = new FormData();
-      const emailPattern = /^[a-zA-Z0-9._%+-]+@(gmail\.com|student\.hcmus\.edu\.vn)$/;
-      const data = Array.from(form.elements)
-        .filter((input) => input.name)
-        .reduce(
-          (obj, input) => Object.assign(obj, { [input.name]: input.value }),
-          {}
-        );
-      const fields = [
-        'name', 'gender', 'email', 'citizenId', 'dob', 'region',
-        'workUnit', 'certificateName', 'issueDate'
-      ];
-      for (const field of fields) {
-        if (!data[field]) {
-          setMessageAlert(`Please fill out the ${field} field.`);
+    setLoading(true);
+
+    if (!check) {
+      setLoading(false);
+      return;
+    }
+    let image_res = ''
+    const form = document.querySelector("form");
+    const formData = new FormData();
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@(gmail\.com|student\.hcmus\.edu\.vn)$/;
+    const data = Array.from(form.elements)
+      .filter((input) => input.name)
+      .reduce(
+        (obj, input) => Object.assign(obj, { [input.name]: input.value }),
+        {}
+      );
+
+    const fields = [
+      'name', 'gender', 'email', 'citizenId', 'dob', 'region',
+      'workUnit', 'certificateName', 'issueDate'
+    ];
+
+    for (const field of fields) {
+      if (!data[field]) {
+        setMessageAlert(`Please fill out the ${field} field.`);
+        setAlertSeverity("warning");
+        setShowAlert(true);
+        setLoading(false);
+        return;
+      }
+    }
+
+    if (!emailPattern.test(data.email)) {
+      setMessageAlert(`Invalid Mail`);
+      setAlertSeverity("warning");
+      setShowAlert(true);
+      setLoading(false);
+      document.querySelector("[name='email']").classList.add('invalid-input');
+      return;
+    }
+
+    if (!file || file.length === 0) {
+      setMessageAlert(`Please select image`);
+      setAlertSeverity("warning");
+      setShowAlert(true);
+      setLoading(false);
+      return;
+    }
+
+    for (let i = 0; i < file.length; i++) {
+      formData.append("imageCertificate", file[i]);
+    }
+
+    try {
+      const issuers = await checkIssuer(data.licensingAuthority);
+      const org = await contract.getOrganizationCode(address);
+      const certificates = await axios.get("https://soulbound-token-nft-api.vercel.app/tickets");
+
+      if (Array.isArray(certificates.data.certificates)) {
+        const certificateExist = certificates.data.certificates.filter(certi => certi.certificate == data.certificateName);
+        if (certificateExist.length === 0) {
+          setMessageAlert(` ${data.certificateName} not found. Please select another certificate`);
           setAlertSeverity("warning");
           setShowAlert(true);
           setLoading(false);
           return;
         }
       }
-      if (!emailPattern.test(data.email)) {
-        setMessageAlert(`Invalid Mail`);
+
+      if (issuers.length === 0) {
+        setMessageAlert(`No issuer found for ${data.licensingAuthority}. Please select another certificate`);
         setAlertSeverity("warning");
         setShowAlert(true);
         setLoading(false);
-        document.querySelector("[name='email']").classList.add('invalid-input');
         return;
-      } else {
-        console.log("Valid email");
       }
-      if (file && file.length > 0) {
-        for (let i = 0; i < file.length; i++) {
-          formData.append("imageCertificate", file[i]);
+
+      const ownerPublicKeysResponse = await axios.get(`https://soulbound-token-nft-api.vercel.app/addresses/${address}`);
+      if (ownerPublicKeysResponse.data.address.length === 0) {
+        setLoading(false);
+        return;
+      }
+
+      const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey;
+      const base64ImageString = await imageFileToBase64(formData.get("imageCertificate"));
+      const imageWorker = new Worker(new URL('./imageWorker.js', import.meta.url));
+
+      imageWorker.postMessage({ base64ImageString, privateKey, publicKeyOwner });
+
+      imageWorker.onmessage = async (e) => {
+        const { imageEncrypt, hashImg, error } = e.data;
+
+        if (error) {
+          setLoading(false);
+          setAlertSeverity("warning");
+          setMessageAlert(error);
+          setShowAlert(true);
+          return;
         }
-        try {
-          const issuers = await checkIssuer(data.licensingAuthority);
-          const org = await contract.getOrganizationCode(address);
-          const certificates = await axios.get("https://verify-certification-nft-production.up.railway.app/tickets");
-          if (Array.isArray(certificates.data.certificates)) {
-            const certificateExist = certificates.data.certificates.filter(certi => certi.certificate == data.certificateName)
-            if (certificateExist.length === 0) {
-              setLoading(false)
-              setAlertSeverity("warning");
-              setMessageAlert(` ${data.certificateName} not found.Please select another certificate`);
-              setShowAlert(true);
-              return;
-            }
-          }
-          if (issuers.length === 0) {
-            setLoading(false)
+
+        image_res = await imageUpload(imageEncrypt, hashImg, address, data["certificateName"]);
+        const id = uuidv4();
+        const fieldsToEncrypt = [
+          'citizenId', 'name', 'region', 'dob', 'gender', 'email',
+          'workUnit', 'point', 'issueDate', 'expiryDate'
+        ];
+
+        for (const field of fieldsToEncrypt) {
+          const encryptedData = data[field] ? await encryptData(data[field], privateKey, remove0x(publicKeyOwner)) : null;
+          formData.append(field, JSON.stringify(encryptedData));
+        }
+
+        formData.append("issuerAddress", ' ');
+        formData.append("cidCertificate", image_res);
+        formData.append("id", id);
+        formData.append("owner", address);
+        formData.append("certificateName", data.certificateName);
+        formData.append("licensingAuthority", data.licensingAuthority);
+
+        const response = await axios.post("https://soulbound-token-nft-api.vercel.app/tickets", formData);
+
+        if (response.data.message === "ticket already exist") {
+          setLoading(false);
+          setAlertSeverity("warning");
+          setMessageAlert("Ticket already exist");
+          setShowAlert(true);
+          return;
+        }
+
+        for (const issuer of issuers) {
+          const issuerPublicKeysResponse = await axios.get(`https://soulbound-token-nft-api.vercel.app/addresses/${issuer}`);
+          if (issuerPublicKeysResponse.data.address.length === 0) {
+            setLoading(false);
             setAlertSeverity("warning");
-            setMessageAlert(`No issuer found for ${data.licensingAuthority}.Please select another certificate`);
+            setMessageAlert(`${data.licensingAuthority} is busy. Please comeback later`);
             setShowAlert(true);
             return;
           }
-          else {
-            const ownerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`)
-            if (ownerPublicKeysResponse.data.address.length === 0) {
-              setLoading(false);
-              return;
-            }
-            const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
-            const base64ImageString = await imageFileToBase64(formData.get("imageCertificate"));
-            hashImg = hashImage(base64ImageString)
-            const exists = await isExistsInPinata(hashImg)
-            if (exists) {
-              setLoading(false);
-              setAlertSeverity("warning");
-              setMessageAlert(`This certificate already belongs to someone else or you already get this certificate`);
-              setShowAlert(true);
-              return
-            }
-            const imageEncrypt = await encryptData(base64ImageString, privateKey, remove0x(publicKeyOwner));
-            image_res = await imageUpload(imageEncrypt, hashImg, address, data["certificateName"])
-            const id = uuidv4();
-            const fieldsToEncrypt = [
-              'citizenId', 'name', 'region', 'dob', 'gender', 'email',
-              'workUnit', 'point', 'issueDate', 'expiryDate'];
-            for (const field of fieldsToEncrypt) {
-              const encryptedData = data[field] ? await encryptData(data[field], privateKey, remove0x(publicKeyOwner)) : null;
-              formData.append(field, JSON.stringify(encryptedData));
+
+          const issuerPublicKey = issuerPublicKeysResponse.data.address[0].publickey;
+          if (issuerPublicKey) {
+            const formDataForIssuer = new FormData();
+            for (let i = 0; i < file.length; i++) {
+              formDataForIssuer.append("imageCertificate", file[i]);
             }
 
-            formData.append("issuerAddress", ' ')
-            formData.append("cidCertificate", image_res)
-            formData.append("id", id)
-            formData.append("owner", address)
-            formData.append("certificateName", data.certificateName)
-            formData.append("licensingAuthority", data.licensingAuthority);
-            // for (let pair of formData.entries()) {
-            //   console.log(pair[0] + ", " + pair[1]);
-            // }
-            const response = await axios.post("https://verify-certification-nft-production.up.railway.app/tickets", formData);
-            if (response.data.message === "ticket already exist") {
+            const base64ImageStringForIssuer = await imageFileToBase64(formDataForIssuer.get("imageCertificate"));
+            const imageEncryptForIssuer = await encryptData(base64ImageStringForIssuer, privateKey, remove0x(issuerPublicKey));
+
+            for (const field of fieldsToEncrypt) {
+              const encryptedData = data[field] ? await encryptData(data[field], privateKey, remove0x(issuerPublicKey)) : null;
+              formDataForIssuer.append(field, JSON.stringify(encryptedData));
+            }
+
+            image_res = await imageUpload(imageEncryptForIssuer, hashImg, address, data["certificateName"]);
+            formDataForIssuer.append("issuerAddress", issuerPublicKeysResponse.data.address[0].address);
+            formDataForIssuer.append("cidCertificate", image_res);
+            formDataForIssuer.append("id", id);
+            formDataForIssuer.append("owner", address);
+            formDataForIssuer.append("certificateName", data.certificateName);
+            formDataForIssuer.append("licensingAuthority", data.licensingAuthority);
+
+            const responseForIssuer = await axios.post("https://soulbound-token-nft-api.vercel.app/tickets", formDataForIssuer);
+            if (responseForIssuer.data.message === "ticket already exist") {
               setLoading(false);
               setAlertSeverity("warning");
               setMessageAlert("Ticket already exist");
               setShowAlert(true);
-              return
-            }
-            for (const issuer of issuers) {
-              const issuerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${issuer}`);
-              if (issuerPublicKeysResponse.data.address.length === 0) {
-                setLoading(false); // Stop loading regardless of the request outcome
-                setAlertSeverity("warning");
-                setMessageAlert(`${data.licensingAuthority} is busy. Please comeback later`);
-                setShowAlert(true);
-                return;
-              }
-              else if (issuerPublicKeysResponse.data.address[0].publickey != null) {
-                const formData = new FormData();
-                for (let i = 0; i < file.length; i++) {
-                  formData.append("imageCertificate", file[i]);
-                }
-                const base64ImageString = await imageFileToBase64(formData.get("imageCertificate"));
-                const imageEncrypt = await encryptData(base64ImageString, privateKey, remove0x(issuerPublicKeysResponse.data.address[0].publickey));
-                const publicKeyIssuer = issuerPublicKeysResponse.data.address[0].publickey
-                console.log("ISSUER", publicKeyIssuer)
-
-                for (const field of fieldsToEncrypt) {
-                  const encryptedData = data[field] ? await encryptData(data[field], privateKey, remove0x(publicKeyIssuer)) : null;
-                  formData.append(field, JSON.stringify(encryptedData));
-                }
-                image_res = await imageUpload(imageEncrypt, hashImg, address, data["certificateName"])
-                formData.append("issuerAddress", issuerPublicKeysResponse.data.address[0].address)
-                formData.append("cidCertificate", image_res)
-                formData.append("id", id)
-                formData.append("owner", address)
-                formData.append("certificateName", data.certificateName)
-                formData.append("licensingAuthority", data.licensingAuthority);
-                const response = await axios.post("https://verify-certification-nft-production.up.railway.app/tickets", formData);
-                if (response.data.message === "ticket already exist") {
-                  setLoading(false); // Stop loading regardless of the request outcome
-                  setAlertSeverity("warning");
-                  setMessageAlert("Ticket already exist");
-                  setShowAlert(true);
-                  return
-                }
-              }
+              return;
             }
           }
-          setLoading(false); // Stop loading regardless of the request outcome
-          setAlertSeverity("success");
-          setMessageAlert(`Submitted successfully. Please wait for confirmation from the ${data.licensingAuthority}`);
-          setShowAlert(true);
-        } catch (err) {
-          console.log(err)
         }
-      } else {
-        setMessageAlert(`Please select image`);
-        setAlertSeverity("warning");
+        setLoading(false);
+        setAlertSeverity("success");
+        setMessageAlert(`Submitted successfully. Please wait for confirmation from the ${data.licensingAuthority}`);
         setShowAlert(true);
-        setLoading(false); // Stop loading regardless of the request outcome
-        return;
-      }
-    }
-    else {
-      setLoading(false)
-      return
+      };
+
+      imageWorker.onerror = (error) => {
+        console.error('Error in image worker:', error);
+        setLoading(false);
+        setAlertSeverity("warning");
+        setMessageAlert("An error occurred during image processing.");
+        setShowAlert(true);
+      };
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
     }
   };
+
 
   const handleClose = async (event, reason) => {
     if (reason === 'clickaway') {
@@ -345,7 +537,7 @@ const BodySection = () => {
       if (check) {
         const privateKeyBytes = ethers.utils.arrayify(add0x(privateKey));
         const publicKeyFromPrivateKey = ethers.utils.computePublicKey(privateKeyBytes);
-        const ownerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`)
+        const ownerPublicKeysResponse = await axios.get(`https://soulbound-token-nft-api.vercel.app/addresses/${address}`)
 
         if (ownerPublicKeysResponse.data.address.length === 0) {
           return;

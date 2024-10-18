@@ -52,7 +52,7 @@ const EditExam = () => {
         const fetchQuestionsAndCourse = async () => {
             try {
                 if (address) {
-                    const course = await axios(`https://verify-certification-nft-production.up.railway.app/courses/course/${id}`)
+                    const course = await axios(`https://soulbound-token-nft-api.vercel.app/courses/course/${id}`)
                     const orgOfAddress = await contract.getOrganizationCode(address)
                     console.log(course.data.course[0])
                     if (course && orgOfAddress == course.data.course[0].org) {
@@ -61,7 +61,7 @@ const EditExam = () => {
                         setShortName(course.data.course[0].slug)
                         setDescription(course.data.course[0].description)
                         setImageUrl(course.data.course[0].image)
-                        const questions = await axios(`https://verify-certification-nft-production.up.railway.app/exam/question/${id}`)
+                        const questions = await axios(`https://soulbound-token-nft-api.vercel.app/exam/question/${id}`)
 
                         if (Array.isArray(questions.data.questions)) {
                             const transformedQuestions = questions.data.questions.map((q) => {
@@ -127,13 +127,13 @@ const EditExam = () => {
             setLoading(true)
             if (address) {
                 try {
-                    const checkPublicKeyExisted = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`);
+                    const checkPublicKeyExisted = await axios.get(`https://soulbound-token-nft-api.vercel.app/addresses/${address}`);
                     if (checkPublicKeyExisted.data.address.length === 0) {
                         const publicKey = await getPublicKey(); // Await the result of getPublicKey
                         if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
                             navigate("/")
                         }
-                        await axios.post(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`, {
+                        await axios.post(`https://soulbound-token-nft-api.vercel.app/addresses/${address}`, {
                             address: address, // Include the address in the body
                             publicKey: publicKey // Include the public key in the body
                         });
@@ -148,7 +148,7 @@ const EditExam = () => {
                             if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
                                 navigate("/")
                             }
-                            await axios.post(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`, {
+                            await axios.post(`https://soulbound-token-nft-api.vercel.app/addresses/${address}`, {
                                 address: address, // Include the address in the body
                                 publicKey: publicKey // Include the public key in the body
                             });
@@ -371,7 +371,7 @@ const EditExam = () => {
         }
         setLoading(true)
         try {
-            const result = await axios.delete(`https://verify-certification-nft-production.up.railway.app/courses/course/${courseId}`)
+            const result = await axios.delete(`https://soulbound-token-nft-api.vercel.app/courses/course/${courseId}`)
             if (result.data.message == "Course deleted successfully") {
 
                 setMessageAlert("Exam has been deleted");
@@ -483,7 +483,7 @@ const EditExam = () => {
             return
         }
         try {
-            const result = await axios.patch("https://verify-certification-nft-production.up.railway.app/exam/postexam", dataToSave)
+            const result = await axios.patch("https://soulbound-token-nft-api.vercel.app/exam/postexam", dataToSave)
             if (result.data.message == "Update successfully") {
 
                 window.location.reload()

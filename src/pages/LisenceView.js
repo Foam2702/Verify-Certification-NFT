@@ -136,7 +136,7 @@ const LisenceView = () => {
     if (address && isPrivateKeyValid) {
       setLoading(true);
       try {
-        const results = await axios(`https://verify-certification-nft-production.up.railway.app/share?address=${address}`);
+        const results = await axios(`https://soulbound-token-nft-api.vercel.app/share?address=${address}`);
         console.log("RES", results);
         if (Array.isArray(results.data.data)) {
           setShareCertificate(results.data.data);
@@ -173,7 +173,7 @@ const LisenceView = () => {
   const insertPubToDB = async () => {
     if (address) {
       try {
-        const checkPublicKeyExisted = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`);
+        const checkPublicKeyExisted = await axios.get(`https://soulbound-token-nft-api.vercel.app/addresses/${address}`);
         if (checkPublicKeyExisted.data.address.length === 0) {
           const publicKey = await getPublicKey(); // Await the result of getPublicKey
           if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
@@ -183,7 +183,7 @@ const LisenceView = () => {
             setShowAlert(true);
             return false;
           }
-          await axios.post(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`, {
+          await axios.post(`https://soulbound-token-nft-api.vercel.app/addresses/${address}`, {
             address: address, // Include the address in the body
             publicKey: publicKey // Include the public key in the body
           });
@@ -198,7 +198,7 @@ const LisenceView = () => {
               setShowAlert(true);
               return false
             }
-            await axios.post(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`, {
+            await axios.post(`https://soulbound-token-nft-api.vercel.app/addresses/${address}`, {
               address: address, // Include the address in the body
               publicKey: publicKey // Include the public key in the body
             });
@@ -226,7 +226,7 @@ const LisenceView = () => {
       if (check) {
         const privateKeyBytes = ethers.utils.arrayify(add0x(privateKey));
         const publicKeyFromPrivateKey = ethers.utils.computePublicKey(privateKeyBytes);
-        const ownerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`);
+        const ownerPublicKeysResponse = await axios.get(`https://soulbound-token-nft-api.vercel.app/addresses/${address}`);
 
         if (ownerPublicKeysResponse.data.address.length === 0) {
           setIsPrivateKeyValid(false); // Set isPrivateKeyValid to false if no address is found
@@ -263,41 +263,72 @@ const LisenceView = () => {
     }
   }
 
-  const handleDecryptTicket = async (prop, privateKey, publicKeyOwner) => {
-    if (prop != null && prop != '' && prop != undefined) {
-      try {
-        const parseProp = extractEncryptedDataFromJson(prop)
+  // const handleDecryptTicket = async (prop, privateKey, publicKeyOwner) => {
+  //   if (prop != null && prop != '' && prop != undefined) {
+  //     try {
+  //       const parseProp = extractEncryptedDataFromJson(prop)
 
+  //       const result = await decryptData(parseProp.cipher, parseProp.iv, remove0x(publicKeyOwner), privateKey);
+  //       if (!result) throw new Error("Wrong private key");
+  //       return result;
+  //     } catch (error) {
+  //       handleDecryptionError(error);
+  //       return minifyAddress(prop.toString());
+  //     }
+  //   }
+  //   else {
+  //     // handleDecryptionError(error);
+
+  //     return " "; // Return the original prop value in case of error
+  //   }
+  // };
+  const handleDecryptTicket = async (prop, privateKey, publicKeyOwner) => {
+    if (prop != null && prop !== '' && prop !== undefined) {
+      try {
+        const parseProp = extractEncryptedDataFromJson(prop);
         const result = await decryptData(parseProp.cipher, parseProp.iv, remove0x(publicKeyOwner), privateKey);
         if (!result) throw new Error("Wrong private key");
         return result;
       } catch (error) {
         handleDecryptionError(error);
         return minifyAddress(prop.toString());
+      } finally {
+        console.timeEnd("Handle Decrypt Ticket Time");
       }
-    }
-    else {
+    } else {
       // handleDecryptionError(error);
-
       return " "; // Return the original prop value in case of error
     }
   };
+  // const handleDecryptImage = async (cid, privateKey, publicKeyOwner) => {
 
+  //   try {
+  //     const { data } = await axios(`https://coral-able-takin-320.mypinata.cloud/ipfs/${cid}`);
+
+  //     const parseImg = extractEncryptedDataFromJson(JSON.stringify(data.image))
+  //     const decryptedData = await decryptData(parseImg.cipher, parseImg.iv, remove0x(publicKeyOwner), privateKey);
+  //     if (!decryptedData) throw new Error("Wrong private key");
+  //     return decryptedData;
+  //   } catch (error) {
+  //     // handleDecryptionError(error);
+  //     return null;
+  //   }
+  // };
   const handleDecryptImage = async (cid, privateKey, publicKeyOwner) => {
-
     try {
       const { data } = await axios(`https://coral-able-takin-320.mypinata.cloud/ipfs/${cid}`);
 
-      const parseImg = extractEncryptedDataFromJson(JSON.stringify(data.image))
+      const parseImg = extractEncryptedDataFromJson(JSON.stringify(data.image));
       const decryptedData = await decryptData(parseImg.cipher, parseImg.iv, remove0x(publicKeyOwner), privateKey);
       if (!decryptedData) throw new Error("Wrong private key");
       return decryptedData;
     } catch (error) {
       // handleDecryptionError(error);
       return null;
+    } finally {
+      console.timeEnd("Handle Decrypt Image Time");
     }
   };
-
   const handleDecryptionError = (error) => {
     const errorMessage = error.message.includes("Cipher key could not be derived")
       ? "Wrong private key"
@@ -312,33 +343,73 @@ const LisenceView = () => {
   };
 
 
-  // useEffect(() => {
-  const decryptAllFields = async (privateKey) => {
-    setLoading(true)
-    try {
-      const newDecryptedCertificates = [];
-      const ownerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`)
-      if (ownerPublicKeysResponse.data.address.length === 0) {
-        setLoading(false)
+  // const decryptAllFields = async (privateKey) => {
+  //   setLoading(true)
+  //   try {
+  //     const newDecryptedCertificates = [];
+  //     const ownerPublicKeysResponse = await axios.get(`https://soulbound-token-nft-api.vercel.app/addresses/${address}`)
+  //     if (ownerPublicKeysResponse.data.address.length === 0) {
+  //       setLoading(false)
 
+  //       return;
+  //     }
+  //     const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
+
+  //     for (const certificate of certificates) {
+  //       const nfts = await axios(`https://coral-able-takin-320.mypinata.cloud/ipfs/${extractCID(certificate.metadata_url)}`)
+  //       const name = nfts.data.name
+  //       const opensea_url = certificate.opensea_url
+  //       const id = certificate.identifier
+  //       const image = await handleDecryptImage(extractPinataCID(nfts.data.image), privateKey, publicKeyOwner);
+  //       const decryptedAttributes = await Promise.all(nfts.data.attributes.map(async (attribute) => {
+  //         if (attribute.trait_type != "status" && attribute.trait_type != "licensing_authority") {
+  //           attribute.value = await handleDecryptTicket(attribute.value, privateKey, publicKeyOwner);
+
+  //         }
+  //         return attribute;
+  //       }));
+  //       newDecryptedCertificates.push({
+  //         ...certificate,
+  //         id,
+  //         name,
+  //         image_url: image,
+  //         opensea_url,
+  //         date: formatDateV2(certificate.updated_at),
+  //         attributes: decryptedAttributes,
+  //       });
+  //     }
+  //     setDecryptedCertificates(newDecryptedCertificates);
+  //     setFilterDecryptedCertificates(newDecryptedCertificates)
+  //     setIsPrivateKeyValid(true);
+  //     setLoading(false)
+  //   } catch (error) {
+  //     setIsPrivateKeyValid(false);
+  //     setLoading(false)
+  //   }
+  //   finally {
+  //     setLoading(false); // Set loading to false after decryption process
+  //   }
+  // };
+  const decryptAllFields = async (privateKey) => {
+    setLoading(true);
+    try {
+      const ownerPublicKeysResponse = await axios.get(`https://soulbound-token-nft-api.vercel.app/addresses/${address}`);
+
+      if (ownerPublicKeysResponse.data.address.length === 0) {
+        setLoading(false);
         return;
       }
-      const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
-
+      const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey;
+      const newDecryptedCertificates = [];
       for (const certificate of certificates) {
-        const nfts = await axios(`https://coral-able-takin-320.mypinata.cloud/ipfs/${extractCID(certificate.metadata_url)}`)
-        const name = nfts.data.name
-        const opensea_url = certificate.opensea_url
-        const id = certificate.identifier
+        const nfts = await axios(`https://coral-able-takin-320.mypinata.cloud/ipfs/${extractCID(certificate.metadata_url)}`);
+        const name = nfts.data.name;
+        const opensea_url = certificate.opensea_url;
+        const id = certificate.identifier;
         const image = await handleDecryptImage(extractPinataCID(nfts.data.image), privateKey, publicKeyOwner);
         const decryptedAttributes = await Promise.all(nfts.data.attributes.map(async (attribute) => {
-          // if (attribute.value.startsWith('"') && attribute.value.endsWith('"')) {
-
-          //   attribute.value = await handleDecryptTicket(attribute.value, privateKey, publicKeyOwner);
-          // }
-          if (attribute.trait_type != "status" && attribute.trait_type != "licensing_authority") {
+          if (attribute.trait_type !== "status" && attribute.trait_type !== "licensing_authority") {
             attribute.value = await handleDecryptTicket(attribute.value, privateKey, publicKeyOwner);
-
           }
           return attribute;
         }));
@@ -351,23 +422,24 @@ const LisenceView = () => {
           date: formatDateV2(certificate.updated_at),
           attributes: decryptedAttributes,
         });
+
+        // setLoading(false);
       }
       setDecryptedCertificates(newDecryptedCertificates);
-      setFilterDecryptedCertificates(newDecryptedCertificates)
+      setFilterDecryptedCertificates(newDecryptedCertificates);
       setIsPrivateKeyValid(true);
-      setLoading(false)
+
+      // setDecryptedCertificates(newDecryptedCertificates);
+      // setFilterDecryptedCertificates(newDecryptedCertificates);
+      // setIsPrivateKeyValid(true);
+      setLoading(false);
     } catch (error) {
       setIsPrivateKeyValid(false);
-      setLoading(false)
-    }
-    finally {
+      setLoading(false);
+    } finally {
       setLoading(false); // Set loading to false after decryption process
     }
   };
-
-  //   if (privateKey && certificates.length > 0) decryptAllFields();
-  // }, [privateKey, certificates]);
-
   const handleChange = (value) => {
     setInput(value);
     const filterCertificates = certificates.filter((cer) =>
@@ -393,7 +465,7 @@ const LisenceView = () => {
       transaction: currentCertificate.transaction_hash
     }
     if (event.target.value === 'public') {
-      const result = await axios.post(`https://verify-certification-nft-production.up.railway.app/share?id=${currentCertificate.identifier}&address=${currentCertificate.name}`, shareCerti)
+      const result = await axios.post(`https://soulbound-token-nft-api.vercel.app/share?id=${currentCertificate.identifier}&address=${currentCertificate.name}`, shareCerti)
       if (result.data.message == "Change to public success") {
         setAlertSeverity("success");
         setMessageAlert("Change to public success");
@@ -408,7 +480,7 @@ const LisenceView = () => {
       }
 
     } else {
-      const result = await axios.delete(`https://verify-certification-nft-production.up.railway.app/share?id=${currentCertificate.identifier}&address=${currentCertificate.name}`, shareCerti)
+      const result = await axios.delete(`https://soulbound-token-nft-api.vercel.app/share?id=${currentCertificate.identifier}&address=${currentCertificate.name}`, shareCerti)
       if (result.data.message == 'Change to private success') {
         setAlertSeverity("success");
         setMessageAlert("Change to private success");

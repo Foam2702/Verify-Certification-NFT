@@ -106,36 +106,6 @@ export async function decryptData(encryptedData, ivHex, senderPublicKeyHex, rece
 
     return decrypted.toString(CryptoJS.enc.Utf8);
 }
-// export async function encryptData(data, publicKeyHex) {
-//     const publicKey = ec.keyFromPublic(publicKeyHex, 'hex');
-//     const fixedIV = CryptoJS.enc.Hex.parse('00000000000000000000000000000000');
-
-//     // Derive a shared secret using the public key
-//     const sharedKey = publicKey.getPublic().encode('hex'); // using public key as shared key
-//     const key = CryptoJS.SHA256(sharedKey).toString(CryptoJS.enc.Hex);
-
-//     // Encrypt the data using AES-256-CBC with the fixed IV
-//     const cipher = CryptoJS.AES.encrypt(data, CryptoJS.enc.Hex.parse(key), { iv: fixedIV, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
-
-//     return cipher.toString()
-// }
-// export async function decryptData(encryptedData, privateKeyHex) {
-//     const fixedIV = CryptoJS.enc.Hex.parse('00000000000000000000000000000000');
-//     const iv = fixedIV.toString(CryptoJS.enc.Hex)
-
-//     const privateKey = ec.keyFromPrivate(privateKeyHex, 'hex');
-//     const publicKey = privateKey.getPublic();
-
-//     // Derive the shared secret using the recipient's private key
-//     const sharedKey = publicKey.encode('hex'); // using public key as shared key
-//     const key = CryptoJS.SHA256(sharedKey).toString(CryptoJS.enc.Hex);
-
-//     // Decrypt the data using AES-256-CBC with the fixed IV
-//     const ivWordArray = CryptoJS.enc.Hex.parse(iv);
-//     const decrypted = CryptoJS.AES.decrypt(encryptedData, CryptoJS.enc.Hex.parse(key), { iv: ivWordArray, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
-
-//     return decrypted.toString(CryptoJS.enc.Utf8);
-// }
 
 export async function imageFileToBase64(file) {
     return new Promise((resolve, reject) => {
@@ -159,18 +129,7 @@ export function formatDateToISO(date) {
     // Format as YYYY-MM-DD
     return `${year}-${month}-${day}`;
 }
-// export async function bufferToBase64(buffer, mimeType) {
-//     return new Promise((resolve, reject) => {
-//         const blob = new Blob([buffer], { type: mimeType });
-//         const reader = new FileReader();
-//         reader.onloadend = () => {
-//             const base64String = reader.result;
-//             resolve(base64String);
-//         };
-//         reader.onerror = () => reject(new Error('Error reading file'));
-//         reader.readAsDataURL(blob);
-//     });
-// }
+
 export const bufferToBase64 = (buffer, mimeType) => {
     return new Promise((resolve, reject) => {
         try {
@@ -313,7 +272,7 @@ export async function imageUpload(imageEnc, hashImg, owner, certificate) {
 export async function fetchImagePinata(imageHash) {
     try {
         const res = await axios(
-            `https://api.pinata.cloud/data/pinList?hashContains=${imageHash}&status=pinned`,
+            `https://api.pinata.cloud/data/pinList?hashContains=${imageHash}&status=pinned&pageLimit=1000`,
             {
                 headers: {
                     Authorization: `Bearer ${JWT}`,
@@ -377,7 +336,7 @@ export async function isExistsInPinata(hashImg) {
 
     try {
         const allCIDs = await axios(
-            "https://api.pinata.cloud/data/pinList?status=pinned",
+            "https://api.pinata.cloud/data/pinList?status=pinned&pageLimit=1000",
             {
                 headers: {
                     Authorization: `Bearer ${JWT}`,
@@ -391,6 +350,7 @@ export async function isExistsInPinata(hashImg) {
                 `https://coral-able-takin-320.mypinata.cloud/ipfs/${cid.ipfs_pin_hash}`
 
             );
+
             if (imgHash.data.hash == hashImg) {
                 return true;
             }

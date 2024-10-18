@@ -24,15 +24,17 @@ import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import WalletIcon from '@mui/icons-material/Wallet';
-import { hashImage, pinJSONToIPFS, excelDateToJSDate, bufferToBase64, getImageDimensionsFromBase64, formatDateToISO, deletePinIPFS, remove0x, extractEncryptedDataFromJson, decryptData, minifyAddress, imageFileToBase64 } from "../helpers/index"
+import { hashImage, pinJSONToIPFS, add0x, excelDateToJSDate, bufferToBase64, getImageDimensionsFromBase64, formatDateToISO, deletePinIPFS, remove0x, extractEncryptedDataFromJson, decryptData, minifyAddress, imageFileToBase64 } from "../helpers/index"
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import * as XLSX from "xlsx";
 const JWT = process.env.REACT_APP_JWT; // Make sure to set this in your React app environment variables
 import { styled } from '@mui/material/styles';
+const { ethers } = require("ethers");
+
 import "./BodySection.css";
 import "../pages/LisenceView"
 const Ticket = ({ ticket }) => {
-    const { signer, address, connectWallet, contract, provider } = useSigner()
+    const { signer, address, connectWallet, contract, provider, getPublicKey } = useSigner()
     const [file, setFile] = useState(null);
     const [issuer, setIssuer] = useState([])
     const [showAlert, setShowAlert] = useState(false);
@@ -48,7 +50,6 @@ const Ticket = ({ ticket }) => {
     const [open, setOpen] = useState(false);
     const [privateKey, setPrivateKey] = useState("")
     const [isPrivateKeyValid, setIsPrivateKeyValid] = useState(false);
-
     const [error, setError] = useState(null);
     const [decryptedName, setDecryptedName] = useState('');
     const [decryptedGender, setDecryptedGender] = useState('');
@@ -104,8 +105,6 @@ const Ticket = ({ ticket }) => {
             try {
                 const data = await web3.eth.getTransactionReceipt(ticket.transaction_hash);
                 let transaction = data;
-                console.log("TRANS", transaction.from)
-
                 let logs = data.logs;
                 const tokenIdValue = web3.utils.hexToNumber(logs[0].topics[3]);
                 setMint(transaction.from)
@@ -118,47 +117,9 @@ const Ticket = ({ ticket }) => {
         getAddContractAndTokenID()
     }, [ticket])
     useEffect(() => {
-        const decryptAllFields = async () => {
-            try {
-                setLoading(true)
-                const name = await handleDecryptTicket(ticket.name, privateKey);
-                const gender = await handleDecryptTicket(ticket.gender, privateKey);
-                const email = await handleDecryptTicket(ticket.email, privateKey);
-                const citizenId = await handleDecryptTicket(ticket.citizen_id, privateKey);
-                const dob = await handleDecryptTicket(ticket.dob, privateKey);
-                const region = await handleDecryptTicket(ticket.region, privateKey);
-                const workUnit = await handleDecryptTicket(ticket.work_unit, privateKey);
-                const point = await handleDecryptTicket(ticket.point, privateKey);
-                const issueDate = await handleDecryptTicket(ticket.issue_date, privateKey);
-                const expiryDate = await handleDecryptTicket(ticket.expiry_date, privateKey);
-                const imageCertificate = await handleDecryptImage(ticket.certificate_cid, privateKey)
-                setDecryptedName(name);
-                setDecryptedGender(gender);
-                setDecryptedEmail(email);
-                setDecryptedCitizenId(citizenId);
-                setDecryptedDob(dob);
-                setDecryptedRegion(region);
-                setDecryptedWorkUnit(workUnit);
-                setDecryptedPoint(point);
-                setDecryptedIssueDate(issueDate);
-                setDecryptedExpiryDate(expiryDate);
-                setDecryptedImage(imageCertificate)
-                setError(null); // Clear any previous errors
-                setLoading(false)
-            } catch (err) {
-                setLoading(false)
-                // setError("Wrong private key"); // No need to set error here since it's already set in handleDecryptTicket
-            }
-        };
-
-        if (ticket && privateKey) {
-            decryptAllFields();
-        }
-    }, [ticket, privateKey]);
-    useEffect(() => {
         const fetchCourses = async () => {
             try {
-                const response = await axios('https://verify-certification-nft-production.up.railway.app/courses');
+                const response = await axios('https://soulbound-token-nft-api.vercel.app/courses');
                 const courses = response.data.courses; // Assuming the API response structure
                 if (ticket.certificate_name) {
                     const match = courses.some(course => {
@@ -219,16 +180,16 @@ const Ticket = ({ ticket }) => {
             const status = "reject"
             const empty = ' '
             const encodedEmpty = encodeURIComponent(empty);
-            const owner = await axios(`https://verify-certification-nft-production.up.railway.app/tickets/ticket/${ticket.id}?address=${encodedEmpty}`)
+            const owner = await axios(`https://soulbound-token-nft-api.vercel.app/tickets/ticket/${ticket.id}?address=${encodedEmpty}`)
             await deletePinIPFS(owner.data.ticket[0].certificate_cid)
             for (let address of issuer) {
-                const issuer_org = await axios(`https://verify-certification-nft-production.up.railway.app/tickets/ticket/${ticket.id}?address=${address}`);
+                const issuer_org = await axios(`https://soulbound-token-nft-api.vercel.app/tickets/ticket/${ticket.id}?address=${address}`);
                 if (issuer_org.data.ticket[0].certificate_cid) {
                     await deletePinIPFS(issuer_org.data.ticket[0].certificate_cid)
                 }
-                await axios.delete(`https://verify-certification-nft-production.up.railway.app/tickets/ticket/${ticket.id}?address=${address}`)
+                await axios.delete(`https://soulbound-token-nft-api.vercel.app/tickets/ticket/${ticket.id}?address=${address}`)
             }
-            const response = await axios.patch(`https://verify-certification-nft-production.up.railway.app/tickets/ticket/${ticket.id}?status=${status}&transaction_hash=`)
+            const response = await axios.patch(`https://soulbound-token-nft-api.vercel.app/tickets/ticket/${ticket.id}?status=${status}&transaction_hash=`)
             if (response.data.message === "updated successfully") {
                 setLoading(false)
                 setUpdate(true)
@@ -283,7 +244,7 @@ const Ticket = ({ ticket }) => {
         const empty = ' '
         const encodedEmpty = encodeURIComponent(empty);
         try {
-            const userTicket = await axios(`https://verify-certification-nft-production.up.railway.app/tickets/ticket/${ticket.id}?address=${encodedEmpty}`)
+            const userTicket = await axios(`https://soulbound-token-nft-api.vercel.app/tickets/ticket/${ticket.id}?address=${encodedEmpty}`)
             ticket = userTicket.data.ticket[0];
             ticket.status = "approved"
         }
@@ -301,12 +262,12 @@ const Ticket = ({ ticket }) => {
                 );
                 setAddressContract(result.to)
                 for (let address of issuer) {
-                    const issuer_org = await axios(`https://verify-certification-nft-production.up.railway.app/tickets/ticket/${ticket.id}?address=${address}`);
+                    const issuer_org = await axios(`https://soulbound-token-nft-api.vercel.app/tickets/ticket/${ticket.id}?address=${address}`);
                     if (issuer_org.data.ticket[0].certificate_cid) {
 
                         await deletePinIPFS(issuer_org.data.ticket[0].certificate_cid)
                     }
-                    await axios.delete(`https://verify-certification-nft-production.up.railway.app/tickets/ticket/${ticket.id}?address=${address}`)
+                    await axios.delete(`https://soulbound-token-nft-api.vercel.app/tickets/ticket/${ticket.id}?address=${address}`)
                 }
                 setLoading(false)
                 setAlertSeverity("success")
@@ -314,7 +275,7 @@ const Ticket = ({ ticket }) => {
                 setShowAlert(true);
                 await result.wait();
                 const status = "approved"
-                const response = await axios.patch(`https://verify-certification-nft-production.up.railway.app/tickets/ticket/${ticket.id}?status=${status}&transaction_hash=${result.hash}&issuer_address=`)
+                const response = await axios.patch(`https://soulbound-token-nft-api.vercel.app/tickets/ticket/${ticket.id}?status=${status}&transaction_hash=${result.hash}&issuer_address=`)
                 if (response.data.message === "updated successfully") {
                     ticket.transaction_hash = result.hash
                     setLoading(false);
@@ -359,12 +320,127 @@ const Ticket = ({ ticket }) => {
     const handleCloseDialog = () => {
         setOpen(false);
     };
+    const insertPubToDB = async () => {
+        if (address) {
+            try {
+                const checkPublicKeyExisted = await axios.get(`https://soulbound-token-nft-api.vercel.app/addresses/${address}`);
+                if (checkPublicKeyExisted.data.address.length === 0) {
+                    const publicKey = await getPublicKey(); // Await the result of getPublicKey
+                    if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
+                        console.log('Error retrieving public key:', publicKey);
+                        setAlertSeverity("warning");
+                        setMessageAlert("You must sign to submit");
+                        setShowAlert(true);
+                        return false;
+                    }
+                    await axios.post(`https://soulbound-token-nft-api.vercel.app/addresses/${address}`, {
+                        address: address, // Include the address in the body
+                        publicKey: publicKey // Include the public key in the body
+                    });
+                    return true
+                }
+                else if (checkPublicKeyExisted.data.address.length !== 0) {
+                    if (checkPublicKeyExisted.data.address[0].publickey == null) {
+                        const publicKey = await getPublicKey(); // Await the result of getPublicKey
+                        if (publicKey.code === 4001 && publicKey.message === "User rejected the request.") {
+                            setAlertSeverity("warning");
+                            setMessageAlert("You must sign to submit");
+                            setShowAlert(true);
+                            return false
+                        }
+                        await axios.post(`https://soulbound-token-nft-api.vercel.app/addresses/${address}`, {
+                            address: address, // Include the address in the body
+                            publicKey: publicKey // Include the public key in the body
+                        });
+
+                        return true
+                    }
+                }
+                return true
+            }
+            catch (err) {
+                console.log(err)
+                return false
+            }
+        }
+    };
+    const decryptAllFields = async (privateKey) => {
+        try {
+            setLoading(true)
+            const name = await handleDecryptTicket(ticket.name, privateKey);
+            const gender = await handleDecryptTicket(ticket.gender, privateKey);
+            const email = await handleDecryptTicket(ticket.email, privateKey);
+            const citizenId = await handleDecryptTicket(ticket.citizen_id, privateKey);
+            const dob = await handleDecryptTicket(ticket.dob, privateKey);
+            const region = await handleDecryptTicket(ticket.region, privateKey);
+            const workUnit = await handleDecryptTicket(ticket.work_unit, privateKey);
+            const point = await handleDecryptTicket(ticket.point, privateKey);
+            const issueDate = await handleDecryptTicket(ticket.issue_date, privateKey);
+            const expiryDate = await handleDecryptTicket(ticket.expiry_date, privateKey);
+            const imageCertificate = await handleDecryptImage(ticket.certificate_cid, privateKey)
+            setDecryptedName(name);
+            setDecryptedGender(gender);
+            setDecryptedEmail(email);
+            setDecryptedCitizenId(citizenId);
+            setDecryptedDob(dob);
+            setDecryptedRegion(region);
+            setDecryptedWorkUnit(workUnit);
+            setDecryptedPoint(point);
+            setDecryptedIssueDate(issueDate);
+            setDecryptedExpiryDate(expiryDate);
+            setDecryptedImage(imageCertificate)
+            setError(null); // Clear any previous errors
+            setLoading(false)
+        } catch (err) {
+            setLoading(false)
+            // setError("Wrong private key"); // No need to set error here since it's already set in handleDecryptTicket
+        }
+    };
     const handleSubmitPrivateKey = async (event) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
         const formJson = Object.fromEntries(formData.entries());
         const privatekey = formJson.privatekey;
-        setPrivateKey(privatekey)
+        try {
+            const check = await insertPubToDB();
+            if (check) {
+                const privateKeyBytes = ethers.utils.arrayify(add0x(privatekey));
+                const publicKeyFromPrivateKey = ethers.utils.computePublicKey(privateKeyBytes);
+                const ownerPublicKeysResponse = await axios.get(`https://soulbound-token-nft-api.vercel.app/addresses/${address}`);
+
+                if (ownerPublicKeysResponse.data.address.length === 0) {
+                    setIsPrivateKeyValid(false); // Set isPrivateKeyValid to false if no address is found
+                    return;
+                }
+                const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey;
+                if (publicKeyFromPrivateKey === publicKeyOwner) {
+                    setAlertSeverity("success");
+                    setMessageAlert("Correct private key");
+                    setShowAlert(true);
+                    setError(null); // Clear any previous errors
+                    setIsPrivateKeyValid(true); // Set isPrivateKeyValid to true if keys match
+                    await decryptAllFields(privatekey)
+                    // setLoading(false)
+                } else {
+                    setAlertSeverity("error");
+                    setMessageAlert("Wrong private key");
+                    setShowAlert(true);
+                    setIsPrivateKeyValid(false);
+                    setLoading(false)// Set isPrivateKeyValid to false if keys do not match
+                }
+            } else {
+                setIsPrivateKeyValid(false);
+                setLoading(false)// Consider setting isPrivateKeyValid to false if check fails
+                return;
+            }
+        } catch (err) {
+            setAlertSeverity("error");
+            setMessageAlert("Wrong private key");
+            setShowAlert(true);
+            setIsPrivateKeyValid(false);
+            setLoading(false)// Set isPrivateKeyValid to false on error
+            console.log(err);
+        }
     }
 
     async function addNFTToWallet() {
@@ -405,7 +481,7 @@ const Ticket = ({ ticket }) => {
     const handleDecryptTicket = async (prop, privateKey) => {
         if (prop != null && prop != '' && prop != undefined) {
             try {
-                const ownerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${ticket.owner_address}`)
+                const ownerPublicKeysResponse = await axios.get(`https://soulbound-token-nft-api.vercel.app/addresses/${ticket.owner_address}`)
                 if (ownerPublicKeysResponse.data.address.length === 0) {
                     return;
                 }
@@ -458,7 +534,7 @@ const Ticket = ({ ticket }) => {
 
             );
             const image = res.data.image
-            const ownerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${ticket.owner_address}`)
+            const ownerPublicKeysResponse = await axios.get(`https://soulbound-token-nft-api.vercel.app/addresses/${ticket.owner_address}`)
             if (ownerPublicKeysResponse.data.address.length === 0) {
                 return;
             }
@@ -834,7 +910,7 @@ const Ticket = ({ ticket }) => {
                         <div className="name-parent">
                             <div className="name">
                                 <h3 className="name1">Name *</h3>
-                                {(privateKey) ?
+                                {(isPrivateKeyValid) ?
                                     <h3 className="input-name" name="name" type="text">{decryptedName}</h3>
                                     :
                                     <h3 className="input-name" name="name" type="text">{minifyAddress(ticket.name)}</h3>
@@ -843,12 +919,12 @@ const Ticket = ({ ticket }) => {
                             <div className="gender">
                                 <h3 className="gender1">Gender *</h3>
                                 <h3 className="input-gender" name="gender">
-                                    {privateKey ? decryptedGender : minifyAddress(ticket.gender)}
+                                    {isPrivateKeyValid ? decryptedGender : minifyAddress(ticket.gender)}
                                 </h3>
                             </div>
                             <div className="email">
                                 <h3 className="email1">Email *</h3>
-                                {privateKey ?
+                                {isPrivateKeyValid ?
                                     <h3 className="input-email" name="email" type="email">{decryptedEmail}</h3>
                                     :
                                     <h3 className="input-email" name="email" type="email">{minifyAddress(ticket.email)}</h3>
@@ -862,19 +938,19 @@ const Ticket = ({ ticket }) => {
                             <div className="cccd">
                                 <h3 className="cccd1">Citizen ID *</h3>
                                 <h3 className="input-cccd" name="citizenId" type="text">
-                                    {privateKey ? decryptedCitizenId : minifyAddress(ticket.citizen_id)}
+                                    {isPrivateKeyValid ? decryptedCitizenId : minifyAddress(ticket.citizen_id)}
                                 </h3>
                             </div>
                             <div className="date-of-birth">
                                 <h3 className="date-of-birth1">Date of birth *</h3>
                                 <h3 className="input-date-of-birth" name="dob" type="text">
-                                    {privateKey ? decryptedDob : minifyAddress(ticket.dob)}
+                                    {isPrivateKeyValid ? decryptedDob : minifyAddress(ticket.dob)}
                                 </h3>
                             </div>
                             <div className="home-town">
                                 <h3 className="home-town-text">Region *</h3>
                                 <h3 className="input-home-town" name="region">
-                                    {privateKey ? decryptedRegion : minifyAddress(ticket.region)}
+                                    {isPrivateKeyValid ? decryptedRegion : minifyAddress(ticket.region)}
                                 </h3>
 
                             </div>
@@ -885,14 +961,14 @@ const Ticket = ({ ticket }) => {
                             <div className="working-unit">
                                 <h3 className="working-unit-text">Work Unit *</h3>
                                 <h3 className="input-working-unit" name="workUnit" type="text">
-                                    {privateKey ? decryptedWorkUnit : minifyAddress(ticket.work_unit)}
+                                    {isPrivateKeyValid ? decryptedWorkUnit : minifyAddress(ticket.work_unit)}
                                 </h3>
                             </div>
 
                             <div className="score">
                                 <h3 className="score-text">Point</h3>
                                 <h3 className="input-score" name="point" type="text">
-                                    {privateKey ? decryptedPoint : minifyAddress(ticket.point)}
+                                    {isPrivateKeyValid ? decryptedPoint : minifyAddress(ticket.point)}
                                 </h3>
                             </div>
                             <div className="name-of-vertification">
@@ -905,13 +981,13 @@ const Ticket = ({ ticket }) => {
                             <div className="date-vertification">
                                 <h3 className="date-vertification-text">Issue Date *</h3>
                                 <h3 className="input-date-vertification" name="issueDate" type="text">
-                                    {privateKey ? decryptedIssueDate : minifyAddress(ticket.issue_date)}
+                                    {isPrivateKeyValid ? decryptedIssueDate : minifyAddress(ticket.issue_date)}
                                 </h3>
                             </div>
                             <div className="expired-date">
                                 <h3 className="expired-date-text">Expiry Date</h3>
                                 <h3 className="input-expired-date" name="expiryDate" type="text">
-                                    {privateKey ? decryptedExpiryDate : minifyAddress(ticket.expiry_date)}
+                                    {isPrivateKeyValid ? decryptedExpiryDate : minifyAddress(ticket.expiry_date)}
                                 </h3>
                             </div>
                             <div className="vertification-unit">
@@ -930,7 +1006,7 @@ const Ticket = ({ ticket }) => {
                                     <div className="">
                                         <div className="input-box-background" />
 
-                                        <MultiActionAreaCard image={privateKey ? decryptedImage : ticket.certificate_cid} size={500} />
+                                        <MultiActionAreaCard image={isPrivateKeyValid ? decryptedImage : ticket.certificate_cid} size={500} />
                                     </div>
                                 </div>
                             </div>
@@ -961,7 +1037,7 @@ const Ticket = ({ ticket }) => {
                                 <div className="">
                                     <div className="input-box-background" />
                                     <div className="image-container">
-                                        <MultiActionAreaCard image={privateKey ? decryptedImage : ticket.certificate_cid} size={500} />
+                                        <MultiActionAreaCard image={isPrivateKeyValid ? decryptedImage : ticket.certificate_cid} size={500} />
                                     </div>
                                 </div>
                             </div>

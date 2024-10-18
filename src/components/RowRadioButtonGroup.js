@@ -99,7 +99,7 @@ export default function RowRadioButtonsGroup({ course, exam }) {
     };
     const submitResponse = async () => {
         try {
-            const checkExist = await axios(`https://verify-certification-nft-production.up.railway.app/courses/course/${course[0].id}`)
+            const checkExist = await axios(`https://soulbound-token-nft-api.vercel.app/courses/course/${course[0].id}`)
             console.log(checkExist)
             if (checkExist.data.course.length == 0) {
                 setAlertSeverity("error");
@@ -115,7 +115,7 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                 response: values[index],
             }));
             const result = await axios.post(
-                `https://verify-certification-nft-production.up.railway.app/courses/course/${course[0].id}/exam?address=${address}`,
+                `https://soulbound-token-nft-api.vercel.app/courses/course/${course[0].id}/exam?address=${address}`,
                 combinedData,
                 {
                     headers: {
@@ -123,7 +123,7 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                     },
                 }
             );
-            const org = await axios(`https://verify-certification-nft-production.up.railway.app/courses/course/${course[0].id}`);
+            const org = await axios(`https://soulbound-token-nft-api.vercel.app/courses/course/${course[0].id}`);
             const orgName = org.data.course[0].licensing_authority;
             setOrganization(orgName)
             console.log(orgName);
@@ -187,8 +187,8 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                 backgroundImg.src = '/certificate-background.png'; // Set the image source for the background 
 
             } else {
-                // await axios.patch(`https://verify-certification-nft-production.up.railway.app/exam/${course[0].id}?address=${address}&status=failed`)
-                const result = await axios.delete(`https://verify-certification-nft-production.up.railway.app/exam/${course[0].id}?address=${address}`)
+                // await axios.patch(`https://soulbound-token-nft-api.vercel.app/exam/${course[0].id}?address=${address}&status=failed`)
+                const result = await axios.delete(`https://soulbound-token-nft-api.vercel.app/exam/${course[0].id}?address=${address}`)
                 if (result.data.code == 200) {
                     setOpenCheck(false);
                     setPassed(false);
@@ -254,7 +254,7 @@ export default function RowRadioButtonsGroup({ course, exam }) {
 
     const sendToIssuer = async () => {
         try {
-            const checkExist = await axios(`https://verify-certification-nft-production.up.railway.app/courses/course/${course[0].id}`)
+            const checkExist = await axios(`https://soulbound-token-nft-api.vercel.app/courses/course/${course[0].id}`)
             console.log(checkExist)
             if (checkExist.data.course.length == 0) {
                 setAlertSeverity("error");
@@ -266,14 +266,14 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                 return
             }
             setLoading(true)
-            const ownerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`)
+            const ownerPublicKeysResponse = await axios.get(`https://soulbound-token-nft-api.vercel.app/addresses/${address}`)
             if (ownerPublicKeysResponse.data.address.length === 0) {
                 return;
             }
             const publicKeyOwner = ownerPublicKeysResponse.data.address[0].publickey
             let image_res = ''
             let hashImg = ''
-            const user = await axios(`https://verify-certification-nft-production.up.railway.app/addresses/${address}`)
+            const user = await axios(`https://soulbound-token-nft-api.vercel.app/addresses/${address}`)
             const id = uuidv4();
             const decryptedUser = {
                 name: await handleDecryptTicket(user.data.address[0].name, publicKeyOwner, privateKey),
@@ -324,9 +324,9 @@ export default function RowRadioButtonsGroup({ course, exam }) {
             formData.append("owner", address)
             formData.append("certificateName", decryptedUser["certificateName"])
             formData.append("licensingAuthority", decryptedUser["licensingAuthority"]);
-            await axios.post("https://verify-certification-nft-production.up.railway.app/tickets", formData);
+            await axios.post("https://soulbound-token-nft-api.vercel.app/tickets", formData);
             for (const issuer of issuers) {
-                const issuerPublicKeysResponse = await axios.get(`https://verify-certification-nft-production.up.railway.app/addresses/${issuer}`);
+                const issuerPublicKeysResponse = await axios.get(`https://soulbound-token-nft-api.vercel.app/addresses/${issuer}`);
                 if (issuerPublicKeysResponse.data.address.length === 0) {
                     setLoading(false); // Stop loading regardless of the request outcome
                     setAlertSeverity("warning");
@@ -350,14 +350,14 @@ export default function RowRadioButtonsGroup({ course, exam }) {
                     formData.append("owner", address)
                     formData.append("certificateName", decryptedUser["certificateName"])
                     formData.append("licensingAuthority", decryptedUser["licensingAuthority"]);
-                    await axios.post("https://verify-certification-nft-production.up.railway.app/tickets", formData);
+                    await axios.post("https://soulbound-token-nft-api.vercel.app/tickets", formData);
                 }
             }
             setLoading(false); // Stop loading regardless of the request outcome
             setAlertSeverity("success");
             setMessageAlert(`Submitted successfully. Please wait for confirmation from the ${course[0].licensing_authority}`);
             setShowAlert(true);
-            await axios.patch(`https://verify-certification-nft-production.up.railway.app/exam/${course[0].id}?address=${address}&status=passed`)
+            await axios.patch(`https://soulbound-token-nft-api.vercel.app/exam/${course[0].id}?address=${address}&status=passed`)
 
             navigate("/")
         } catch (err) {
